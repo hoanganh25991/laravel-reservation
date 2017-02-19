@@ -29,9 +29,11 @@ $app = require_once __DIR__.'/bootstrap/app.php';
 */
 
 $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+$input = new Symfony\Component\Console\Input\ArgvInput;
+
 
 $status = $kernel->handle(
-    $input = new Symfony\Component\Console\Input\ArgvInput,
+    $input,
     new Symfony\Component\Console\Output\ConsoleOutput
 );
 
@@ -45,6 +47,10 @@ $status = $kernel->handle(
 | down the process. This is the last thing to happen to the request.
 |
 */
+if($status == 1){
+    echo "FUCK";
+    DB::rollBack();
+}
 
 $kernel->terminate($input, $status);
 
