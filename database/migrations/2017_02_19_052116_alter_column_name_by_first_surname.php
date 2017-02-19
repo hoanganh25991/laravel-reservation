@@ -14,12 +14,21 @@ class AlterColumnNameByFirstSurname extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->renameColumn('name', 'first_name');
+            $table->rename('name')->to('first_name');
             $table->string('surname')->nullable()->before('email');
         });
     }
 
-    public function down(){
-        Schema::dropIfExists('users');
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('surname');
+            $table->rename('first_name')->to('name');
+        });
     }
 }
