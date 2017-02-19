@@ -18,7 +18,8 @@ class CreateTableBookings extends Migration
             //location
             $table->string('location')->nullable(false);
             //map outltet_id
-            $table->unsignedBigInteger('outlet_id')->references('outlet')->on('id');
+            $table->unsignedInteger('outlet_id');
+            $table->foreign('outlet_id')->references('id')->on('outlets');
             //num adults
             $table->integer('num_adults')->default(0);
             //num children
@@ -32,7 +33,8 @@ class CreateTableBookings extends Migration
             $table->string('user_phone_number')->nullable(false);
             $table->string('user_email')->nullable(false);
             //map user
-            $table->unsignedInteger('user_id')->references('users')->on('id');
+            $table->unsignedInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users');
             //custom message
             $table->mediumText('custom_message')->nullable(false);
 
