@@ -15,6 +15,10 @@ class CreateTableOutlets extends Migration
     {
         Schema::create('outlets', function (Blueprint $table) {
             $table->increments('id');
+            /*
+             * Let user select location
+             * base on outlet name
+             */
             $table->string('name');
             $table->timestamps();
         });
