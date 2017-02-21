@@ -12,7 +12,10 @@
 */
 
 Route::get('/', function () {
-    return 'hello world';
+//    return 'hello world';
+    $coder = "Anh Le Hoang";
+
+    return "Hello, $coder";
 });
 
 
