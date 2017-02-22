@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
@@ -35,5 +37,28 @@ class LoginController extends Controller
     public function __construct()
     {
         $this->middleware('guest', ['except' => 'logout']);
+    }
+
+    /**
+     * Overide to allow user login by user_name
+     * @param Request $request
+     * @throws \Exception
+     */
+    protected function validateLogin(Request $request)
+    {
+        //custom <=> have to return something
+        if(($request->has('email') || $request->has('user_name')) && $request->has('password')){
+            //ok
+            return;
+        }
+        
+        //false case
+        throw new \Exception('Fuck you');
+        
+    }
+
+    protected function credentials(Request $request)
+    {
+        return $request->only('email', 'user_name', 'password');
     }
 }
