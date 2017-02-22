@@ -11,11 +11,8 @@
 |
 */
 
-Route::get('/', function () {
-//    return 'hello world';
-    $coder = "Anh Le Hoang";
+Route::get('/', function(){return view('index');});
 
-    return "Hello, $coder";
-});
+Auth::routes();
 
-
+//var_dump(auth());
