@@ -32,4 +32,11 @@ class UserLoginTest extends TestCase
         $authed = Auth::attempt(['user_name' => $user->user_name, 'password' => 'admin123']);
         $this->assertTrue($authed, 'Auth by user name failed');
     }
+
+    public function it_should_fail_when_miss_auth()
+    {
+        $user = factory(User::class)->create(['password' => bcrypt('admin123')]);
+        $authed = Auth::attempt(['aaa' => $user->user_name, 'password' => 'admin123']);
+        $this->assertFalse($authed, 'Fail  ???');
+    }
 }
