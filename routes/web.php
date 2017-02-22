@@ -13,6 +13,7 @@
 
 Route::get('/', function(){return view('index');});
 Route::get('/home', function(){return 'fuck';});
+Route::get('/fuck', function(){return 'fuck you';});
 
 Auth::routes();
 
