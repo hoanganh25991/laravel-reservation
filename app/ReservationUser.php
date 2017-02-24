@@ -3,9 +3,8 @@
 namespace App;
 
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class ReservationUser extends Authenticatable
+class ReservationUser extends AuthUser
 {
     use Notifiable;
 
@@ -15,7 +14,7 @@ class ReservationUser extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'user_name', 'password', 'email', 'display_name'
+        'user_name', 'password_hash', 'email', 'display_name'
     ];
 
     /**
@@ -26,4 +25,6 @@ class ReservationUser extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    protected $table = 'outlet_reservation_user';
 }
