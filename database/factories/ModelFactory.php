@@ -12,7 +12,7 @@
 */
 
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
-$factory->define(App\User::class, function (Faker\Generator $faker) {
+$factory->define(App\ReservationUser::class, function (Faker\Generator $faker) {
     static $password;
 
     return [
@@ -20,6 +20,6 @@ $factory->define(App\User::class, function (Faker\Generator $faker) {
         'password' => $password ?: $password = bcrypt('password'),
         'email' => $faker->unique()->safeEmail,
         'display_name' => $faker->name,
-        'remember_token' => str_random(10),
+        'secret_token' => str_random(10),
     ];
 });

@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use Auth;
 use Artisan;
-use App\User;
+use App\ReservationUser;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
@@ -20,7 +20,7 @@ class UserLoginTest extends TestCase
     /** @test */
     public function it_should_allow_login_by_email()
     {
-        $user = factory(User::class)->create(['password' => bcrypt('admin123')]);
+        $user = factory(ReservationUser::class)->create(['password' => bcrypt('admin123')]);
         $authed = Auth::attempt(['email' => $user->email, 'password' => 'admin123']);
         $this->assertTrue($authed, 'Auth by email failed');
     }
@@ -28,14 +28,14 @@ class UserLoginTest extends TestCase
     /** @test */
     public function it_should_allow_login_by_user_name()
     {
-        $user = factory(User::class)->create(['password' => bcrypt('admin123')]);
+        $user = factory(ReservationUser::class)->create(['password' => bcrypt('admin123')]);
         $authed = Auth::attempt(['user_name' => $user->user_name, 'password' => 'admin123']);
         $this->assertTrue($authed, 'Auth by user name failed');
     }
 
     public function it_should_fail_when_miss_auth()
     {
-        $user = factory(User::class)->create(['password' => bcrypt('admin123')]);
+        $user = factory(ReservationUser::class)->create(['password' => bcrypt('admin123')]);
         $authed = Auth::attempt(['aaa' => $user->user_name, 'password' => 'admin123']);
         $this->assertFalse($authed, 'Fail  ???');
     }

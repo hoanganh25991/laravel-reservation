@@ -11,6 +11,8 @@
 |
 */
 
+use Illuminate\Support\Facades\Route;
+
 Route::get('/', function(){return view('index');});
 Route::get('/home', function(){return 'fuck';});
 Route::get('/fuck', function(){return 'fuck you';});
@@ -18,3 +20,6 @@ Route::get('/fuck', function(){return 'fuck you';});
 Auth::routes();
 
 //var_dump(auth());
+Route::get('test', function(){
+    return ['name' => 'Anh Le Hoang'];
+});

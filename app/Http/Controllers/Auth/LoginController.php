@@ -47,7 +47,7 @@ class LoginController extends Controller
     protected function validateLogin(Request $request)
     {
         //custom <=> have to return something
-        if(($request->has('email') || $request->has('user_name')) && $request->has('password_hash')){
+        if(($request->has('email') || $request->has('user_name')) && $request->has('password')){
             //ok
             return;
         }
@@ -59,6 +59,6 @@ class LoginController extends Controller
 
     protected function credentials(Request $request)
     {
-        return $request->only('email', 'user_name', 'password_hash');
+        return $request->only('email', 'user_name', 'password');
     }
 }

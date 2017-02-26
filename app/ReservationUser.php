@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 
-class ReservationUser extends AuthUser
+class ReservationUser extends User
 {
     use Notifiable;
 
