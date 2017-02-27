@@ -129,6 +129,7 @@ class Session extends Model
             $group->each(function($session) use($timeline){
                 $session->timings->each(function($t) use($session,$timeline){
                     //$t->chunkByInterval();
+//                    $t->session = $session;
                     $timeline->push($t, $session->one_off);
                 });
             });
@@ -138,7 +139,59 @@ class Session extends Model
         });
 
 //        return $grouped;
-        return $aaa;
+        $ccc = $aaa->map(function($group){
+            $a = $this->extractTimeSlot($group);
+            return $a;
+        });
+
+        return $ccc;
+    }
+
+
+    public function extractTimeSlot($group){
+        $a = collect([]);
+
+        $group->reduce(function($carry, $item) use($a){
+            if(empty($carry)){
+                return $item;
+            }
+            $first = $carry->time;
+            $last = $item->time;
+
+            $first_time = Carbon::createFromFormat('H:i:s', $first, Setting::TIME_ZONE);
+            $last_time = Carbon::createFromFormat('H:i:s', $last, Setting::TIME_ZONE);
+
+            $info = $carry->first_info;
+            $info = ($item->type == 1 && !is_null($item->last_info)) ? $item->last_info : $info;
+
+            if(empty($info)){
+                $info = $carry->last_info;
+            }
+
+            if(empty($info)){
+                echo "FUCK";
+                return;
+            }
+
+            while($first_time->lt($last_time)){
+                $option = [
+                    'time' => $first_time->format('H:i'),
+                    'capacity_1' => $info->capacity_1,
+                    'capacity_2' => $info->capacity_2,
+                    'capacity_3_4' => $info->capacity_3_4,
+                    'capacity_5_6' => $info->capacity_5_6,
+                    'capacity_7_x' => $info->capacity_7_x
+                ];
+                $a->push($option);
+                $first_time->addMinutes($info->interval_minutes);
+            }
+
+            return $item;
+        });
+
+        //dd($a);
+
+        return $a;
     }
 
 }
