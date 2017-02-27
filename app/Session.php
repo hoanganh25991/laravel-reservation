@@ -27,8 +27,6 @@ class Session extends Model
 
     protected  $table = 'session';
 
-
-
 //    public static function available(){
 //        $a = collect([]);
 //
@@ -124,18 +122,23 @@ class Session extends Model
 
         $grouped  = $days_collection->groupBy(function($s){return $s->date->format('Y-m-d');});
 
-        $grouped->each(function($group, $groupName){
-//            var_dump($group);
-//            var_dump($groupName);
-//            die;
-            $group->each(function($session){
-                $session->timings->each(function($t){
-                    $t->chunkByInterval();
+//        $aaa = collect([]);
+//        $aaa = $grouped->map(function($group, $groupName) use($aaa){
+        $aaa = $grouped->map(function($group) {
+            $timeline = new NodeTimeline();
+            $group->each(function($session) use($timeline){
+                $session->timings->each(function($t) use($session,$timeline){
+                    //$t->chunkByInterval();
+                    $timeline->push($t, $session->one_off);
                 });
             });
+
+//            $aaa->push([$groupName => $timeline->getNodeArray()]);
+            return $timeline->getNodeArray();
         });
 
-        return $grouped;
+//        return $grouped;
+        return $aaa;
     }
 
 }
