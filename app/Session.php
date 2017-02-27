@@ -50,4 +50,8 @@ class Session extends Model
             ['one_off_date',  '<', $max_day->format('Y-m-d')]
         ]);
     }
+
+    public function timings(){
+        return $this->hasMany(Timing::class, 'session_id', 'id');
+    }
 }
