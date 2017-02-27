@@ -122,26 +122,20 @@ class Session extends Model
             }
         });
 
-        return $days_collection;
+        $grouped  = $days_collection->groupBy(function($s){return $s->date->format('Y-m-d');});
+
+        $grouped->each(function($group, $groupName){
+//            var_dump($group);
+//            var_dump($groupName);
+//            die;
+            $group->each(function($session){
+                $session->timings->each(function($t){
+                    $t->chunkByInterval();
+                });
+            });
+        });
+
+        return $grouped;
     }
-
-    public function scopeSessionWithDate(){
-        if($this->one_off == self::NORMAL_SESSION){
-            $today = Carbon::now(Setting::TIME_ZONE);
-            $today_day_of_week = $today->dayOfWeek;
-            //find out $monday
-            //$monday = $today->copy()->addDays(Carbon::MONDAY - $today_day_of_week);
-            foreach(self::ASSIGN_DAY_OF_WEEK as $session_day => $carbon_value){
-                if($this[$session_day] == true){
-                    $this->date = $today->copy()->addDays($carbon_value - $today_day_of_week);
-                }
-            }
-        }
-
-        if($this->one_off == self::SPECIAL_SESSION && $this->one_off_date != NULL){
-            $this->date = Carbon::createFromFormat('Y-m-d', $this->one_off_date)->timezone(Setting::TIME_ZONE);
-        }
-    }
-
 
 }
