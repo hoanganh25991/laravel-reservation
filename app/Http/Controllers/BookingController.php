@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ApiRequest;
 use App\OutletReservationSetting as Setting;
+use App\Reservation;
 use Carbon\Carbon;
 use Validator;
 use App\Traits\ApiResponse;
@@ -38,13 +39,7 @@ class BookingController extends Controller
             'setting_key' => 'MAX_DAYS_IN_ADVANCE'
          ])->first();
 
-        $max_days_in_advance = !is_null($query_max_day) ? $query_max_day : Setting::MAX_DAYS_IN_ADVANCE;
-
-        $query_min_hours_in_advance_slot_time = Setting::where([
-            'outlet_id' =>  1,
-            'setting_group' => 'BUFFERS',
-            'setting_key' => 'MAX_DAYS_IN_ADVANCE'
-        ])->first();
+       
 
         $min_hours_in_advance_slot_time = !is_null($query_min_hours_in_advance_slot_time) ? $query_min_hours_in_advance_slot_time : Setting::MIN_HOURS_IN_ADVANCE_SLOT_TIME;
 
@@ -73,6 +68,12 @@ class BookingController extends Controller
         //compare logic
         //base on timing
 
+        //get out current Reservation in range
+        //filter out by these reservation
+        $reservations = Reservation::where([
+            'reservation_time' < 'valute x',
+            'state' => 'xyz'
+        ])->get();
 
         //try to return
         //date > session group > options

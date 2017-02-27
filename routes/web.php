@@ -25,3 +25,10 @@ Route::get('test', function(){
 });
 
 Route::post('booking/date-available', 'BookingController@dateAvailable');
+
+Route::get('test/session-scope', function(){
+//    $s = App\Session::specialSession()->get();
+//    $s = App\Session::normalSession()->get();
+    $s = App\Session::available();
+    return $s;
+});
