@@ -32,3 +32,11 @@ Route::get('test/session-scope', function(){
     $s = App\Session::available();
     return $s;
 });
+
+
+Route::get('test/session/buildStep1', function(){
+//    $s = App\Session::specialSession()->get();
+//    $s = App\Session::normalSession()->get();
+    $s = App\Session::buildStep1();
+    return $s;
+});
