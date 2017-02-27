@@ -23,3 +23,5 @@ Auth::routes();
 Route::get('test', function(){
     return ['name' => 'Anh Le Hoang'];
 });
+
+Route::post('booking/date-available', 'BookingController@dateAvailable');

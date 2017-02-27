@@ -28,4 +28,4 @@ class User extends HoiModel implements AuthenticatableContract,
 
     
 
-}
+} 
