@@ -314,9 +314,47 @@ class Session extends Model
 
             return $collecttimings->collapse();
         });
+        
+        $grouped2 = $grouped1->map(function($group){
+            
+            $chunk = $group->map(function($timing){
+                /** @var Timing $timing */
+                $chunk = $timing->chunkByInterval();
+                return $chunk;
+            })->collapse();
 
 
-        return $grouped1;
+            $chunk1 = $chunk->sortBy(function($option, $index){
+                //13:00:00 to 13 as int
+                $timeInfo = explode(":", $option->time);
+                $hour = (int) $timeInfo[0];
+                $minute = (int) $timeInfo[1];
+
+
+                return $hour * 60 + $minute;
+            })->values();
+
+            //walk compare to filter out
+            $chunk2 = $chunk1->reduce(function($carry, $item){
+                //but when pop out
+                if($item->type == 1){
+                    $alreday_has = $carry->filter(function($t)use($item){return $t->time == $item->time;})->count();
+                    if($alreday_has > 0){
+                        $carry->pop(); //lay ra ko xai
+                    }
+                }
+
+                //allway push
+                $carry->push($item);
+
+                return $carry;
+            }, collect([]));
+
+            return $chunk2;
+        });
+
+
+        return $grouped2;
     }
 
     public function assignInfoToTiming(){

@@ -24,7 +24,9 @@ class Timing extends Model
     public function chunkByInterval(){
         $start = $this->first_arrival_time;
         $end = $this->last_arrival_time;
-        $interval = $this->interval_minutes;
+//        $interval = $this->interval_minutes;
+        $USCNN = 15;
+        $interval = $USCNN;
 
         $start_time = Carbon::createFromFormat('H:i:s', $start, Setting::TIME_ZONE);
         $end_time   = Carbon::createFromFormat('H:i:s', $end, Setting::TIME_ZONE);
@@ -32,20 +34,32 @@ class Timing extends Model
         $count = 0;
         $this->chunk = collect([]);
         while($start_time->lt($end_time)){
-            $options = [
-                $start_time->format('H:i') => [
+//            $options = [
+//                $start_time->format('H:i') => [
+//                    'capacity_1' => $this->capacity_1,
+//                    'capacity_2' => $this->capacity_2,
+//                    'capacity_3_4' => $this->capacity_3_4,
+//                    'capacity_5_6' => $this->capacity_5_6,
+//                    'capacity_7_x' => $this->capacity_7_x,
+//                    'type'        => $this->type
+//                ]
+//            ];
+            $options = (object)[
+                    'time' => $start_time->format('H:i'),
+                    'interval_minutes' => $this->interval_minutes,
                     'capacity_1' => $this->capacity_1,
                     'capacity_2' => $this->capacity_2,
                     'capacity_3_4' => $this->capacity_3_4,
                     'capacity_5_6' => $this->capacity_5_6,
-                    'capacity_7_x' => $this->capacity_7_x
-                ]
+                    'type'        => $this->type
             ];
             $this->chunk->push($options);
             $count++;
             $start_time->addMinutes($interval);
         }
         //$this->chunk = 'fuck';
+
+        return $this->chunk;
     }
     
     
