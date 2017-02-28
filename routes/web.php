@@ -40,3 +40,9 @@ Route::get('test/session/buildStep1', function(){
     $s = App\Session::buildStep1();
     return $s;
 });
+
+Route::get('test/session/buildStep2', function(){
+    $available_days = App\Session::buildStep2();
+
+    return $available_days;
+});
