@@ -336,21 +336,30 @@ class Session extends Model
 
             //walk compare to filter out
             $chunk2 = $chunk1->reduce(function($carry, $item){
+                $push_new = true;
                 //but when pop out
-                if($item->type == 1){
-                    $alreday_has = $carry->filter(function($t)use($item){return $t->time == $item->time;})->count();
-                    if($alreday_has > 0){
-                        $carry->pop(); //lay ra ko xai
-                    }
+                $alreday_has = $carry->filter(function($t)use($item){return $t->time == $item->time;})->count() > 0;
+
+                if($alreday_has){
+                    $push_new = false;
+                }
+
+
+                //override case
+                if($alreday_has && $item->type == 1){
+                    $carry->pop();
+                    $push_new = true;
                 }
 
                 //allway push
-                $carry->push($item);
+                if($push_new){
+                    $carry->push($item);
+                }
 
                 return $carry;
             }, collect([]));
 
-            
+
 
             return $chunk2;
         });

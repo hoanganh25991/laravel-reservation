@@ -10,7 +10,8 @@ use App\OutletReservationSetting as Setting;
 
 class Timing extends Model
 {
-    const INTERVAL_STEPS = [15, 20, 30, 60];
+//    const INTERVAL_STEPS = [15, 21, 30, 60];
+    const INTERVAL_STEPS = [15, 30, 60];
     const ARRIVAL_STEPS  = [15];
 
     protected $table = 'timing';
@@ -27,7 +28,8 @@ class Timing extends Model
         $start = $this->first_arrival_time;
         $end = $this->last_arrival_time;
 //        $interval = $this->interval_minutes;
-        $interval = GCD::find(self::INTERVAL_STEPS);
+        $allow_steps = array_merge(self::INTERVAL_STEPS, self::ARRIVAL_STEPS);
+        $interval = GCD::find($allow_steps);
 //        $interval = (new GreatestCommonFactor(self::INTERVAL_STEPS))->calculate();
 
         $start_time = Carbon::createFromFormat('H:i:s', $start, Setting::TIME_ZONE);
