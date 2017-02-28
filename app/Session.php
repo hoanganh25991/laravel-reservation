@@ -133,7 +133,7 @@ class Session extends Model
                 //find out $monday
                 //$monday = $today->copy()->addDays(Carbon::MONDAY - $today_day_of_week);
                 foreach(self::DAY_OF_WEEK as $session_day => $carbon_value){
-                    if($session[$session_day] == self::ASSIGNED){
+                    if($session[$session_day] == self::DAY_AVAILABLE){
                         $as = clone $session;
                         $as->date = $today->copy()->addDays($carbon_value - $today_day_of_week);
 
@@ -290,6 +290,72 @@ class Session extends Model
         });
 
         return $a;
+    }
+
+    protected function buildStep3(){
+        $s = Session::availableV2();
+        $s1 = $s->map(function($session){
+            return $session->withDate();
+        })->collapse();
+
+//        return $s1;
+        $grouped  = $s1->groupBy(function($s){return $s->date->format('Y-m-d');});
+
+        $grouped1 = $grouped->map(function($group){
+            $collecttimings = collect([]);
+
+            $group->each(function($session) use($collecttimings){
+
+                //modify on timing before loose track
+                /** @var Session $session */
+                $session->assignInfoToTiming();
+                $collecttimings->push($session->timings);
+            });
+
+            return $collecttimings->collapse();
+        });
+
+
+        return $grouped1;
+    }
+
+    public function assignInfoToTiming(){
+        $type = $this->one_off;
+        $this->timings->each(function($t) use($type){
+            $t->type = $type;
+        });
+    }
+
+    public function withDate(){
+        if($this->one_off == self::NORMAL_SESSION){
+            $today = Carbon::now(Setting::TIME_ZONE);
+            $today_day_of_week = $today->dayOfWeek;
+            //find out $monday
+            //$monday = $today->copy()->addDays(Carbon::MONDAY - $today_day_of_week);
+            $days_collection = collect([]);
+            foreach(self::DAY_OF_WEEK as $session_day => $carbon_value){
+                if($this[$session_day] == self::DAY_AVAILABLE){
+                    $as = clone $this;
+                    $as->date = $today->copy()->addDays($carbon_value - $today_day_of_week);
+
+                    $days_collection->push($as);
+                }
+            }
+
+            return $days_collection;
+        }
+
+
+
+
+        if($this->one_off == self::SPECIAL_SESSION && $this->one_off_date != NULL){
+            $this->date = Carbon::createFromFormat('Y-m-d', $this->one_off_date)->timezone(Setting::TIME_ZONE);
+
+            return collect([$this]);
+        }
+
+        //
+        return collect([]);
     }
 
 }
