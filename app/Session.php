@@ -362,8 +362,6 @@ class Session extends Model
             }, collect([]));
 
             $chunk3 = $chunk2->reduce(function($carry, $item){
-                $push_new = false;
-
                 $pre_item = $carry->last();
 
                 if(is_null($pre_item)){
@@ -394,6 +392,7 @@ class Session extends Model
                 //change type
                 $condition3 = false;
                 if(($pre_item->type == 0 && $item->type == 1) && $delta < $current_interval){
+                    $carry->pop();
                     $condition3 = true;
                 }
 
