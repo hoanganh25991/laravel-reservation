@@ -350,6 +350,8 @@ class Session extends Model
                 return $carry;
             }, collect([]));
 
+            
+
             return $chunk2;
         });
 

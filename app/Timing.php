@@ -3,12 +3,14 @@
 namespace App;
 
 use Carbon\Carbon;
+use App\Helpers\GCD;
+use App\Helpers\GreatestCommonFactor;
 use Illuminate\Database\Eloquent\Model;
 use App\OutletReservationSetting as Setting;
 
 class Timing extends Model
 {
-    const INTERVAL_STEPS = [15, 30, 60];
+    const INTERVAL_STEPS = [15, 20, 30, 60];
     const ARRIVAL_STEPS  = [15];
 
     protected $table = 'timing';
@@ -25,8 +27,8 @@ class Timing extends Model
         $start = $this->first_arrival_time;
         $end = $this->last_arrival_time;
 //        $interval = $this->interval_minutes;
-        $USCNN = 15;
-        $interval = $USCNN;
+        $interval = GCD::find(self::INTERVAL_STEPS);
+//        $interval = (new GreatestCommonFactor(self::INTERVAL_STEPS))->calculate();
 
         $start_time = Carbon::createFromFormat('H:i:s', $start, Setting::TIME_ZONE);
         $end_time   = Carbon::createFromFormat('H:i:s', $end, Setting::TIME_ZONE);
