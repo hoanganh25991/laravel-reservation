@@ -327,22 +327,20 @@ class Session extends Model
     }
 
     public function withDate(){
+        $c = collect([]);
         if($this->one_off == self::NORMAL_SESSION){
             $today = Carbon::now(Setting::TIME_ZONE);
             $today_day_of_week = $today->dayOfWeek;
             //find out $monday
             //$monday = $today->copy()->addDays(Carbon::MONDAY - $today_day_of_week);
-            $days_collection = collect([]);
             foreach(self::DAY_OF_WEEK as $session_day => $carbon_value){
                 if($this[$session_day] == self::DAY_AVAILABLE){
                     $as = clone $this;
                     $as->date = $today->copy()->addDays($carbon_value - $today_day_of_week);
 
-                    $days_collection->push($as);
+                    $c->push($as);
                 }
             }
-
-            return $days_collection;
         }
 
 
@@ -351,11 +349,11 @@ class Session extends Model
         if($this->one_off == self::SPECIAL_SESSION && $this->one_off_date != NULL){
             $this->date = Carbon::createFromFormat('Y-m-d', $this->one_off_date)->timezone(Setting::TIME_ZONE);
 
-            return collect([$this]);
+            return $c->push($this);
         }
 
         //
-        return collect([]);
+        return $c;
     }
 
 }
