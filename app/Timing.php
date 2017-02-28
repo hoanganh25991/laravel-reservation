@@ -8,6 +8,9 @@ use App\OutletReservationSetting as Setting;
 
 class Timing extends Model
 {
+    const INTERVAL_STEPS = [15, 30, 60];
+    const ARRIVAL_STEPS  = [15];
+
     protected $table = 'timing';
 
     protected function order($query){
@@ -45,6 +48,13 @@ class Timing extends Model
         //$this->chunk = 'fuck';
     }
     
+    
+    public function chunk(){
+        /**
+         * Chunk by the minimal
+         * uoc so chung nho nhat
+         */
+    }
     
     
 }

@@ -46,3 +46,9 @@ Route::get('test/session/buildStep2', function(){
 
     return $available_days;
 });
+
+Route::get('test/session/buildStep3', function(){
+    $available_days = App\Session::availableV2();
+
+    return $available_days;
+});

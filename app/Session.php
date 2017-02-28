@@ -13,30 +13,58 @@ class Session extends Model
     //not just ONE DAY
     //NORMAL_SESSION
     const NORMAL_SESSION = 0;
+    const DAY_AVAILABLE  = 1;
+
     const SPECIAL_SESSION = 1;
-    const ASSIGN_DAY_OF_WEEK = [
-        'on_mondays' => Carbon::MONDAY,
-        'on_tuesdays' => Carbon::TUESDAY,
+
+    const DAY_OF_WEEK = [
+        'on_mondays'    => Carbon::MONDAY,
+        'on_tuesdays'   => Carbon::TUESDAY,
         'on_wednesdays' => Carbon::WEDNESDAY,
-        'on_thursdays' => Carbon::THURSDAY,
-        'on_fridays' => Carbon::THURSDAY,
-        'on_saturdays' => Carbon::FRIDAY,
-        'on_sundays' => Carbon::SATURDAY
+        'on_thursdays'  => Carbon::THURSDAY,
+        'on_fridays'    => Carbon::THURSDAY,
+        'on_saturdays'  => Carbon::FRIDAY,
+        'on_sundays'    => Carbon::SATURDAY
     ];
-    const ASSIGNED = 1;
 
     protected  $table = 'session';
 
-//    public static function available(){
-//        $a = collect([]);
-//
-//        $a = $a->merge(Session::normalSession()->get());
-//        $a = $a->merge(Session::specialSession()->get());
-//
-//        return $a;
+//    public function isAvailableOnDay(Carbon $day){
+//        if($this->one_off == self::NORMAL_SESSION){
+//            collect(self::DAY_OF_WEEK)->each
+//        }
 //    }
 
-//    public function available(){
+    protected function availableV2(){
+        $s = Session::availableSession()->get();
+        
+        return $s;
+    }
+    
+    public function scopeAvailableSession($query){
+        $today = Carbon::now(Setting::TIME_ZONE);
+
+        $query_max_day = Setting::where([
+            'outlet_id' =>  1,
+            'setting_group' => 'BUFFERS',
+            'setting_key' => 'MAX_DAYS_IN_ADVANCE'
+        ])->first();
+
+        $max_days_in_advance = !is_null($query_max_day) ? $query_max_day : Setting::MAX_DAYS_IN_ADVANCE;
+
+
+        $max_day = $today->copy()->addDays($max_days_in_advance);
+        
+        
+        return $query->where('one_off', self::NORMAL_SESSION)
+                     ->orWhere([
+                        ['one_off', '=', self::SPECIAL_SESSION],
+                        ['one_off_date', '>=', $today->format('Y-m-d')],
+                        ['one_off_date',  '<', $max_day->format('Y-m-d')]
+                     ])
+                     ->with('timings');
+    }
+
     protected function available(){
         $a = collect([]);
 
@@ -44,14 +72,6 @@ class Session extends Model
         $a = $a->merge(Session::specialSession()->get());
 
         return $a;
-    }
-
-    /**
-     * abc
-     * @param $session
-     */
-    protected function parseSessionWithDate($session){
-
     }
 
     public function scopeNormalSession($query){
@@ -112,7 +132,7 @@ class Session extends Model
                 $today_day_of_week = $today->dayOfWeek;
                 //find out $monday
                 //$monday = $today->copy()->addDays(Carbon::MONDAY - $today_day_of_week);
-                foreach(self::ASSIGN_DAY_OF_WEEK as $session_day => $carbon_value){
+                foreach(self::DAY_OF_WEEK as $session_day => $carbon_value){
                     if($session[$session_day] == self::ASSIGNED){
                         $as = clone $session;
                         $as->date = $today->copy()->addDays($carbon_value - $today_day_of_week);
@@ -228,7 +248,7 @@ class Session extends Model
                 $today_day_of_week = $today->dayOfWeek;
                 //find out $monday
                 //$monday = $today->copy()->addDays(Carbon::MONDAY - $today_day_of_week);
-                foreach(self::ASSIGN_DAY_OF_WEEK as $session_day => $carbon_value){
+                foreach(self::DAY_OF_WEEK as $session_day => $carbon_value){
                     if($session[$session_day] == self::ASSIGNED){
                         $as = clone $session;
                         $as->date = $today->copy()->addDays($carbon_value - $today_day_of_week);
