@@ -353,7 +353,7 @@ class Session extends Model
                     $push_new = true;
                 }
 
-                //allway push
+                //push
                 if($push_new){
                     $carry->push($item);
                 }
@@ -362,21 +362,45 @@ class Session extends Model
             }, collect([]));
 
             $chunk3 = $chunk2->reduce(function($carry, $item){
+                $push_new = false;
+
                 $pre_item = $carry->last();
+
                 if(is_null($pre_item)){
                     $carry->push($item);
-
                     return $carry;
                 }
 
                 $delta = abs(Session::getMinutes($pre_item->time) - Session::getMinutes($item->time));
 
                 $current_interval = $pre_item->interval_minutes;
-                
+
+                $condition1 = false;
                 if($delta >= $current_interval){
-                    $carry->push($item);
+//                    $carry->push($item);
+                    $condition1 = true;
                 }
 
+                $condition2 = false;
+//                ($pre_item->type == 0 && $item->type == 1)
+                $first_arrival_time = $item->first_arrival_time;
+                //respect first arrival time
+                $respect_first_delta = abs(Session::getMinutes($item->time) - Session::getMinutes($first_arrival_time));
+
+                if($respect_first_delta % $item->interval_minutes == 0){
+                    $condition2 = true;
+                }
+
+                //change type
+                $condition3 = false;
+                if(($pre_item->type == 0 && $item->type == 1) && $delta < $current_interval){
+                    $condition3 = true;
+                }
+
+                $push_new = $condition1 && $condition2 || $condition3;
+                if($push_new){
+                    $carry->push($item);
+                }
                 return $carry;
             }, collect([]));
 

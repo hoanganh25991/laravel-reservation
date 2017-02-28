@@ -50,6 +50,7 @@ class Timing extends Model
 //            ];
             $options = (object)[
                     'time' => $start_time->format('H:i'),
+                    'first_arrival_time' => $this->first_arrival_time,
                     'interval_minutes' => $this->interval_minutes,
                     'capacity_1' => $this->capacity_1,
                     'capacity_2' => $this->capacity_2,
