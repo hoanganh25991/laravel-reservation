@@ -36,4 +36,12 @@ trait ApiUtils{
     public function removeSomeSC($text){
         return preg_replace('/\.|\.\.|!/', '', $text);
     }
+    
+    protected function getMinutes($time){
+        $timeInfo = explode(":", $time);
+        $hour = $timeInfo[0];
+        $minute = $timeInfo[1];
+        
+        return $hour * 60 + $minute;
+    }
 }

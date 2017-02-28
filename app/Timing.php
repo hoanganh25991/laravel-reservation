@@ -11,7 +11,7 @@ use App\OutletReservationSetting as Setting;
 class Timing extends Model
 {
 //    const INTERVAL_STEPS = [15, 21, 30, 60];
-    const INTERVAL_STEPS = [15, 30, 60];
+    const INTERVAL_STEPS = [15, 20, 30, 60];
     const ARRIVAL_STEPS  = [15];
 
     protected $table = 'timing';
@@ -57,6 +57,15 @@ class Timing extends Model
                     'capacity_5_6' => $this->capacity_5_6,
                     'type'        => $this->type
             ];
+//            $options->getMinutes = function(){
+//                //13:00:00 > 13, 00
+//                $timeInfo = explode(":", $this->time);
+//                $hour = (int)$timeInfo[0];
+//                $minute = (int)$timeInfo[1];
+//
+//                return $hour * 60 + $minute;
+//            };
+            
             $this->chunk->push($options);
             $count++;
             $start_time->addMinutes($interval);

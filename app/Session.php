@@ -3,11 +3,13 @@
 namespace App;
 
 use Carbon\Carbon;
+use App\Traits\ApiUtils;
 use Illuminate\Database\Eloquent\Model;
 use App\OutletReservationSetting as Setting;
 
 class Session extends Model
 {
+    use ApiUtils;
     //when one_off = 0
     //mean that this session use for MANY DAYS
     //not just ONE DAY
@@ -359,9 +361,28 @@ class Session extends Model
                 return $carry;
             }, collect([]));
 
+            $chunk3 = $chunk2->reduce(function($carry, $item){
+                $pre_item = $carry->last();
+                if(is_null($pre_item)){
+                    $carry->push($item);
 
+                    return $carry;
+                }
 
-            return $chunk2;
+                $delta = abs(Session::getMinutes($pre_item->time) - Session::getMinutes($item->time));
+
+                $current_interval = $pre_item->interval_minutes;
+                
+                if($delta >= $current_interval){
+                    $carry->push($item);
+                }
+
+                return $carry;
+            }, collect([]));
+
+//            var_dump($chunk2);
+
+            return $chunk3;
         });
 
 
