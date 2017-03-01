@@ -40,25 +40,12 @@ class LoginController extends Controller
     }
 
     /**
-     * Overide to allow user login by user_name
-     * @param Request $request
-     * @throws \Exception
+     * Get the login username to be used by the controller.
+     *
+     * @return string
      */
-    protected function validateLogin(Request $request)
+    public function username()
     {
-        //custom <=> have to return something
-        if(($request->has('email') || $request->has('user_name')) && $request->has('password')){
-            //ok
-            return;
-        }
-        
-        //false case
-        throw new \Exception('Fuck you');
-        
-    }
-
-    protected function credentials(Request $request)
-    {
-        return $request->only('email', 'user_name', 'password');
+        return 'user_name';
     }
 }

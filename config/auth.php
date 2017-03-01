@@ -73,8 +73,7 @@ return [
 
         'outlet_reservation_user' => [
             'driver' => 'eloquent',
-            'model' => App\Auth\HoiDatabaseProvider::class,
-            'table' => 'outlet_reservation_user',
+            'model' => App\ReservationUser::class
         ],
     ],
 
