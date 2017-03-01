@@ -12,6 +12,8 @@ use App\OutletReservationSetting as Setting;
  * @property mixed one_off
  * @property static date
  * @property mixed one_off_date
+ * @property mixed timings
+ * @property mixed type
  */
 class Session extends Model {
     use ApiUtils;
@@ -32,19 +34,6 @@ class Session extends Model {
     const DAY_AVAILABLE  = 1;
 
     /**
-     * Convert day of week to Carbon const
-     */
-//    const DAY_OF_WEEK = [
-//        'on_mondays'    => Carbon::MONDAY,
-//        'on_tuesdays'   => Carbon::TUESDAY,
-//        'on_wednesdays' => Carbon::WEDNESDAY,
-//        'on_thursdays'  => Carbon::THURSDAY,
-//        'on_fridays'    => Carbon::THURSDAY,
-//        'on_saturdays'  => Carbon::FRIDAY,
-//        'on_sundays'    => Carbon::SATURDAY
-//    ];
-
-    /**
      * Convert Carbon day const to session day
      */
     const DAY_OF_WEEK = [
@@ -63,7 +52,9 @@ class Session extends Model {
         return $this->one_off == self::SPECIAL_SESSION;
     }
 
-
+    public function getTypeAttribute(){
+        return $this->one_off;
+    }
 
     /**
      * Relationship with Timing
@@ -74,170 +65,150 @@ class Session extends Model {
     }
 
     public function scopeNormalSession($query){
-        return $query->where('one_off', self::NORMAL_SESSION)->with('timings');
+        return $query->where('one_off', self::NORMAL_SESSION);
     }
 
     public function scopeSpecialSession($query){
-        $today = Carbon::now(Setting::TIME_ZONE);
-
-        $query_max_day = Setting::where([
-            'outlet_id' =>  1,
-            'setting_group' => 'BUFFERS',
-            'setting_key' => 'MAX_DAYS_IN_ADVANCE'
-        ])->first();
-
-        $max_days_in_advance = !is_null($query_max_day) ? $query_max_day : Setting::MAX_DAYS_IN_ADVANCE;
-
-
-        $max_day = $today->copy()->addDays($max_days_in_advance);
-
+       $date_range = $this->availableDateRange();
 
         return $query->where([
             ['one_off', '=', self::SPECIAL_SESSION],
-            ['one_off_date', '>=', $today->format('Y-m-d')],
-            ['one_off_date',  '<', $max_day->format('Y-m-d')]
-        ])->with('timings');
+            ['one_off_date', '>=', $date_range[0]->format('Y-m-d')],
+            ['one_off_date',  '<', $date_range[1]->format('Y-m-d')]
+        ]);
     }
 
     public function scopeAvailableSession($query){
         return $query->normalSession()
             ->orWhere(function($q){$q->specialSession();})
-            ->with('timings');
+            ->with('timings.session');
     }
 
     protected function buildStep3(){
-        $s = Session::availableSession()->get();
-        $s1 = $s->map->assignDate()->collapse();
+        $available_sessions = Session::availableSession()->get()->map->assignDate()->collapse();
+        $sessions_by_date   = $available_sessions->groupBy(function($s){return $s->date->format('Y-m-d');});
+        $timings_by_date    = $sessions_by_date->map(function($g){return $g->map->timings->collapse();});
 
-//        return $s1;
-        $grouped  = $s1->groupBy(function($s){return $s->date->format('Y-m-d');});
+        $date_with_available_time =
+            $timings_by_date->map(function($g){
+                $chunks  = $g->map->chunk->collapse();
 
-        $grouped1 = $grouped->map(function($group){
-            $collecttimings = collect([]);
+                $ordered_chunks = $chunks->sortBy(function($c){return $this->getMinutes($c->time);})->values();
 
-            $group->each(function($session) use($collecttimings){
+                /**
+                 * Special timing chunk will override on normal one
+                 */
+                $merged_chunks =
+                    $ordered_chunks->reduce(function($carry, $item){
+                        /**
+                         *
+                         */
+                        $alreday_has = $carry->filter(function($last_item)use($item){return $last_item->time == $item->time;})->count() > 0;
 
-                //modify on timing before loose track
-                /** @var Session $session */
-                $session->assignInfoToTiming();
-                $collecttimings->push($session->timings);
+                        /**
+                         * overlap item is special, so override on pre_item
+                         * bcs item sort out by order
+                         * 2 item at same time > special item chose
+                         */
+
+                        $overlap_item_is_special = $alreday_has && $item->type == self::SPECIAL_SESSION;
+
+                        if($overlap_item_is_special)
+                            $carry->pop();
+
+                        /**
+                         * Decide push item
+                         */
+                        $push_new = !$alreday_has || $overlap_item_is_special;
+
+                        if($push_new)
+                            $carry->push($item);
+
+
+                        return $carry;
+                    }, collect([]));
+
+
+                $fixed_interval_chunks =
+                    $merged_chunks->reduce(function($carry, $item){
+                        $pre_item = $carry->last();
+
+                        if(is_null($pre_item)){
+                            $carry->push($item);
+                            return $carry;
+                        }
+
+                        $delta_with_pre_item = abs(Session::getMinutes($pre_item->time) - Session::getMinutes($item->time));
+
+                        /**
+                         * satisfied interval > should push
+                         */
+                        $satisfied_interval = $delta_with_pre_item >= $pre_item->interval_minutes;
+
+                        /**
+                         * new item must pushed
+                         */
+                        $new_item_is_special_than_pre = ($pre_item->type == 0 && $item->type == 1);
+                        $new_item_must_pushed = $new_item_is_special_than_pre && !$satisfied_interval;
+
+                        if($new_item_must_pushed)
+                            $carry->pop();
+
+
+                        /**
+                         * Respect first arrival
+                         */
+                        $delta_with_first_arrival = abs(Session::getMinutes($item->time) - Session::getMinutes($item->first_arrival_time));
+                        $respect_first_arrival = $delta_with_first_arrival % $item->interval_minutes == 0;
+
+                        /**
+                         * Check push new
+                         */
+                        $push_new = ($satisfied_interval || $new_item_must_pushed) && $respect_first_arrival;
+
+                        if($push_new)
+                            $carry->push($item);
+
+                        return $carry;
+                    }, collect([]));
+
+                return $fixed_interval_chunks;
             });
 
-            return $collecttimings->collapse();
-        });
-        
-        $grouped2 = $grouped1->map(function($group){
-            
-            $chunk = $group->map(function($timing){
-                /** @var Timing $timing */
-                $chunk = $timing->chunkByInterval();
-                return $chunk;
-            })->collapse();
 
-
-            $chunk1 = $chunk->sortBy(function($option, $index){
-                //13:00:00 to 13 as int
-                $timeInfo = explode(":", $option->time);
-                $hour = (int) $timeInfo[0];
-                $minute = (int) $timeInfo[1];
-
-
-                return $hour * 60 + $minute;
-            })->values();
-
-            //walk compare to filter out
-            $chunk2 = $chunk1->reduce(function($carry, $item){
-                $push_new = true;
-                //but when pop out
-                $alreday_has = $carry->filter(function($t)use($item){return $t->time == $item->time;})->count() > 0;
-
-                if($alreday_has){
-                    $push_new = false;
-                }
-
-
-                //override case
-                if($alreday_has && $item->type == 1){
-                    $carry->pop();
-                    $push_new = true;
-                }
-
-                //push
-                if($push_new){
-                    $carry->push($item);
-                }
-
-                return $carry;
-            }, collect([]));
-
-            $chunk3 = $chunk2->reduce(function($carry, $item){
-                $pre_item = $carry->last();
-
-                if(is_null($pre_item)){
-                    $carry->push($item);
-                    return $carry;
-                }
-
-                $delta = abs(Session::getMinutes($pre_item->time) - Session::getMinutes($item->time));
-
-                $current_interval = $pre_item->interval_minutes;
-
-                $condition1 = false;
-                if($delta >= $current_interval){
-//                    $carry->push($item);
-                    $condition1 = true;
-                }
-
-                $condition2 = false;
-//                ($pre_item->type == 0 && $item->type == 1)
-                $first_arrival_time = $item->first_arrival_time;
-                //respect first arrival time
-                $respect_first_delta = abs(Session::getMinutes($item->time) - Session::getMinutes($first_arrival_time));
-
-                if($respect_first_delta % $item->interval_minutes == 0){
-                    $condition2 = true;
-                }
-
-                //change type
-                $condition3 = false;
-                if(($pre_item->type == 0 && $item->type == 1) && $delta < $current_interval){
-                    $carry->pop();
-                    $condition3 = true;
-                }
-
-                $push_new = $condition1 && $condition2 || $condition3;
-                if($push_new){
-                    $carry->push($item);
-                }
-                return $carry;
-            }, collect([]));
-
-//            var_dump($chunk2);
-
-            return $chunk3;
-        });
-
-
-        return $grouped2;
+        return $date_with_available_time;
     }
 
-    public function assignInfoToTiming(){
+    /**
+     * 
+     */
+    public function assignSessionToTiming(){
         $type = $this->one_off;
         $this->timings->each(function($t) use($type){
             $t->type = $type;
         });
     }
-    
+
+    /**
+     * Check normal session available on day x of week
+     * @param string $session_day
+     * @return bool
+     */
     public function availableOnDay($session_day){
         return $this->$session_day == self::DAY_AVAILABLE;
     }
 
+    /**
+     * Assign date to session
+     * @return \Illuminate\Support\Collection
+     */
     public function assignDate(){
-        $session_collection = collect([]);
+        $sessions = collect([]);
         if($this->isSpecial()){
-            $this->date = Carbon::createFromFormat('Y-m-d', $this->one_off_date, Setting::TIME_ZONE);
+            /* @case one_off_date NULL */  
+            $this->date = Carbon::createFromFormat('Y-m-d', $this->one_off_date);
 
-            return $session_collection->push($this);
+            return $sessions->push($this);
         }
 
         if(!$this->isSpecial()){
@@ -247,13 +218,13 @@ class Session extends Model {
                     $as = clone $this;
                     $as->date = $today->copy()->addDays($carbon_day -  $today->dayOfWeek);
 
-                    $session_collection->push($as);
+                    $sessions->push($as);
                 }
             }
 
         }
 
-        return $session_collection;
+        return $sessions;
     }
 
 }

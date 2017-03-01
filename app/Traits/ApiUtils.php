@@ -1,47 +1,33 @@
 <?php
 namespace App\Traits;
 
-use Emojione\Client;
-use Emojione\Ruleset;
+use Carbon\Carbon;
+use App\OutletReservationSetting as Setting;
 
 trait ApiUtils{
-    public function removeEmoji($text){
-        $emojion = new Client(new Ruleset());
-        $textEmojiToShortname = $emojion->toShort($text);
 
-        $emojiPattern = '/(:\w+:|<[\/\\]?3|[\(\)\\\D|\*\$][\-\^]?[:;=]|[:;=B8][\-\^]?[3DOPp@\$\*\\\)\(\/\|])(?=\s|[!\.\?]|$)/';
-
-        while(preg_match($emojiPattern, $textEmojiToShortname)){
-            $textEmojiToShortname = preg_replace($emojiPattern, '', $textEmojiToShortname);
-        }
-
-        return $textEmojiToShortname;
-    }
-
-    public function transformWordsToSingular($text){
-        $wordArr = explode(" ", $text);
-        
-        $newWordArr = [];
-        foreach($wordArr as $word){
-            $newWordArr[] = Inflect::singularize($word);
-        }
-        
-        return implode(" ", $newWordArr);
-    }
-    
-    public function removeSpace($text){
-        return preg_replace('/\s+/', '',$text);
-    }
-    
-    public function removeSomeSC($text){
-        return preg_replace('/\.|\.\.|!/', '', $text);
-    }
-    
     protected function getMinutes($time){
         $timeInfo = explode(":", $time);
         $hour = $timeInfo[0];
         $minute = $timeInfo[1];
         
         return $hour * 60 + $minute;
+    }
+
+    protected function availableDateRange(){
+        $today = Carbon::now(Setting::TIME_ZONE);
+
+        $query_max_day = Setting::where([
+            'outlet_id' =>  1,
+            'setting_group' => 'BUFFERS',
+            'setting_key' => 'MAX_DAYS_IN_ADVANCE'
+        ])->first();
+
+        $max_days_in_advance = !is_null($query_max_day) ? $query_max_day : Setting::MAX_DAYS_IN_ADVANCE;
+
+
+        $max_day = $today->copy()->addDays($max_days_in_advance);
+        
+        return [$today, $max_day];
     }
 }
