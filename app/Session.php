@@ -180,16 +180,6 @@ class Session extends Model {
     }
 
     /**
-     * 
-     */
-    public function assignSessionToTiming(){
-        $type = $this->one_off;
-        $this->timings->each(function($t) use($type){
-            $t->type = $type;
-        });
-    }
-
-    /**
      * Check normal session available on day x of week
      * @param string $session_day
      * @return bool

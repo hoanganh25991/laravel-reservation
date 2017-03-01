@@ -18,142 +18,71 @@ use App\OutletReservationSetting as Setting;
  * @property mixed capacity_5_6
  * @property mixed type
  * @property Session session
+ * @property mixed capacity_7_x
+ * @property mixed max_pax
  */
-class Timing extends Model
-{
-//    const INTERVAL_STEPS = [15, 21, 30, 60];
-    const INTERVAL_STEPS = [15, 20, 30, 60];
+class Timing extends Model {
+
+    /**
+     * Interval minute for user pick time
+     * must follow these value
+     */
+    const INTERVAL_MINUTE_STEPS = [15, 20, 30, 60];
+
+    /**
+     * First arrival time & last arrival time pick rule
+     */
     const ARRIVAL_STEPS  = [15];
 
     protected $table = 'timing';
-    
-    protected function order($query){
-        $query->orderBy('first_arrival_time', 'asc');
-    }
 
-    public function scopeOrder($query){
-        $this->order($query);
-    }
-    
+    /**
+     * Relationship with session
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function session(){
         return $this->hasOne(Session::class, 'id', 'session_id');
     }
-    
-    public function assignSession(Session $session){
-        $this->session = $session;
-    }
 
-    public function chunkByInterval(){
-        $start = $this->first_arrival_time;
-        $end = $this->last_arrival_time;
-//        $interval = $this->interval_minutes;
-        $allow_steps = array_merge(self::INTERVAL_STEPS, self::ARRIVAL_STEPS);
-        $interval = GCD::find($allow_steps);
-//        $interval = (new GreatestCommonFactor(self::INTERVAL_STEPS))->calculate();
-
-        $start_time = Carbon::createFromFormat('H:i:s', $start, Setting::TIME_ZONE);
-        $end_time   = Carbon::createFromFormat('H:i:s', $end, Setting::TIME_ZONE);
-
-        $count = 0;
-        $this->chunk = collect([]);
-        while($start_time->lt($end_time)){
-//            $options = [
-//                $start_time->format('H:i') => [
-//                    'capacity_1' => $this->capacity_1,
-//                    'capacity_2' => $this->capacity_2,
-//                    'capacity_3_4' => $this->capacity_3_4,
-//                    'capacity_5_6' => $this->capacity_5_6,
-//                    'capacity_7_x' => $this->capacity_7_x,
-//                    'type'        => $this->type
-//                ]
-//            ];
-            $options = (object)[
-                    'time' => $start_time->format('H:i'),
-                    'first_arrival_time' => $this->first_arrival_time,
-                    'interval_minutes' => $this->interval_minutes,
-                    'capacity_1' => $this->capacity_1,
-                    'capacity_2' => $this->capacity_2,
-                    'capacity_3_4' => $this->capacity_3_4,
-                    'capacity_5_6' => $this->capacity_5_6,
-                    'type'        => $this->session->type
-            ];
-//            $options->getMinutes = function(){
-//                //13:00:00 > 13, 00
-//                $timeInfo = explode(":", $this->time);
-//                $hour = (int)$timeInfo[0];
-//                $minute = (int)$timeInfo[1];
-//
-//                return $hour * 60 + $minute;
-//            };
-            
-            $this->chunk->push($options);
-            $count++;
-            $start_time->addMinutes($interval);
-        }
-        //$this->chunk = 'fuck';
-
-        return $this->chunk;
-    }
-    
-    
-    public function chunk(){
-        /**
-         * Chunk by the minimal
-         * uoc so chung nho nhat
-         */
-    }
-
+    /**
+     * Timing decide how to chunk base on its arrival time
+     * @return \Illuminate\Support\Collection
+     */
     public function getChunkAttribute(){
-        $start = $this->first_arrival_time;
-        $end = $this->last_arrival_time;
-//        $interval = $this->interval_minutes;
-        $allow_steps = array_merge(self::INTERVAL_STEPS, self::ARRIVAL_STEPS);
-        $interval = GCD::find($allow_steps);
-//        $interval = (new GreatestCommonFactor(self::INTERVAL_STEPS))->calculate();
+        $allow_steps = array_merge(self::INTERVAL_MINUTE_STEPS, self::ARRIVAL_STEPS);
 
-        $start_time = Carbon::createFromFormat('H:i:s', $start, Setting::TIME_ZONE);
-        $end_time   = Carbon::createFromFormat('H:i:s', $end, Setting::TIME_ZONE);
+        $minimum_interval_to_match = GCD::find($allow_steps);
 
-        $count = 0;
-        $chunk = collect([]);
+        $start_time = Carbon::createFromFormat('H:i:s', $this->first_arrival_time);
+        $end_time   = Carbon::createFromFormat('H:i:s', $this->last_arrival_time);
+
+        $chunks = collect([]);
+
         while($start_time->lt($end_time)){
-//            $options = [
-//                $start_time->format('H:i') => [
-//                    'capacity_1' => $this->capacity_1,
-//                    'capacity_2' => $this->capacity_2,
-//                    'capacity_3_4' => $this->capacity_3_4,
-//                    'capacity_5_6' => $this->capacity_5_6,
-//                    'capacity_7_x' => $this->capacity_7_x,
-//                    'type'        => $this->type
-//                ]
-//            ];
-            $options = (object)[
-                'time' => $start_time->format('H:i'),
+
+            $chunk = (object)[
+                'time'               => $start_time->format('H:i'),
+                'type'               => $this->session->type,
                 'first_arrival_time' => $this->first_arrival_time,
-                'interval_minutes' => $this->interval_minutes,
-                'capacity_1' => $this->capacity_1,
-                'capacity_2' => $this->capacity_2,
-                'capacity_3_4' => $this->capacity_3_4,
-                'capacity_5_6' => $this->capacity_5_6,
-                'type'        => $this->session->type
+                'interval_minutes'   => $this->interval_minutes,
+                'capacity_1'         => $this->capacity_1,
+                'capacity_2'         => $this->capacity_2,
+                'capacity_3_4'       => $this->capacity_3_4,
+                'capacity_5_6'       => $this->capacity_5_6,
+                'capacity_7_x'       => $this->capacity_7_x,
+                'max_pax'            => $this->max_pax,
             ];
-//            $options->getMinutes = function(){
-//                //13:00:00 > 13, 00
-//                $timeInfo = explode(":", $this->time);
-//                $hour = (int)$timeInfo[0];
-//                $minute = (int)$timeInfo[1];
-//
-//                return $hour * 60 + $minute;
-//            };
 
-            $chunk->push($options);
-            $count++;
-            $start_time->addMinutes($interval);
+            $chunks->push($chunk);
+
+            $start_time->addMinutes($minimum_interval_to_match);
         }
-        //$this->chunk = 'fuck';
 
-        return $chunk;
+        return $chunks;
     }
+
+
+
     
-    
+
 }
