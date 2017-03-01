@@ -62,7 +62,8 @@ class Timing extends Model {
 
             $chunk = (object)[
                 'time'               => $start_time->format('H:i'),
-                'type'               => $this->session->type,
+                'session_type'       => $this->session->type,
+                'session_name'       => $this->session->session_name,
                 'first_arrival_time' => $this->first_arrival_time,
                 'interval_minutes'   => $this->interval_minutes,
                 'capacity_1'         => $this->capacity_1,

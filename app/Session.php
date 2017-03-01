@@ -14,6 +14,7 @@ use App\OutletReservationSetting as Setting;
  * @property mixed one_off_date
  * @property mixed timings
  * @property mixed type
+ * @property mixed session_name
  */
 class Session extends Model {
     use ApiUtils;
@@ -111,7 +112,7 @@ class Session extends Model {
                          * 2 item at same time > special item chose
                          */
 
-                        $overlap_item_is_special = $alreday_has && $item->type == self::SPECIAL_SESSION;
+                        $overlap_item_is_special = $alreday_has && $item->session_type == self::SPECIAL_SESSION;
 
                         if($overlap_item_is_special)
                             $carry->pop();
@@ -131,26 +132,29 @@ class Session extends Model {
 
                 $fixed_interval_chunks =
                     $merged_chunks->reduce(function($carry, $item){
+                        /**
+                         * First push item
+                         */
                         $pre_item = $carry->last();
-
+                        //should return immediately to prevent call on null
+                        //of following step
                         if(is_null($pre_item)){
                             $carry->push($item);
                             return $carry;
                         }
 
-                        $delta_with_pre_item = abs(Session::getMinutes($pre_item->time) - Session::getMinutes($item->time));
-
                         /**
                          * satisfied interval > should push
                          */
-                        $satisfied_interval = $delta_with_pre_item >= $pre_item->interval_minutes;
+                        $delta_time_with_pre = abs(Session::getMinutes($pre_item->time) - Session::getMinutes($item->time));
+                        $satisfied_interval  = $delta_time_with_pre >= $pre_item->interval_minutes;
 
                         /**
                          * new item must pushed
                          */
-                        $new_item_is_special_than_pre = ($pre_item->type == 0 && $item->type == 1);
+                        $new_item_is_special_than_pre = ($pre_item->session_type == self::NORMAL_SESSION
+                                                        && $item->session_type == self::SPECIAL_SESSION);
                         $new_item_must_pushed = $new_item_is_special_than_pre && !$satisfied_interval;
-
                         if($new_item_must_pushed)
                             $carry->pop();
 
@@ -158,8 +162,8 @@ class Session extends Model {
                         /**
                          * Respect first arrival
                          */
-                        $delta_with_first_arrival = abs(Session::getMinutes($item->time) - Session::getMinutes($item->first_arrival_time));
-                        $respect_first_arrival = $delta_with_first_arrival % $item->interval_minutes == 0;
+                        $delta_time_with_first_arrival = abs(Session::getMinutes($item->time) - Session::getMinutes($item->first_arrival_time));
+                        $respect_first_arrival = ($delta_time_with_first_arrival % $item->interval_minutes) == 0;
 
                         /**
                          * Check push new
