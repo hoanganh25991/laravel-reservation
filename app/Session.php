@@ -4,11 +4,14 @@ namespace App;
 
 use Carbon\Carbon;
 use App\Traits\ApiUtils;
+//use App\Library\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use App\OutletReservationSetting as Setting;
 
 /**
  * @property mixed one_off
+ * @property static date
+ * @property mixed one_off_date
  */
 class Session extends Model {
     use ApiUtils;
@@ -31,14 +34,27 @@ class Session extends Model {
     /**
      * Convert day of week to Carbon const
      */
+//    const DAY_OF_WEEK = [
+//        'on_mondays'    => Carbon::MONDAY,
+//        'on_tuesdays'   => Carbon::TUESDAY,
+//        'on_wednesdays' => Carbon::WEDNESDAY,
+//        'on_thursdays'  => Carbon::THURSDAY,
+//        'on_fridays'    => Carbon::THURSDAY,
+//        'on_saturdays'  => Carbon::FRIDAY,
+//        'on_sundays'    => Carbon::SATURDAY
+//    ];
+
+    /**
+     * Convert Carbon day const to session day
+     */
     const DAY_OF_WEEK = [
-        'on_mondays'    => Carbon::MONDAY,
-        'on_tuesdays'   => Carbon::TUESDAY,
-        'on_wednesdays' => Carbon::WEDNESDAY,
-        'on_thursdays'  => Carbon::THURSDAY,
-        'on_fridays'    => Carbon::THURSDAY,
-        'on_saturdays'  => Carbon::FRIDAY,
-        'on_sundays'    => Carbon::SATURDAY
+        Carbon::MONDAY    => 'on_mondays',
+        Carbon::TUESDAY   => 'on_tuesdays',
+        Carbon::WEDNESDAY => 'on_wednesdays',
+        Carbon::THURSDAY  => 'on_thursdays',
+        Carbon::THURSDAY  => 'on_fridays',
+        Carbon::FRIDAY    => 'on_saturdays',
+        Carbon::SATURDAY  => 'on_sundays'
     ];
 
     protected  $table = 'session';
@@ -47,32 +63,14 @@ class Session extends Model {
         return $this->one_off == self::SPECIAL_SESSION;
     }
 
+
+
     /**
      * Relationship with Timing
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function timings(){
         return $this->hasMany(Timing::class, 'session_id', 'id');
-    }
-
-    public function scopeAvailableSession($query){
-        $today = Carbon::now(Setting::TIME_ZONE);
-
-        $query_max_day = Setting::where([
-            'outlet_id' =>  1,
-            'setting_group' => 'BUFFERS',
-            'setting_key' => 'MAX_DAYS_IN_ADVANCE'
-        ])->first();
-
-        $max_days_in_advance = !is_null($query_max_day) ? $query_max_day : Setting::MAX_DAYS_IN_ADVANCE;
-
-
-        $max_day = $today->copy()->addDays($max_days_in_advance);
-        
-        
-        return $query->normalSession()
-                     ->orWhere(function($q){$q->specialSession();})
-                     ->with('timings');
     }
 
     public function scopeNormalSession($query){
@@ -99,6 +97,12 @@ class Session extends Model {
             ['one_off_date', '>=', $today->format('Y-m-d')],
             ['one_off_date',  '<', $max_day->format('Y-m-d')]
         ])->with('timings');
+    }
+
+    public function scopeAvailableSession($query){
+        return $query->normalSession()
+            ->orWhere(function($q){$q->specialSession();})
+            ->with('timings');
     }
 
     protected function buildStep3(){
@@ -223,35 +227,33 @@ class Session extends Model {
             $t->type = $type;
         });
     }
+    
+    public function availableOnDay($session_day){
+        return $this->$session_day == self::DAY_AVAILABLE;
+    }
 
     public function assignDate(){
-        $c = collect([]);
-        if($this->one_off == self::NORMAL_SESSION){
-            $today = Carbon::now(Setting::TIME_ZONE);
-            $today_day_of_week = $today->dayOfWeek;
-            //find out $monday
-            //$monday = $today->copy()->addDays(Carbon::MONDAY - $today_day_of_week);
-            foreach(self::DAY_OF_WEEK as $session_day => $carbon_value){
-                if($this[$session_day] == self::DAY_AVAILABLE){
-                    $as = clone $this;
-                    $as->date = $today->copy()->addDays($carbon_value - $today_day_of_week);
+        $session_collection = collect([]);
+        if($this->isSpecial()){
+            $this->date = Carbon::createFromFormat('Y-m-d', $this->one_off_date, Setting::TIME_ZONE);
 
-                    $c->push($as);
+            return $session_collection->push($this);
+        }
+
+        if(!$this->isSpecial()){
+            $today = Carbon::now(Setting::TIME_ZONE);
+            foreach(self::DAY_OF_WEEK as $carbon_day => $session_day){
+                if($this->availableOnDay($session_day)){
+                    $as = clone $this;
+                    $as->date = $today->copy()->addDays($carbon_day -  $today->dayOfWeek);
+
+                    $session_collection->push($as);
                 }
             }
+
         }
 
-
-
-
-        if($this->one_off == self::SPECIAL_SESSION && $this->one_off_date != NULL){
-            $this->date = Carbon::createFromFormat('Y-m-d', $this->one_off_date)->timezone(Setting::TIME_ZONE);
-
-            return $c->push($this);
-        }
-
-        //
-        return $c;
+        return $session_collection;
     }
 
 }
