@@ -38,7 +38,8 @@ return [
     'guards' => [
         'web' => [
             'driver' => 'session',
-            'provider' => 'users',
+            // 'provider' => 'users',
+            'provider' => 'outlet_reservation_user',
         ],
 
         'api' => [
@@ -70,10 +71,11 @@ return [
             'model' => App\User::class,
         ],
 
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        'outlet_reservation_user' => [
+            'driver' => 'eloquent',
+            'model' => App\Auth\HoiDatabaseProvider::class,
+            'table' => 'outlet_reservation_user',
+        ],
     ],
 
     /*

@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Events\RememberTokenEvent;
 use Illuminate\Notifications\Notifiable;
 
 class ReservationUser extends User
@@ -27,4 +28,11 @@ class ReservationUser extends User
     ];
 
     protected $table = 'outlet_reservation_user';
+
+    protected $rememberTokenName = 'secret_token';
+
+    public function __construct(array $attributes = []){
+        parent::__construct($attributes);
+        //$this->rememberTokenName = 'secret_token';
+    }
 }
