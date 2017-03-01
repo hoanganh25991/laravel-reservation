@@ -2,36 +2,37 @@
 
 namespace App;
 
-use App\Events\RememberTokenEvent;
 use Illuminate\Notifications\Notifiable;
 
-class ReservationUser extends User
-{
+/**
+ * @property string password_hash
+ */
+class ReservationUser extends User {
+    
     use Notifiable;
 
+    
+    
     protected $fillable = [
         'user_name', 'password_hash', 'email', 'display_name'
     ];
 
     protected $hidden = [
-        'password', 'remember_token',
+        'password_hash', 'remember_token',
     ];
 
+    
     protected $table = 'outlet_reservation_user';
 
+    
     protected $rememberTokenName = 'secret_token';
 
-    public function __construct(array $attributes = []){
-        parent::__construct($attributes);
-    }
 
-    /**
-     * Get the password for the user.
-     *
-     * @return string
-     */
-    public function getAuthPassword()
-    {
+    public function getAuthPassword() {
         return $this->password_hash;
     }
+    
+    
+    
+    
 }

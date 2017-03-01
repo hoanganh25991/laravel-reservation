@@ -2,7 +2,9 @@
 
 namespace App;
 
-class Outlet extends HoiModel
-{
-    //
+class Outlet extends HoiModel {
+    
+    protected $table = 'outlet';
+    
+    
 }
