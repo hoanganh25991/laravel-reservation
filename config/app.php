@@ -64,7 +64,8 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    //'timezone' => 'UTC',
+    'timezone' => 'Asia/Singapore',
 
     /*
     |--------------------------------------------------------------------------
@@ -120,9 +121,11 @@ return [
     |
     */
 
-    'log' => env('APP_LOG', 'single'),
+    // 'log' => env('APP_LOG', 'single'),
+    'log' => 'daily',
 
-    'log_level' => env('APP_LOG_LEVEL', 'debug'),
+    // 'log_level' => env('APP_LOG_LEVEL', 'debug'),
+    'log_level' => 'info',
 
     /*
     |--------------------------------------------------------------------------
@@ -176,6 +179,9 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+
+
+        Barryvdh\Debugbar\ServiceProvider::class,
 
     ],
 

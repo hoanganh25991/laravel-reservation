@@ -9,5 +9,9 @@
     <option selected="selected" disabled="disabled">Location</option>
     {{--loop through outlet to print out here--}}
 </select>
+@if(isset($data))
+	{{$data}}
+@endif
+
 </body>
 </html>
