@@ -17,17 +17,10 @@ trait ApiUtils{
     }
 
     protected function availableDateRange(){
-        $today = Carbon::now(Setting::TIME_ZONE);
-
-        $query_max_day = Setting::where([
-            'outlet_id' =>  1,
-            'setting_group' => 'BUFFERS',
-            'setting_key' => 'MAX_DAYS_IN_ADVANCE'
-        ])->first();
-
-        $max_days_in_advance = !is_null($query_max_day) ? $query_max_day : Setting::MAX_DAYS_IN_ADVANCE;
-
-
+        $buffer_config = Setting::getBufferConfig();
+        $max_days_in_advance = $buffer_config('MAX_DAYS_IN_ADVANCE');
+        
+        $today   = Carbon::now(Setting::TIME_ZONE);
         $max_day = $today->copy()->addDays($max_days_in_advance);
         
         return [$today, $max_day];

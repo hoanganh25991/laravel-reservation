@@ -15,7 +15,7 @@ class OutletReservationSetting extends Model {
     /**
      * BUFFER default config
      */
-    const BUFFER_GROUP_NAME                 = 0;
+    const BUFFER_GROUP                      = 0;
     const MAX_DAYS_IN_ADVANCE               = 7;
     const MIN_HOURS_IN_ADVANCE_SLOT_TIME    = 3;
     const MIN_HOURS_IN_ADVANCE_SESSION_TIME = 3;
@@ -30,7 +30,7 @@ class OutletReservationSetting extends Model {
     
     
     public function scopeBufferConfig($query){
-        return $query->where('setting_group', self::BUFFER_GROUP_NAME);
+        return $query->where('setting_group', self::BUFFER_GROUP);
     }
 
     /**

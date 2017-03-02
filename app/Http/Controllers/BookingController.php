@@ -109,9 +109,6 @@ class BookingController extends Controller
                  */
                 $merged_chunks =
                     $ordered_chunks->reduce(function($carry, $item){
-                        /**
-                         *
-                         */
                         $alreday_has = $carry->filter(function($last_item)use($item){return $last_item->time == $item->time;})->count() > 0;
 
                         /**
@@ -138,8 +135,9 @@ class BookingController extends Controller
                     }, collect([]));
 
                 /**
-                 * Only get which satisfied its own interval
-                 * After chunk with minimum interval, loop through,
+                 * Only push item which satisfied its own interval
+                 * After chunk with minimum interval, to match special over normal session
+                 * Need loop back to get only which statisfied its own interval
                  */
                 $fixed_interval_chunks =
                     $merged_chunks->reduce(function($carry, $item){
@@ -154,7 +152,7 @@ class BookingController extends Controller
                         }
 
                         /**
-                         * Satisfied interval > should push
+                         * Satisfied interval >>> should push
                          */
                         $delta_time_with_pre = abs(Session::getMinutes($pre_item->time) - Session::getMinutes($item->time));
                         $satisfied_interval  = $delta_time_with_pre >= $pre_item->interval_minutes;
@@ -163,11 +161,11 @@ class BookingController extends Controller
                          * New item must pushed, when item special than pre_item
                          */
                         $new_item_is_special_than_pre = ($pre_item->session_type == Session::NORMAL_SESSION
-                            && $item->session_type == Session::SPECIAL_SESSION);
+                                                        && $item->session_type == Session::SPECIAL_SESSION);
                         $new_item_must_pushed = $new_item_is_special_than_pre && !$satisfied_interval;
+
                         if($new_item_must_pushed)
                             $carry->pop();
-
 
                         /**
                          * Respect first arrival
@@ -194,7 +192,7 @@ class BookingController extends Controller
                 $min_hours_slot_time    = $buffer_config('MIN_HOURS_IN_ADVANCE_SLOT_TIME');
                 $min_hours_session_time = $buffer_config('MIN_HOURS_IN_ADVANCE_SESSION_TIME');
 
-                $satisfied_prior_slot_time_chunks = $fixed_interval_chunks;
+                $satisfied_prior_time_chunks = $fixed_interval_chunks;
                 
                 /**
                  * Compute day time on today with current checking session time
@@ -208,7 +206,7 @@ class BookingController extends Controller
                  * Care on hours, only check for session on same day with today
                  */
                 if($on_same_day){
-                    $satisfied_prior_slot_time_chunks =
+                    $satisfied_prior_time_chunks =
                         $fixed_interval_chunks->filter(function($item) use($min_hours_slot_time, $min_hours_session_time, $today_in_hour){
                             $item_in_hour = $this->getMinutes($item->time) / 60;
                             $diff_in_hour = $item_in_hour - $today_in_hour;
@@ -221,12 +219,16 @@ class BookingController extends Controller
                         })->values();
                 }
 
-
-                return $satisfied_prior_slot_time_chunks;
+                return $satisfied_prior_time_chunks;
             });
 
+        /**
+         * Change its capacity base on already reservations
+         */
+        $reservations = Reservation::valid();
+        //$date_with_available_time
 
-        return $date_with_available_time;
+        return $reservations;
     }
     
     

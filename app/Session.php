@@ -70,7 +70,7 @@ class Session extends Model {
     }
 
     public function scopeSpecialSession($query){
-       $date_range = $this->availableDateRange();
+        $date_range = $this->availableDateRange();
 
         return $query->where([
             ['one_off', '=', Session::SPECIAL_SESSION],
