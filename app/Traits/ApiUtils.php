@@ -5,6 +5,7 @@ use Carbon\Carbon;
 use App\OutletReservationSetting as Setting;
 use Hamcrest\Core\Set;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 trait ApiUtils{
 
@@ -60,5 +61,23 @@ trait ApiUtils{
             
             return $item_value;
         };
+    }
+
+
+    public function scopeHasNewUpdate($query){
+        $today = Carbon::now(Setting::TIME_ZONE);
+        //format as Y-m-d to implicit tell that H:i:s = 00:00:00
+        $today_string = $today->format('Y-m-d');
+        $class_name = strtoupper(get_class($this));
+        $file_name  = "LAST_{$class_name}_UPDATE";
+
+        $last_sesion_update = Cache::get($file_name, $today_string);
+        //update info about last session update
+        Cache::put($file_name, $today->format('Y-m-d H:i:s'), 24 * 60);
+
+        return $query
+            //->where('created_timestamp', '>=', $last_sesion_update)
+            ->orWhere('modified_timestamp', '>=', $last_sesion_update)
+            ;
     }
 }

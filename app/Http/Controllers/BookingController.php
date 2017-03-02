@@ -266,7 +266,7 @@ class BookingController extends Controller
                             $satisfied_in_advance_session_time = $diff_in_hour >= $min_hours_session_time;
 
                             return $satisfied_in_advance_slot_time
-                            && $satisfied_in_advance_session_time;
+                                   && $satisfied_in_advance_session_time;
                         })->values();
                 }
 
@@ -280,7 +280,7 @@ class BookingController extends Controller
         $today = Carbon::now(Setting::TIME_ZONE);
         $today_string = $today->format('Y-m-d');
 
-        $file_name = BookingController::DATES_WITH_AVAILABLE_TIME_FILE_NAME + $today_string;
+        $file_name = BookingController::DATES_WITH_AVAILABLE_TIME_FILE_NAME . $today_string;
         //expire in day
         Cache::put($file_name, $return, 24 * 60);
 
@@ -294,7 +294,9 @@ class BookingController extends Controller
 
             $file_name = BookingController::DATES_WITH_AVAILABLE_TIME_FILE_NAME . $today_string;
 
-            return Cache::get($file_name, null);
+            $va =  Cache::get($file_name, null);
+
+            return $va;
         }
 
         return null;
@@ -307,13 +309,16 @@ class BookingController extends Controller
      * Should recalculate
      */
     public function shouldUseCache(){
-        $has_new_update = Session::hasNewUpdate()->get()->count() > 0;
+        $session_has_new_update = Session::hasNewUpdate()->get()->count() > 0;
 
-        if($has_new_update)
+        if($session_has_new_update)
             return false;
 
+        $timing_has_new_update  = Timing::hasNewUpdate()->get()->count() > 0;
 
-        
+        if($timing_has_new_update)
+            return false;
+
         return true;
     }
 

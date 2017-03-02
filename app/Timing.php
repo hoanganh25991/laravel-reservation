@@ -4,9 +4,10 @@ namespace App;
 
 use Carbon\Carbon;
 use App\Helpers\GCD;
+use App\Traits\ApiUtils;
 use App\Helpers\GreatestCommonFactor;
 use Illuminate\Database\Eloquent\Model;
-use App\OutletReservationSetting as Setting;
+//use App\OutletReservationSetting as Setting;
 
 /**
  * @property mixed first_arrival_time
@@ -22,6 +23,8 @@ use App\OutletReservationSetting as Setting;
  * @property mixed max_pax
  */
 class Timing extends Model {
+    
+    use ApiUtils;
 
     /**
      * Interval minute for user pick time
@@ -139,6 +142,16 @@ class Timing extends Model {
     protected function withAvailable($query){
         return $query->where('disabled', Timing::AVAILABLE);
     }
+
+//    public function scopeHasNewUpdate($query){
+//        $today = Carbon::now(Setting::TIME_ZONE);
+//        $today_string = $today->format('Y-m-d');
+//
+//        return $query
+//            ->where('created_timestamp', '>=', $today_string)
+//            ->orWhere('modified_timestamp', '>=', $today_string)
+//            ;
+//    }
     
 
 }

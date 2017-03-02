@@ -55,3 +55,8 @@ Route::get('test/session/buildStep3', function(App\Http\Controllers\BookingContr
 
     return $available_days;
 });
+
+Route::get('test', function(App\Http\Controllers\BookingController $c){
+
+    return \App\Timing::hasNewUpdate()->get()->count();
+});
