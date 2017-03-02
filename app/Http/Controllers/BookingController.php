@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Timing;
 use App\Traits\ApiUtils;
+use Illuminate\Support\Collection;
 use Validator;
 use App\Session;
 use Carbon\Carbon;
@@ -17,6 +18,11 @@ class BookingController extends Controller
     use ApiUtils;
     use ApiResponse;
 
+    /** @var  Collection $valid_reservations */
+    protected $valid_reservations;
+
+    /** @var  int $reservations_pax_size */
+    protected $reservations_pax_size;
 
     public function dateAvailable(ApiRequest $req){
         /* @var Validator $validator*/
@@ -224,19 +230,20 @@ class BookingController extends Controller
             });
 
         /**
-         * Change its capacity base on already reservations
+         * Change chunk time capacity base on already reservations
          */
-        $this->reservations = Reservation::validGroupByDateTimeCapacity();
-        $this->booking_cap = 7;
+        $this->valid_reservations = Reservation::validGroupByDateTimeCapacity();
+        $this->reservations_pax_size = 7;
+
         $date_with_available_time->each(function($group, $date_string){
             $group->each(function($chunk) use($date_string){
-                $reserved_on_day = isset($this->reservations[$date_string]);
-                $reserved_on_time = $reserved_on_day && isset($this->reservations[$date_string][$chunk->time]);
+                $reserved_on_day = isset($this->valid_reservations[$date_string]);
+                $reserved_on_time = $reserved_on_day && isset($this->valid_reservations[$date_string][$chunk->time]);
 
                 if($reserved_on_time){
                     foreach(Timing::CAPACITY_X as $cap_x){
                         try{
-                            $reserved_cap = $this->reservations[$date_string][$chunk->time][$cap_x];
+                            $reserved_cap = $this->valid_reservations[$date_string][$chunk->time][$cap_x];
                             $chunk->$cap_x = $chunk->$cap_x - $reserved_cap;
                         }catch(\Exception $e){}
                     }
@@ -245,11 +252,12 @@ class BookingController extends Controller
         });
 
         /**
-         * Base on user booking size, filter out tables are busy
+         * Base on user booking size, filter tables are busy
+         * Only accpet capacity > 0 as available
          */
         $dates_with_available_time_capacity =
             $date_with_available_time->map->filter(function($t){
-                $cap_name = Timing::getCapacityName($this->booking_cap);
+                $cap_name = Timing::getCapacityName($this->reservations_pax_size);
 
                 return $t->$cap_name > 0;
             });
@@ -257,6 +265,10 @@ class BookingController extends Controller
 
         return $dates_with_available_time_capacity;
     }
+
+
+
+
     
     
 }
