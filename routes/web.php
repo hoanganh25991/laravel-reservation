@@ -49,7 +49,8 @@ Route::get('test/session/buildStep2', function(){
 
 Route::get('test/session/buildStep3', function(){
 //    $available_days = App\Session::availableV2();
-    $available_days = App\Session::buildStep3();
+    $available_days = App\Session::availableTime();
+    //$available_days = App\Session::availableSession()->get()->map->assignDate()->collapse();
 
     return $available_days;
 });

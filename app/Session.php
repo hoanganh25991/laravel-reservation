@@ -7,6 +7,7 @@ use App\Traits\ApiUtils;
 //use App\Library\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use App\OutletReservationSetting as Setting;
+use Symfony\Component\DependencyInjection\Tests\Compiler\C;
 
 /**
  * @property mixed one_off
@@ -42,15 +43,15 @@ class Session extends Model {
         Carbon::TUESDAY   => 'on_tuesdays',
         Carbon::WEDNESDAY => 'on_wednesdays',
         Carbon::THURSDAY  => 'on_thursdays',
-        Carbon::THURSDAY  => 'on_fridays',
-        Carbon::FRIDAY    => 'on_saturdays',
-        Carbon::SATURDAY  => 'on_sundays'
+        Carbon::FRIDAY    => 'on_fridays',
+        Carbon::SATURDAY  => 'on_saturdays',
+        Carbon::SUNDAY    => 'on_sundays'
     ];
 
     protected  $table = 'session';
     
     public function isSpecial(){
-        return $this->one_off == self::SPECIAL_SESSION;
+        return $this->one_off == Session::SPECIAL_SESSION;
     }
 
     public function getTypeAttribute(){
@@ -66,14 +67,14 @@ class Session extends Model {
     }
 
     public function scopeNormalSession($query){
-        return $query->where('one_off', self::NORMAL_SESSION);
+        return $query->where('one_off', Session::NORMAL_SESSION);
     }
 
     public function scopeSpecialSession($query){
        $date_range = $this->availableDateRange();
 
         return $query->where([
-            ['one_off', '=', self::SPECIAL_SESSION],
+            ['one_off', '=', Session::SPECIAL_SESSION],
             ['one_off_date', '>=', $date_range[0]->format('Y-m-d')],
             ['one_off_date',  '<', $date_range[1]->format('Y-m-d')]
         ]);
@@ -85,14 +86,14 @@ class Session extends Model {
             ->with('timings.session');
     }
 
-    protected function buildStep3(){
+    protected function availableTime(){
         $available_sessions = Session::availableSession()->get()->map->assignDate()->collapse();
         $sessions_by_date   = $available_sessions->groupBy(function($s){return $s->date->format('Y-m-d');});
         $timings_by_date    = $sessions_by_date->map(function($g){return $g->map->timings->collapse();});
 
         $date_with_available_time =
-            $timings_by_date->map(function($g){
-                $chunks  = $g->map->chunk->collapse();
+            $timings_by_date->map(function($group, $date_string){
+                $chunks  = $group->map->chunk->collapse();
 
                 $ordered_chunks = $chunks->sortBy(function($c){return $this->getMinutes($c->time);})->values();
 
@@ -112,7 +113,7 @@ class Session extends Model {
                          * 2 item at same time > special item chose
                          */
 
-                        $overlap_item_is_special = $alreday_has && $item->session_type == self::SPECIAL_SESSION;
+                        $overlap_item_is_special = $alreday_has && $item->session_type == Session::SPECIAL_SESSION;
 
                         if($overlap_item_is_special)
                             $carry->pop();
@@ -152,8 +153,8 @@ class Session extends Model {
                         /**
                          * new item must pushed
                          */
-                        $new_item_is_special_than_pre = ($pre_item->session_type == self::NORMAL_SESSION
-                                                        && $item->session_type == self::SPECIAL_SESSION);
+                        $new_item_is_special_than_pre = ($pre_item->session_type == Session::NORMAL_SESSION
+                                                        && $item->session_type == Session::SPECIAL_SESSION);
                         $new_item_must_pushed = $new_item_is_special_than_pre && !$satisfied_interval;
                         if($new_item_must_pushed)
                             $carry->pop();
@@ -176,9 +177,53 @@ class Session extends Model {
                         return $carry;
                     }, collect([]));
 
-                return $fixed_interval_chunks;
+                //BUFFER config check
+                $buffer_config = Setting::getBufferConfig();
+                /**
+                 * Check minimum hours in advance for slot time
+                 */
+                /** @var string $buffer_config */
+                $min_hours_slot_time    = $buffer_config('MIN_HOURS_IN_ADVANCE_SLOT_TIME');
+                $min_hours_session_time = $buffer_config('MIN_HOURS_IN_ADVANCE_SESSION_TIME');
+
+                $satisfied_prior_slot_time_chunks = $fixed_interval_chunks;
+                $today = Carbon::now();
+                $current_date =  Carbon::createFromFormat('Y-m-d', $date_string);
+                if($current_date->diffInDays($today) < 1){
+                    $satisfied_prior_slot_time_chunks =
+                        $fixed_interval_chunks->filter(function($item) use($min_hours_slot_time, $min_hours_session_time){
+                            $item_time_hours = $this->getMinutes($item->time) / 60;
+
+                            $satisfied_in_advance_slot_time    = $item_time_hours >= $min_hours_slot_time;
+                            $satisfied_in_advance_session_time = $item_time_hours >= $min_hours_session_time;
+
+                            return $satisfied_in_advance_slot_time
+                                   && $satisfied_in_advance_session_time;
+                        });
+                }
+
+
+                return $satisfied_prior_slot_time_chunks;
             });
 
+
+        $today_string = Carbon::now()->format('Y-m-d');
+
+        if(isset($date_with_available_time[$today_string])){
+            //modify directly on $date_with_available_time
+            $available_sessions = $date_with_available_time[$today_string];
+
+//            dd($available_sessions);
+
+            $date_with_available_time[$today_string] = $available_sessions->filter(function($chunk){return false;});
+        }
+
+        //$date_with_available_time
+        
+        /**
+         * Check minimum hours in advance for session time
+         */
+        //$date_with_available_time
 
         return $date_with_available_time;
     }
@@ -189,7 +234,7 @@ class Session extends Model {
      * @return bool
      */
     public function availableOnDay($session_day){
-        return $this->$session_day == self::DAY_AVAILABLE;
+        return $this->$session_day == Session::DAY_AVAILABLE;
     }
 
     /**
@@ -198,6 +243,7 @@ class Session extends Model {
      */
     public function assignDate(){
         $sessions = collect([]);
+
         if($this->isSpecial()){
             /* @case one_off_date NULL */  
             $this->date = Carbon::createFromFormat('Y-m-d', $this->one_off_date);
@@ -206,9 +252,13 @@ class Session extends Model {
         }
 
         if(!$this->isSpecial()){
-            $today = Carbon::now(Setting::TIME_ZONE);
-            foreach(self::DAY_OF_WEEK as $carbon_day => $session_day){
-                if($this->availableOnDay($session_day)){
+            $today = Carbon::now();
+            foreach(Session::DAY_OF_WEEK as $carbon_day => $session_day){
+                $diff_in_day =  ($carbon_day - $today->dayOfWeek);
+
+                $available_to_book = $this->availableOnDay($session_day) && ($diff_in_day >= 0);
+
+                if($available_to_book){
                     $as = clone $this;
                     $as->date = $today->copy()->addDays($carbon_day -  $today->dayOfWeek);
 
@@ -220,5 +270,9 @@ class Session extends Model {
 
         return $sessions;
     }
+    
+    
+    
+    
 
 }
