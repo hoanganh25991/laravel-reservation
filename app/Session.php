@@ -108,13 +108,13 @@ class Session extends Model {
 
         if($this->isSpecial()){
             /* @case one_off_date NULL */  
-            $this->date = Carbon::createFromFormat('Y-m-d', $this->one_off_date, Setting::TIME_ZONE);
+            $this->date = Carbon::createFromFormat('Y-m-d', $this->one_off_date, Setting::timezone());
 
             return $sessions->push($this);
         }
 
         if(!$this->isSpecial()){
-            $today = Carbon::now(Setting::TIME_ZONE);
+            $today = Carbon::now(Setting::timezone());
             foreach(Session::DAY_OF_WEEK as $carbon_day => $session_day){
                 $diff_in_day =  ($carbon_day - $today->dayOfWeek);
 
@@ -134,7 +134,7 @@ class Session extends Model {
     }
     
 //    public function scopeHasNewUpdate($query){
-//        $today = Carbon::now(Setting::TIME_ZONE);
+//        $today = Carbon::now(Setting::timezone());
 //        $today_string = $today->format('Y-m-d');
 //
 //        return $query

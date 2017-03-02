@@ -3,6 +3,8 @@
 namespace App;
 
 use App\Traits\ApiUtils;
+use Carbon\Carbon;
+use Hamcrest\Core\Set;
 use Illuminate\Database\Eloquent\Model;
 use App\OutletReservationSetting as Setting;
 
@@ -10,7 +12,7 @@ class OutletReservationSetting extends Model {
 
     use ApiUtils;
 
-    const TIME_ZONE = 'Asia/Singapore';
+    //const TIME_ZONE = 'Asia/Singapore';
 
     /**
      * BUFFER default config
@@ -26,9 +28,17 @@ class OutletReservationSetting extends Model {
     const STRING = 0;
     const INT    = 1;
 
+    /**
+     * Cache filename
+     */
+    public static $buffer_config = null;
+
     protected $table = 'outlet_reservation_setting';
-    
-    
+
+    protected function timezone(){
+        return config('app.timezone');
+    }
+
     public function scopeBufferConfig($query){
         return $query->where('setting_group', self::BUFFER_GROUP);
     }
@@ -39,7 +49,10 @@ class OutletReservationSetting extends Model {
      */
     protected function getBufferConfig(){
         //$config = static::bufferConfig()->get();
-        $config = Setting::bufferConfig()->get();
+        $config = Setting::$buffer_config ?: Setting::bufferConfig()->get();
+        //assign to static for reuse ONLY in this request
+        Setting::$buffer_config = $config;
+
         /**
          * Train config how to getKey
          * Dynamic add up function to object

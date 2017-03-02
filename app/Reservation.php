@@ -69,7 +69,7 @@ class Reservation extends HoiModel {
     }
 
     public function getReservationTimestampAttribute($date_tring){
-        return Carbon::createFromFormat('Y-m-d H:i:s', $date_tring, Setting::TIME_ZONE);
+        return Carbon::createFromFormat('Y-m-d H:i:s', $date_tring, Setting::timezone());
     }
 
     public function getCapacityNameAttribute(){

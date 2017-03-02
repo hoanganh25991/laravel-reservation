@@ -144,7 +144,7 @@ class Timing extends Model {
     }
 
 //    public function scopeHasNewUpdate($query){
-//        $today = Carbon::now(Setting::TIME_ZONE);
+//        $today = Carbon::now(Setting::timezone());
 //        $today_string = $today->format('Y-m-d');
 //
 //        return $query

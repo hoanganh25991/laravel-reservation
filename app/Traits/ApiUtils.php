@@ -21,7 +21,7 @@ trait ApiUtils{
         $buffer_config = Setting::getBufferConfig();
         $max_days_in_advance = $buffer_config('MAX_DAYS_IN_ADVANCE');
         
-        $today   = Carbon::now(Setting::TIME_ZONE);
+        $today   = Carbon::now(Setting::timezone());
         $max_day = $today->copy()->addDays($max_days_in_advance);
         
         return [$today, $max_day];
@@ -65,7 +65,7 @@ trait ApiUtils{
 
 
     public function scopeHasNewUpdate($query){
-        $today = Carbon::now(Setting::TIME_ZONE);
+        $today = Carbon::now(Setting::timezone());
         //format as Y-m-d to implicit tell that H:i:s = 00:00:00
         $today_string = $today->format('Y-m-d');
         $class_name = strtoupper(get_class($this));
@@ -80,4 +80,10 @@ trait ApiUtils{
             ->orWhere('modified_timestamp', '>=', $last_sesion_update)
             ;
     }
+    
+//    public static function cacheFilename(){
+//        return 'xxx';
+//    }
+    
+    
 }

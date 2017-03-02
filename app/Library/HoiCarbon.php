@@ -19,7 +19,7 @@ class HoiCarbon extends Carbon {
      */
     protected static function safeCreateDateTimeZone($object) {
         if ($object === null) {
-            return new DateTimeZone(Setting::TIME_ZONE);
+            return new DateTimeZone(Setting::timezone());
         }
 
         if ($object instanceof DateTimeZone) {

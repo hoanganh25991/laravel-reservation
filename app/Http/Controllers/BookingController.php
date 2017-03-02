@@ -248,9 +248,9 @@ class BookingController extends Controller
                 /**
                  * Compute day time on today with current checking session time
                  */
-                $today = Carbon::now(Setting::TIME_ZONE);
+                $today = Carbon::now(Setting::timezone());
                 $today_in_hour = $this->getMinutes($today->format('H:i:s')) / 60;
-                $current_date =  Carbon::createFromFormat('Y-m-d', $date_string, Setting::TIME_ZONE);
+                $current_date =  Carbon::createFromFormat('Y-m-d', $date_string, Setting::timezone());
                 $on_same_day = $current_date->diffInDays($today) == 0;
 
                 /**
@@ -277,7 +277,7 @@ class BookingController extends Controller
         /**
          * Save cache before move on
          */
-        $today = Carbon::now(Setting::TIME_ZONE);
+        $today = Carbon::now(Setting::timezone());
         $today_string = $today->format('Y-m-d');
 
         $file_name = BookingController::DATES_WITH_AVAILABLE_TIME_FILE_NAME . $today_string;
@@ -289,7 +289,7 @@ class BookingController extends Controller
 
     public function loadDatesWithAvailableTimeFromCache(){
         if($this->shouldUseCache()){
-            $today = Carbon::now(Setting::TIME_ZONE);
+            $today = Carbon::now(Setting::timezone());
             $today_string = $today->format('Y-m-d');
 
             $file_name = BookingController::DATES_WITH_AVAILABLE_TIME_FILE_NAME . $today_string;
