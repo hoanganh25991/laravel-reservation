@@ -18,7 +18,7 @@ trait ApiUtils{
     }
 
     protected function availableDateRange(){
-        $buffer_config = Setting::getBufferConfig();
+        $buffer_config = Setting::bufferConfigAsMap();
         $max_days_in_advance = $buffer_config('MAX_DAYS_IN_ADVANCE');
         
         $today   = Carbon::now(Setting::timezone());

@@ -239,7 +239,7 @@ class BookingController extends Controller
                  * Get buffer config
                  */
                 /** @var string $buffer_config */
-                $buffer_config = Setting::getBufferConfig();
+                $buffer_config = Setting::bufferConfigAsMap();
                 $min_hours_slot_time    = $buffer_config('MIN_HOURS_IN_ADVANCE_SLOT_TIME');
                 $min_hours_session_time = $buffer_config('MIN_HOURS_IN_ADVANCE_SESSION_TIME');
 

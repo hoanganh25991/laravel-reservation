@@ -47,7 +47,7 @@ class OutletReservationSetting extends Model {
      * Dynamic function call getKey on buffer
      * @return string
      */
-    protected function getBufferConfig(){
+    protected function bufferConfigAsMap(){
         //$config = static::bufferConfig()->get();
         $config = Setting::$buffer_config ?: Setting::bufferConfig()->get();
         //assign to static for reuse ONLY in this request
