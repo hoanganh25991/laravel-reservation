@@ -132,7 +132,15 @@ class Session extends Model {
         return $sessions;
     }
     
-    
+    public function scopeHasNewUpdate($query){
+        $today = Carbon::now(Setting::TIME_ZONE);
+        $today_string = $today->format('Y-m-d');
+
+        return $query
+                ->where('created_timestamp', '>=', $today_string)
+                ->orWhere('modified_timestamp', '>=', $today_string)
+            ;
+    }
     
     
 

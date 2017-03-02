@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Timing;
 use App\Traits\ApiUtils;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Validator;
 use App\Session;
 use Carbon\Carbon;
@@ -17,6 +18,8 @@ class BookingController extends Controller
 {
     use ApiUtils;
     use ApiResponse;
+
+    const DATES_WITH_AVAILABLE_TIME_FILE_NAME = 'dates_with_available_time_';
 
     /** @var  Collection $valid_reservations */
     protected $valid_reservations;
@@ -102,7 +105,48 @@ class BookingController extends Controller
         $sessions_by_date   = $available_sessions->groupBy(function($s){return $s->date->format('Y-m-d');});
         $timings_by_date    = $sessions_by_date->map(function($g){return $g->map->timings->collapse();});
 
-        $date_with_available_time =
+        $date_with_available_time = $this->loadDatesWithAvailableTimeFromCache() ?: $this->buildDatesWithAvailableTime($timings_by_date);
+
+        /**
+         * Change chunk time capacity base on already reservations
+         */
+        $this->valid_reservations = Reservation::validGroupByDateTimeCapacity();
+        $this->reservations_pax_size = 7;
+
+        $date_with_available_time->each(function($group, $date_string){
+            $group->each(function($chunk) use($date_string){
+                $reserved_on_day = isset($this->valid_reservations[$date_string]);
+                $reserved_on_time = $reserved_on_day && isset($this->valid_reservations[$date_string][$chunk->time]);
+
+                if($reserved_on_time){
+                    foreach(Timing::CAPACITY_X as $cap_x){
+                        try{
+                            $reserved_cap = $this->valid_reservations[$date_string][$chunk->time][$cap_x];
+                            $chunk->$cap_x = $chunk->$cap_x - $reserved_cap;
+                        }catch(\Exception $e){}
+                    }
+                }
+            });
+        });
+
+        /**
+         * Base on user booking size, filter tables are busy
+         * Only accpet capacity > 0 as available
+         */
+        $dates_with_available_time_capacity =
+            $date_with_available_time->map->filter(function($t){
+                $cap_name = Timing::getCapacityName($this->reservations_pax_size);
+
+                return $t->$cap_name > 0;
+            });
+
+
+        return $dates_with_available_time_capacity;
+    }
+
+    public function buildDatesWithAvailableTime($timings_by_date){
+        //dd('build new');
+        $return =
             $timings_by_date->map(function($group, $date_string){
                 /**
                  * Base on arrival time & interval, each timing chunked into small piece
@@ -168,7 +212,7 @@ class BookingController extends Controller
                          * New item must pushed, when item special than pre_item
                          */
                         $new_item_is_special_than_pre = ($pre_item->session_type == Session::NORMAL_SESSION
-                                                        && $item->session_type == Session::SPECIAL_SESSION);
+                            && $item->session_type == Session::SPECIAL_SESSION);
                         $new_item_must_pushed = $new_item_is_special_than_pre && !$satisfied_interval;
 
                         if($new_item_must_pushed)
@@ -200,7 +244,7 @@ class BookingController extends Controller
                 $min_hours_session_time = $buffer_config('MIN_HOURS_IN_ADVANCE_SESSION_TIME');
 
                 $satisfied_prior_time_chunks = $fixed_interval_chunks;
-                
+
                 /**
                  * Compute day time on today with current checking session time
                  */
@@ -222,51 +266,56 @@ class BookingController extends Controller
                             $satisfied_in_advance_session_time = $diff_in_hour >= $min_hours_session_time;
 
                             return $satisfied_in_advance_slot_time
-                                    && $satisfied_in_advance_session_time;
+                            && $satisfied_in_advance_session_time;
                         })->values();
                 }
+
 
                 return $satisfied_prior_time_chunks;
             });
 
         /**
-         * Change chunk time capacity base on already reservations
+         * Save cache before move on
          */
-        $this->valid_reservations = Reservation::validGroupByDateTimeCapacity();
-        $this->reservations_pax_size = 7;
+        $today = Carbon::now(Setting::TIME_ZONE);
+        $today_string = $today->format('Y-m-d');
 
-        $date_with_available_time->each(function($group, $date_string){
-            $group->each(function($chunk) use($date_string){
-                $reserved_on_day = isset($this->valid_reservations[$date_string]);
-                $reserved_on_time = $reserved_on_day && isset($this->valid_reservations[$date_string][$chunk->time]);
+        $file_name = BookingController::DATES_WITH_AVAILABLE_TIME_FILE_NAME + $today_string;
+        //expire in day
+        Cache::put($file_name, $return, 24 * 60);
 
-                if($reserved_on_time){
-                    foreach(Timing::CAPACITY_X as $cap_x){
-                        try{
-                            $reserved_cap = $this->valid_reservations[$date_string][$chunk->time][$cap_x];
-                            $chunk->$cap_x = $chunk->$cap_x - $reserved_cap;
-                        }catch(\Exception $e){}
-                    }
-                }
-            });
-        });
-
-        /**
-         * Base on user booking size, filter tables are busy
-         * Only accpet capacity > 0 as available
-         */
-        $dates_with_available_time_capacity =
-            $date_with_available_time->map->filter(function($t){
-                $cap_name = Timing::getCapacityName($this->reservations_pax_size);
-
-                return $t->$cap_name > 0;
-            });
-
-
-        return $dates_with_available_time_capacity;
+        return $return;
     }
 
+    public function loadDatesWithAvailableTimeFromCache(){
+        if($this->shouldUseCache()){
+            $today = Carbon::now(Setting::TIME_ZONE);
+            $today_string = $today->format('Y-m-d');
 
+            $file_name = BookingController::DATES_WITH_AVAILABLE_TIME_FILE_NAME . $today_string;
+
+            return Cache::get($file_name, null);
+        }
+
+        return null;
+    }
+
+    /**
+     * New special session come on that day
+     * Or change on normal session
+     * Let to cache not updated
+     * Should recalculate
+     */
+    public function shouldUseCache(){
+        $has_new_update = Session::hasNewUpdate()->get()->count() > 0;
+
+        if($has_new_update)
+            return false;
+
+
+        
+        return true;
+    }
 
 
     
