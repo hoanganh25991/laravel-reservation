@@ -11,6 +11,7 @@ use App\OutletReservationSetting as Setting;
  * @property static date
  * @property mixed adult_pax
  * @property mixed children_pax
+ * @property mixed pax_size
  */
 class Reservation extends HoiModel {
 
@@ -42,33 +43,36 @@ class Reservation extends HoiModel {
         ]);
     }
     
-    protected function valid(){
+    protected function validGroupByDateTimeCapacity(){
         $valid_reservations   = Reservation::validInDateRange()->get();
-        dd($valid_reservations);
-        $c = $valid_reservations->sum('pax_size');
-        dd($c);
-        $reservations_by_date = $valid_reservations->groupBy(function($r){return $r->date->format('Y-m-d');});
-        $reservations_by_time =
-            $reservations_by_date->map(function($group){
-                return $group->groupBy(function($r){
-                    return $r->date->format('H:i:s');
-                })->map->sum('pax_size');
-            });
 
-        dd($reservations_by_time);
-        
-        return $reservations_by_time;
+        $reservations_by_date_by_time_by_capacity =
+            $valid_reservations
+                ->groupBy(function($r){return $r->date->format('Y-m-d');})
+                ->map->groupBy(function($r){return $r->date->format('H:i');})
+                ->map->map->map->groupBy(function($r){return Timing::getCapacityName($r->pax_size);});
+
+        $capacity_counted_reservations =
+            $reservations_by_date_by_time_by_capacity
+                ->map->map->map->map(function($g){return $g->count();});
+        //dd($capacity_counted_reservations);
+
+        return $capacity_counted_reservations;
     }
     
     public function getDateAttribute(){
         return $this->reservation_timestamp;
     }
 
-    public function getPaxSize(){
+    public function getPaxSizeAttribute(){
         return ($this->adult_pax + $this->children_pax);
     }
 
     public function getReservationTimestampAttribute($date_tring){
         return Carbon::createFromFormat('Y-m-d H:i:s', $date_tring, Setting::TIME_ZONE);
+    }
+
+    public function getCapacityNameAttribute(){
+        return "capacity_x";
     }
 }

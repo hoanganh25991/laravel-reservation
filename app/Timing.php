@@ -34,6 +34,24 @@ class Timing extends Model {
      */
     const ARRIVAL_STEPS  = [15];
 
+    /**
+     * Capcaity prefix
+     */
+    const CAPACITY_PREFIX = 'capacity';
+    const CAPACITY_X = [
+        'capacity_1',
+        'capacity_2',
+        'capacity_3_4',
+        'capacity_5_6',
+        'capacity_7_x'
+    ];
+
+    /**
+     * Timing disabled
+     */
+    const AVAILABLE = 0;
+    const DISABLED  = 1;
+
     protected $table = 'timing';
 
     /**
@@ -82,8 +100,45 @@ class Timing extends Model {
         return $chunks;
     }
 
+    /**
+     * @param $pax_size
+     * @return string
+     */
+    public static function getCapacityName($pax_size){
+        $capacity_name = Timing::CAPACITY_PREFIX;
 
-
+        $value = "1";
+        
+        switch($pax_size){
+            case 1:
+                $value = '1';
+                break;
+            case 2:
+                $value = '2';
+                break;
+            case 3:
+            case 4:
+                $value = '3_4';
+                break;
+            case 5:
+            case 6:
+                $value = '5_6';
+                break;
+        }
+        
+        if($pax_size >= 7)
+            $value = '7_x';
+        
+        return "{$capacity_name}_{$value}";
+    }
+    
+    public function scopeAvailable($query){
+        return $this->withAvailable($query);
+    }
+    
+    protected function withAvailable($query){
+        return $query->where('disabled', Timing::AVAILABLE);
+    }
     
 
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Timing;
 use App\Traits\ApiUtils;
 use Validator;
 use App\Session;
@@ -225,10 +226,36 @@ class BookingController extends Controller
         /**
          * Change its capacity base on already reservations
          */
-        $reservations = Reservation::valid();
-        //$date_with_available_time
+        $this->reservations = Reservation::validGroupByDateTimeCapacity();
+        $this->booking_cap = 7;
+        $date_with_available_time->each(function($group, $date_string){
+            $group->each(function($chunk) use($date_string){
+                $reserved_on_day = isset($this->reservations[$date_string]);
+                $reserved_on_time = $reserved_on_day && isset($this->reservations[$date_string][$chunk->time]);
 
-        return $reservations;
+                if($reserved_on_time){
+                    foreach(Timing::CAPACITY_X as $cap_x){
+                        try{
+                            $reserved_cap = $this->reservations[$date_string][$chunk->time][$cap_x];
+                            $chunk->$cap_x = $chunk->$cap_x - $reserved_cap;
+                        }catch(\Exception $e){}
+                    }
+                }
+            });
+        });
+
+        /**
+         * Base on user booking size, filter out tables are busy
+         */
+        $dates_with_available_time_capacity =
+            $date_with_available_time->map->filter(function($t){
+                $cap_name = Timing::getCapacityName($this->booking_cap);
+
+                return $t->$cap_name > 0;
+            });
+
+
+        return $dates_with_available_time_capacity;
     }
     
     

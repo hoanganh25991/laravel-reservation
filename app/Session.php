@@ -82,7 +82,7 @@ class Session extends Model {
     public function scopeAvailableSession($query){
         return $query->normalSession()
             ->orWhere(function($q){$q->specialSession();})
-            ->with('timings.session');
+            ->with(['timings' => function($relation){Timing::available($relation)->with('session');}]);
     }
 
     /**
