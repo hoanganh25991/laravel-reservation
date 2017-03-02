@@ -4,7 +4,7 @@ namespace App;
 
 use App\Traits\ApiUtils;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
+use App\OutletReservationSetting as Setting;
 
 class OutletReservationSetting extends Model {
 
@@ -38,9 +38,12 @@ class OutletReservationSetting extends Model {
      * @return string
      */
     protected function getBufferConfig(){
-        $config = static::bufferConfig()->get();
+        //$config = static::bufferConfig()->get();
+        $config = Setting::bufferConfig()->get();
         /**
          * Train config how to getKey
+         * Dynamic add up function to object
+         * ~ prototype in js, JUST nearly like
          */
         $config->getKey = $this->buildGetKey();
         

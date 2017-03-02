@@ -7,7 +7,6 @@ use App\Traits\ApiUtils;
 //use App\Library\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use App\OutletReservationSetting as Setting;
-use Symfony\Component\DependencyInjection\Tests\Compiler\C;
 
 /**
  * @property mixed one_off
@@ -86,148 +85,6 @@ class Session extends Model {
             ->with('timings.session');
     }
 
-    protected function availableTime(){
-        $available_sessions = Session::availableSession()->get()->map->assignDate()->collapse();
-        $sessions_by_date   = $available_sessions->groupBy(function($s){return $s->date->format('Y-m-d');});
-        $timings_by_date    = $sessions_by_date->map(function($g){return $g->map->timings->collapse();});
-
-        $date_with_available_time =
-            $timings_by_date->map(function($group, $date_string){
-                $chunks  = $group->map->chunk->collapse();
-
-                $ordered_chunks = $chunks->sortBy(function($c){return $this->getMinutes($c->time);})->values();
-
-                /**
-                 * Special timing chunk will override on normal one
-                 */
-                $merged_chunks =
-                    $ordered_chunks->reduce(function($carry, $item){
-                        /**
-                         *
-                         */
-                        $alreday_has = $carry->filter(function($last_item)use($item){return $last_item->time == $item->time;})->count() > 0;
-
-                        /**
-                         * overlap item is special, so override on pre_item
-                         * bcs item sort out by order
-                         * 2 item at same time > special item chose
-                         */
-
-                        $overlap_item_is_special = $alreday_has && $item->session_type == Session::SPECIAL_SESSION;
-
-                        if($overlap_item_is_special)
-                            $carry->pop();
-
-                        /**
-                         * Decide push item
-                         */
-                        $push_new = !$alreday_has || $overlap_item_is_special;
-
-                        if($push_new)
-                            $carry->push($item);
-
-
-                        return $carry;
-                    }, collect([]));
-
-
-                $fixed_interval_chunks =
-                    $merged_chunks->reduce(function($carry, $item){
-                        /**
-                         * First push item
-                         */
-                        $pre_item = $carry->last();
-                        //should return immediately to prevent call on null
-                        //of following step
-                        if(is_null($pre_item)){
-                            $carry->push($item);
-                            return $carry;
-                        }
-
-                        /**
-                         * satisfied interval > should push
-                         */
-                        $delta_time_with_pre = abs(Session::getMinutes($pre_item->time) - Session::getMinutes($item->time));
-                        $satisfied_interval  = $delta_time_with_pre >= $pre_item->interval_minutes;
-
-                        /**
-                         * new item must pushed
-                         */
-                        $new_item_is_special_than_pre = ($pre_item->session_type == Session::NORMAL_SESSION
-                                                        && $item->session_type == Session::SPECIAL_SESSION);
-                        $new_item_must_pushed = $new_item_is_special_than_pre && !$satisfied_interval;
-                        if($new_item_must_pushed)
-                            $carry->pop();
-
-
-                        /**
-                         * Respect first arrival
-                         */
-                        $delta_time_with_first_arrival = abs(Session::getMinutes($item->time) - Session::getMinutes($item->first_arrival_time));
-                        $respect_first_arrival = ($delta_time_with_first_arrival % $item->interval_minutes) == 0;
-
-                        /**
-                         * Check push new
-                         */
-                        $push_new = ($satisfied_interval || $new_item_must_pushed) && $respect_first_arrival;
-
-                        if($push_new)
-                            $carry->push($item);
-
-                        return $carry;
-                    }, collect([]));
-
-                //BUFFER config check
-                $buffer_config = Setting::getBufferConfig();
-                /**
-                 * Check minimum hours in advance for slot time
-                 */
-                /** @var string $buffer_config */
-                $min_hours_slot_time    = $buffer_config('MIN_HOURS_IN_ADVANCE_SLOT_TIME');
-                $min_hours_session_time = $buffer_config('MIN_HOURS_IN_ADVANCE_SESSION_TIME');
-
-                $satisfied_prior_slot_time_chunks = $fixed_interval_chunks;
-                $today = Carbon::now();
-                $current_date =  Carbon::createFromFormat('Y-m-d', $date_string);
-                if($current_date->diffInDays($today) < 1){
-                    $satisfied_prior_slot_time_chunks =
-                        $fixed_interval_chunks->filter(function($item) use($min_hours_slot_time, $min_hours_session_time){
-                            $item_time_hours = $this->getMinutes($item->time) / 60;
-
-                            $satisfied_in_advance_slot_time    = $item_time_hours >= $min_hours_slot_time;
-                            $satisfied_in_advance_session_time = $item_time_hours >= $min_hours_session_time;
-
-                            return $satisfied_in_advance_slot_time
-                                   && $satisfied_in_advance_session_time;
-                        });
-                }
-
-
-                return $satisfied_prior_slot_time_chunks;
-            });
-
-
-        $today_string = Carbon::now()->format('Y-m-d');
-
-        if(isset($date_with_available_time[$today_string])){
-            //modify directly on $date_with_available_time
-            $available_sessions = $date_with_available_time[$today_string];
-
-//            dd($available_sessions);
-
-            $date_with_available_time[$today_string] = $available_sessions->filter(function($chunk){return false;});
-        }
-
-        //$date_with_available_time
-        
-        /**
-         * Check minimum hours in advance for session time
-         */
-        //$date_with_available_time
-
-        return $date_with_available_time;
-    }
-
     /**
      * Check normal session available on day x of week
      * @param string $session_day
@@ -239,6 +96,10 @@ class Session extends Model {
 
     /**
      * Assign date to session
+     * @warn normal session can reuse for many days
+     * > return as collection of session with date
+     * > to normalize the consistent
+     * > special session after assigned also return a collection 
      * @return \Illuminate\Support\Collection
      */
     public function assignDate(){
@@ -246,13 +107,13 @@ class Session extends Model {
 
         if($this->isSpecial()){
             /* @case one_off_date NULL */  
-            $this->date = Carbon::createFromFormat('Y-m-d', $this->one_off_date);
+            $this->date = Carbon::createFromFormat('Y-m-d', $this->one_off_date, Setting::TIME_ZONE);
 
             return $sessions->push($this);
         }
 
         if(!$this->isSpecial()){
-            $today = Carbon::now();
+            $today = Carbon::now(Setting::TIME_ZONE);
             foreach(Session::DAY_OF_WEEK as $carbon_day => $session_day){
                 $diff_in_day =  ($carbon_day - $today->dayOfWeek);
 

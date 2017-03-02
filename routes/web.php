@@ -47,10 +47,11 @@ Route::get('test/session/buildStep2', function(){
     return $available_days;
 });
 
-Route::get('test/session/buildStep3', function(){
+Route::get('test/session/buildStep3', function(App\Http\Controllers\BookingController $c){
 //    $available_days = App\Session::availableV2();
-    $available_days = App\Session::availableTime();
+    //$available_days = App\Session::availableTime();
     //$available_days = App\Session::availableSession()->get()->map->assignDate()->collapse();
+    $available_days = $c->availableTime();
 
     return $available_days;
 });
