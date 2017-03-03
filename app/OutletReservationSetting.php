@@ -36,7 +36,8 @@ class OutletReservationSetting extends Model {
     protected $table = 'outlet_reservation_setting';
 
     protected function timezone(){
-        return config('app.timezone');
+        //return config('app.timezone');
+        return env('TIMEZONE');
     }
 
     public function scopeBufferConfig($query){
@@ -61,6 +62,19 @@ class OutletReservationSetting extends Model {
         $config->getKey = $this->buildGetKey();
         
         return $config->getKey->bindTo($config);
+    }
+
+    /**
+     * @return Carbon[]
+     */
+    protected function dateRange(){
+        $buffer_config = Setting::bufferConfigAsMap();
+        $max_days_in_advance = $buffer_config('MAX_DAYS_IN_ADVANCE');
+
+        $today   = Carbon::now(Setting::timezone());
+        $max_day = $today->copy()->addDays($max_days_in_advance);
+
+        return [$today, $max_day];
     }
 
 

@@ -64,8 +64,8 @@ return [
     |
     */
 
-    //'timezone' => 'UTC',
-    'timezone' => 'Asia/Singapore',
+    'timezone' => 'UTC',
+    //'timezone' => 'Asia/Singapore',
 
     /*
     |--------------------------------------------------------------------------

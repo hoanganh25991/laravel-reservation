@@ -22,10 +22,12 @@ class BookingController extends Controller
     const DATES_WITH_AVAILABLE_TIME_FILE_NAME = 'dates_with_available_time_';
 
     /** @var  Collection $valid_reservations */
-    protected $valid_reservations;
+    public $valid_reservations;
 
     /** @var  int $reservations_pax_size */
-    protected $reservations_pax_size;
+    public $reservations_pax_size;
+    
+    public $recalculate;
 
     public function dateAvailable(ApiRequest $req){
         /* @var Validator $validator*/
@@ -309,6 +311,9 @@ class BookingController extends Controller
      * Should recalculate
      */
     public function shouldUseCache(){
+        if($this->recalculate)
+            return false;
+        
         $session_has_new_update = Session::hasNewUpdate()->get()->count() > 0;
 
         if($session_has_new_update)

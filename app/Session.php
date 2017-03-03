@@ -5,6 +5,7 @@ namespace App;
 use Carbon\Carbon;
 use App\Traits\ApiUtils;
 //use App\Library\Carbon;
+use Hamcrest\Core\Set;
 use Illuminate\Database\Eloquent\Model;
 use App\OutletReservationSetting as Setting;
 
@@ -114,18 +115,23 @@ class Session extends Model {
         }
 
         if(!$this->isSpecial()){
-            $today = Carbon::now(Setting::timezone());
-            foreach(Session::DAY_OF_WEEK as $carbon_day => $session_day){
-                $diff_in_day =  ($carbon_day - $today->dayOfWeek);
+            $date_range = Setting::dateRange();
 
-                $available_to_book = $this->availableOnDay($session_day) && ($diff_in_day >= 0);
+            $current = $date_range[0]->copy();
+            while($current->lte($date_range[1])){
+                $current_day = $current->dayOfWeek;
+                $session_day = Session::DAY_OF_WEEK[$current_day];
 
-                if($available_to_book){
+                if($this->availableDateRange($session_day)){
                     $as = clone $this;
-                    $as->date = $today->copy()->addDays($carbon_day -  $today->dayOfWeek);
+                    $as->date = $current->copy();
 
                     $sessions->push($as);
                 }
+
+                //increase loop
+                $current->addDay();
+
             }
 
         }
@@ -133,15 +139,8 @@ class Session extends Model {
         return $sessions;
     }
     
-//    public function scopeHasNewUpdate($query){
-//        $today = Carbon::now(Setting::timezone());
-//        $today_string = $today->format('Y-m-d');
-//
-//        return $query
-//                ->where('created_timestamp', '>=', $today_string)
-//                ->orWhere('modified_timestamp', '>=', $today_string)
-//            ;
-//    }
+
+
     
     
 
