@@ -54,7 +54,9 @@ Route::get('test/session/buildStep3', function(App\Http\Controllers\BookingContr
     $c->recalculate = true;
     $data = $c->availableTime();
 
-    //return view('index')->with(compact('data'));
+//    $data = json_encode($data);
+//    return view('index')->with(compact('data'));
+
     return $data;
 });
 

@@ -14,8 +14,8 @@ use App\Traits\ApiResponse;
 use App\Http\Requests\ApiRequest;
 use App\OutletReservationSetting as Setting;
 
-class BookingController extends Controller
-{
+class BookingController extends Controller {
+
     use ApiUtils;
     use ApiResponse;
 
@@ -162,6 +162,16 @@ class BookingController extends Controller
                  */
                 $merged_chunks =
                     $ordered_chunks->reduce(function($carry, $item){
+                        /**
+                         * Push first item
+                         */
+                        $pre_item = $carry->last();
+                        //should return immediately to prevent call on null of following step
+                        if(is_null($pre_item)){
+                            $carry->push($item);
+                            return $carry;
+                        }
+
                         $alreday_has = $carry->filter(function($last_item)use($item){return $last_item->time == $item->time;})->count() > 0;
 
                         /**
@@ -169,8 +179,11 @@ class BookingController extends Controller
                          * bcs item sort out by order
                          * 2 item at same time > special item chose
                          */
+                        $pre_item = $carry->last();
+                        $new_item_is_special_than_pre = ($pre_item->session_type == Session::NORMAL_SESSION
+                            && $item->session_type == Session::SPECIAL_SESSION);
 
-                        $overlap_item_is_special = $alreday_has && $item->session_type == Session::SPECIAL_SESSION;
+                        $overlap_item_is_special = $alreday_has && $new_item_is_special_than_pre;
 
                         if($overlap_item_is_special)
                             $carry->pop();

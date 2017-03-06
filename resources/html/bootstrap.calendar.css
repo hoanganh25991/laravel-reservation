@@ -1,0 +1,2234 @@
+html {
+    height: 100%
+}
+body {
+    height: auto;
+    font-size: 15px;
+    line-height: 24px;
+    line-height: 18px;
+    color: #efefef;
+    background-attachment: fixed;
+    font: 'Raleway', Helvetica Neue, Helvetica, Arial, sans-serif
+}
+body.modal-open {
+    overflow: hidden
+}
+a {
+    color: #f90
+}
+a:hover {
+    color: #f90
+}
+label {
+    float: left;
+    display: inline;
+    width: 130px;
+    padding: 5px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #232323;
+    white-space: nowrap
+}
+input {
+    width: 290px
+}
+input,
+select {
+    font-family: Arial, Helvetica, sans-serif
+}
+textarea {
+    resize: none;
+    height: 100px
+}
+legend {
+    font-size: 13px;
+    text-align: left;
+    border-bottom: 0
+}
+.form-control {
+    color: #292f33
+}
+.cl {
+    clear: both
+}
+.clear {
+    clear: both;
+    display: block;
+    overflow: hidden;
+    width: 0;
+    height: 0
+}
+.cf:after {
+    clear: both;
+    content: '.';
+    display: block;
+    visibility: hidden;
+    height: 0
+}
+.cf {
+    display: inline-block
+}
+* html .cf {
+    height: 1%
+}
+.cf {
+    display: block
+}
+.hidden {
+    display: none
+}
+.center {
+    margin: 0 auto;
+    text-align: center
+}
+.buttons {
+    text-align: center;
+    margin: 20px 0
+}
+.buttons input {
+    font-size: 14px;
+    margin: 5px 20px;
+    border-radius: 2px;
+    padding: 10px 10px 10px 28px
+}
+.buttons #show_edit_button {
+    color: #232323;
+    text-shadow: none;
+    /*background: url(../img/edit-cancel.png?date=20130723) 7px -20px no-repeat #e0e0e0*/
+}
+.ccaret {
+    border: 5px solid transparent;
+    display: inline-block;
+    width: 0;
+    height: 0;
+    opacity: .9;
+    vertical-align: top
+}
+.ccaret.up {
+    border-bottom: 5px solid
+}
+.ccaret.right {
+    border-left: 5px solid
+}
+.ccaret.down {
+    border-top: 5px solid
+}
+.ccaret.left {
+    border-right: 5px solid
+}
+.highlight-clr {
+    font-weight: bold;
+    color: #f90
+}
+.btn {
+    font-size: 17px;
+    font-weight: bold
+}
+.btn-default {
+    background-image: linear-gradient(to top, #eaeaea, #fff);
+    border: 1px solid #cdcdcd;
+    font-weight: bold
+}
+.btn-facebook {
+    color: #fff;
+    text-decoration: none;
+    border: 1px solid #000;
+    border-top: 0;
+    border-color: rgba(0, 0, 0, 0.15) rgba(0, 0, 0, 0.15) rgba(0, 0, 0, 0.25);
+    background-color: #405d98;
+    background-image: linear-gradient(to bottom, #6585c6, #254076)
+}
+.btn-facebook:hover {
+    background-image: linear-gradient(to bottom, #5676b7, #163167);
+    color: #fff
+}
+.drpdwn-arrw-before {
+    border-color: rgba(255, 0, 0, 0);
+    border-bottom-color: #cdcdcd;
+    border-width: 9px;
+    margin-left: -9px
+}
+.drpdwn-arrw-after {
+    border-color: rgba(255, 255, 255, 0);
+    border-bottom-color: #fff;
+    border-width: 8px;
+    margin-left: -8px
+}
+.uneditable-input {
+    cursor: default;
+    background: #eee
+}
+.navbar-inner {
+    background: #232323;
+    border-bottom: 1px solid #111;
+    color: #666;
+    filter: progid: DXImageTransform.Microsoft.gradient(enabled=false)
+}
+.navbar-inner h5 {
+    padding: 0 30px;
+    float: left;
+    display: inline
+}
+ul#user-options {
+    padding: 8px 0 0;
+    float: right;
+    display: inline;
+    font-weight: bold;
+    min-width: 390px;
+    text-align: right
+}
+#user-options li {
+    display: inline;
+    padding-right: 20px;
+    font-size: 14px
+}
+#user-options a {
+    color: #f3cb0f
+}
+.or-br {
+    margin: 20px auto;
+    color: #626262;
+    font-size: 12px;
+    letter-spacing: 3px !important;
+    text-align: center;
+    width: 240px;
+    overflow: hidden;
+    white-space: nowrap
+}
+#login {
+    margin: 50px auto
+}
+#login form {
+    padding: 20px 10px
+}
+#login .buttons img {
+    margin: 7px 0
+}
+#login .btn {
+    display: block;
+    width: 284px;
+    margin: 0 auto 20px
+}
+#login .or-br {
+    margin: 30px auto;
+    color: #626262;
+    font-size: 12px;
+    letter-spacing: 3px !important;
+    text-align: center;
+    width: 240px;
+    overflow: hidden;
+    white-space: nowrap
+}
+#login .or-br span {
+    color: #232323;
+    padding: 0 4px 0 2px;
+    font-size: 10px
+}
+#login .signup-lnk {
+    margin: 50px auto 0;
+    display: block;
+    text-align: center
+}
+#login-box .modal-content {
+    width: 300px;
+    margin: 130px auto 0;
+    line-height: 24px
+}
+#login-box .error #msg_div {
+    padding: 0
+}
+#login-box #log-options {
+    font-size: 10px;
+    text-align: center
+}
+#login-box #log-options .remember {
+    float: left;
+    width: auto;
+    color: #858585
+}
+#login-box #log-options .remember #remember_me {
+    width: auto
+}
+#login-box #log-options .remember small {
+    position: relative;
+    top: -2px;
+    font-size: 10px
+}
+#login-box #log-options .forgot {
+    float: right;
+    font-size: 10px;
+    padding-top: 3px
+}
+#login-box #log-options .forgot a {
+    color: #858585
+}
+#signup-box .modal-content {
+    width: 480px;
+    margin: 60px auto 0;
+    line-height: 18px
+}
+#signup-box #confirm-details {
+    padding-top: 20px;
+    line-height: 18px
+}
+#signup-box #confirm-details .form-actions {
+    margin: 10px auto;
+    text-align: center
+}
+#proceed form {
+    padding: 0 20px 20px;
+    text-align: center
+}
+#proceed .buttons .btn {
+    width: 240px;
+    background: #f90;
+    color: #fff;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+    background-color: #f90;
+    background-image: linear-gradient(to bottom, #ffa443, #f90)
+}
+#proceed #main_form_id .continue .btn {
+    font-size: 85%;
+    width: 240px
+}
+#rid-wrap {
+    margin: 20px auto 0;
+    display: block !important;
+    text-align: center
+}
+#rid-wrap #rid {
+    width: 325px
+}
+#depositinstruct fieldset {
+    text-align: center;
+    padding: 0 120px
+}
+.terms {
+    width: 85%;
+    margin: 0 auto;
+    color: #f90;
+    text-align: left
+}
+#loading {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin-bottom: -300px;
+    z-index: 9999;
+    background: #232323;
+    background-color: rgba(0, 0, 0, 0.9);
+    zoom: 1;
+    filter: alpha(opacity=90)
+}
+#loading .message {
+    width: 300px;
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    margin-top: -150px;
+    margin-left: -150px;
+    opacity: 1
+}
+#loading .message p {
+    padding-bottom: 15px;
+    font-size: 16px;
+    font-weight: bold
+}
+#loading .progress-striped .bar {
+    background-color: #149bdf;
+    background-color: #ffd200
+}
+#reservation-details #show_cancel_button {
+    font-size: 14px
+}
+#reservation-details #show_edit_button {
+    font-size: 14px
+}
+#confirmation_send_friend {
+    margin-bottom: 20px
+}
+#cc-authorization .alert {
+    color: #000;
+    background: #f9f9f9;
+    border: 1px solid #999;
+    font-size: 15px
+}
+#cc-authorization .warning {
+    background: #f00;
+    padding: 3px 6px;
+    color: #fff;
+    text-shadow: 0
+}
+#cc-authorization .form-actions .btn {
+    font-size: 13px;
+    width: 150px;
+    height: 40px
+}
+#confirm-details .form-set .custom-number {
+    width: 145px
+}
+.modal {
+    background: none;
+    padding: 0;
+    overflow-y: auto;
+    z-index: 99999999
+}
+.modal-open {
+    overflow-y: scroll
+}
+.modal-backdrop {
+    z-index: 99999998;
+    overflow: none
+}
+.modal-content {
+    top: 50%
+}
+.modal-content .error {
+    color: #df0024
+}
+.modal-title {
+    padding: 0
+}
+.modal-body {
+    color: #000
+}
+.modal-body .error_msg {
+    padding: 5px 10px
+}
+.modal-header {
+    padding: 8px 12px 8px;
+    color: #666;
+    font-size: 11px;
+    min-height: 32px
+}
+.modal-footer {
+    color: #343434;
+    border: 0
+}
+#choose-alternative-box,
+#notice-box {
+    color: #232323
+}
+#choose-alternative-box #notice,
+#notice-box #notice {
+    width: 300px;
+    margin: 20px auto 0;
+    line-height: 24px
+}
+#choose-alternative-box #notice {
+    width: 300px;
+    margin: 130px auto 0;
+    line-height: 24px
+}
+#choose-alternative-box #alternatives {
+    margin: 30px auto 20px
+}
+#choose-alternative-box #alternatives .btn {
+    background: linear-gradient(#f4ab21, #f4ab21) repeat scroll 0 0 #f4ab21;
+    border-color: #f4ab21;
+    border-radius: 3px;
+    box-shadow: none;
+    color: #f5f5f5;
+    margin: 2px 0;
+    padding: 3px 10px 3px 0;
+    text-rendering: optimizelegibility;
+    width: 100px
+}
+#choose-alternative-box #alternatives .btn:hover {
+    background: #f90;
+    border: 1px solid #d19700;
+    color: #fff
+}
+#choose-alternative-box #alternatives #alt-two {
+    float: right
+}
+.error p.alert {
+    margin: 0;
+    padding: 0 10px 15px;
+    color: #df0024;
+    font-size: 12px
+}
+.flash_box_new {
+    border-radius: 4px;
+    border: 2px #facb28 solid;
+    height: 90px;
+    float: right;
+    margin-bottom: 20px;
+    position: relative;
+    width: 84%;
+    padding-top: 5px
+}
+.flash_box_new .woucher {
+    /*background: url(../img/flash_away.png) no-repeat;*/
+    width: 110px;
+    height: 112px;
+    position: absolute;
+    left: -60px;
+    top: -12px;
+    text-align: center
+}
+.flash_box_new .woucher p {
+    font: 700 40px/40px Arial;
+    margin-top: 25px;
+    margin-bottom: 0
+}
+.flash_box_new .woucher span {
+    color: #2a2929;
+    font: 700 10px/14px Arial;
+    font-style: italic;
+    display: block
+}
+.flash_box_new .text_box {
+    padding-left: 50px
+}
+.flash_box_new .text_box em {
+    color: #2a2929;
+    font: 700 13px/20px Arial;
+    font-style: italic
+}
+.flash_box_new .text_box span {
+    color: #facb28;
+    font: 700 17px/30px Arial;
+    font-style: italic
+}
+.flash_box_new .text_box p {
+    color: #595656;
+    font: 400 10px/15px Arial;
+    margin: 0;
+    padding: 0
+}
+.flash_box_new .text_box a {
+    color: #428bca;
+    font: 400 10px/15px Arial
+}
+.flash_box_new .text_box input {
+    width: 130px;
+    border-radius: 2px;
+    border: 1px #ccc solid;
+    line-height: 18px;
+    color: #595656;
+    font-size: 12px
+}
+.flash_box_new .text_box .flash_botton {
+    width: 80px;
+    color: #fff;
+    line-height: 20px;
+    font-size: 12px;
+    background-color: #facb28;
+    border-radius: 2px;
+    border: 1px #facb28 solid;
+    text-align: center
+}
+#hdr-lang.dropdown {
+    float: left;
+    display: inline;
+    margin: 15px 8px
+}
+#hdr-lang.dropdown a {
+    text-decoration: none
+}
+#hdr-lang.dropdown p {
+    color: #101010;
+    font-weight: 400;
+    font-size: 12px;
+    width: 95px;
+    padding: 4px 2px 4px 8px;
+    border-radius: 3px;
+    background: #f3f3f3;
+    border: 1px solid #d8d8d8;
+    border-color: #e5e6e9 #dfe0e4 #d0d1d5
+}
+#hdr-lang.dropdown p .input-group-addon {
+    display: inline;
+    position: absolute;
+    top: 4px;
+    right: 0;
+    margin-left: 100px;
+    border: 0;
+    color: #101010;
+    /*background: transparent url(../img/layout/icons.png) no-repeat center center;*/
+    /*background: transparent url(../img/layout/switcher.png) no-repeat 0 2px;*/
+    height: 28px;
+    pointer-events: none
+}
+#hdr-lang.dropdown p:hover {
+    cursor: pointer
+}
+#hdr-lang.dropdown p:active {
+    border: 1px solid #1b1a19
+}
+#hdr-lang.dropdown .dropdown-menu {
+    min-width: 145px;
+    padding: 6px 0 8px;
+    border-radius: 3px;
+    margin-top: 12px;
+    background: #fff
+}
+#hdr-lang.dropdown .dropdown-menu a {
+    font-size: 12px;
+    padding: 5px 14px;
+    font-weight: 400;
+    color: #101010
+}
+#hdr-lang.dropdown .dropdown-menu a:hover {
+    color: #000
+}
+#hdr-lang.dropdown .dropdown-menu::before {
+    border-color: rgba(255, 0, 0, 0);
+    border-bottom-color: #cdcdcd;
+    border-bottom-color: #ccc;
+    margin-left: -9px;
+    border-width: 9px
+}
+#hdr-lang.dropdown .dropdown-menu::after {
+    border: solid transparent;
+    bottom: 100%;
+    content: " ";
+    height: 0;
+    left: 80%;
+    pointer-events: none;
+    position: absolute;
+    width: 0
+}
+#hdr-lang.dropdown .dropdown-menu::after {
+    border-color: rgba(255, 255, 255, 0) rgba(255, 255, 255, 0) #ccc;
+    border-width: 8px;
+    margin-left: -8px
+}
+#hdr-lang.dropdown {
+    margin: 15px 0
+}
+#hdr-lang.dropdown p {
+    width: 70px
+}
+#choose-lang #hdr-lang {
+    position: absolute;
+    right: 3px;
+    width: auto;
+    background: #f0f0f0;
+    padding: 1px 5px;
+    height: auto;
+    font-size: 12px;
+    border: 1px solid #f5f5f5;
+    border-radius: 2px;
+    margin: 0 auto 0;
+    background: 0 0;
+    box-shadow: none
+}
+#hdr-lang .icon-drop {
+    background-position: -143px 5px
+}
+#hdr-lang .icon-drop {
+    display: inline-block;
+    background: 0 0;
+    /*background: url(../img/layout/timeline.png) -9px 9px no-repeat;*/
+    border: 0;
+    padding: 10px 5px;
+    background-size: 26px 112px;
+    vertical-align: top;
+    position: absolute;
+    right: 10px;
+    top: 0
+}
+#hdr-lang.dropdown p .input-group-addon {
+    display: inline;
+    position: absolute;
+    top: 4px;
+    right: 15px;
+    width: 20px;
+    margin-left: 100px;
+    border: 0;
+    color: #101010;
+    /*background: transparent url('../img/icons.png?v=2') no-repeat center center;*/
+    /*background: transparent url('../img/switcher.png?v=2') no-repeat 0 2px;*/
+    height: 28px;
+    pointer-events: none
+}
+#hdr-lang.dropdown p {
+    text-align: left;
+    width: 90px;
+    height: 24px;
+    margin-right: 10px;
+    margin-bottom: 0
+}
+.app_storelogo {
+    width: 24%;
+    display: inline-block;
+    text-align: center
+}
+.app_storebox {
+    width: 90%;
+    margin-left: 5%
+}
+.databasebox {
+    text-align: center;
+    width: 80%;
+    margin-left: 15%;
+    font-weight: bold
+}
+.databasebox a {
+    font-weight: bold;
+    color: #85b4e2;
+    text-decoration: underline
+}
+.wgs_alertbox {
+    width: 420px;
+    position: fixed;
+    left: 50%;
+    margin-left: -210px;
+    box-shadow: 0 2px 16px #000, 0 0 1px #ccc, 0 0 1px #ccc;
+    padding-bottom: 20px;
+    background-color: #fff;
+    border-radius: 4px;
+    margin-top: 80px;
+    z-index: 999999
+}
+.wgs_alertbox .close_button {
+    /*background: url(../img/gws_alertclose.png) no-repeat;*/
+    width: 12px;
+    height: 12px;
+    position: absolute;
+    right: 14px;
+    top: 18px;
+    cursor: pointer
+}
+.wgs_alertbox .wgs_contentbox {
+    padding: 0 30px;
+    text-align: center;
+    margin-top: 55px;
+    /*background: url(../img/wgsalert_bgimage.png) no-repeat 60px 0*/
+}
+.wgs_alertbox .wgs_contentbox .sign_box {
+    width: 60%;
+    height: 50px;
+    background: #f4ab21;
+    border-radius: 4px;
+    display: inline-block;
+    color: #fff;
+    text-align: center;
+    font-family: ' HelveticaNeueCondensedBold, HelveticaNeue-CondensedBold, HelveticaNeueBoldCondensed, HelveticaNeue-Bold-Condensed, ' Helvetica Neue Bold Condensed ', HelveticaNeueBdCn, HelveticaNeueMdCn, ' HelveticaNeueW01-67MdCn 692710 ', HelveticaNeueBold, HelveticaNeue-Bold, ' Helvetica Neue Bold ', HelveticaNeue, ' Helvetica Neue ', open_sansbold, ' Franklin Gothic ', TeXGyreHerosCnBold, Geneva, Arial, Helvetica, ' Microsoft Sans Serif ', sans-serif, Georgia, ' Times New Roman ', ' Microsoft YaHei ', 微软雅黑, STXihei, 华文细黑, serif';
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 50px;
+    text-decoration: none;
+    margin-top: 15px
+}
+.wgs_alertbox .wgs_contentbox h4 {
+    color: #000;
+    margin-top: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    font-family: ' HelveticaNeueCondensedBold, HelveticaNeue-CondensedBold, HelveticaNeueBoldCondensed, HelveticaNeue-Bold-Condensed, ' Helvetica Neue Bold Condensed ', HelveticaNeueBdCn, HelveticaNeueMdCn, ' HelveticaNeueW01-67MdCn 692710 ', HelveticaNeueBold, HelveticaNeue-Bold, ' Helvetica Neue Bold ', HelveticaNeue, ' Helvetica Neue ', open_sansbold, ' Franklin Gothic ', TeXGyreHerosCnBold, Geneva, Arial, Helvetica, ' Microsoft Sans Serif ', sans-serif, Georgia, ' Times New Roman ', ' Microsoft YaHei ', 微软雅黑, STXihei, 华文细黑, serif';
+    margin-top: 210px;
+    display: inline-block
+}
+.wgs_alertbox .wgs_contentbox p {
+    color: #000;
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: 600
+}
+.wgs_alertbox .wgs_contentbox span {
+    font-size: 16px;
+    font-style: italic;
+    color: #000
+}
+.smsbox {
+    background: #f5f2e9;
+    width: 500px;
+    margin: 0 auto;
+    padding: 50px 20px;
+    text-align: center
+}
+.smsbox p {
+    color: #333;
+    font-size: 20px;
+    font-family: ' HelveticaNeueCondensedBold, HelveticaNeue-CondensedBold, HelveticaNeueBoldCondensed, HelveticaNeue-Bold-Condensed, ' Helvetica Neue Bold Condensed ', HelveticaNeueBdCn, HelveticaNeueMdCn, ' HelveticaNeueW01-67MdCn 692710 ', HelveticaNeueBold, HelveticaNeue-Bold, ' Helvetica Neue Bold ', HelveticaNeue, ' Helvetica Neue ', open_sansbold, ' Franklin Gothic ', TeXGyreHerosCnBold, Geneva, Arial, Helvetica, ' Microsoft Sans Serif ', sans-serif, Georgia, ' Times New Roman ', ' Microsoft YaHei ', 微软雅黑, STXihei, 华文细黑, serif';
+    padding: 10px 0;
+    line-height: 30px
+}
+.smbox_box .logobox {
+    margin: 0 auto
+}
+.smbox_box .title_text {
+    font-size: 24px;
+    font-weight: bold
+}
+.smbox_box .cancle_button {
+    padding: 0 20px;
+    background-color: #999;
+    color: #fff;
+    line-height: 30px;
+    margin-top: 40px;
+    margin-left: 20px;
+    font-size: 18px
+}
+.smbox_box .confirm_button {
+    padding: 0 20px;
+    background-color: #428bca;
+    color: #fff;
+    line-height: 30px;
+    margin-top: 40px;
+    font-size: 18px
+}
+.promo_box {
+    padding: 5px;
+    color: #f90;
+    cursor: pointer
+}
+.promo_box .form_box {
+    display: none
+}
+.promo_box .ues_pro {
+    padding-right: 10px;
+    width: 138px;
+    /*background: url(../img/down-arrow.png) 125px 5px no-repeat;*/
+    border-bottom: 1px #fead1e solid;
+    font-size: 12px
+}
+.promo_box lable {
+    float: left
+}
+#confirm-details #promo_code {
+    width: 45%;
+    float: left
+}
+#confirm-details .if_right {
+    /*background: url(../img/rightimage.jpg) no-repeat right*/
+}
+#confirm-details .if_wrong {
+    border: 1px #f00 solid
+}
+.btn_style {
+    background: #cbcbcb !important;
+    color: #fff !important;
+    border: none !important
+}
+#applybutton {
+    line-height: 34px;
+    height: 34px;
+    padding: 0 15px;
+    font-size: 14px;
+    margin-left: 20px
+}
+#confirm-details .if_wrongtext {
+    color: #f00
+}
+.addnewtextbox {
+    text-align: center;
+    width: 85%;
+    margin-left: 10%
+}
+.addnewtextbox p {
+    font-size: 14px;
+    font-family: ' HelveticaNeueCondensedBold, HelveticaNeue-CondensedBold, HelveticaNeueBoldCondensed, HelveticaNeue-Bold-Condensed, ' Helvetica Neue Bold Condensed ', HelveticaNeueBdCn, HelveticaNeueMdCn, ' HelveticaNeueW01-67MdCn 692710 ', HelveticaNeueBold, HelveticaNeue-Bold, ' Helvetica Neue Bold ', HelveticaNeue, ' Helvetica Neue ', open_sansbold, ' Franklin Gothic ', TeXGyreHerosCnBold, Geneva, Arial, Helvetica, ' Microsoft Sans Serif ', sans-serif, Georgia, ' Times New Roman ', ' Microsoft YaHei ', 微软雅黑, STXihei, 华文细黑, serif';
+    padding: 10px 0;
+    font-style: italic
+}
+.sms_box {
+    width: 333px;
+    margin: 0 auto;
+    border: 1px #d4d4d4 solid;
+    border-radius: 5px;
+    padding-bottom: 20px;
+    background: #fff;
+    margin-top: 20px
+}
+.sms_box .hdr-lang {
+    line-height: 33px;
+    height: 33px;
+    text-align: center;
+    border-bottom: 1px #d4d4d4 solid
+}
+.sms_box .hdr-lang .county {
+    line-height: 33px;
+    height: 33px;
+    color: #fff;
+    padding-left: 10px;
+    cursor: pointer;
+    /*background: url(../img/down_toggle.png) no-repeat 215px 15px*/
+}
+.sms_box .hdr-lang .county img {
+    display: inline-block
+}
+.sms_box .hdr-lang .county p {
+    display: inline-block;
+    margin-left: 7px;
+    font-size: 12px;
+    color: #212121
+}
+.sms_box .hdr-lang .county a {
+    display: inline-block;
+    margin-left: 7px;
+    font-size: 12px;
+    color: #212121;
+    text-decoration: none
+}
+.sms_box .hdr-lang .dropdown-menu {
+    min-width: 77px;
+    margin-top: 10px;
+    left: 120px
+}
+.sms_box .hdr-lang .dropdown-menu::after {
+    content: " ";
+    width: 0;
+    position: absolute;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid #fff;
+    top: -8px;
+    right: 20px
+}
+.sms_box .hdr-lang .dropdown-menu::before {
+    content: " ";
+    width: 0;
+    position: absolute;
+    height: 0;
+    border-left: 9px solid transparent;
+    border-right: 9px solid transparent;
+    border-bottom: 10px solid #ccc;
+    top: -10px;
+    right: 19px
+}
+.sms_box .hdr-lang .dropdown-menu li:hover {
+    background: #f5f5f5
+}
+.sms_box .hdr-lang .dropdown-menu img {
+    display: inline-block;
+    margin-left: 15px
+}
+.sms_box .hdr-lang .dropdown-menu a {
+    display: inline-block;
+    font-size: 12px;
+    padding: 0;
+    padding-left: 10px;
+    padding-right: 20px
+}
+.sms_box .titles {
+    font-size: 16px;
+    line-height: 24px;
+    padding: 10px 0;
+    text-align: center;
+    padding-top: 30px;
+    color: #212121
+}
+.sms_box .reservation_box {
+    padding: 20px 2%;
+    width: 92%;
+    margin: 0 auto;
+    text-align: center;
+    border: 1px #d4d4d4 solid;
+    border-radius: 5px
+}
+.sms_box .reservation_box p {
+    font-size: 20px;
+    color: #212121;
+    line-height: 25px
+}
+.sms_box .reservation_box p.title_re {
+    font-size: 16px;
+    line-height: 30px;
+    color: #212121;
+    font-weight: 600
+}
+.sms_box .reservation_box em {
+    font-size: 12px;
+    color: #919191;
+    padding-bottom: 20px;
+    font-weight: 500
+}
+.sms_box .btn_box {
+    width: 92%;
+    margin: 0 auto;
+    margin-top: 20px
+}
+.sms_box .btn_box a {
+    width: 115px;
+    border: none;
+    line-height: 30px;
+    border: 2px #fc0 solid;
+    border-radius: 5px;
+    height: 36px;
+    background-color: #fff;
+    color: #2b2a29;
+    font-size: 14px;
+    font-weight: bold;
+    float: left;
+    text-align: center;
+    text-decoration: none
+}
+.sms_box .btn_box a.nexts {
+    background-color: #fc0;
+    float: right
+}
+.sms_box .yes_box {
+    text-align: center;
+    padding: 100px 20px 200px 20px
+}
+.sms_box .yes_box h4 {
+    font-size: 30px;
+    color: #212121;
+    line-height: 36px
+}
+.sms_box .yes_box span {
+    font-size: 16px;
+    color: #212121
+}
+.sms_box .yes_box p {
+    padding: 0 0;
+    border-radius: 20px;
+    height: 30px;
+    line-height: 30px;
+    color: #919191;
+    font-size: 18px;
+    background: #f7f7f7;
+    width: 109px;
+    text-align: center;
+    margin: 0 auto;
+    margin-top: 15px
+}
+.footer_sms {
+    text-align: center;
+    font-size: 12px;
+    color: #212121
+}
+.container {
+    width: 800px;
+    width: auto;
+    margin: 5px auto 0;
+    display: block;
+    padding: 0;
+    overflow: auto
+}
+.container #choose-lang {
+    padding: 0 5px;
+    vertical-align: bottom;
+    margin: 3px auto 0;
+    padding: 0 0 10px;
+    text-align: right;
+    position: relative
+}
+.container #choose-lang select {
+    position: absolute;
+    right: 3px;
+    width: auto;
+    background: #f0f0f0;
+    padding: 1px 5px;
+    height: auto;
+    font-size: 12px;
+    border: 1px solid #f5f5f5;
+    border-radius: 2px;
+    margin: 0 auto 0;
+    background: transparent;
+    box-shadow: none
+}
+.container #choose-lang select option {
+    font-size: 12px
+}
+.container .box {
+    width: 500px;
+    margin: 0 auto;
+    background: #fdfdfd;
+    border: 1px solid #d9d9d9;
+    border-radius: 0 0 4px 4px;
+    border-radius: 4px;
+    position: relative;
+    padding: 0 0 10px
+}
+.container .box .hdr-wrapper {
+    width: 100%;
+    margin: 0
+}
+.container .box .hdr-wrapper .header {
+    height: 100%;
+    margin: 0 auto;
+    color: #000
+}
+.container .box .hdr-wrapper .header .logo {
+    display: inline-block;
+    height: 100%;
+    vertical-align: top;
+    padding: 0 8px 0
+}
+.container .box .hdr-wrapper .header .logo img {
+    max-width: 70px
+}
+.container .box .hdr-wrapper .header h5.title {
+    font-size: 18px;
+    padding-left: 5px;
+    display: inline-block;
+    vertical-align: middle;
+    margin: 12px 0 0;
+    color: #141823;
+    color: #7e7e7e;
+    width: 360px;
+    line-height: 20px;
+    font-size: 12px
+}
+.container .box .hdr-wrapper .header h5.title .r-name {
+    font-weight: bold;
+    color: #f00
+}
+.container .box .hdr-wrapper .header h5.title .r-name a {
+    color: #141823;
+    text-decoration: underline
+}
+.container .box .hdr-wrapper .header h5.title .r-name a:hover {
+    text-decoration: none;
+    color: #555
+}
+.container .box .hdr-wrapper .header h5.title .sub {
+    font-size: 14px;
+    font-size: 12px;
+    font-style: italic;
+    line-height: 20px;
+    font-weight: normal;
+    margin: 10px 0 5px;
+    padding: 2px 10px;
+    background: #fff;
+    border: 1px dashed #d3d3d3;
+    color: #666
+}
+.container .box .hdr-wrapper .header h5.title .sub span.field {
+    color: #232323;
+    font-weight: bold;
+    font-style: normal
+}
+.container .box .hdr-wrapper .header h5.title .sub span.field.bloc {
+    white-space: nowrap
+}
+.container .box .hdr-wrapper .header h5.title .sub.type2 {
+    color: #f00
+}
+.container .box .hdr-wrapper .header h5.title .alert-info {
+    font-size: 12px;
+    font-weight: normal;
+    padding: 2px 10px;
+    margin: 10px 0 5px;
+    border-style: dashed
+}
+.container h4 {
+    font-size: 20px
+}
+#footer {
+    clear: both;
+    padding: 5px 10px;
+    text-align: center;
+    color: #707070;
+    font-size: 11px;
+    line-height: 1.7em;
+    min-height: 50px;
+    max-width: 500px;
+    margin: auto
+}
+#footer em {
+    vertical-align: top
+}
+#footer a {
+    color: #000;
+    color: #aaa;
+    vertical-align: top
+}
+#footer #choose-lang {
+    display: inline-block;
+    padding: 0 5px;
+    vertical-align: bottom;
+    margin-bottom: 0
+}
+#footer #choose-lang select {
+    width: auto;
+    background: #f0f0f0;
+    padding: 1px 5px;
+    height: auto;
+    font-size: 12px;
+    border: 1px solid #d9d9d9;
+    border-radius: 2px;
+    margin: 0 auto 0
+}
+#footer #choose-lang select option {
+    font-size: 12px
+}
+.content {
+    clear: both;
+    margin: 0 auto;
+    padding: 0 0;
+    border-top: 0;
+    color: #000;
+    height: auto
+}
+.content .r-title {
+    width: 85%;
+    padding: 10px 20px;
+    color: #666;
+    line-height: 18px
+}
+.content .info {
+    text-align: center;
+    font-size: 12px;
+    line-height: 18px;
+    padding: 20px 20px 5px
+}
+.content form {
+    margin: 0 auto
+}
+.content form .form-actions {
+    text-align: center;
+    margin: 20px auto;
+    border: 0;
+    width: 330px;
+    bottom: 0
+}
+.content form .form-actions button {
+    width: 100px;
+    font-size: 14px
+}
+.content form .form-actions button#prev {
+    float: left;
+    background: #ddd
+}
+.content form .form-actions button#next {
+    float: right
+}
+.content .content-text {
+    margin: 50px 30px;
+    margin: 20px 30px;
+    padding: 20px 20px 5px;
+    font-size: 12px;
+    background: #fff;
+    border: 1px dashed #aaa;
+    color: #333
+}
+.content .content-text a.chope-link {
+    color: #232323
+}
+.content .smart-banner {
+    width: 410px;
+    margin: 10px auto;
+    display: block
+}
+#reservation-details .smart-banner {
+    font-weight: bold
+}
+#reservation-details .smart-banner p {
+    padding-left: 20px
+}
+#chk-edit-hdr .sub {
+    margin: 0 0 20px
+}
+#check-availability .rid-select {
+    width: 330px;
+    margin: 0 auto 20px
+}
+#check-availability .selectors {
+    width: 330px;
+    margin: 0 auto;
+    text-align: left;
+    white-space: nowrap
+}
+#check-availability .selectors select {
+    width: 75px;
+    color: #333;
+    display: inline;
+    padding: 7px 5px;
+    line-height: 4em;
+    height: 35px;
+    float: none;
+    font-weight: bold;
+    font-size: 14px
+}
+#check-availability .selectors label {
+    float: none;
+    font-weight: bold;
+    width: 50px;
+    display: inline-block;
+    color: #7e7e7e;
+    font-size: 14px
+}
+#check-availability .selectors #adults-wrap,
+#check-availability .selectors #children-wrap {
+    display: inline-block;
+    width: 50%;
+    margin: 0;
+    float: left
+}
+#check-availability .selectors #children-wrap {
+    text-align: right
+}
+#check-availability .selectors #children-wrap label {
+    width: 75px
+}
+#check-availability .datetime {
+    width: 330px;
+    margin: 20px auto 20px
+}
+#check-availability .datetime #dt-choice {
+    margin: 10px auto 0;
+    white-space: nowrap;
+    display: block;
+    width: auto;
+    text-align: center;
+    position: relative
+}
+#check-availability .datetime #dt-choice #sel-date {
+    height: 35px;
+    width: 100px;
+    min-width: 90px;
+    margin: 0 auto;
+    padding: 7px 5px 7px 0;
+    vertical-align: middle;
+    display: inline-block;
+    float: left;
+    color: #333;
+    font-size: 14px
+}
+#check-availability .datetime #dt-choice select {
+    width: 100px;
+    color: #333;
+    padding: 7px 5px;
+    line-height: 4em;
+    height: 35px;
+    font-weight: bold;
+    display: inline;
+    float: none;
+    font-size: 14px
+}
+#check-availability .datetime #dt-choice #sel-time {
+    width: 150px;
+    margin: 0 auto 0
+}
+#check-availability .datetime #dt-choice #sel-time input {
+    width: 100%;
+    color: #333;
+    padding: 6px;
+    font-weight: bold;
+    border-collapse: collapse;
+    border: 1px solid #ccc;
+    border-right: 0
+}
+#check-availability .datetime #dt-choice #sel-time .input-group-addon {
+    margin-left: -1px;
+    left: 10px
+}
+#check-availability .datetime #dt-choice #sel-time input.confirmation {
+    color: #f90
+}
+#check-availability .datetime #dt-choice #time {
+    margin-left: 10px;
+    width: 110px
+}
+#check-availability .datetime #dt-choice .unavailable {
+    width: 120px;
+    display: inline;
+    float: none;
+    height: 35px;
+    padding: 8px 5px 9px;
+    font-weight: bold;
+    color: #404545;
+    color: #999;
+    margin-left: 15px;
+    font-size: 14px
+}
+#check-availability .datetime #dt-choice #seating {
+    width: 95px;
+    margin-left: 10px
+}
+#check-availability .datetime #dt-choice.fls {
+    padding-left: 30px
+}
+#check-availability .datetime #dt-choice.confirmation #sel-date {
+    color: #f90
+}
+#check-availability .datetime #dt-choice.confirmation #sel-time input {
+    color: #f90
+}
+.legend {
+    clear: both;
+    font-size: 11px;
+    margin: 20px auto 0
+}
+.legend span {
+    margin: 0 5px;
+    white-space: nowrap;
+    text-align: center
+}
+.legend .waitlist-clr {
+    color: #f90
+}
+.legend .closed-clr {
+    color: #bfbfbf
+}
+.agree-box {
+    margin: 10px auto;
+    padding: 0 10px;
+    border: 1px dashed #bbb;
+    background: #fff;
+    width: auto
+}
+.agree-box .checkbox {
+    padding-top: 0;
+    margin: 0 0 0 20px;
+    z-index: 99
+}
+.agree-box .checkbox .agree-check {
+    width: auto;
+    display: inline-block;
+    vertical-align: top;
+    outline: none;
+    box-shadow: none;
+    border: 0;
+    left: 0
+}
+.agree-box .checkbox .agree-check:focus {
+    outline: none !important
+}
+.agree-box .checkbox label {
+    width: auto;
+    margin: 0;
+    display: inline-block;
+    padding-left: 0;
+    vertical-align: top;
+    font-style: italic;
+    font-size: 11px;
+    white-space: normal
+}
+.form-actions {
+    margin: 0 auto
+}
+#choose-time-box #choose-time {
+    width: 300px;
+    margin: 20px auto 0
+}
+#choose-time-box #choose-time .modal-header .close {
+    opacity: .5
+}
+#choose-time-box #choose-time .modal-body {
+    padding: 10px
+}
+#choose-time-box #choose-time .modal-body .legend {
+    margin: 0
+}
+#choose-time-box #choose-time .modal-body .available-time {
+    overflow-y: scroll;
+    max-height: 400px;
+    margin: 0;
+    padding: 0
+}
+#choose-time-box ul {
+    list-style: none
+}
+#choose-time-box ul li {
+    padding: 6px 10px;
+    display: block
+}
+#choose-time-box ul li a {
+    color: #666;
+    font-weight: bold;
+    padding: 6px 20px 6px 40px;
+    display: block
+}
+#choose-time-box ul li a:active,
+#choose-time-box ul li a:hover {
+    color: #369
+}
+#choose-time-box ul li.time-confirm a {
+    color: #f90
+}
+#choose-time-box ul li.time-confirm a:active,
+#choose-time-box ul li.time-confirm a:hover {
+    color: #369
+}
+#choose-time-box ul li:hover {
+    background: #eaeaea
+}
+#confirm-details {
+    padding: 10px 20px;
+    margin: 0 auto
+}
+#confirm-details .btn-facebook {
+    width: 275px
+}
+#confirm-details label {
+    float: left;
+    display: inline-block;
+    color: #666
+}
+#confirm-details #d-title {
+    width: 78px;
+    width: 90px;
+    display: inline;
+    margin: 0 5px;
+    margin-left: 30px;
+    position: relative;
+    top: -1px
+}
+#confirm-details .form-control {
+    width: 300px
+}
+#confirm-details .form-set {
+    float: left;
+    width: 270px
+}
+#confirm-details .form-set .checkbox {
+    margin: 10px auto;
+    padding: 0
+}
+#confirm-details .form-set .checkbox input[type=checkbox] {
+    width: auto;
+    margin: 2px 5px 0 -20px
+}
+#confirm-details .form-set .checkbox label {
+    white-space: normal;
+    max-width: 280px;
+    width: auto;
+    font-size: 15px
+}
+#confirm-details .form-set .input-group {
+    margin: 0;
+    width: auto;
+    max-width: 270px;
+    color: #666
+}
+#confirm-details .form-set .input-group select {
+    width: auto;
+    max-width: 80px;
+    float: none;
+    margin: 0 10px
+}
+#confirm-details .form-set .form-control {
+    color: #666
+}
+#confirm-details .d-name {
+    width: 146px;
+    display: inline
+}
+#confirm-details #phone-area {
+    width: 70px;
+    display: inline-block;
+    margin: 0 0 15px
+}
+#confirm-details #telephone {
+    width: 225px;
+    display: inline-block;
+    margin: 0 0 15px
+}
+#confirm-details #message {
+    width: 300px;
+    height: 80px
+}
+#confirm-details .note {
+    width: 280px;
+    font-size: 10px;
+    margin-left: 31%;
+    line-height: 1.3em;
+    margin-top: 5px;
+    color: #444
+}
+#confirm-details #agree {
+    margin: 0 auto;
+    padding: 0 10px;
+    border: 1px dashed #bbb;
+    background: #fff;
+    width: 420px;
+    margin-left: 10px
+}
+#confirm-details #agree .checkbox {
+    padding-top: 0;
+    margin-left: 20px;
+    z-index: 99
+}
+#confirm-details #agree .checkbox .agree-check {
+    width: auto;
+    display: inline-block;
+    vertical-align: top;
+    outline: none;
+    box-shadow: none;
+    border: 0;
+    left: 0
+}
+#confirm-details #agree .checkbox .agree-check:focus {
+    outline: none !important
+}
+#confirm-details #agree .checkbox label {
+    width: auto;
+    margin: 0;
+    display: inline-block;
+    padding-top: 10px;
+    padding-left: 0;
+    vertical-align: top;
+    font-style: italic;
+    font-size: 11px;
+    white-space: normal
+}
+#confirm-details #requests-cbox {
+    margin: 0 auto;
+    padding: 0 10px;
+    border: 1px dashed #bbb;
+    background: #fff;
+    width: 420px;
+    margin-left: 10px;
+    margin: 20px 10px 30px;
+    border: 1px solid #ccc;
+    border-radius: 4px
+}
+#confirm-details #requests-cbox .checkbox {
+    padding-top: 0
+}
+#confirm-details #requests-cbox .checkbox .check {
+    margin: 0 0 0;
+    width: auto;
+    display: inline-block;
+    vertical-align: top;
+    outline: none;
+    box-shadow: none;
+    border: 0;
+    left: 0
+}
+#confirm-details #requests-cbox .checkbox .check:focus {
+    outline: none !important
+}
+#confirm-details #requests-cbox .checkbox label {
+    width: auto;
+    margin: 0;
+    display: inline-block;
+    padding-top: 6px;
+    vertical-align: top;
+    font-size: 11px;
+    white-space: normal
+}
+#confirm-details .form-actions {
+    margin: 20px auto 0
+}
+#confirm-details .forgot_form {
+    margin: 20px auto
+}
+#confirm-details .forgot_form .input-group {
+    text-align: center;
+    margin: 0 auto
+}
+#confirm-details .forgot_form .input-group .form-control {
+    width: 400px
+}
+#confirm-details .forgot_form label {
+    white-space: nowrap;
+    width: 200px
+}
+#reservation-details .r-title {
+    padding: 0 40px 5px
+}
+#reservation-details #r-rsrve-info {
+    position: relative
+}
+#reservation-details table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin: 5px auto 15px;
+    width: 85%
+}
+#reservation-details table tr:first-child {
+    border-top: 1px solid transparent
+}
+#reservation-details table tr td {
+    border-bottom: 1px solid #dedede;
+    padding: 2px 8px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10pt;
+    vertical-align: top
+}
+#reservation-details table tr td label {
+    color: #888;
+    padding: 3px 0;
+    margin: 0
+}
+#reservation-details table tr td .edit {
+    color: #232323;
+    padding: 4px 5px 4px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    margin: 2px 0
+}
+#reservation-details table tr td .edit:hover {
+    color: #555;
+    background: #efefef;
+    border: 1px solid #eee
+}
+#reservation-details table tr td+td {
+    width: 90%;
+    text-align: left;
+    color: #292f33;
+    vertical-align: middle
+}
+#reservation-details form {
+    text-align: center;
+    margin: 0 auto 30px
+}
+#reservation-details form label {
+    width: 100%;
+    float: none;
+    display: block;
+    text-align: left
+}
+#reservation-details form .note {
+    color: #444;
+    font-size: 10px;
+    font-weight: bold
+}
+#reservation-details form#do_pay_form {
+    margin: 0 auto
+}
+#reservation-details form#do_pay_form .btn {
+    width: auto
+}
+#reservation-details .form-actions {
+    margin: 10px auto 0;
+    text-align: center
+}
+#reservation-details .form-actions #show_cancel_button {
+    color: #eee;
+    text-shadow: none;
+    background: 8px 12px no-repeat #960014;
+    border: 1px solid #960014
+}
+#reservation-details .form-actions #show_cancel_button .icon-remove {
+    font-size: 18px;
+    display: none
+}
+#reservation-details .form-actions .btn {
+    width: auto
+}
+#reservation-details #invite {
+    width: 410px
+}
+#reservation-details #invite .glyphicon {
+    margin: 0 5px 0 0;
+    font-size: 14px
+}
+#reservation-details #invite #friends_mails {
+    margin-right: 15px;
+    margin: 0;
+    width: 410px;
+    height: 65px
+}
+#reservation-details #invite .btn {
+    width: 100px
+}
+#reservation-details #invite .done {
+    margin: 0 auto 0;
+    font-size: 12px;
+    color: #333
+}
+#reservation-details #invite #send-success {
+    margin: 10px auto;
+    padding: 10px;
+    border: 1px dashed #bbb;
+    background: #fff;
+    height: 70px;
+    line-height: 20px;
+    font-size: 12px
+}
+#reservation-details #invite #send-success a {
+    color: #428bca
+}
+#reservation-details #agree {
+    margin: 0 auto;
+    padding: 0 10px;
+    border: 1px dashed #bbb;
+    background: #fff;
+    width: 400px
+}
+#reservation-details #agree .checkbox {
+    padding-top: 0;
+    margin: 5px 0
+}
+#reservation-details #agree .checkbox .agree-check {
+    width: auto;
+    display: inline-block;
+    vertical-align: top;
+    outline: none;
+    margin: 0
+}
+#reservation-details #agree .checkbox .agree-check:focus {
+    outline: 0
+}
+#reservation-details #agree .checkbox label {
+    width: auto;
+    margin: 0;
+    display: inline-block;
+    vertical-align: top;
+    font-style: italic;
+    font-size: 11px;
+    white-space: normal
+}
+#reservation-details #requests-cbox {
+    margin: 0 auto;
+    padding: 0 10px;
+    border: 1px dashed #bbb;
+    background: #fff;
+    width: 400px
+}
+#reservation-details #requests-cbox .checkbox {
+    padding-top: 0;
+    margin: 5px 0
+}
+#reservation-details #requests-cbox .checkbox .agree-check {
+    width: auto;
+    display: inline-block;
+    vertical-align: top;
+    outline: none
+}
+#reservation-details #requests-cbox .checkbox .agree-check:focus {
+    outline: 0
+}
+#reservation-details #requests-cbox .checkbox label {
+    width: auto;
+    margin: 0;
+    display: inline-block;
+    vertical-align: top;
+    font-size: 11px;
+    white-space: normal
+}
+#confirmation form {
+    margin: 0 20px
+}
+#confirmation form label {
+    width: 150px
+}
+#confirmation form .form-control {
+    width: 300px
+}
+#confirmation form .form-actions {
+    padding: 30px 0 0
+}
+#confirmation form #phone-area {
+    width: 70px;
+    display: inline-block;
+    margin: 0 0 15px
+}
+#confirmation form #telephone {
+    width: 225px;
+    display: inline-block;
+    margin: 0 0 15px
+}
+.calendar {
+    width: 250px;
+    margin: 0 auto 0 auto;
+    left: 0;
+    color: #fff;
+    table-layout: fixed;
+    border: solid thin #bfbfbf;
+    border-top: 1px solid #ddd;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none
+}
+.calendarhead {
+    border: solid thin #bfbfbf;
+    border-bottom: 0
+}
+.calendarhead th {
+    color: #404545;
+    background: #404545;
+    background: #dedede;
+    background: #f1f1f1;
+    text-align: center;
+    padding: 5px
+}
+.calendarhead th .year,
+.calendarhead th .month {
+    font-size: 14px;
+    margin: 5px;
+    font-weight: bold;
+    position: relative;
+    display: inline
+}
+.calendarhead th.sel:hover {
+    outline: 0 none;
+    cursor: pointer;
+    color: #fff
+}
+.calendarhead .arrow {
+    padding: 9px 0;
+    text-align: center;
+    font-weight: bold;
+    font-size: 25px
+}
+.calendarhead .arrow .glyphicon {
+    font-size: 10px
+}
+.calendarhead .arrow:hover {
+    background: #303535;
+    background: #fbfbfb;
+    color: #303535
+}
+.calendar {
+    padding: 10px
+}
+.calendar body {
+    position: absolute
+}
+.calendar th {
+    width: 37px;
+    height: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    background: #ececec
+}
+.calendar .calendar-header th {
+    font-weight: normal;
+    color: #999;
+    color: #7e7e7e;
+    border-bottom: 1px solid #aaa;
+    font-size: 12px
+}
+.calendar td {
+    background: #fff;
+    border: solid thin #dfdfdf;
+    border: solid thin #ccc;
+    height: 35px;
+    width: 35px;
+    font-size: 16px;
+    font-size: 12px;
+    text-align: center
+}
+.calendar td.day {
+    color: #404545;
+    background: #fff
+}
+.calendar td:first-child {
+    border-left: 1px solid #bfbfbf
+}
+.calendar td:last-child {
+    border-right: 1px solid #bfbfbf
+}
+.calendar td.selected {
+    /*background: url("../img/bg.gif") no-repeat scroll 0 0 transparent;*/
+    background-position: center
+}
+.calendar td.day_selected {
+    outline: 0 none;
+    cursor: pointer;
+    color: #232323;
+    background: #f1d124;
+    background: #facb28
+}
+.calendar td.day:hover {
+    outline: 0 none;
+    cursor: pointer;
+    color: #404545;
+    background: #eaeaea;
+    background: #f3f3f3
+}
+.calendar td.day_selected:hover {
+    color: #232323;
+    background: #f1d124;
+    background: #facb28
+}
+.calendar td.waitlist:hover {
+    color: #f90
+}
+.calendar td.day_selected.waitlist {
+    color: #000;
+    background: #f90
+}
+.calendar td.today {
+    text-decoration: underline
+}
+.calendar td.today.day_selected {
+    border-radius: 0;
+    background: #facb28
+}
+.calendar td.today.day_selected.waitlist {
+    color: #000;
+    background: #f90
+}
+.calendar td.today:hover {
+    border-radius: 0;
+    outline: 0 none;
+    cursor: pointer
+}
+.calendar td .dropdown {
+    display: block;
+    padding: 8px 0
+}
+.calendar td .dropdown .dropdown-toggle {
+    pointer-events: none
+}
+.calendar td .dropdown .dropdown-toggle-new {
+    display: none;
+    width: 0;
+    height: 0;
+    border-width: 0 10px 10px;
+    bottom: -50%;
+    border-style: solid;
+    border-color: #fff;
+    left: 50%;
+    margin-left: -14px;
+    margin-bottom: 0
+}
+.calendar td .dropdown .dropdown-toggle-new:before {
+    border-color: rgba(255, 0, 0, 0);
+    border-bottom-color: #cdcdcd;
+    border-width: 9px;
+    margin-left: -9px
+}
+.calendar td .dropdown .dropdown-toggle-new:after {
+    border-color: rgba(255, 255, 255, 0);
+    border-bottom-color: #fff;
+    border-width: 8px;
+    margin-left: -8px
+}
+.calendar td .dropdown .dropdown-menu-new {
+    border-color: rgba(255, 0, 0, 0);
+    border-bottom-color: #cdcdcd;
+    border-width: 9px;
+    margin-left: -9px;
+    background-clip: padding-box;
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
+    display: none;
+    float: left;
+    font-size: 14px;
+    left: -95%;
+    list-style: none outside none;
+    margin: 0;
+    max-width: 160px;
+    min-width: 120px;
+    padding: 5px 4px;
+    position: absolute;
+    top: 100%;
+    z-index: 1000;
+    font-size: 11px;
+    font-weight: normal;
+    text-align: left;
+    color: #232323
+}
+.calendar td .dropdown .dropdown-toggle-new {
+    display: none;
+    width: 0;
+    height: 0;
+    border-width: 0 10px 10px;
+    bottom: -50%;
+    border-style: solid;
+    border-color: #fff transparent rgba(0, 0, 0, 0.2);
+    left: 50%;
+    margin-left: -19px;
+    margin-bottom: 0
+}
+.calendar td .dropdown .dropdown-toggle-new:before,
+.calendar td .dropdown .dropdown-toggle-new:after {
+    bottom: -2%;
+    left: 44%;
+    border: solid #fff;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+    z-index: 9999
+}
+.calendar td .dropdown .dropdown-toggle-new:before {
+    border-color: transparent transparent #fff;
+    border-width: 9px;
+    margin-left: -9px
+}
+.calendar td .dropdown .dropdown-toggle-new:after {
+    border-color: transparent transparent rgba(0, 0, 0, 0.2);
+    border-width: 0;
+    margin-left: 0
+}
+.calendar td .dropdown .dropdown-menu {
+    font-weight: normal;
+    color: #232323;
+    font-size: 11px;
+    left: -70%;
+    top: 134%;
+    top: 95%;
+    min-width: 120px;
+    left: -95%;
+    max-width: 160px;
+    width: auto;
+    padding: 5px 4px;
+    text-align: left;
+    z-index: 99
+}
+.calendar td .dropdown .dropdown-menu .session {
+    white-space: nowrap;
+    display: block
+}
+.calendar td .dropdown .dropdown-menu:before,
+.calendar td .dropdown .dropdown-menu:after {
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+    left: 50%;
+    left: 55%;
+    bottom: 100%
+}
+.calendar td .dropdown .dropdown-menu:before {
+    border-color: rgba(255, 0, 0, 0);
+    border-bottom-color: #cdcdcd;
+    border-width: 9px;
+    margin-left: -9px
+}
+.calendar td .dropdown .dropdown-menu:after {
+    border-color: rgba(255, 255, 255, 0);
+    border-bottom-color: #fff;
+    border-width: 8px;
+    margin-left: -8px
+}
+.calendar td .dropdown .dropdown-menu-new {
+    border-color: rgba(255, 0, 0, 0);
+    border-bottom-color: #cdcdcd;
+    border-width: 9px;
+    margin-left: -9px;
+    background-clip: padding-box;
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
+    display: none;
+    float: left;
+    font-size: 14px;
+    left: -95%;
+    list-style: none outside none;
+    margin: 0;
+    max-width: 160px;
+    min-width: 120px;
+    padding: 5px 4px;
+    position: absolute;
+    top: 100%;
+    z-index: 1000;
+    font-size: 11px;
+    font-weight: normal;
+    text-align: left
+}
+.calendar td .dropdown:hover .dropdown-menu {
+    z-index: 9999
+}
+.calendar td.past {
+    color: #d3d3d3;
+    background: #fbfbfb;
+    color: #e1e1e1
+}
+.calendar td.past .dropdown .dropdown-toggle,
+.calendar td.past .dropdown .dropdown-menu {
+    display: none
+}
+.calendar td.holiday {
+    background: #fff
+}
+.calendar td.holiday:hover {
+    background: #eaeaea
+}
+.calendar td.holiday.day_selected {
+    outline: 0 none;
+    cursor: pointer;
+    color: #232323;
+    background: #f1d124;
+    background: #facb28
+}
+.calendar td.full.today,
+.calendar td.full {
+    color: #aaa;
+    background: #f0f0f0;
+    font-size: 12px
+}
+.calendar td.full.today .icon-full,
+.calendar td.full .icon-full {
+    position: absolute;
+    top: -70%;
+    top: -10%;
+    left: 10%;
+    font-size: 8px
+}
+.calendar td.full.today .dropdown-menu,
+.calendar td.full .dropdown-menu {
+    color: #a94442;
+    text-align: left;
+    min-width: 120px;
+    max-width: 160px;
+    left: -70%;
+    left: -95%
+}
+.calendar td.closed {
+    color: #d3d3d3;
+    background: #fbfbfb;
+    background: #efefef;
+    color: #aaa;
+    background: #f0f0f0;
+    font-size: 11px
+}
+.calendar td.closed .icon-closed {
+    position: absolute;
+    top: -70%;
+    top: -10%;
+    left: 10%;
+    font-size: 8px
+}
+.calendar td.closed .dropdown-menu {
+    color: #999;
+    text-align: center;
+    min-width: 100px;
+    left: -70%
+}
+.calendar td.waitlist.today,
+.calendar td.waitlist {
+    color: #f90;
+    font-size: 12px
+}
+.calendar td.waitlist.today .dropdown-menu,
+.calendar td.waitlist .dropdown-menu {
+    color: #f90
+}
+.calendar td.holiday:hover {
+    cursor: pointer
+}
+.calendar td .dropdown:hover .dropdown-menu {
+    display: block
+}
+.calendar td span.weekday:hover {
+    background: #333
+}
+.calendar tfoot,
+.calendar tfoot tr th.sel {
+    height: 35px;
+    width: 50px;
+    font-size: 14px;
+    font-size: 12px;
+    font-weight: normal;
+    text-align: center;
+    -moz-transition: border .2s linear 0s, box-shadow .2s linear 0s;
+    -moz-transition: background .2s linear 0s;
+    border: solid thin #bfbfbf;
+    cursor: pointer;
+    padding: 5px
+}
+.calendar tfoot tr th.sel:hover {
+    outline: 0 none;
+    cursor: pointer;
+    background: #fbfbfb;
+    color: #303535
+}
+#calendar-box {
+    margin: 0 0 25px;
+    height: 340px;
+    height: 300px;
+    border-top: 1px solid #fff
+}
+#calendar {
+    background: #dedede;
+    background: #fff;
+    width: 330px;
+    color: #2e2e2e
+}
