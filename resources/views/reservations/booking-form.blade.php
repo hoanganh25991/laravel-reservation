@@ -1,7 +1,7 @@
 @extends('layouts.app')
-@section('css')
+@push('css')
     <link href="{{ url('css/reservation.css') }}" rel="stylesheet">
-@endsection
+@endpush
 @section('content')
     <div class="container">
         <div class="box">
@@ -93,9 +93,9 @@
         }
     </style>
 @endsection
-@section('script')
+@push('script')
     <script src="{{ url(substr(mix('js/calendar.js'), 1)) }}"></script>
     <script>
         let c = $('#calendar-box').Calendar();
     </script>
-@endsection
+@endpush
