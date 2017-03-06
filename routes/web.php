@@ -62,5 +62,7 @@ Route::get('test/session/buildStep3', function(App\Http\Controllers\BookingContr
 
 Route::get('test', function(App\Http\Controllers\BookingController $c){
 
-    return \App\Timing::hasNewUpdate()->get()->count();
+    //return \App\Timing::hasNewUpdate()->get()->count();
+
+    return view('reservations.booking-summary');
 });

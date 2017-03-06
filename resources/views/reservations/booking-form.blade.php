@@ -1,18 +1,15 @@
 @extends('layouts.app')
 @section('css')
-    <link href="{{ url('css/bootstrap.calendar.css') }}" rel="stylesheet">
+    <link href="{{ url('css/reservation.css') }}" rel="stylesheet">
 @endsection
 @section('content')
     <div class="box">
-        <div class="hdr-wrapper">
-            <div class="header cf">
-                <div class="logo"  style="padding: 10px">
-                    <a href="{{ url('') }}" target="_blank"><img src="{{ url('images/logo.png') }}"></a>
-                </div>
-                <h5 class="title">Make a Reservation at <span class="r-name"> <a href="{{ url('') }}" target="_blank">Spize (Bedok)</a></span>
-                </h5>
-            </div>
-        </div>
+        @component('reservations.header')
+            @slot('title')
+                Make a Reservation at <span class="r-name"> <a href="{{ url('') }}" target="_blank">Spize (Bedok)</a></span>
+                <p class="sub"></p>
+            @endslot
+        @endcomponent
         <div id="check-availability" class="content">
             <div class="rid-select">
                 <select name="rid" id="rid" title="spize" class="form-control">
@@ -94,7 +91,7 @@
     </style>
 @endsection
 @section('script')
-    <script src="{{ url(substr(mix('js/bootstrap.calendar.js'), 1)) }}"></script>
+    <script src="{{ url(substr(mix('js/calendar.js'), 1)) }}"></script>
     <script>
         let c = $('#calendar-box').Calendar();
     </script>
