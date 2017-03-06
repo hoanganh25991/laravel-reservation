@@ -55,7 +55,7 @@ Route::get('test/session/buildStep3', function(App\Http\Controllers\BookingContr
     $data = $c->availableTime();
 
 //    $data = json_encode($data);
-//    return view('index')->with(compact('data'));
+    return view('reservations.booking-form')->with(compact('data'));
 
     return $data;
 });
