@@ -4,6 +4,20 @@
 @endsection
 @section('content')
     <div class="box">
+        <div class="hdr-wrapper">
+            <div class="header cf">
+
+                <div class="logo">
+                    <a href="https://www.chope.co/singapore-restaurants" target="_blank"><img src="https://d2jzxcrnybzkkt.cloudfront.net/static/widget_v4/img/logo.png?date=201702171400"></a>
+                </div>
+
+                <h5 class="title">
+                    Make a Reservation at									 <span class="r-name"> <a href="https://www.chope.co/singapore-restaurants/categories/restaurant/spize-bedok" target="_blank">Spize (Bedok)</a></span>
+
+                </h5>
+
+            </div>
+        </div>
         <div id="check-availability" class="content">
             <div class="rid-select">
                 <input name="switch_hn1" id="switch_hn1" value="0" type="hidden">
@@ -93,6 +107,15 @@
             </div>
         </div>
     </div>
+    <style>
+        #bottom_room {
+            text-align: center;
+            margin: 20px auto;
+            border: 0;
+            width: 330px;
+            bottom: 0;
+        }
+    </style>
 @endsection
 @section('script')
     <script src="{{ url(substr(mix('js/bootstrap.calendar.js'), 1)) }}"></script>
