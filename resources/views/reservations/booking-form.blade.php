@@ -95,7 +95,7 @@
     </div>
 @endsection
 @section('script')
-    <script src="{{ mix('js/bootstrap.calendar.js') }}"></script>
+    <script src="{{ url(substr(mix('js/bootstrap.calendar.js'), 1)) }}"></script>
     <script>
         let c = $('#calendar-box').Calendar();
     </script>

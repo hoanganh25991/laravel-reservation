@@ -996,12 +996,12 @@ ul#user-options {
     color: #212121
 }
 .container {
-    width: 800px;
-    width: auto;
+    /*width: 800px;*/
+    /*width: auto;*/
     margin: 5px auto 0;
     display: block;
     padding: 0;
-    overflow: auto
+    overflow: hidden
 }
 .container #choose-lang {
     padding: 0 5px;
