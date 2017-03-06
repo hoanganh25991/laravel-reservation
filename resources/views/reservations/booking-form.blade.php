@@ -6,8 +6,8 @@
     <div class="box">
         <div class="hdr-wrapper">
             <div class="header cf">
-                <div class="logo">
-                    <a href="{{ url('') }}" target="_blank"> <img src="{{ url('images/logo.png') }}"> </a>
+                <div class="logo"  style="padding: 10px">
+                    <a href="{{ url('') }}" target="_blank"><img src="{{ url('images/logo.png') }}"></a>
                 </div>
                 <h5 class="title">Make a Reservation at <span class="r-name"> <a href="{{ url('') }}" target="_blank">Spize (Bedok)</a></span>
                 </h5>
