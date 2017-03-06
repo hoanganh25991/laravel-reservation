@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Outlet;
 use App\Timing;
 use App\Traits\ApiUtils;
 use Illuminate\Support\Collection;
@@ -28,6 +29,19 @@ class BookingController extends Controller {
     public $reservations_pax_size;
     
     public $recalculate;
+
+    public function getBookingForm(ApiRequest $req){
+        if($req->method() == 'POST'){
+            return $this->apiResponse($req->all());
+        }
+
+
+
+        //handle get
+        $outlets = Outlet::all();
+
+        return view('reservations.booking-form', compact('outlets'));
+    }
 
     public function dateAvailable(ApiRequest $req){
         /* @var Validator $validator*/

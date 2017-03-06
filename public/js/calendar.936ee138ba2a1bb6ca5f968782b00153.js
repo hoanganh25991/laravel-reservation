@@ -161,7 +161,7 @@
 						&& today.getMonth() == date.getMonth()
 						&& today.getFullYear() == date.getFullYear()
 					){
-						cls = "day today";
+						cls = "today";
 					}else if(j % 7 == 0 || j % 7 == 6){
 						cls = "day";
 					}else{
@@ -212,10 +212,8 @@
 					var day = parseInt(target.attr('day'), 10) || 1;
 					var month = parseInt(target.attr('month'), 10) || 1;
 					var year = parseInt(target.attr('year'), 10) || 1;
-					//console.log(this.element);
-					this.element.find('td.day').removeClass('day_selected');
+
 					target.addClass('day_selected');
-					//console.log(target);
 
 					let nativeDom = this.element[0];
 
@@ -300,3 +298,21 @@
 
 
 
+
+let calendarHandler = function(){
+	/**
+	 * Sanity check
+	 */
+	try{
+		let calendar = $.Calendar;
+		if(typeof calendar == 'undefined'){
+			throw 'Need jquery & jquery.Calendar plugin'
+		}
+	}catch(e){
+		throw e;
+	}
+	
+	let c = $('#calendar-box').Calendar();
+}
+
+calendarHandler();
