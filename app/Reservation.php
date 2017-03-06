@@ -5,6 +5,7 @@ namespace App;
 use Carbon\Carbon;
 use App\Traits\ApiUtils;
 use App\OutletReservationSetting as Setting;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * @property mixed reservation_timestamp
@@ -74,5 +75,17 @@ class Reservation extends HoiModel {
 
     public function getCapacityNameAttribute(){
         return "capacity_x";
+    }
+
+    protected static function boot() {
+        parent::boot();
+
+        $outlet_id = session('outlet_id');
+
+        if(!is_null($outlet_id)){
+            static::addGlobalScope('base on outlet', function (Builder $builder) use($outlet_id){
+                $builder->where('outlet_id', $outlet_id);
+            });
+        }
     }
 }

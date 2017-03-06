@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use Validator;
 use App\Outlet;
 use App\Timing;
-use App\Traits\ApiUtils;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
-use Validator;
 use App\Session;
 use Carbon\Carbon;
 use App\Reservation;
+use App\Traits\ApiUtils;
 use App\Traits\ApiResponse;
 use App\Http\Requests\ApiRequest;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use App\OutletReservationSetting as Setting;
 
 class BookingController extends Controller {
@@ -32,7 +32,24 @@ class BookingController extends Controller {
 
     public function getBookingForm(ApiRequest $req){
         if($req->method() == 'POST'){
-            return $this->apiResponse($req->all());
+            //return $this->apiResponse($req->all());
+            /* @var Validator $validator*/
+            $validator = Validator::make($req->all(), [
+                'outlet_id'    => 'required',
+                'adult_pax'    => 'required',
+                'children_pax' => 'required'
+            ]);
+
+            if($validator->fails()){
+                return $this->apiResponse($req->all(), 422, $validator->getMessageBag()->toArray());
+            }
+
+            session(['outlet_id' => $req->get('outlet_id')]);
+
+            //$this->recalculate = true;
+            $available_time = $this->availableTime();
+
+            return $this->apiResponse($available_time);
         }
 
 

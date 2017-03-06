@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Traits\ApiUtils;
 //use App\Library\Carbon;
 use Hamcrest\Core\Set;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use App\OutletReservationSetting as Setting;
 
@@ -138,9 +139,19 @@ class Session extends Model {
 
         return $sessions;
     }
-    
 
 
+    protected static function boot() {
+        parent::boot();
+
+        $outlet_id = session('outlet_id');
+
+        if(!is_null($outlet_id)){
+            static::addGlobalScope('base on outlet', function (Builder $builder) use($outlet_id){
+                $builder->where('outlet_id', $outlet_id);
+            });
+        }
+    }
     
     
 
