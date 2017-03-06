@@ -44,9 +44,22 @@ class BookingController extends Controller {
                 return $this->apiResponse($req->all(), 422, $validator->getMessageBag()->toArray());
             }
 
-            session(['outlet_id' => $req->get('outlet_id')]);
+            /**
+             * Outlet id as reuse over & over through query builder
+             * Store in session for this request
+             * Any further call, consider the same outlet_id
+             */
+            $outlet_id = $req->get('outlet_id');
+            session(compact('outlet_id'));
 
-            //$this->recalculate = true;
+            /**
+             *
+             */
+            $reservation_pax_size = $req->get('adult_pax') + $req->get('children_pax');
+            //session(compact('reservation_pax_size'));
+            $this->reservations_pax_size = $reservation_pax_size;
+
+            $this->recalculate = true;
             $available_time = $this->availableTime();
 
             return $this->apiResponse($available_time);
@@ -144,7 +157,7 @@ class BookingController extends Controller {
          * Change chunk time capacity base on already reservations
          */
         $this->valid_reservations = Reservation::validGroupByDateTimeCapacity();
-        $this->reservations_pax_size = 7;
+        //$this->reservations_pax_size = session('reservation_pax_size', 7);
 
         $date_with_available_time->each(function($group, $date_string){
             $group->each(function($chunk) use($date_string){
@@ -170,7 +183,9 @@ class BookingController extends Controller {
             $date_with_available_time->map->filter(function($t){
                 $cap_name = Timing::getCapacityName($this->reservations_pax_size);
 
-                return $t->$cap_name > 0;
+                $is_cap_available = ($t->$cap_name > 0) && ($t->max_pax >= $this->reservations_pax_size);
+
+                return $is_cap_available;
             });
 
 
@@ -371,6 +386,12 @@ class BookingController extends Controller {
         return true;
     }
 
+    public function getReservationPaxSizeAttribute($val){
+        if(is_null($val))
+            return Setting::RESERVATION_PAX_SIZE;
+
+        return $val;
+    }
 
     
     

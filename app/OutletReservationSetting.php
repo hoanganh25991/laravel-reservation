@@ -30,6 +30,11 @@ class OutletReservationSetting extends Model {
     const INT    = 1;
 
     /**
+     * Default fallback when pax size not set
+     */
+    const RESERVATION_PAX_SIZE = 7;
+
+    /**
      * Cache filename
      */
     public static $buffer_config = null;
