@@ -1,8 +1,5 @@
-let _ = function(v){
-	return v;
-};
-
-;(function($, window, document, undefined, _){
+;(function($, window, document, translate){
+	_ = translate || function(v){return v;};;
 
 	var pluginName = 'Calendar',
 
@@ -11,17 +8,9 @@ let _ = function(v){
 			default_month: null,
 			weekStart: 1,
 			msg_days: [_("Sun"), _("Mon"), _("Tue"), _("Wed"), _("Thu"), _("Fri"), _("Sat")],
-			msg_months: [_("January"), _("February"), _("March"), _("April"), _("May"), _("June"), _("July"), _(
-				"August"), _("September"), _("October"), _("November"), _("December")],
+			msg_months: [_("January"), _("February"), _("March"), _("April"), _("May"), _("June"), _("July"), _("August"), _("September"), _("October"), _("November"), _("December")],
 			msg_today: _('Today'),
 			msg_events_header: _('Events Today'),
-			events: function(){
-				return {
-					event: [
-						{date: '2017-03-06', title: 'hello-world'}
-					]
-				};
-			}
 		},
 
 		template = '' +
@@ -103,54 +92,9 @@ let _ = function(v){
 		this.renderCalendar(now);
 	};
 
-	Plugin.prototype.renderEvents = function(events, elem){
-		var live_date = this.live_date;
-		// var msg_evnts_hdr = this.msg_events_hdr;
-		for(var i = 1; i <= daysInMonth[live_date.getMonth()]; i++){
-
-			$.each(events, function(){
-				var year = 1900 + live_date.getYear();
-				var month = live_date.getMonth();
-
-				// var view_date = new Date(year, month, i, 0,0,0,0);
-				var view_date = new Date(year, month, i == 0 ? 1 : i, 0, 0, 0, 0);
-				var event_date = new Date(this.date);
-
-				if(event_date.getDate() == view_date.getDate()
-					&& event_date.getMonth() == view_date.getMonth()
-					&& event_date.getFullYear() == view_date.getFullYear()
-
-				){
-					elem.parent('div:first').find('#day_' + i)
-					    .removeClass("day")
-					    .addClass('holiday')
-					    .empty()
-					    .append(
-						    '<div class="dropdown">' +
-						    '<span class="icon icon-event">' + i + '</span>' +
-						    '<span class="dropdown-toggle"  id="dd_' + i + '" data-toggle="dropdown"></span>' +
-						    '<ul class="dropdown-menu" role="menu" aria-labelledby="dd_' + i + '">' +
-						    '<li>' + this.title + '</li>' +
-						    '</ul>' +
-						    '</div>'
-					    );
-				}
-			});
-		}
-	};
-
-
-	Plugin.prototype.loadEvents = function(){
-		if(!(this.events === null)){
-			if(typeof this.events == 'function'){
-				this.renderEvents(this.events.apply(this, []), this.calendar);
-			}
-		}
-	};
 
 	Plugin.prototype.renderCalendar = function(date){
 		var mon = new Date(this.yy, this.mm, 1);
-		var live_date = this.live_date;
 
 		this.element.parent('div:first').find('.year').empty();
 		this.element.parent('div:first').find('.month').empty();
@@ -171,7 +115,6 @@ let _ = function(v){
 		this.renderDays();
 
 		var fdom = mon.getDay(); // First day of month
-		var mwks = 6 // Weeks in month
 
 		// Render days
 		var dow = 0;
@@ -229,9 +172,6 @@ let _ = function(v){
 				// Set ID
 				id = "day_" + dow;
 
-				// month_ = date.getMonth() + 1;
-				// year = date.getFullYear();
-
 				month_ = mon.getMonth() + 1;
 				year = mon.getFullYear();
 
@@ -248,9 +188,6 @@ let _ = function(v){
 			_html = "<tr>" + _html + "</tr>";
 			this.calendar.find('.calendar-body').append(_html);
 		}
-		this.loadEvents();
-		$('.calendar-body td.past').removeClass().addClass('past').find('ul.dropdown-menu').remove();
-
 	};
 
 	Plugin.prototype.renderDays = function(){
@@ -278,12 +215,15 @@ let _ = function(v){
 
 					target.addClass('day_selected');
 
-					this.element.trigger({
-						type: 'pickDay',
-						day: day,
-						month: month,
-						year: year
+					let nativeDom = this.element[0];
+
+					var event = new CustomEvent("user-select-day", {
+						detail: {day: `${year}-${month}-${day}`},
+						bubbles: true,
+						cancelable: true
 					});
+
+					nativeDom.dispatchEvent(event);
 				}
 				break;
 
@@ -351,17 +291,10 @@ let _ = function(v){
 	// A really lightweight plugin wrapper around the constructor,
 	// preventing against multiple instantiations
 	$.fn[pluginName] = function(options){
-		// let a = this.each(function(){
-		// 	if(!$.data(this, 'plugin_' + pluginName)){
-		// 		$.data(this, 'plugin_' + pluginName, new Plugin(this, options));
-		// 	}
-		// });
-		//
-		// console.log(a);
 		return new Plugin(this, options);
 	}
 
-})(jQuery, window, document, undefined, _);
+})(jQuery, window, document);
 
 
 
