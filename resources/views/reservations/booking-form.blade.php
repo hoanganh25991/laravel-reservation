@@ -79,10 +79,7 @@
                 </div>
             </div>
             <div class="form-actions cf" id="bottom_room">
-                <button type="button" id="back_button" class="btn" style="float:left">Previous</button>
-                <button type="submit" id="index_submit_button_id" class="btn btn-primary" style="float:right"
-                        disabled="disabled">Next
-                </button>
+                <button id="btn_next" class="btn btn-primary" style="float:right">Next</button>
             </div>
         </div>
     </div>

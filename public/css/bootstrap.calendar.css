@@ -1937,7 +1937,9 @@ ul#user-options {
     background: #f90
 }
 .calendar td.today {
-    text-decoration: underline
+    /*text-decoration: underline;*/
+    /*background: #eee;*/
+    background: #F1F1F1;
 }
 .calendar td.today.day_selected {
     border-radius: 0;
@@ -2126,7 +2128,7 @@ ul#user-options {
     display: none
 }
 .calendar td.holiday {
-    background: #fff
+    /*background: #fff*/
 }
 .calendar td.holiday:hover {
     background: #eaeaea
