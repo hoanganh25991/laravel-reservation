@@ -1,7 +1,5 @@
 @extends('layouts.app')
-@push('css')
-    <link href="{{ url('css/reservation.css') }}" rel="stylesheet">
-@endpush
+
 @section('content')
 <div class="container">
     <div class="box">
