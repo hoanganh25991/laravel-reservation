@@ -183,7 +183,8 @@ class BookingController extends Controller {
             $date_with_available_time->map->filter(function($t){
                 $cap_name = Timing::getCapacityName($this->reservations_pax_size);
 
-                $is_cap_available = ($t->$cap_name > 0) && ($t->max_pax >= $this->reservations_pax_size);
+//                $is_cap_available = ($t->$cap_name > 0) && ($t->max_pax >= $this->reservations_pax_size);
+                $is_cap_available = ($t->$cap_name > 0);
 
                 return $is_cap_available;
             });
