@@ -2,8 +2,15 @@
 
 namespace App;
 
-class LightModel {
-    protected $attributes = [];
+use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Concerns;
+use Illuminate\Contracts\Support\Arrayable;
+
+class LightModel implements Arrayable {
+
+    use Concerns\HasAttributes;
+    
+    //protected $attributes = [];
 
     public function __construct(array $attributes = []){
         $this->fill($attributes);
@@ -134,4 +141,45 @@ class LightModel {
             return $this->attributes[$key];
         }
     }
+
+    /**
+     * Dynamically retrieve attributes on the model.
+     *
+     * @param  string  $key
+     * @return mixed
+     */
+    public function __get($key)
+    {
+        return $this->getAttribute($key);
+    }
+
+    /**
+     * Dynamically set attributes on the model.
+     *
+     * @param  string  $key
+     * @param  mixed  $value
+     * @return void
+     */
+    public function __set($key, $value)
+    {
+        $this->setAttribute($key, $value);
+    }
+
+    /**
+     * Get the value of an attribute using its mutator.
+     *
+     * @param  string  $key
+     * @param  mixed  $value
+     * @return mixed
+     */
+    protected function mutateAttribute($key, $value)
+    {
+        return $this->{'get'.Str::studly($key).'Attribute'}($value);
+    }
+
+    public function toArray(){
+        // TODO: Implement toArray() method.
+        return $this->attributes;
+    }
+
 }
