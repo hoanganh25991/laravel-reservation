@@ -9,9 +9,9 @@
             @slot('title')
                 Confirm Diner Details
                 <p class="sub">
-                    We have a table for you at <br><span class="field">Spize (Bedok)</span> for <span
-                            class="field bloc">5 people</span><br> at<span class="field  bloc"> 1:00 pm</span> on <span
-                            class="field  bloc">7 March 2017</span>
+                    We have a table for you at <br>
+                    <span class="field">{{ $reservation_info['outlet_name'] }}</span> for <span class="field bloc">{{ $reservation_info['pax_size'] }} people</span>
+                    <br> at <span class="field  bloc">{{ $reservation_info['reservation_time'] }}</span> on <span class="field  bloc">{{ $reservation_info['date'] }}</span>
                 </p>
             @endslot
         @endcomponent

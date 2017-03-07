@@ -24,6 +24,7 @@ class BookingForm {
 
 		this.outlet_select = document.querySelector('select[name="outlet_id"]');
 		this.inpute_date   = document.querySelector('input[name="reservation_date"]');
+		this.input_outlet = document.querySelector('input[name="outlet_name"]');
 
 	}
 
@@ -84,6 +85,15 @@ class BookingForm {
 		let d = this._getDate(e.detail.day);
 
 		this.inpute_date.value = d.toISOString().substr(0, 10);
+	}
+
+	setInputOutletName(){
+		let selectedOption = this.outlet_select.selectedOptions[0];
+		if(typeof selectedOption == 'undefined')
+			return
+
+		let outlet_name         = selectedOption.innerText;
+		this.input_outlet.value = outlet_name;
 	}
 
 	ajaxAvailableTime(e){
@@ -235,13 +245,19 @@ class BookingForm {
 	listenOutletChange(){
 		let scope = this;
 		document.addEventListener('outlet-change', function(e){
+			scope.setInputOutletName(e);
+
+			let shouldCallAjax = true;
+
 			if(typeof scope.outletChanged == 'undefined'){
 				scope.outletChanged = true;
-
-				return;
+				shouldCallAjax = false;
 			}
 
-			scope.ajaxAvailableTime(e);
+			if(shouldCallAjax){
+				scope.ajaxAvailableTime(e);
+			}
+
 		});
 	}
 

@@ -15,6 +15,7 @@
                 <form id="booking-form" action="{{ url('booking-form-2') }}" method="POST">
                     <input type="hidden" name='step' value="booking-form">
                     <div class="rid-select">
+                        <input type="hidden" name='outlet_name' value="{{ $outlets->first()->name }}">
                         <select name="outlet_id" id="rid" title="spize" class="form-control">
                             @foreach($outlets as $outlet)
                                 <option value="{{ $outlet->id }}"
