@@ -58,7 +58,7 @@ Route::get('test/session/buildStep3', function(App\Http\Controllers\BookingContr
 //    $available_days = App\Session::availableV2();
     //$available_days = App\Session::availableTime();
     //$available_days = App\Session::availableSession()->get()->map->assignDate()->collapse();
-    $c->recalculate = true;
+    //$c->recalculate = true;
     $data = $c->availableTime();
 
 //    $data = json_encode($data);

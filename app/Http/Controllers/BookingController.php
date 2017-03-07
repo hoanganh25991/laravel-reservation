@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Hamcrest\Core\Set;
 use Validator;
 use App\Outlet;
 use App\Timing;
@@ -56,10 +57,9 @@ class BookingController extends Controller {
              *
              */
             $reservation_pax_size = $req->get('adult_pax') + $req->get('children_pax');
-            //session(compact('reservation_pax_size'));
-            $this->reservations_pax_size = $reservation_pax_size;
+            $this->setReservationPaxSize($reservation_pax_size);
 
-            $this->recalculate = true;
+            //$this->recalculate = true;
             $available_time = $this->availableTime();
 
             return $this->apiResponse($available_time);
@@ -181,10 +181,13 @@ class BookingController extends Controller {
          */
         $dates_with_available_time_capacity =
             $date_with_available_time->map->filter(function($t){
-                $cap_name = Timing::getCapacityName($this->reservations_pax_size);
 
-//                $is_cap_available = ($t->$cap_name > 0) && ($t->max_pax >= $this->reservations_pax_size);
-                $is_cap_available = ($t->$cap_name > 0);
+                $reservation_pax_size = $this->getReservationPaxSize();
+                $t->max_pax = $t->max_pax ?: Setting::TIMING_MAX_PAX;
+
+                $cap_name = Timing::getCapacityName($reservation_pax_size);
+                $is_cap_available = ($t->$cap_name > 0) && ($t->max_pax >= $reservation_pax_size);
+                //$is_cap_available = ($t->$cap_name > 0);
 
                 return $is_cap_available;
             });
@@ -387,11 +390,21 @@ class BookingController extends Controller {
         return true;
     }
 
-    public function getReservationPaxSizeAttribute($val){
+
+    /**
+     * set get on important property
+     */
+    public function getReservationPaxSize(){
+        $val = $this->reservations_pax_size;
+        
         if(is_null($val))
             return Setting::RESERVATION_PAX_SIZE;
 
         return $val;
+    }
+    
+    public function setReservationPaxSize($val){
+        $this->reservations_pax_size = $val;
     }
 
     

@@ -16,11 +16,39 @@ class BookingForm {
 		this.label = document.querySelector('#reservation_time');
 		this.select = document.querySelector('select[name="reservation_time"]');
 		this.form = document.querySelector('#booking-form');
+
+		this.adult_pax_select    = document.querySelector('select[name="adult_pax"]');
+		this.children_pax_select = document.querySelector('select[name="children_pax"]');
 	}
 
 	regisEvent(){
 		this.listenUserSelectDay();
 		this.listenHasAjaxResponse();
+
+		this._regisPaxChange(this.adult_pax_select);
+		this._regisPaxChange(this.children_pax_select);
+
+		this.listenPaxChange();
+
+		this.listenLoadingDialog();
+		this.listenStopDialog();
+	}
+
+	_regisPaxChange(element){
+		element.onchange = function(e){
+			if(!e.target.value) return;
+
+			let num_pax = e.target.value;
+
+			var event = new CustomEvent("pax-change", {
+				detail: {num_pax},
+				bubbles: true,
+				cancelable: true
+			});
+
+			element.dispatchEvent(event);
+
+		};
 	}
 
 	listenUserSelectDay(){
@@ -51,6 +79,10 @@ class BookingForm {
 		}, {});
 
 		let selectElement = this.select;
+
+		var loadingDialog = new CustomEvent("loading-dialog", {bubbles: true, cancelable: true});
+
+		form.dispatchEvent(loadingDialog);
 
 		$.ajax({
 			url: '',
@@ -87,6 +119,8 @@ class BookingForm {
 		document.addEventListener('has-ajax-response', function(e){
 			scope.updateCalendarView(e);
 			scope.updateSelectView(e);
+
+			document.dispatchEvent(new CustomEvent('stop-dialog'));
 		});
 	}
 
@@ -130,8 +164,17 @@ class BookingForm {
 		let selected_day_str = this.selected_day || new Date().toISOString().substr(0, 10);
 
 		let available_times = res[selected_day_str];
-		if(typeof res[selected_day_str] == 'undefined')
+		if(typeof available_times == 'undefined')
 			return;
+
+		if(available_times.length == 0){
+			let default_time = {
+				time: 'N/A',
+				session_name: ''
+			};
+
+			available_times.push(default_time);
+		}
 
 		let selectDiv = this.select;
 		//reset selectDiv options
@@ -148,6 +191,24 @@ class BookingForm {
 		});
 	}
 
+	listenPaxChange(){
+		let scope = this;
+		document.addEventListener('pax-change', function(e){
+			scope.ajaxAvailableTime(e);
+		});
+	}
+
+	listenLoadingDialog(){
+		document.addEventListener('loading-dialog', function(e){
+			console.log('loading dialog');
+		});
+	}
+
+	listenStopDialog(){
+		document.addEventListener('stop-dialog', function(e){
+			console.log('stop dialog');
+		});
+	}
 
 }
 
