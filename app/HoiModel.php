@@ -2,7 +2,6 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class HoiModel extends Model {
@@ -21,10 +20,8 @@ class HoiModel extends Model {
      * @var string
      */
     const UPDATED_AT = 'modified_timestamp';
-
-
-//    protected $globalScopes = [];
-
+    
+    
     
     
 }
