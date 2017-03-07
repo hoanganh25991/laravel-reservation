@@ -94,6 +94,26 @@
             bottom: 0;
         }
     </style>
+    <div class="modal fade" id="ajax-dialog">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Searching for available time</h4>
+                </div>
+                <div class="modal-body center">
+                    {{--<div style="width: 100px; display: inline-block">--}}
+                    <div style="width: 184px; display: inline-block">
+                        {{--<img src="{{ url('images/gears.svg') }}">--}}
+                        <img src="{{ url('images/hourglass.svg') }}">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <hr>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
 @endsection
 @push('script')
 <script src="{{ url(substr(mix('js/calendar.js'), 1)) }}"></script>

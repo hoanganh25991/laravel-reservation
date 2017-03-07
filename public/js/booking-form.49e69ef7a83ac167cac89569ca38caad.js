@@ -12,13 +12,15 @@ class BookingForm {
 		let calendarDiv = $('#calendar-box');
 
 		this.calendar = calendarDiv.Calendar();
-		this.day_tds = calendarDiv.find('td.day');
-		this.label = document.querySelector('#reservation_time');
-		this.select = document.querySelector('select[name="reservation_time"]');
-		this.form = document.querySelector('#booking-form');
+		this.day_tds  = calendarDiv.find('td.day');
+		this.label    = document.querySelector('#reservation_time');
+		this.select   = document.querySelector('select[name="reservation_time"]');
+		this.form     = document.querySelector('#booking-form');
 
 		this.adult_pax_select    = document.querySelector('select[name="adult_pax"]');
 		this.children_pax_select = document.querySelector('select[name="children_pax"]');
+
+		this.ajax_dialog         = $('#ajax-dialog');
 	}
 
 	regisEvent(){
@@ -199,14 +201,18 @@ class BookingForm {
 	}
 
 	listenLoadingDialog(){
+		let scope = this;
 		document.addEventListener('loading-dialog', function(e){
 			console.log('loading dialog');
+			scope.ajax_dialog.modal('show');
 		});
 	}
 
 	listenStopDialog(){
+		let scope = this;
 		document.addEventListener('stop-dialog', function(e){
 			console.log('stop dialog');
+			scope.ajax_dialog.modal('hide');
 		});
 	}
 
