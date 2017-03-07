@@ -416,7 +416,7 @@ class BookingController extends Controller {
                 'outlet_name'      => 'required',
                 'children_pax'     => 'required',
                 'reservation_date' => 'required',
-                'reservation_time' => 'required'
+                'reservation_time' => 'required|regex:/\d+:\d{2}/'
             ]);
 
             if($validator->fails()){
@@ -427,7 +427,7 @@ class BookingController extends Controller {
 
             session(compact('reservation_info'));
 
-//            return $reservation_info;
+            return $reservation_info;
 
             return redirect('booking-form-2');
         }

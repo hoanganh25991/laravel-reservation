@@ -50,10 +50,11 @@ class BookingForm {
 		element.onchange = function(e){
 			if(!e.target.value) return;
 
-			let num_pax = e.target.value;
+			//let num_pax = e.target.value;
+			let select_name = element.getAttribute('name');
 
 			var event = new CustomEvent(eventName, {
-				detail: {num_pax},
+				detail: {select_name},
 				bubbles: true,
 				cancelable: true
 			});
@@ -222,7 +223,16 @@ class BookingForm {
 	listenPaxChange(){
 		let scope = this;
 		document.addEventListener('pax-change', function(e){
-			scope.ajaxAvailableTime(e);
+			let select_name = e.detail.select_name;
+			let shouldCallAjax = true;
+			if(typeof scope[`${select_name}Changed`] == 'undefined'){
+				scope[`${select_name}Changed`] = true;
+				shouldCallAjax = false;
+			}
+
+			if(shouldCallAjax){
+				scope.ajaxAvailableTime(e);
+			}
 		});
 	}
 
