@@ -408,5 +408,29 @@ class BookingController extends Controller {
     }
 
     
-    
+    public function getBookingForm2(ApiRequest $req){
+        if($req->method() == 'POST' && $req->get('step') == 'booking-form'){
+            $validator = Validator::make($req->all(), [
+                'outlet_id'        => 'required',
+                'adult_pax'        => 'required',
+                'children_pax'     => 'required',
+                'reservation_date' => 'required',
+                'reservation_time' => 'required'
+            ]);
+
+            if($validator->fails()){
+                return $this->apiResponse($req->all(), 422, $validator->getMessageBag()->toArray());
+            }
+
+            $reservation_info = $req->only(['outlet_id', 'adult_pax', 'children_pax', 'reservation_date', 'reservation_time']);
+
+            session(compact('reservation_info'));
+
+            return $reservation_info;
+
+
+
+            return redirect('booking-form-2');
+        }
+    }
 }

@@ -13,16 +13,18 @@ class BookingForm {
 
 		this.calendar = calendarDiv.Calendar();
 		this.day_tds  = calendarDiv.find('td.day');
-		this.label    = document.querySelector('#reservation_time');
+		this.label    = document.querySelector('#reservation_date');
 		this.select   = document.querySelector('select[name="reservation_time"]');
 		this.form     = document.querySelector('#booking-form');
 
 		this.adult_pax_select    = document.querySelector('select[name="adult_pax"]');
 		this.children_pax_select = document.querySelector('select[name="children_pax"]');
 
-		this.ajax_dialog         = $('#ajax-dialog');
+		this.ajax_dialog   = $('#ajax-dialog');
 
-		this.outlet_select       = document.querySelector('select[name="outlet_id"]');
+		this.outlet_select = document.querySelector('select[name="outlet_id"]');
+		this.inpute_date   = document.querySelector('input[name="reservation_date"]');
+
 	}
 
 	regisEvent(){
@@ -64,6 +66,7 @@ class BookingForm {
 		let scope = this;
 		document.addEventListener('user-select-day', function(e){
 			scope.changeLabel(e);
+			scope.setInputReservationDate(e);
 			scope.ajaxAvailableTime(e);
 			scope.storeSelectedDay(e);
 		});
@@ -75,6 +78,12 @@ class BookingForm {
 		let month_name = BookingForm.month_name();
 
 		this.label.innerText = `${month_name[d.getMonth()]} ${d.getDate()} ${d.getFullYear()}`;
+	}
+
+	setInputReservationDate(e){
+		let d = this._getDate(e.detail.day);
+
+		this.inpute_date.value = d.toISOString().substr(0, 10);
 	}
 
 	ajaxAvailableTime(e){

@@ -13,6 +13,7 @@
             @endcomponent
             <div id="check-availability" class="content">
                 <form id="booking-form" action="{{ url('booking-form-2') }}" method="POST">
+                    <input type="hidden" name='step' value="booking-form">
                     <div class="rid-select">
                         <select name="outlet_id" id="rid" title="spize" class="form-control">
                             @foreach($outlets as $outlet)
@@ -62,7 +63,8 @@
                         <div class="clear"></div>
                         <div id="calendar-box" align="center"></div>
                         <div id="dt-choice" class="cf">
-                            <label id="reservation_time">{{ date('M d Y') }}</label>
+                            <label id="reservation_date">{{ date('M d Y') }}</label>
+                            <input type="hidden" name="reservation_date" value="">
                             <select name="reservation_time" class="form-control">
                                 <option>N/A</option>
                             </select>

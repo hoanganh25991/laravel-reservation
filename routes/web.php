@@ -18,8 +18,8 @@ Route::post('', 'BookingController@getBookingForm');
 Route::get('booking-form', 'BookingController@getBookingForm');
 Route::post('booking-form', 'BookingController@getBookingForm');
 
-Route::get('booking-form-2', 'BookingController@getBookingForm');
-Route::post('booking-form-2', 'BookingController@getBookingForm');
+Route::get('booking-form-2', 'BookingController@getBookingForm2');
+Route::post('booking-form-2', 'BookingController@getBookingForm2');
 
 Route::get('/home', function(){return 'fuck';});
 Route::get('/fuck', function(){return 'fuck you';});
