@@ -3,6 +3,7 @@
 namespace App;
 
 use Carbon\Carbon;
+use Hashids\Hashids;
 use App\Traits\ApiUtils;
 use App\OutletReservationSetting as Setting;
 use Illuminate\Database\Eloquent\Builder;
@@ -13,6 +14,9 @@ use Illuminate\Database\Eloquent\Builder;
  * @property mixed adult_pax
  * @property mixed children_pax
  * @property mixed pax_size
+ * @property mixed id
+ * @property mixed status
+ * @property mixed date_string
  */
 class Reservation extends HoiModel {
 
@@ -31,6 +35,39 @@ class Reservation extends HoiModel {
     const NO_SHOW         = -300;
 
     protected $table = 'reservation';
+
+    protected $guarded = ['id'];
+
+    protected $fillable = [
+        'outlet_id',
+        'customer_id',
+        'salutation',
+        'first_name',
+        'last_name',
+        'email',
+        'phone_country_code',
+        'phone',
+        'customer_remarks',
+        'adult_pax',
+        'children_pax',
+        'reservation_timestamp',
+        'table_layout_id',
+        'table_layout_name',
+        'table_name',
+        'staff_remarks',
+        'status',
+        'send_confirmation_by_timestamp',
+        'send_sms_confirmation',
+        'send_email_confirmation',
+        'session_name',
+        'reservation_code',
+        'staff_read_state',
+        'payment_id',
+        'payment_timestamp',
+        'payment_amount',
+        'payment_required',
+        'is_outdoor'
+    ];
 
 
     public function scopeValidInDateRange($query){
@@ -87,5 +124,13 @@ class Reservation extends HoiModel {
                 $builder->where('outlet_id', $outlet_id);
             });
         }
+    }
+
+    public function getConfirmIdAttribute(){
+        $id = $this->id;
+        $hashids = new Hashids(Setting::HASH_SALT, 5);
+        $confirm_id = $hashids->encode($id);
+        
+        return $confirm_id;
     }
 }

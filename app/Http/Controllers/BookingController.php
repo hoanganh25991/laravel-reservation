@@ -427,18 +427,45 @@ class BookingController extends Controller {
 
             session(compact('reservation_info'));
 
-            return $reservation_info;
+            //return $reservation_info;
 
             return redirect('booking-form-2');
         }
 
         $reservation_info = session('reservation_info', []);
 
-        if(count($reservation_info) > 0){
+        try{
             $reservation_info['pax_size'] = $reservation_info['adult_pax'] +  $reservation_info['children_pax'];
 
             $date     = Carbon::createFromFormat('Y-m-d', $reservation_info['reservation_date'], Setting::timezone());
             $reservation_info['date'] = $date->format('M d Y');
+        }catch(\Exception $e){}
+
+        if($req->method() == 'POST' && $req->get('step') == 'booking-form-2'){
+            $validator = Validator::make($req->all(), [
+                'salutation'       => 'required',
+                'first_name'       => 'required',
+                'last_name'        => 'required',
+                'email'            => 'required',
+                'phone'            => 'required'
+            ]);
+
+            if($validator->fails()){
+                return $this->apiResponse($req->all(), 422, $validator->getMessageBag()->toArray());
+            }
+
+            $reservation_info = $req->only(['salutation', 'first_name', 'email', 'phone', 'customer_remarks']);
+
+            $reservation_info = array_merge(session('reservation_info', []), $reservation_info);
+            
+            $reservation_info['reservation_timestamp'] = "{$reservation_info['reservation_date']} {$reservation_info['reservation_time']}:00";
+
+            $reservation = new Reservation($reservation_info);
+            $reservation->status = Reservation::CONFIRMED;//
+            $reservation->save();
+
+            //return $reservation_info;
+            return view('reservations.booking-summary')->with(compact('reservation'));
         }
         
         return view('reservations.booking-form-2')->with(compact('reservation_info'));

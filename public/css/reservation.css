@@ -1655,7 +1655,7 @@ ul#user-options {
     border: 1px solid #eee
 }
 #reservation-details table tr td+td {
-    width: 90%;
+    /*width: 90%;*/
     text-align: left;
     color: #292f33;
     vertical-align: middle

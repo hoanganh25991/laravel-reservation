@@ -4,7 +4,6 @@ namespace App;
 
 use App\Traits\ApiUtils;
 use Carbon\Carbon;
-use Hamcrest\Core\Set;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use App\OutletReservationSetting as Setting;
@@ -38,6 +37,11 @@ class OutletReservationSetting extends Model {
      * Default fallback when max pax not set
      */
     const TIMING_MAX_PAX = 8;
+
+    /**
+     * Hash id SALT
+     */
+    const HASH_SALT = 'Hashids is a small open-source library that generates short, unique, non-sequential ids from numbers.';
 
     /**
      * Cache filename
