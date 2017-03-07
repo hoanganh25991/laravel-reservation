@@ -82,7 +82,8 @@ class BookingController extends Controller {
                 //$is_cap_available = ($t->$cap_name > 0);
 
                 return $is_cap_available;
-            });
+            })
+            ->map->values();
 
 
         return $dates_with_available_time_capacity;
