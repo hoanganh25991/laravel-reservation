@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Hamcrest\Core\Set;
 use Validator;
 use App\Outlet;
 use App\Timing;
@@ -13,6 +12,7 @@ use App\Traits\ApiUtils;
 use App\Traits\ApiResponse;
 use App\Http\Requests\ApiRequest;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\OutletReservationSetting as Setting;
 
@@ -31,119 +31,11 @@ class BookingController extends Controller {
     
     public $recalculate;
 
-    public function getBookingForm(ApiRequest $req){
-        if($req->method() == 'POST'){
-            //return $this->apiResponse($req->all());
-            /* @var Validator $validator*/
-            $validator = Validator::make($req->all(), [
-                'outlet_id'    => 'required',
-                'adult_pax'    => 'required',
-                'children_pax' => 'required'
-            ]);
-
-            if($validator->fails()){
-                return $this->apiResponse($req->all(), 422, $validator->getMessageBag()->toArray());
-            }
-
-            /**
-             * Outlet id as reuse over & over through query builder
-             * Store in session for this request
-             * Any further call, consider the same outlet_id
-             */
-            $outlet_id = $req->get('outlet_id');
-            session(compact('outlet_id'));
-
-            /**
-             *
-             */
-            $reservation_pax_size = $req->get('adult_pax') + $req->get('children_pax');
-            $this->setReservationPaxSize($reservation_pax_size);
-
-            //$this->recalculate = true;
-            $available_time = $this->availableTime();
-
-            return $this->apiResponse($available_time);
+    public function __construct(){
+        //dd(env('RECALCULATE'));
+        if(env('RECALCULATE') == true){
+            $this->recalculate = true;
         }
-
-
-
-        //handle get
-        $outlets = Outlet::all();
-
-        return view('reservations.booking-form', compact('outlets'));
-    }
-
-    public function dateAvailable(ApiRequest $req){
-        /* @var Validator $validator*/
-        $validator = Validator::make($req->all(), [
-            'outlet_id' => 'required',
-            'adult_pax' => 'required',
-            'children_pax' => 'required'
-        ]);
-        
-        if($validator->fails()){
-            return $this->apiResponse($req->all(), 422, $validator->getMessageBag()->toArray());
-        }
-
-//        return $this->apiResponse(['a' => 'coder']);
-        //needed info exist, get out session
-        //get out config
-        //validate which date available
-
-        //GET FIRST which means that
-        //may be null
-        $query_max_day = Setting::where([
-            'outlet_id' =>  1,
-            'setting_group' => 'BUFFERS',
-            'setting_key' => 'MAX_DAYS_IN_ADVANCE'
-         ])->first();
-
-       
-
-        $min_hours_in_advance_slot_time = !is_null($query_min_hours_in_advance_slot_time) ? $query_min_hours_in_advance_slot_time : Setting::MIN_HOURS_IN_ADVANCE_SLOT_TIME;
-
-        $query_min_hours_in_advance_session_time =Setting::where([
-            'outlet_id' =>  1,
-            'setting_group' => 'BUFFERS',
-            'setting_key' => 'MAX_DAYS_IN_ADVANCE'
-        ])->first();
-
-        //query on collection return a collection
-        //collection has empty array
-        $min_hours_in_advance_session_time = !is_null($query_min_hours_in_advance_session_time) ? $query_min_hours_in_advance_session_time : Setting::MIN_HOURS_IN_ADVANCE_SESSION_TIME;
-
-        $query_session = Session::where([
-            'one_off' => false,
-        ])->orWhere([
-            'one_off' => true,
-            'one_off_date' => 'ssss' < 'today'
-        ])->get();
-
-        //read document for sure what is going on null
-        $sessions = !is_null($query_session) ? $query_session : [];
-
-        $today = Carbon::now();
-
-        //compare logic
-        //base on timing
-
-        //get out current Reservation in range
-        //filter out by these reservation
-        $reservations = Reservation::where([
-            'reservation_time' < 'valute x',
-            'state' => 'xyz'
-        ])->get();
-
-        //try to return
-        //date > session group > options
-        //should group by session name
-        //user can pick out one > show up inside
-
-
-
-
-
-        
     }
 
     public function availableTime(){
@@ -194,6 +86,22 @@ class BookingController extends Controller {
 
 
         return $dates_with_available_time_capacity;
+    }
+
+    public function loadDatesWithAvailableTimeFromCache(){
+        if($this->shouldUseCache()){
+            Log::info('Using cache');
+            $today = Carbon::now(Setting::timezone());
+            $today_string = $today->format('Y-m-d');
+
+            $file_name = BookingController::DATES_WITH_AVAILABLE_TIME_FILE_NAME . $today_string;
+
+            $va =  Cache::get($file_name, null);
+
+            return $va;
+        }
+
+        return null;
     }
 
     public function buildDatesWithAvailableTime($timings_by_date){
@@ -352,21 +260,6 @@ class BookingController extends Controller {
         return $return;
     }
 
-    public function loadDatesWithAvailableTimeFromCache(){
-        if($this->shouldUseCache()){
-            $today = Carbon::now(Setting::timezone());
-            $today_string = $today->format('Y-m-d');
-
-            $file_name = BookingController::DATES_WITH_AVAILABLE_TIME_FILE_NAME . $today_string;
-
-            $va =  Cache::get($file_name, null);
-
-            return $va;
-        }
-
-        return null;
-    }
-
     /**
      * New special session come on that day
      * Or change on normal session
@@ -376,7 +269,7 @@ class BookingController extends Controller {
     public function shouldUseCache(){
         if($this->recalculate)
             return false;
-        
+
         $session_has_new_update = Session::hasNewUpdate()->get()->count() > 0;
 
         if($session_has_new_update)
@@ -390,24 +283,74 @@ class BookingController extends Controller {
         return true;
     }
 
-
     /**
-     * set get on important property
+     * Get on reservation pax size to assign default
      */
     public function getReservationPaxSize(){
         $val = $this->reservations_pax_size;
-        
+
         if(is_null($val))
             return Setting::RESERVATION_PAX_SIZE;
 
         return $val;
     }
-    
+
     public function setReservationPaxSize($val){
         $this->reservations_pax_size = $val;
     }
 
-    
+    /**
+     * Booking Form step 1
+     * @param ApiRequest $req
+     * @return $this|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function getBookingForm(ApiRequest $req){
+        if($req->method() == 'POST'){
+            //return $this->apiResponse($req->all());
+            /* @var Validator $validator*/
+            $validator = Validator::make($req->all(), [
+                'outlet_id'    => 'required',
+                'adult_pax'    => 'required',
+                'children_pax' => 'required'
+            ]);
+
+            if($validator->fails()){
+                return $this->apiResponse($req->all(), 422, $validator->getMessageBag()->toArray());
+            }
+
+            /**
+             * Outlet id as reuse over & over through query builder
+             * Store in session for this request
+             * Any further call, consider the same outlet_id
+             */
+            $outlet_id = $req->get('outlet_id');
+            session(compact('outlet_id'));
+
+            /**
+             *
+             */
+            $reservation_pax_size = $req->get('adult_pax') + $req->get('children_pax');
+            $this->setReservationPaxSize($reservation_pax_size);
+
+
+            $available_time = $this->availableTime();
+
+            return $this->apiResponse($available_time);
+        }
+
+
+
+        //handle get
+        $outlets = Outlet::all();
+
+        return view('reservations.booking-form', compact('outlets'));
+    }
+
+    /**
+     * Booking Form step 2
+     * @param ApiRequest $req
+     * @return $this|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function getBookingForm2(ApiRequest $req){
         if($req->method() == 'POST' && $req->get('step') == 'booking-form'){
             $validator = Validator::make($req->all(), [

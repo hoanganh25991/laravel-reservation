@@ -1,13 +1,5 @@
 class BookingForm {
 
-	// static getMonth_name(){
-	// 	return  ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-	// }
-	static month_name(){
-		return  ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-	}
-
-
 	constructor(){
 		let calendarDiv = $('#calendar-box');
 
@@ -31,6 +23,7 @@ class BookingForm {
 
 	regisEvent(){
 		this.listenUserSelectDay();
+
 		this.listenHasAjaxResponse();
 
 		this._regisPaxChange(this.adult_pax_select);
@@ -40,6 +33,7 @@ class BookingForm {
 		this.listenPaxChange();
 
 		this.listenLoadingDialog();
+
 		this.listenStopDialog();
 
 		this.listenOutletChange();
@@ -79,15 +73,13 @@ class BookingForm {
 	changeLabel(e){
 		let d = this._getDate(e.detail.day);
 
-		let month_name = BookingForm.month_name();
-
-		this.label.innerText = `${month_name[d.getMonth()]} ${d.getDate()} ${d.getFullYear()}`;
+		this.label.innerText = d.format('MMM DD Y');
 	}
 
 	setInputReservationDate(e){
 		let d = this._getDate(e.detail.day);
 
-		this.inpute_date.value = d.toISOString().substr(0, 10);
+		this.inpute_date.value = d.format('Y-MM-DD');
 	}
 
 	setInputOutletName(){
@@ -142,7 +134,7 @@ class BookingForm {
 	}
 
 	_getDate(day_str){
-		return new Date(day_str);
+		return moment(day_str, 'Y-M-D');
 	}
 
 	listenHasAjaxResponse(){
