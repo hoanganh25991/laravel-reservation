@@ -1285,7 +1285,7 @@ ul#user-options {
     font-size: 14px
 }
 #check-availability .datetime #dt-choice select {
-    width: 100px;
+    width: 150px;
     color: #333;
     padding: 7px 5px;
     line-height: 4em;

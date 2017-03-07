@@ -21,6 +21,8 @@ class BookingForm {
 		this.children_pax_select = document.querySelector('select[name="children_pax"]');
 
 		this.ajax_dialog         = $('#ajax-dialog');
+
+		this.outlet_select       = document.querySelector('select[name="outlet_id"]');
 	}
 
 	regisEvent(){
@@ -29,20 +31,25 @@ class BookingForm {
 
 		this._regisPaxChange(this.adult_pax_select);
 		this._regisPaxChange(this.children_pax_select);
+		this._regisPaxChange(this.outlet_select, 'outlet-change');
 
 		this.listenPaxChange();
 
 		this.listenLoadingDialog();
 		this.listenStopDialog();
+
+		this.listenOutletChange();
 	}
 
-	_regisPaxChange(element){
+	_regisPaxChange(element, eventName){
+		eventName = eventName || "pax-change";
+
 		element.onchange = function(e){
 			if(!e.target.value) return;
 
 			let num_pax = e.target.value;
 
-			var event = new CustomEvent("pax-change", {
+			var event = new CustomEvent(eventName, {
 				detail: {num_pax},
 				bubbles: true,
 				cancelable: true
@@ -213,6 +220,19 @@ class BookingForm {
 		document.addEventListener('stop-dialog', function(e){
 			console.log('stop dialog');
 			scope.ajax_dialog.modal('hide');
+		});
+	}
+
+	listenOutletChange(){
+		let scope = this;
+		document.addEventListener('outlet-change', function(e){
+			if(typeof scope.outletChanged == 'undefined'){
+				scope.outletChanged = true;
+
+				return;
+			}
+
+			scope.ajaxAvailableTime(e);
 		});
 	}
 
