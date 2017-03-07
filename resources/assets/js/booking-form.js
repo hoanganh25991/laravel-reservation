@@ -26,6 +26,7 @@ class BookingForm {
 		this.inpute_date   = document.querySelector('input[name="reservation_date"]');
 		this.input_outlet = document.querySelector('input[name="outlet_name"]');
 
+		//this.dayPicked = false;
 	}
 
 	regisEvent(){
@@ -67,6 +68,7 @@ class BookingForm {
 	listenUserSelectDay(){
 		let scope = this;
 		document.addEventListener('user-select-day', function(e){
+			scope.dayPicked = true;
 			scope.changeLabel(e);
 			scope.setInputReservationDate(e);
 			scope.ajaxAvailableTime(e);
@@ -223,10 +225,8 @@ class BookingForm {
 	listenPaxChange(){
 		let scope = this;
 		document.addEventListener('pax-change', function(e){
-			let select_name = e.detail.select_name;
 			let shouldCallAjax = true;
-			if(typeof scope[`${select_name}Changed`] == 'undefined'){
-				scope[`${select_name}Changed`] = true;
+			if(typeof scope.dayPicked == 'undefined'){
 				shouldCallAjax = false;
 			}
 
@@ -258,10 +258,12 @@ class BookingForm {
 			scope.setInputOutletName(e);
 
 			let shouldCallAjax = true;
-
-			if(typeof scope.outletChanged == 'undefined'){
-				scope.outletChanged = true;
+			if(typeof scope.dayPicked == 'undefined'){
 				shouldCallAjax = false;
+			}
+
+			if(shouldCallAjax){
+				scope.ajaxAvailableTime(e);
 			}
 
 			if(shouldCallAjax){
