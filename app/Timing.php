@@ -157,15 +157,4 @@ class Timing extends Model {
         return $query->where('disabled', Timing::AVAILABLE);
     }
 
-//    public function scopeHasNewUpdate($query){
-//        $today = Carbon::now(Setting::timezone());
-//        $today_string = $today->format('Y-m-d');
-//
-//        return $query
-//            ->where('created_timestamp', '>=', $today_string)
-//            ->orWhere('modified_timestamp', '>=', $today_string)
-//            ;
-//    }
-    
-
 }

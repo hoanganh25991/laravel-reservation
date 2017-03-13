@@ -4,10 +4,6 @@ namespace App;
 
 use Carbon\Carbon;
 use App\Traits\ApiUtils;
-//use App\Library\Carbon;
-use Hamcrest\Core\Set;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use App\OutletReservationSetting as Setting;
 
 /**
@@ -18,7 +14,7 @@ use App\OutletReservationSetting as Setting;
  * @property mixed type
  * @property mixed session_name
  */
-class Session extends Model {
+class Session extends HoiModel {
     
     use ApiUtils;
 
@@ -144,13 +140,7 @@ class Session extends Model {
     protected static function boot() {
         parent::boot();
 
-        $outlet_id = session('outlet_id');
-
-        if(!is_null($outlet_id)){
-            static::addGlobalScope('base on outlet', function (Builder $builder) use($outlet_id){
-                $builder->where('outlet_id', $outlet_id);
-            });
-        }
+        static::byOutletId();
     }
     
     

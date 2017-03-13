@@ -117,13 +117,7 @@ class Reservation extends HoiModel {
     protected static function boot() {
         parent::boot();
 
-        $outlet_id = session('outlet_id');
-
-        if(!is_null($outlet_id)){
-            static::addGlobalScope('base on outlet', function (Builder $builder) use($outlet_id){
-                $builder->where('outlet_id', $outlet_id);
-            });
-        }
+        static::byOutletId();
     }
 
     public function getConfirmIdAttribute(){

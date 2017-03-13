@@ -5,10 +5,9 @@ namespace App;
 use App\Traits\ApiUtils;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use App\OutletReservationSetting as Setting;
 
-class OutletReservationSetting extends Model {
+class OutletReservationSetting extends HoiModel {
 
     use ApiUtils;
 
@@ -50,9 +49,15 @@ class OutletReservationSetting extends Model {
 
     protected $table = 'outlet_reservation_setting';
 
+    protected static function boot(){
+        parent::boot();
+
+        static::byOutletId();
+    }
+
     protected function timezone(){
         //return config('app.timezone');
-        return env('TIMEZONE');
+        return env('TIMEZONE', 'Asia/Singapore');
     }
 
     public function scopeBufferConfig($query){
@@ -91,20 +96,6 @@ class OutletReservationSetting extends Model {
 
         return [$today, $max_day];
     }
-
-
-    protected static function boot() {
-        parent::boot();
-
-        $outlet_id = session('outlet_id');
-
-        if(!is_null($outlet_id)){
-            static::addGlobalScope('base on outlet', function (Builder $builder) use($outlet_id){
-                $builder->where('outlet_id', $outlet_id);
-            });
-        }
-    }
-
 
 
 }

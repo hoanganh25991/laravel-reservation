@@ -32,10 +32,10 @@ class BookingController extends Controller {
     public $recalculate;
 
     public function __construct(){
-        //dd(env('RECALCULATE'));
-        if(env('RECALCULATE') == true){
+        if(env('APP_ENV') == 'local')
             $this->recalculate = true;
-        }
+
+
     }
 
     public function availableTime(){
@@ -284,6 +284,15 @@ class BookingController extends Controller {
         return true;
     }
 
+    public function getCacheFilenameDatesWithAvailableTime(){
+        $today = Carbon::now(Setting::timezone());
+        $today_string = $today->format('Y-m-d');
+        
+        $outlet_id = session('outlet_id', 1);
+
+        return "DATES_WITH_AVAILABLE_TIME_outlet_{$outlet_id}_$today_string";
+    }
+
     /**
      * Get on reservation pax size to assign default
      */
@@ -481,4 +490,6 @@ class BookingController extends Controller {
             return false;
         }
     }
+
+
 }
