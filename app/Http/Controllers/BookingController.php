@@ -29,7 +29,7 @@ class BookingController extends Controller {
 
     /** @var  int $reservations_pax_size */
     public $reservations_pax_size;
-    
+
     public $recalculate;
 
     public function __construct(){
@@ -49,16 +49,14 @@ class BookingController extends Controller {
 
         $date_with_available_time->each(function($group, $date_string){
             $group->each(function($chunk) use($date_string){
-                $reserved_on_day = isset($this->valid_reservations[$date_string]);
-                $reserved_on_time = $reserved_on_day && isset($this->valid_reservations[$date_string][$chunk->time]);
+                $time = $chunk->time;
+                foreach(Timing::CAPACITY_X as $cap_x){
+                    $group_name_by_date_by_time_by_capacity = "{$date_string}_{$time}_{$cap_x}";
 
-                if($reserved_on_time){
-                    foreach(Timing::CAPACITY_X as $cap_x){
-                        try{
-                            $reserved_cap = $this->valid_reservations[$date_string][$chunk->time][$cap_x];
-                            $chunk->$cap_x = $chunk->$cap_x - $reserved_cap;
-                        }catch(\Exception $e){}
-                    }
+                    try{
+                        $reserved_cap = $this->valid_reservations[$group_name_by_date_by_time_by_capacity];
+                        $chunk->$cap_x = $chunk->$cap_x - $reserved_cap;
+                    }catch(\Exception $e){}
                 }
             });
         });
@@ -101,16 +99,17 @@ class BookingController extends Controller {
     }
 
     public function buildDatesWithAvailableTime(){
-        $available_sessions = Session::availableSession()->get()->map->assignDate()->collapse();
-        $sessions_by_date   = $available_sessions->groupBy(function($s){return $s->date->format('Y-m-d');});
-        $timings_by_date    = $sessions_by_date->map(function($g){return $g->map->timings->collapse();});
+        $timings_by_date = Session::availableSession()
+                                    ->get()->map->assignDate()->collapse()
+                                    ->groupBy(function($session){return $session->date->format('Y-m-d');})
+                                    ->map(function($session_by_date){return $session_by_date->map->timings->collapse();});
         //dd('build new');
         $return =
-            $timings_by_date->map(function($group, $date_string){
+            $timings_by_date->map(function($timings_in_date, $date_string){
                 /**
                  * Base on arrival time & interval, each timing chunked into small piece
                  */
-                $chunks  = $group->map->chunk->collapse();
+                $chunks  = $timings_in_date->map->chunk->collapse();
 
                 $ordered_chunks = $chunks->sortBy(function($c){return $this->getMinutes($c->time);})->values();
 
@@ -404,7 +403,7 @@ class BookingController extends Controller {
             $reservation_info = $req->only(['salutation', 'first_name', 'email', 'phone', 'customer_remarks']);
 
             $reservation_info = array_merge(session('reservation_info', []), $reservation_info);
-            
+
             $reservation_info['reservation_timestamp'] = "{$reservation_info['reservation_date']} {$reservation_info['reservation_time']}:00";
 
             $reservation_info['reservation_code']=rand(100000,999999);
@@ -420,7 +419,7 @@ class BookingController extends Controller {
             //return $reservation_info;
             return view('reservations.booking-summary')->with(compact('reservation'));
         }
-        
+
         return view('reservations.booking-form-2')->with(compact('reservation_info'));
     }
 

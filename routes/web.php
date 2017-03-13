@@ -78,10 +78,13 @@ Route::get('test', function(App\Http\Controllers\BookingController $c){
     //return view('reservations.booking-form-2');
 //    return Carbon\Carbon::now(App\OutletReservationSetting::timezone());
 
-    event(new \App\Events\ShouldUpdateCacheDatesWithAvailableTimeEvent());
+//    event(new \App\Events\ShouldUpdateCacheDatesWithAvailableTimeEvent());
+//
+//    echo "has dispatch should update cache > query should recalculate";
+//
+//    return redirect('booking-form');
 
-    echo "has dispatch should update cache > query should recalculate";
-
-    return redirect('booking-form');
+//    return \App\Reservation::validGroupByDateTimeCapacity();
+    return $c->availableTime();
 });
 
