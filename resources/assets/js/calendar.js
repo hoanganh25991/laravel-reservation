@@ -205,8 +205,9 @@
 		e.preventDefault();
 		var target = $(e.target).closest('td, th');
 
-		//console.log(target[0].nodeName.toLowerCase());
-		switch(target[0].nodeName.toLowerCase()){
+		let element_name;
+		try{element_name = target[0].nodeName.toLowerCase();}catch(e){}
+		switch(element_name){
 			case 'td':
 				if(target.is('.day')){
 					var day = parseInt(target.attr('day'), 10) || 1;

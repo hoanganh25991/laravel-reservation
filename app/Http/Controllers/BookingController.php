@@ -318,8 +318,7 @@ class BookingController extends HoiController {
             /**
              *
              */
-            $reservation_pax_size = $req->get('adult_pax') + $req->get('children_pax');
-            $this->setReservationPaxSize($reservation_pax_size);
+            $this->reservation_pax_size = $req->get('adult_pax') + $req->get('children_pax');
 
 
             $available_time = $this->availableTime();
