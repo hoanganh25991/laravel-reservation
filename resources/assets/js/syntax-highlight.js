@@ -3,7 +3,7 @@ function syntaxHighlight(json) {
 	if(!style){
 		style = document.createElement('style');
 		style.setAttribute('id', 'syntaxHighlight');
-		style.innerText = "pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; } .string { color: green; } .number { color: darkorange; } .boolean { color: blue; } .null { color: magenta; } .key { color: red; }";
+		style.innerText = ".string { color: #A0B475; } .number { color: #DF9560; } .boolean { color: #79B0C0; } .null { color: #BC8BAC; } .key { color: #AE4544; }";
 		let head = document.querySelector('head');
 		head.appendChild(style);
 	}

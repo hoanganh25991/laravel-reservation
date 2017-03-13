@@ -153,7 +153,7 @@ class BookingForm {
 				case 'CHANGE_AVAILABLE_TIME':
 					return Object.assign({}, state, action.available_time);
 				default:
-					return state
+					return state;
 			}
 		};
 	}
@@ -220,6 +220,8 @@ class BookingForm {
 			this.label.innerText    = state.reservation.date.format('MMM D Y');
 			this.inpute_date.value  = state.reservation.date.format('Y-MM-DD');
 
+			// if(state.ajax_call == true)
+			// 	this.updateSelectView(state.available_time);
 			this.updateSelectView(state.available_time);
 		});
 
@@ -273,6 +275,11 @@ class BookingForm {
 	    }
 
 	    let selectDiv = this.select;
+		if(selectDiv.available_time){
+			if(selectDiv.available_time == available_time)
+				return;
+		}
+		selectDiv.available_time = available_time;
 	    //reset selectDiv options
 	    selectDiv.innerHTML = '';
 	    available_time_on_selected_day.forEach(time => {

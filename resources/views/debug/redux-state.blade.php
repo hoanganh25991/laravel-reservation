@@ -5,12 +5,8 @@
         right: 0;
     }
     #redux-state pre {
-        display: block;
-        height: 12px;
-        width: 500px;
-        overflow: auto;
+        overflow: scroll;
         transition: all 0.5s ease-in-out;
-        z-index: 1000;
     }
     #redux-state svg {
         float: right;
@@ -30,7 +26,7 @@
         pre.toggleHeight = function(){
             let bound = pre.getBoundingClientRect();
             let new_height = '12px';
-            if(bound.height < 13)
+            if(bound.height < 22)
                 new_height = '500px';
 
             pre.style.height = new_height;
