@@ -86,5 +86,6 @@ Route::get('test', function(App\Http\Controllers\BookingController $c){
 
 //    return \App\Reservation::validGroupByDateTimeCapacity();
     return $c->availableTime();
+//    dd($c->reservation_pax_size);
 });
 

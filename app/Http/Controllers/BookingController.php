@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Listeners\UpdateCacheDatesWithAvailableTimeListener;
 use Validator;
 use App\Outlet;
 use App\Timing;
@@ -17,26 +16,19 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\OutletReservationSetting as Setting;
 
-class BookingController extends Controller {
+class BookingController extends HoiController {
 
     use ApiUtils;
     use ApiResponse;
 
-    const DATES_WITH_AVAILABLE_TIME_FILE_NAME = 'dates_with_available_time_';
-
     /** @var  Collection $valid_reservations */
     public $valid_reservations;
 
-    /** @var  int $reservations_pax_size */
-    public $reservations_pax_size;
+    /** @var  int $reservation_pax_size */
+//    protected $reservation_pax_size;
+    public $reservation_pax_size;
 
     public $recalculate;
-
-    public function __construct(){
-
-
-
-    }
 
     public function availableTime(){
         $date_with_available_time = $this->loadDatesWithAvailableTimeFromCache() ?: $this->buildDatesWithAvailableTime();
@@ -45,39 +37,38 @@ class BookingController extends Controller {
          * Change chunk time capacity base on already reservations
          */
         $this->valid_reservations = Reservation::validGroupByDateTimeCapacity();
-        //$this->reservations_pax_size = session('reservation_pax_size', 7);
 
-        $date_with_available_time->each(function($group, $date_string){
-            $group->each(function($chunk) use($date_string){
-                $time = $chunk->time;
-                foreach(Timing::CAPACITY_X as $cap_x){
-                    $group_name_by_date_by_time_by_capacity = "{$date_string}_{$time}_{$cap_x}";
-
-                    try{
-                        $reserved_cap = $this->valid_reservations[$group_name_by_date_by_time_by_capacity];
-                        $chunk->$cap_x = $chunk->$cap_x - $reserved_cap;
-                    }catch(\Exception $e){}
-                }
+        $date_with_available_time
+            ->each(function($chunks, $date){
+                $chunks->each(function($chunk) use($date){
+                    $time = $chunk->time;
+                    foreach(Timing::CAPACITY_X as $capacity){
+                        $group_name = Reservation::getGroupNameByDateTimeCapacity($date, $time, $capacity);
+    
+                        try{
+                            $reserved_cap     = $this->valid_reservations[$group_name];
+                            $chunk->$capacity = $chunk->$capacity - $reserved_cap;
+                        }catch(\Exception $e){}
+                    }
+                });
             });
-        });
 
         /**
          * Base on user booking size, filter tables are busy
          * Only accpet capacity > 0 as available
          */
         $dates_with_available_time_capacity =
-            $date_with_available_time->map->filter(function($t){
+            $date_with_available_time
+                ->map->filter(function($chunk){
+                    $reservation_pax_size = $this->reservation_pax_size ?: Setting::RESERVATION_PAX_SIZE;
+                    $chunk->max_pax       = $chunk->max_pax ?: Setting::TIMING_MAX_PAX;
+                    $cap_name             = Timing::getCapacityName($reservation_pax_size);
 
-                $reservation_pax_size = $this->getReservationPaxSize();
-                $t->max_pax = $t->max_pax ?: Setting::TIMING_MAX_PAX;
+                    $is_cap_available = ($chunk->$cap_name > 0) && ($chunk->max_pax >= $reservation_pax_size);
 
-                $cap_name = Timing::getCapacityName($reservation_pax_size);
-                $is_cap_available = ($t->$cap_name > 0) && ($t->max_pax >= $reservation_pax_size);
-                //$is_cap_available = ($t->$cap_name > 0);
-
-                return $is_cap_available;
-            })
-            ->map->values();
+                    return $is_cap_available;
+                })
+                ->map->values();
 
 
         return $dates_with_available_time_capacity;
@@ -86,11 +77,11 @@ class BookingController extends Controller {
     public function loadDatesWithAvailableTimeFromCache(){
         if($this->shouldUseCache()){
             Log::info('Using cache');
+
             $file_name = $this->getCacheFilename('DATES_WITH_AVAILABLE_TIME');
             $val =  Cache::get($file_name);
 
-            if(is_null($val))
-                Log::info('Cache DATES_WITH_AVAILABLE_TIME null');
+            if(is_null($val)){Log::info('Cache DATES_WITH_AVAILABLE_TIME null');}
 
             return $val;
         }
@@ -99,11 +90,12 @@ class BookingController extends Controller {
     }
 
     public function buildDatesWithAvailableTime(){
-        $timings_by_date = Session::availableSession()
-                                    ->get()->map->assignDate()->collapse()
-                                    ->groupBy(function($session){return $session->date->format('Y-m-d');})
-                                    ->map(function($session_by_date){return $session_by_date->map->timings->collapse();});
-        //dd('build new');
+        $timings_by_date =
+            Session::availableSession()->get()
+                ->map->assignDate()->collapse()
+                ->groupBy(function($session){return $session->date->format('Y-m-d');})
+                ->map(function($session_by_date){return $session_by_date->map->timings->collapse();});
+
         $return =
             $timings_by_date->map(function($timings_in_date, $date_string){
                 /**
@@ -261,7 +253,7 @@ class BookingController extends Controller {
      * Should recalculate
      */
     public function shouldUseCache(){
-        if(env('APP_ENV') == 'local')
+        if(env('APP_ENV') != 'production')
             return false;
 
         $filename = UpdateCacheDatesWithAvailableTimeListener::getCacheFileName('SHOULD_UPDATE_DATES_WITH_AVAILABLE_TIME');
@@ -271,16 +263,15 @@ class BookingController extends Controller {
     }
 
     public function getCacheFilename($key = 'DATES_WITH_AVAILABLE_TIME'){
+        $filename = '';
+
         switch($key){
             case 'DATES_WITH_AVAILABLE_TIME':
                 $today        = Carbon::now(Setting::timezone());
-
-                $outlet_id    = session('outlet_id', 1);
+                $outlet_id    = Setting::outletId();
                 $today_string = $today->format('Y-m-d');
                 $filename     = "DATES_WITH_AVAILABLE_TIME_outlet_{$outlet_id}_$today_string";
                 break;
-            default:
-                $filename = 'BOOKING_CONTROLLER_CACHE_FILE_NAME';
         }
 
         return $filename;
@@ -289,18 +280,13 @@ class BookingController extends Controller {
     /**
      * Get on reservation pax size to assign default
      */
-    public function getReservationPaxSize(){
-        $val = $this->reservations_pax_size;
-
-        if(is_null($val))
-            return Setting::RESERVATION_PAX_SIZE;
-
-        return $val;
-    }
-
-    public function setReservationPaxSize($val){
-        $this->reservations_pax_size = $val;
-    }
+//    public function getReservationPaxSizeAttribute(){
+//        return $this->reservation_pax_size ?: Setting::RESERVATION_PAX_SIZE;
+//    }
+//
+//    public function setReservationPaxSize($val){
+//        $this->reservation_pax_size = $val;
+//    }
 
     /**
      * Booking Form step 1
@@ -483,6 +469,5 @@ class BookingController extends Controller {
             return false;
         }
     }
-
 
 }

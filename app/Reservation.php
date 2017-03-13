@@ -84,32 +84,22 @@ class Reservation extends HoiModel {
     protected function validGroupByDateTimeCapacity(){
         $valid_reservations   = Reservation::validInDateRange()->get();
 
-//        $reservations_by_date_by_time_by_capacity =
         $capacity_counted_reservations =
-//            $valid_reservations
-//                ->groupBy(function($reservation){return $reservation->date->format('Y-m-d');})
-//                ->map->groupBy(function($reservation){return $reservation->date->format('H:i');})
-//                ->map->map->map->groupBy(function($reservation){return Timing::getCapacityName($reservation->pax_size);});
             $valid_reservations->map(function($reservation){
-                                    $date_time  = $reservation->date->format('Y-m-d_H:i');
+                                    $date  = $reservation->date->format('Y-m-d');
+                                    $time  = $reservation->date->format('H:i');
                                     $capacity   = Timing::getCapacityName($reservation->pax_size);
-                                    $group_name_by_date_time_capacity = "{$date_time}_{$capacity}";
 
-                                    echo  $group_name_by_date_time_capacity;
-                    
-                                    return $group_name_by_date_time_capacity;
+                                    return static::getGroupNameByDateTimeCapacity($date, $time, $capacity);
                                 })
                                 ->groupBy(function($group_name){return $group_name;})
                                 ->map(function($group){return $group->count();});
 
-        //dd($reservations_by_date_by_time_by_capacity);
-
-//        $capacity_counted_reservations =
-//            $reservations_by_date_by_time_by_capacity
-//                ->map->map->map->map(function($reservation_by_capacity){return $reservation_by_capacity->count();});
-        //dd($capacity_counted_reservations);
-
         return $capacity_counted_reservations;
+    }
+    
+    public static function getGroupNameByDateTimeCapacity($date, $time, $capacity){
+        return "{$date}_{$time}_{$capacity}";
     }
     
     public function getDateAttribute(){
