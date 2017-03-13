@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property mixed capacity_7_x
  * @property mixed max_pax
  */
-class Timing extends Model {
+class Timing extends HoiModel {
     
     use ApiUtils;
 

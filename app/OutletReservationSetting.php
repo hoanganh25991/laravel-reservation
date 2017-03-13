@@ -4,7 +4,6 @@ namespace App;
 
 use App\Traits\ApiUtils;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
 use App\OutletReservationSetting as Setting;
 
 class OutletReservationSetting extends HoiModel {
@@ -55,7 +54,7 @@ class OutletReservationSetting extends HoiModel {
         static::byOutletId();
     }
 
-    protected function timezone(){
+    public static function timezone(){
         //return config('app.timezone');
         return env('TIMEZONE', 'Asia/Singapore');
     }
@@ -95,6 +94,10 @@ class OutletReservationSetting extends HoiModel {
         $max_day = $today->copy()->addDays($max_days_in_advance);
 
         return [$today, $max_day];
+    }
+    
+    public static function outletId(){
+        return session('outlet_id', 1);
     }
 
 

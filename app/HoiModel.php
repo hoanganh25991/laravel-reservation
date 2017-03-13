@@ -2,8 +2,11 @@
 
 namespace App;
 
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use App\OutletReservationSetting as Setting;
 
 class HoiModel extends Model {
     
@@ -14,7 +17,6 @@ class HoiModel extends Model {
      */
     const CREATED_AT = 'created_timestamp';
 
-    
     /**
      * The name of the "updated at" column.
      *
@@ -44,7 +46,11 @@ class HoiModel extends Model {
         
         return  "LAST_CHECK_ON_{$class_name}";
     }
-    
+
+    /**
+     * Inherit class want to scope query by outlet id
+     * static call on this function to assign global scope on query
+     */
     protected static function byOutletId(){
         $outlet_id = session('outlet_id', 1);
 

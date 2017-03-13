@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Listeners\UpdateCacheDatesWithAvailableTimeListener;
 use Validator;
 use App\Outlet;
 use App\Timing;
@@ -32,18 +33,13 @@ class BookingController extends Controller {
     public $recalculate;
 
     public function __construct(){
-        if(env('APP_ENV') == 'local')
-            $this->recalculate = true;
+
 
 
     }
 
     public function availableTime(){
-        $available_sessions = Session::availableSession()->get()->map->assignDate()->collapse();
-        $sessions_by_date   = $available_sessions->groupBy(function($s){return $s->date->format('Y-m-d');});
-        $timings_by_date    = $sessions_by_date->map(function($g){return $g->map->timings->collapse();});
-
-        $date_with_available_time = $this->loadDatesWithAvailableTimeFromCache() ?: $this->buildDatesWithAvailableTime($timings_by_date);
+        $date_with_available_time = $this->loadDatesWithAvailableTimeFromCache() ?: $this->buildDatesWithAvailableTime();
 
         /**
          * Change chunk time capacity base on already reservations
@@ -92,20 +88,22 @@ class BookingController extends Controller {
     public function loadDatesWithAvailableTimeFromCache(){
         if($this->shouldUseCache()){
             Log::info('Using cache');
-            $today = Carbon::now(Setting::timezone());
-            $today_string = $today->format('Y-m-d');
+            $file_name = $this->getCacheFilename('DATES_WITH_AVAILABLE_TIME');
+            $val =  Cache::get($file_name);
 
-            $file_name = BookingController::DATES_WITH_AVAILABLE_TIME_FILE_NAME . $today_string;
+            if(is_null($val))
+                Log::info('Cache DATES_WITH_AVAILABLE_TIME null');
 
-            $va =  Cache::get($file_name, null);
-
-            return $va;
+            return $val;
         }
 
         return null;
     }
 
-    public function buildDatesWithAvailableTime($timings_by_date){
+    public function buildDatesWithAvailableTime(){
+        $available_sessions = Session::availableSession()->get()->map->assignDate()->collapse();
+        $sessions_by_date   = $available_sessions->groupBy(function($s){return $s->date->format('Y-m-d');});
+        $timings_by_date    = $sessions_by_date->map(function($g){return $g->map->timings->collapse();});
         //dd('build new');
         $return =
             $timings_by_date->map(function($group, $date_string){
@@ -251,12 +249,8 @@ class BookingController extends Controller {
         /**
          * Save cache before move on
          */
-        $today = Carbon::now(Setting::timezone());
-        $today_string = $today->format('Y-m-d');
-
-        $file_name = BookingController::DATES_WITH_AVAILABLE_TIME_FILE_NAME . $today_string;
-        //expire in day
-        Cache::put($file_name, $return, 24 * 60);
+        $file_name = $this->getCacheFilename('DATES_WITH_AVAILABLE_TIME');
+        Cache::put($file_name, $return, 24 * 60);//expire in day
 
         return $return;
     }
@@ -268,29 +262,29 @@ class BookingController extends Controller {
      * Should recalculate
      */
     public function shouldUseCache(){
-        if($this->recalculate)
+        if(env('APP_ENV') == 'local')
             return false;
 
-        $session_has_new_update = Session::hasNewUpdate()->get()->count() > 0;
+        $filename = UpdateCacheDatesWithAvailableTimeListener::getCacheFileName('SHOULD_UPDATE_DATES_WITH_AVAILABLE_TIME');
+        $shouldUpdateCache = Cache::pull($filename, false);
 
-        if($session_has_new_update)
-            return false;
-
-        $timing_has_new_update  = Timing::hasNewUpdate()->get()->count() > 0;
-
-        if($timing_has_new_update)
-            return false;
-
-        return true;
+        return !$shouldUpdateCache;
     }
 
-    public function getCacheFilenameDatesWithAvailableTime(){
-        $today = Carbon::now(Setting::timezone());
-        $today_string = $today->format('Y-m-d');
-        
-        $outlet_id = session('outlet_id', 1);
+    public function getCacheFilename($key = 'DATES_WITH_AVAILABLE_TIME'){
+        switch($key){
+            case 'DATES_WITH_AVAILABLE_TIME':
+                $today        = Carbon::now(Setting::timezone());
 
-        return "DATES_WITH_AVAILABLE_TIME_outlet_{$outlet_id}_$today_string";
+                $outlet_id    = session('outlet_id', 1);
+                $today_string = $today->format('Y-m-d');
+                $filename     = "DATES_WITH_AVAILABLE_TIME_outlet_{$outlet_id}_$today_string";
+                break;
+            default:
+                $filename = 'BOOKING_CONTROLLER_CACHE_FILE_NAME';
+        }
+
+        return $filename;
     }
 
     /**
