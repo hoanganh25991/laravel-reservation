@@ -52,7 +52,7 @@ class HoiModel extends Model {
      * static call on this function to assign global scope on query
      */
     protected static function byOutletId(){
-        $outlet_id = session('outlet_id', 1);
+        $outlet_id = Setting::outletId();
 
         static::addGlobalScope('outlet_id', function (Builder $builder) use($outlet_id){
             $builder->where('outlet_id', $outlet_id);
