@@ -20,6 +20,9 @@ mix.scripts('resources/assets/js/calendar.js', 'public/js/calendar.js')
 mix.scripts('resources/assets/js/booking-form.js', 'public/js/booking-form.js')
    .version();
 
+mix.scripts('resources/assets/js/syntax-highlight.js', 'public/js/syntax-highlight.js')
+   .version();
+
 mix.styles('resources/assets/css/admin.css', 'public/css/admin.css')
    .version();
 
