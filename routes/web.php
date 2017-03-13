@@ -76,5 +76,12 @@ Route::get('test', function(App\Http\Controllers\BookingController $c){
     //return view('reservations.booking-summary');
 
     //return view('reservations.booking-form-2');
-    return Carbon\Carbon::now(App\OutletReservationSetting::timezone());
+//    return Carbon\Carbon::now(App\OutletReservationSetting::timezone());
+
+    event(new \App\Events\ShouldUpdateCacheDatesWithAvailableTimeEvent());
+
+    echo "has dispatch should update cache > query should recalculate";
+
+    return redirect('booking-form');
 });
+
