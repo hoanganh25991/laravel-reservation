@@ -353,8 +353,11 @@ class BookingForm {
 	    let selected_day_str = moment().format('Y-MM-DD');
 
 	    let available_time_on_selected_day = available_time[selected_day_str];
-	    if (typeof available_time_on_selected_day == 'undefined')
-	        return;
+	    if (typeof available_time_on_selected_day == 'undefined'){
+			console.info('No available time on select day');
+		    // return;
+		    available_time_on_selected_day = [];
+	    }
 
 	    if (available_time_on_selected_day.length == 0) {
 	        let default_time = {

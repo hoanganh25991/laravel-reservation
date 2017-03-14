@@ -123,7 +123,9 @@
 @endsection
 
 @push('script')
+
 <script src="{{ url(substr(mix('js/calendar.js'), 1)) }}"></script>
+<script src="{{ url(substr(mix('js/syntax-highlight.js'), 1)) }}"></script>
 <script src="{{ url(substr(mix('js/booking-form.js'), 1)) }}"></script>
 <script>
     //let c = $('#calendar-box').Calendar();
