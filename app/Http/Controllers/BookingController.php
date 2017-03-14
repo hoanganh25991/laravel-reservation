@@ -15,7 +15,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\OutletReservationSetting as Setting;
-use App\Listeners\UpdateCacheDatesWithAvailableTimeListener;
+use App\Listeners\UpdateCacheDatesWithAvailableTimeListener as CacheListener;
 
 class BookingController extends HoiController {
 
@@ -257,7 +257,8 @@ class BookingController extends HoiController {
         if(env('APP_ENV') != 'production')
             return false;
 
-        $filename = UpdateCacheDatesWithAvailableTimeListener::getCacheFileName('SHOULD_UPDATE_DATES_WITH_AVAILABLE_TIME');
+        $outlet_id = Setting::outletId();
+        $filename  = CacheListener::getCacheFileName('SHOULD_UPDATE_DATES_WITH_AVAILABLE_TIME', $outlet_id);
         $shouldUpdateCache = Cache::pull($filename, false);
 
         return !$shouldUpdateCache;

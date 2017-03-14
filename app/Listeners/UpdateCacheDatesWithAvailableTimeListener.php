@@ -3,7 +3,7 @@
 namespace App\Listeners;
 
 use Illuminate\Support\Facades\Cache;
-use App\OutletReservationSetting as Setting;
+//use App\OutletReservationSetting as Setting;
 use App\Events\ShouldUpdateCacheDatesWithAvailableTimeEvent as Event;
 
 class UpdateCacheDatesWithAvailableTimeListener {
