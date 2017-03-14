@@ -75,7 +75,7 @@ class BookingForm {
 					has_data: false,
 					exceed_min_exist_time: false
 				},
-				min_exist_time: 2070 //ms
+				min_exist_time: 690 //ms
 				// min_exist_time: 5000 //ms
 			},
 			available_time: {},
@@ -293,19 +293,32 @@ class BookingForm {
 		}
 
 		store.subscribe(()=>{
-			let state = store.getState();
+			let state    = store.getState();
+			let prestate = store.getPrestate();
 			pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));
 			/**
 			 * Update input outlet name
 			 */
-			this.input_outlet.value = state.outlet.name;
-			this.label.innerText    = state.reservation.date.format('MMM D Y');
-			this.inpute_date.value  = state.reservation.date.format('Y-MM-DD');
-			this.reservation_title.innerText  = state.outlet.name;
+
+			if(prestate.outlet.name != state.outlet.name){
+				this.input_outlet.value = state.outlet.name;
+			}
+
+			if(prestate.reservation.date != state.reservation.date){
+				this.label.innerText    = state.reservation.date.format('MMM D Y');
+				this.inpute_date.value  = state.reservation.date.format('Y-MM-DD');
+			}
+
+			if(prestate.outlet.name != state.outlet.name){
+				this.reservation_title.innerText  = state.outlet.name;
+			}
 
 			// if(state.ajax_call == true)
 			// 	this.updateSelectView(state.available_time);
-			this.updateSelectView(state.available_time);
+			if(prestate.available_time != state.available_time){
+				this.updateSelectView(state.available_time);
+				this.updateCalendarView(state.available_time);
+			}
 
 			if(state.dialog.show == true){
 				this.ajax_dialog.modal('show');
@@ -313,7 +326,6 @@ class BookingForm {
 
 
 
-			this.updateCalendarView(state.available_time);
 		});
 
 
@@ -369,12 +381,12 @@ class BookingForm {
 	        available_time_on_selected_day.push(default_time);
 	    }
 
-	    let selectDiv = this.select;
-		if(selectDiv.available_time){
-			if(selectDiv.available_time == available_time)
-				return;
-		}
-		selectDiv.available_time = available_time;
+		let selectDiv = this.select;
+		// if(selectDiv.available_time){
+		// 	if(selectDiv.available_time == available_time)
+		// 		return;
+		// }
+		// selectDiv.available_time = available_time;
 	    //reset selectDiv options
 	    selectDiv.innerHTML = '';
 	    available_time_on_selected_day.forEach(time => {
@@ -396,12 +408,12 @@ class BookingForm {
 		let calendar = this.calendar;
 		this._addCalendarHelper(calendar);
 
-		if(calendar.available_time){
-			calendar.available_time == available_time;
-			return;
-		}
-
-		calendar.available_time = available_time;
+		// if(calendar.available_time){
+		// 	calendar.available_time == available_time;
+		// 	return;
+		// }
+		//
+		// calendar.available_time = available_time;
 
 	    let available_days = Object.keys(available_time);
 	    this.day_tds.each(function() {
