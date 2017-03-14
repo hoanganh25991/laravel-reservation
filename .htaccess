@@ -15,3 +15,21 @@
     #RewriteRule ^css/fonts/flat-icon/(.*)$ public/css/fonts/flat-icon/$1 [L,NC]
     RewriteRule ^(css|js|images|build|vendors|fonts|sounds|photos)/(.*)$ public/$1/$2 [L,NC]
 </IfModule>
+
+<IfModule mod_expires.c>
+ExpiresActive On
+ExpiresDefault A0
+
+# 1 WEEK - possible to be changed, unlikely
+#<FilesMatch "public/js/(.*)\.js$">
+<FilesMatch "js$">
+ExpiresDefault A604800
+</FilesMatch>
+<FilesMatch "css$">
+ExpiresDefault A604800
+</FilesMatch>
+
+#AddOutputFilter DEFLATE css js
+#ExpiresActive On
+#ExpiresByType application/x-javascript A2592000
+</IfModule>

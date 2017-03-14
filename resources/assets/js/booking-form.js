@@ -25,7 +25,7 @@ class BookingForm {
 		this.state = this.defaultState();
 		let scope = this;
 		let reducer = Redux.combineReducers({
-			has_selected_day : scope.buildHasSelectedDay(),
+			has_selected_day : scope.buildHasSelectedDayReducer(),
 			available_time   : scope.buildAvailableTimeReducer(),
 			reservation      : scope.buildReservationReducer(),
 			ajax_call        : scope.buildAjaxCallReducer(),
@@ -62,7 +62,8 @@ class BookingForm {
 					has_data: false,
 					exceed_min_exist_time: false
 				},
-				min_exist_time: 3000 //ms
+				// min_exist_time: 2070 //ms
+				min_exist_time: 5000 //ms
 			},
 			available_time: {},
 			ajax_call: false,
@@ -139,6 +140,8 @@ class BookingForm {
 				case 'DIALOG_HIDE':
 					state.show = false;
 					state.stop.has_data = false;
+					return JSON.parse(JSON.stringify(state));
+				case 'DIALOG_HIDDEN':
 					state.stop.exceed_min_exist_time = false;
 					return JSON.parse(JSON.stringify(state));
 				default:
@@ -183,7 +186,7 @@ class BookingForm {
 		}
 	}
 
-	buildHasSelectedDay(){
+	buildHasSelectedDayReducer(){
 		let _state = this.state.has_selected_day;
 		return function(state = _state, action){
 			switch(action.type){
@@ -198,17 +201,60 @@ class BookingForm {
 	bindListener(){
 		let store = window.store;
 		let scope = this;
+		let prestate;
 		store.subscribe(()=>{
 			let state = store.getState();
-			if(state.ajax_call == true){
-				store.dispatch({type: 'AJAX_CALL', ajax_call: false});
-				store.dispatch({type:'DIALOG_SHOW', show: true});
-				scope.ajaxCall();
-				let timeout = setTimeout(function(){
-					store.dispatch({type: 'DIALOG_EXCEED_MIN_EXIST_TIME', exceed_min_exist_time: true});
-					clearTimeout(timeout);
-				}, state.dialog.min_exist_time);
+
+			if(prestate){
+				/**
+				 * Update available time
+				 * When user change his condition
+				 *
+				 * #require has_selected_day
+				 */
+				if(prestate.has_selected_day
+					&& (prestate.pax.adult != state.pax.adult
+					||prestate.pax.children != state.pax.children
+					||prestate.outlet.id != state.outlet.id)
+				){
+					prestate = state;
+					scope.ajaxCall();
+				}
+
+				if(prestate.has_selected_day == false && state.has_selected_day == true){
+					prestate = state;
+					scope.ajaxCall();
+				}
+
+				if(prestate.reservation.date != state.reservation.date){
+					prestate = state;
+					scope.ajaxCall();
+				}
+
 			}
+
+			if(state.dialog.show == true
+				&& state.dialog.stop.has_data == true
+				&& state.dialog.stop.exceed_min_exist_time == true){
+				prestate = state;
+				store.dispatch({type: 'DIALOG_HIDE'});
+				this.ajax_dialog.modal('hide');
+			}
+
+			//update prestate
+			prestate = state;
+
+			// if(state.ajax_call == true){
+			// 	store.dispatch({type:'DIALOG_SHOW', show: true})
+			//
+			// 	scope.ajaxCall();
+			// 	store.dispatch({type: 'AJAX_CALL', ajax_call: false});
+			//
+			// 	let timeout = setTimeout(function(){
+			// 		store.dispatch({type: 'DIALOG_EXCEED_MIN_EXIST_TIME', exceed_min_exist_time: true});
+			// 		clearTimeout(timeout);
+			// 	}, state.dialog.min_exist_time);
+			// }
 		});
 
 	}
@@ -244,14 +290,9 @@ class BookingForm {
 			if(state.dialog.show == true)
 				this.ajax_dialog.modal('show');
 
-			if(state.dialog.show == true
-				&& state.dialog.stop.has_data == true
-				&& state.dialog.stop.exceed_min_exist_time == true){
-				this.ajax_dialog.modal('hide');
-				store.dispatch({
-					type: 'DIALOG_HIDE',
-				});
-			}
+
+
+			this.updateCalendarView(state.available_time);
 		});
 
 
@@ -322,6 +363,55 @@ class BookingForm {
 	    });
 	}
 
+	updateCalendarView(available_time) {
+		if(Object.keys(available_time).length == 0)
+			return
+
+		let calendar = this.calendar;
+		this._addCalendarHelper(calendar);
+
+		if(calendar.available_time){
+			calendar.available_time == available_time;
+			return;
+		}
+
+		calendar.available_time = available_time;
+
+	    let available_days = Object.keys(available_time);
+	    this.day_tds.each(function() {
+	        let td = $(this);
+	        let td_day_str = `${td.attr('year')}-${calendar._prefix2Dec(td.attr('month'))}-${calendar._prefix2Dec(td.attr('day'))}`;
+
+	        if (available_days.includes(td_day_str)) {
+		        calendar._pickable(td);
+	        } else {
+		        calendar._unpickable(td);
+	        }
+	    });
+
+	}
+
+	_addCalendarHelper(calendar){
+		if(!calendar._prefix2Dec || !calendar._pickable || calendar._unpickable){
+			calendar._prefix2Dec = function(val) {
+				if (val < 10)
+					return `0${val}`;
+
+				return val;
+			}
+
+			calendar._pickable = function(td){
+				td.removeClass('past');
+				td.addClass('day');
+			}
+
+			calendar._unpickable = function(td){
+				td.removeClass('day');
+				td.addClass('past');
+			}
+		}
+	}
+
 	regisEvent(){
 		let store = window.store;
 
@@ -329,63 +419,46 @@ class BookingForm {
 		outlet_select.addEventListener('change', function(){
 			let selectedOption = outlet_select.selectedOptions[0];
 
-			let action = {
+			store.dispatch({
 				type: 'CHANGE_OUTLET',
 				outlet: {
 					id: selectedOption.value,
 					name: selectedOption.innerText
 				}
-			};
-
-			store.dispatch(action);
+			});
 		});
 
 		let adult_pax_select = this.adult_pax_select;
 		adult_pax_select.addEventListener('change', function(){
 			let selectedOption = adult_pax_select.selectedOptions[0];
 
-			let action = {
+			store.dispatch({
 				type: 'CHANGE_ADULT_PAX',
 				adult_pax: selectedOption.value
-			};
-
-			store.dispatch(action);
+			});
 		});
 
 		let children_pax_select = this.children_pax_select;
 		children_pax_select.addEventListener('change', function(){
 			let selectedOption = children_pax_select.selectedOptions[0];
 
-			let action = {
+			store.dispatch({
 				type: 'CHANGE_CHILDREN_PAX',
 				children_pax: selectedOption.value
-			};
-
-			store.dispatch(action);
+			});
 		});
 
 		document.addEventListener('user-select-day', function(e){
 			let date = moment(e.detail.day, 'Y-M-D');
 
-			let action = {
+			store.dispatch({
 				type: 'CHANGE_RESERVATION_DATE',
 				date
-			};
+			});
 
-			store.dispatch(action);
-
-			let action2 = {
+			store.dispatch({
 				type: 'HAS_SELECTED_DAY'
-			}
-
-			store.dispatch(action2);
-
-			let action3 = {
-				type: 'AJAX_CALL',
-				ajax_call: true
-			}
-			store.dispatch(action3);
-
+			});
 		});
 
 		let time_select = this.time_select;
@@ -401,10 +474,16 @@ class BookingForm {
 			store.dispatch(action);
 		});
 
-		// let ajax_dialog = this.ajax_dialog;
-		// ajax_dialog.on('hidden.bs.modal', function(){
-		// 	store.dispatch({type: 'DIALOG_SHOW', show: false});
-		// });
+		let ajax_dialog = this.ajax_dialog;
+		ajax_dialog.on('hidden.bs.modal', function(){
+			// store.dispatch({type: 'DIALOG_HIDE'});
+			console.log('dialog hidden');
+			//can dispatch something here
+			//but it NOT DIALOG_HIDE
+			//bcs right after state change, should dispatch hide
+			//any other come later may re run on this function
+			store.dispatch({type: 'DIALOG_HIDDEN'});
+		});
 	}
 
 	ajaxCall(){
@@ -417,33 +496,40 @@ class BookingForm {
 					return carry;
 				}, {});
 
+		let store = window.store;
+		let state = store.getState();
+		store.dispatch({
+			type: 'DIALOG_SHOW',
+			show: true
+		});
+
+		let timeout = setTimeout(function(){
+			store.dispatch({type: 'DIALOG_EXCEED_MIN_EXIST_TIME', exceed_min_exist_time: true});
+			clearTimeout(timeout);
+		}, state.dialog.min_exist_time);
+
 		$.ajax({
 			url: '',
 			method: 'POST',
 			data,
 			success(res) {
 				console.log(res);
-				let action = {
-					type: 'DIALOG_HAS_DATA',
-					dialog_has_data: true
-				}
 
-				store.dispatch(action);
-
-				let action2 = {
+				store.dispatch({
 					type: 'CHANGE_AVAILABLE_TIME',
 					available_time: res
-				}
-
-				store.dispatch(action2);
+				});
 			},
-			error(res) {
-				let action = {
+			complete(){
+				store.dispatch( {
 					type: 'DIALOG_HAS_DATA',
-					dialog_has_data: false
-				}
+					dialog_has_data: true
+				});
 
-				store.dispatch(action);
+				store.dispatch( {
+					type: 'AJAX_CALL',
+					ajax_call: false
+				});
 			}
 		});
 	}
