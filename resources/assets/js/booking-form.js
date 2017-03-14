@@ -36,6 +36,19 @@ class BookingForm {
 		});
 
 		window.store = Redux.createStore(reducer);
+
+		/**
+		 * Enhance store with prestate
+		 */
+		let o_dispatch = store.dispatch;
+		store.dispatch = function(action){
+			store.prestate = store.getState();
+			o_dispatch(action);
+		}
+
+		store.getPrestate = function(){
+			return store.prestate;
+		}
 	}
 
 	defaultState(){
@@ -205,9 +218,10 @@ class BookingForm {
 	bindListener(){
 		let store = window.store;
 		let scope = this;
-		let prestate;
+		// let prestate;
 		store.subscribe(()=>{
 			let state = store.getState();
+			let prestate = store.getPrestate();
 
 			if(prestate){
 				/**
@@ -221,17 +235,17 @@ class BookingForm {
 					||prestate.pax.children != state.pax.children
 					||prestate.outlet.id != state.outlet.id)
 				){
-					prestate = state;
+					// prestate = state;
 					scope.ajaxCall();
 				}
 
 				if(prestate.has_selected_day == false && state.has_selected_day == true){
-					prestate = state;
+					// prestate = state;
 					scope.ajaxCall();
 				}
 
 				if(prestate.reservation.date != state.reservation.date){
-					prestate = state;
+					// prestate = state;
 					scope.ajaxCall();
 				}
 
@@ -240,13 +254,13 @@ class BookingForm {
 			if(state.dialog.show == true
 				&& state.dialog.stop.has_data == true
 				&& state.dialog.stop.exceed_min_exist_time == true){
-				prestate = state;
+				// prestate = state;
 				store.dispatch({type: 'DIALOG_HIDE'});
 				this.ajax_dialog.modal('hide');
 			}
 
 			//update prestate
-			prestate = state;
+			// prestate = state;
 
 			// if(state.ajax_call == true){
 			// 	store.dispatch({type:'DIALOG_SHOW', show: true})
