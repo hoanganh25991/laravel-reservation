@@ -4,10 +4,10 @@
 
     <div class="box">
         @component('reservations.header')
-        @slot('title')
-        Make a Reservation at <span class="r-name"> <a href="{{ url('') }}" target="_blank">Spize (Bedok)</a></span>
-        <p class="sub"></p>
-        @endslot
+            @slot('title')
+            Make a Reservation at <span class="r-name"> <a href="{{ url('') }}" target="_blank" id="reservation_title">{{ $outlets->first()->name }}</a></span>
+            <p class="sub"></p>
+            @endslot
         @endcomponent
         <div id="check-availability" class="content">
             <form id="booking-form" action="{{ url('booking-form-2') }}" method="POST">

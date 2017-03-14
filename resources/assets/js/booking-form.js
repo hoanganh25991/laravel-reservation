@@ -46,7 +46,7 @@ class BookingForm {
 			init_view: false,
 			outlet: {
 				id: 1,
-				name: 'Spize (Bekdok)'
+				name: 'HoiPOS Cafe (West)'
 			},
 			pax: {
 				adult: 1,
@@ -62,8 +62,8 @@ class BookingForm {
 					has_data: false,
 					exceed_min_exist_time: false
 				},
-				// min_exist_time: 2070 //ms
-				min_exist_time: 5000 //ms
+				min_exist_time: 2070 //ms
+				// min_exist_time: 5000 //ms
 			},
 			available_time: {},
 			ajax_call: false,
@@ -282,6 +282,7 @@ class BookingForm {
 			this.input_outlet.value = state.outlet.name;
 			this.label.innerText    = state.reservation.date.format('MMM D Y');
 			this.inpute_date.value  = state.reservation.date.format('Y-MM-DD');
+			this.reservation_title.innerText  = state.outlet.name;
 
 			// if(state.ajax_call == true)
 			// 	this.updateSelectView(state.available_time);
@@ -325,6 +326,8 @@ class BookingForm {
 		this.input_outlet = document.querySelector('input[name="outlet_name"]');
 
 		this.time_select = document.querySelector('select[name="reservation_time"]');
+
+		this.reservation_title = document.querySelector('#reservation_title');
 	}
 
 	updateSelectView(available_time) {
