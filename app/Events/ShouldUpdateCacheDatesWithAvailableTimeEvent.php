@@ -13,15 +13,17 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 class ShouldUpdateCacheDatesWithAvailableTimeEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
+    
+    public $outlet_id;
 
     /**
      * Create a new event instance.
      *
-     * @return void
+     * @param $outlet_id
      */
-    public function __construct()
+    public function __construct($outlet_id)
     {
-        //
+        $this->outlet_id = $outlet_id;
     }
 
     /**

@@ -15,6 +15,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\OutletReservationSetting as Setting;
+use App\Listeners\UpdateCacheDatesWithAvailableTimeListener;
 
 class BookingController extends HoiController {
 
