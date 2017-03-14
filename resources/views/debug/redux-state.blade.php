@@ -6,6 +6,7 @@
     }
     #redux-state pre {
         overflow: scroll;
+        height: 500px;
         transition: all 0.5s ease-in-out;
     }
     #redux-state svg {

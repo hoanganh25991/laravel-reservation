@@ -123,8 +123,8 @@
 @endsection
 
 @push('script')
-<script src="{{ mix('js/calendar.js') }}"></script>
-<script src="{{ mix('js/booking-form.js') }}"></script>
+<script src="{{ url(substr(mix('js/calendar.js'), 1)) }}"></script>
+<script src="{{ url(substr(mix('js/booking-form.js'), 1)) }}"></script>
 <script>
     //let c = $('#calendar-box').Calendar();
 </script>

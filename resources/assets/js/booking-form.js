@@ -13,6 +13,8 @@ class BookingForm {
 		this.bindView();
 		this.regisEvent();
 
+		this.bindListener();
+
 		this.initView();
 	}
 
@@ -23,14 +25,14 @@ class BookingForm {
 		this.state = this.defaultState();
 		let scope = this;
 		let reducer = Redux.combineReducers({
-			available_time: scope.buildAvailableTimeReducer(),
-			reservation: scope.buildReservationReducer(),
-			init_view: scope.buildInitViewReducer(),
-			outlet: scope.buildOutletReducer(),
-			dialog: scope.buildDialogReducer(),
-			pax: scope.buildPaxReducer(),
-			ajax_call: scope.buildAjaxCallReducer(),
-			has_selected_day: scope.buildHasSelectedDay()
+			has_selected_day : scope.buildHasSelectedDay(),
+			available_time   : scope.buildAvailableTimeReducer(),
+			reservation      : scope.buildReservationReducer(),
+			ajax_call        : scope.buildAjaxCallReducer(),
+			init_view        : scope.buildInitViewReducer(),
+			outlet           : scope.buildOutletReducer(),
+			dialog           : scope.buildDialogReducer(),
+			pax              : scope.buildPaxReducer(),
 		});
 
 		window.store = Redux.createStore(reducer);
@@ -44,7 +46,7 @@ class BookingForm {
 			init_view: false,
 			outlet: {
 				id: 1,
-				name: 'FUCK YOU'
+				name: 'Spize (Bekdok)'
 			},
 			pax: {
 				adult: 1,
@@ -60,7 +62,7 @@ class BookingForm {
 					has_data: false,
 					exceed_min_exist_time: false
 				},
-				min_exist_time: 500 //ms
+				min_exist_time: 3000 //ms
 			},
 			available_time: {},
 			ajax_call: false,
@@ -126,20 +128,19 @@ class BookingForm {
 			switch(action.type){
 				case 'DIALOG_SHOW':
 					return Object.assign({}, state, {
-						loading: action.loading
+						show: action.show
 					});
 				case 'DIALOG_HAS_DATA':
-					return Object.assign({}, state, {
-						stop: {
-							has_data: action.dialog_has_data
-						}
-					});
+					state.stop.has_data = action.dialog_has_data;
+					return JSON.parse(JSON.stringify(state));
 				case 'DIALOG_EXCEED_MIN_EXIST_TIME':
-					return Object.assign({}, state, {
-						stop: {
-							exceed_min_exist_time: action.exceed_min_exist_time
-						}
-					});
+					state.stop.exceed_min_exist_time = action.exceed_min_exist_time;
+					return JSON.parse(JSON.stringify(state));
+				case 'DIALOG_HIDE':
+					state.show = false;
+					state.stop.has_data = false;
+					state.stop.exceed_min_exist_time = false;
+					return JSON.parse(JSON.stringify(state));
 				default:
 					return state
 			}
@@ -172,12 +173,10 @@ class BookingForm {
 
 	buildAjaxCallReducer(){
 		let _state = this.state.ajax_call;
-		let scope = this;
 		return function(state = _state, action){
 			switch(action.type){
 				case 'AJAX_CALL':
-					scope.ajaxCall();
-					return true;
+					return action.ajax_call;
 				default:
 					return state;
 			}
@@ -194,6 +193,24 @@ class BookingForm {
 					return state;
 			}
 		}
+	}
+
+	bindListener(){
+		let store = window.store;
+		let scope = this;
+		store.subscribe(()=>{
+			let state = store.getState();
+			if(state.ajax_call == true){
+				store.dispatch({type: 'AJAX_CALL', ajax_call: false});
+				store.dispatch({type:'DIALOG_SHOW', show: true});
+				scope.ajaxCall();
+				let timeout = setTimeout(function(){
+					store.dispatch({type: 'DIALOG_EXCEED_MIN_EXIST_TIME', exceed_min_exist_time: true});
+					clearTimeout(timeout);
+				}, state.dialog.min_exist_time);
+			}
+		});
+
 	}
 
 	bindView(){
@@ -223,6 +240,18 @@ class BookingForm {
 			// if(state.ajax_call == true)
 			// 	this.updateSelectView(state.available_time);
 			this.updateSelectView(state.available_time);
+
+			if(state.dialog.show == true)
+				this.ajax_dialog.modal('show');
+
+			if(state.dialog.show == true
+				&& state.dialog.stop.has_data == true
+				&& state.dialog.stop.exceed_min_exist_time == true){
+				this.ajax_dialog.modal('hide');
+				store.dispatch({
+					type: 'DIALOG_HIDE',
+				});
+			}
 		});
 
 
@@ -255,7 +284,6 @@ class BookingForm {
 		this.input_outlet = document.querySelector('input[name="outlet_name"]');
 
 		this.time_select = document.querySelector('select[name="reservation_time"]');
-		console.log(this.time_select);
 	}
 
 	updateSelectView(available_time) {
@@ -314,7 +342,7 @@ class BookingForm {
 
 		let adult_pax_select = this.adult_pax_select;
 		adult_pax_select.addEventListener('change', function(){
-			let selectedOption = outlet_select.selectedOptions[0];
+			let selectedOption = adult_pax_select.selectedOptions[0];
 
 			let action = {
 				type: 'CHANGE_ADULT_PAX',
@@ -326,7 +354,7 @@ class BookingForm {
 
 		let children_pax_select = this.children_pax_select;
 		children_pax_select.addEventListener('change', function(){
-			let selectedOption = outlet_select.selectedOptions[0];
+			let selectedOption = children_pax_select.selectedOptions[0];
 
 			let action = {
 				type: 'CHANGE_CHILDREN_PAX',
@@ -353,7 +381,8 @@ class BookingForm {
 			store.dispatch(action2);
 
 			let action3 = {
-				type: 'AJAX_CALL'
+				type: 'AJAX_CALL',
+				ajax_call: true
 			}
 			store.dispatch(action3);
 
@@ -371,6 +400,11 @@ class BookingForm {
 
 			store.dispatch(action);
 		});
+
+		// let ajax_dialog = this.ajax_dialog;
+		// ajax_dialog.on('hidden.bs.modal', function(){
+		// 	store.dispatch({type: 'DIALOG_SHOW', show: false});
+		// });
 	}
 
 	ajaxCall(){
@@ -410,7 +444,6 @@ class BookingForm {
 				}
 
 				store.dispatch(action);
-
 			}
 		});
 	}
