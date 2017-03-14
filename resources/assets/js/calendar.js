@@ -1,39 +1,42 @@
-;(function($, window, document, translate){
-	_ = translate || function(v){return v;};;
+(function($, window, document, translate){
+	let _ = translate || function(v){
+			return v;
+		};
 
-	var pluginName = 'Calendar',
+	var pluginName = 'Calendar';
 
-		defaults = {
-			default_year: null,
-			default_month: null,
-			weekStart: 1,
-			msg_days: [_("Sun"), _("Mon"), _("Tue"), _("Wed"), _("Thu"), _("Fri"), _("Sat")],
-			msg_months: [_("January"), _("February"), _("March"), _("April"), _("May"), _("June"), _("July"), _("August"), _("September"), _("October"), _("November"), _("December")],
-			msg_today: _('Today'),
-			msg_events_header: _('Events Today'),
-		},
+	var defaults = {
+		default_year: null,
+		default_month: null,
+		weekStart: 1,
+		msg_days: [_("Sun"), _("Mon"), _("Tue"), _("Wed"), _("Thu"), _("Fri"), _("Sat")],
+		msg_months: [_("January"), _("February"), _("March"), _("April"), _("May"), _("June"), _("July"), _(
+			"August"), _("September"), _("October"), _("November"), _("December")],
+		msg_today: _('Today'),
+		msg_events_header: _('Events Today'),
+	};
 
-		template = '' +
-			'<table class="calendarhead"  id="calendar" ><thead>' +
-			'<th class="sel" id="last" title="Previous Month"><div class="arrow">&lsaquo;</i></div></th>' +
-			'<th width="150"><h3 class="month"></h3>' +
-			'<h1 class="year"></h1></th>' +
-			'<th class="sel" id="next" title="Next Month"><div class="arrow">&rsaquo;</i></div></th>' +
-			'</thead></table>' +
-			'<table class="calendar" id="calendar">' +
-			'<thead class="calendar-header"></thead>' +
-			'<tbody class="calendar-body"></tbody>' +
-			'<tfoot height="80" >' +
+	var template = '' +
+		'<table class="calendarhead"  id="calendar" ><thead>' +
+		'<th class="sel" id="last" title="Previous Month"><div class="arrow">&lsaquo;</i></div></th>' +
+		'<th width="150"><h3 class="month"></h3>' +
+		'<h1 class="year"></h1></th>' +
+		'<th class="sel" id="next" title="Next Month"><div class="arrow">&rsaquo;</i></div></th>' +
+		'</thead></table>' +
+		'<table class="calendar" id="calendar">' +
+		'<thead class="calendar-header"></thead>' +
+		'<tbody class="calendar-body"></tbody>' +
+		'<tfoot height="80" >' +
 
-			'<th colspan="7" class="sel" id="current" title="Today\'s Date">' + _('Today') + '</th>' +
+		'<th colspan="7" class="sel" id="current" title="Today\'s Date">' + _('Today') + '</th>' +
 
-			'</tfoot>' +
-			'</table>' +
-			'',
+		'</tfoot>' +
+		'</table>' +
+		'';
 
-		daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
+	var daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
-		today = new Date();
+	var today = new Date();
 
 	// The actual plugin constructor
 	function Plugin(element, options){
@@ -126,9 +129,9 @@
 
 			for(var j = this.weekStart; j < this.days.length + this.weekStart; j++){
 
-				cls = "";
-				msg = "";
-				id = "";
+				let cls = "";
+				let msg = "";
+				let id = "";
 
 				// Determine if we have reached the first of the month
 				if(first >= daysInMonth[mon.getMonth()]){
@@ -171,9 +174,8 @@
 
 				// Set ID
 				id = "day_" + dow;
-
-				month_ = mon.getMonth() + 1;
-				year = mon.getFullYear();
+				let month_ = mon.getMonth() + 1;
+				let year = mon.getFullYear();
 
 				// Render HTML
 				if(dow == 0){
@@ -206,7 +208,10 @@
 		var target = $(e.target).closest('td, th');
 
 		let element_name;
-		try{element_name = target[0].nodeName.toLowerCase();}catch(e){}
+		try{
+			element_name = target[0].nodeName.toLowerCase();
+		}catch(e){
+		}
 		switch(element_name){
 			case 'td':
 				if(target.is('.day')){
@@ -297,7 +302,7 @@
 		return new Plugin(this, options);
 	}
 
-})(jQuery, window, document);
+})($, window, document);
 
 
 
