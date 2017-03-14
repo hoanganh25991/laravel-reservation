@@ -155,7 +155,11 @@ class BookingForm {
 		return function(state = _state, action){
 			switch(action.type){
 				case 'CHANGE_AVAILABLE_TIME':
-					return Object.assign({}, state, action.available_time);
+					if(Array.isArray(action.available_time)){
+						action.available_time = {};
+					}
+					// return Object.assign({}, state, action.available_time);
+					return action.available_time;
 				default:
 					return state;
 			}
@@ -266,7 +270,8 @@ class BookingForm {
 		 * Debug state
 		 * @type {Element}
 		 */
-		let pre = document.querySelector('#expand');
+		// let pre = document.querySelector('#expand');
+		let pre = document.querySelector('#redux-state');
 		if(!pre){
 			let body = document.querySelector('body');
 			pre = document.createElement('pre');
