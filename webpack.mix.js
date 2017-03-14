@@ -17,6 +17,10 @@ const {mix} = require('laravel-mix');
 let js_output_dir = 'public/js/';
 let css_output_dir = 'public/css';
 
+mix.babel(['resources/assets/js/calendar.js'], js_output_dir + '/calendar.js').sourceMaps();
+mix.babel(['resources/assets/js/booking-form.js'], js_output_dir + '/booking-form.js').sourceMaps();
+mix.babel(['resources/assets/js/syntax-highlight.js'], js_output_dir + '/syntax-highlight.js').sourceMaps();
+
 mix.babel(['resources/assets/js/calendar.js'], js_output_dir + '/calendar.js');
 mix.babel(['resources/assets/js/booking-form.js'], js_output_dir + '/booking-form.js');
 mix.babel(['resources/assets/js/syntax-highlight.js'], js_output_dir + '/syntax-highlight.js');
@@ -29,3 +33,4 @@ mix.styles(['resources/assets/css/reservation.css'], css_output_dir + '/reservat
  * Sourcemap self check in code
  */
 mix.version();
+// mix.sourceMaps();
