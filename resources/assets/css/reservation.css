@@ -366,6 +366,7 @@ ul#user-options {
     width: 150px;
     height: 40px
 }
+
 #confirm-details .form-set .custom-number {
     width: 145px
 }
@@ -2234,3 +2235,19 @@ ul#user-options {
     width: 330px;
     color: #2e2e2e
 }
+.bottom_room {
+    text-align: center;
+    margin: 20px auto;
+    border: 0;
+    width: 330px;
+    bottom: 0;
+}
+/*#confirm-details .small-input{*/
+    /*width: 90px;*/
+    /*display: inline;*/
+/*}*/
+
+/*#confirm-details {*/
+    /*width: 330px;*/
+    /*margin: 0 auto 20px;*/
+/*}*/

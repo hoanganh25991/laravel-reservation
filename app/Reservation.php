@@ -26,9 +26,9 @@ class Reservation extends HoiModel {
     /**
      * Reservation status
      */
-    const RESERVED        = 100;
-    const REMINDER_SENT   = 200;
-    const CONFIRMED       = 300;
+    const RESERVED        = 100; //init at first
+    const REMINDER_SENT   = 200; //sms sent to summary info
+    const CONFIRMED       = 300; //remider with CONFIRM link
     const ARRIVED         = 400;
     const USER_CANCELLED  = -100;
     const STAFF_CANCELLED = -200;

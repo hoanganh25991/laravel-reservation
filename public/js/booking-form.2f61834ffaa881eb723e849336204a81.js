@@ -397,6 +397,13 @@ var BookingForm = function () {
 			this.time_select = document.querySelector('select[name="reservation_time"]');
 
 			this.reservation_title = document.querySelector('#reservation_title');
+
+			/**
+    * Swap view
+    */
+			this.btnNext = document.querySelector('#btn_next');
+			this.queryView = document.querySelector('#query-time');
+			this.fullfillView = document.querySelector('#fullfill-info');
 		}
 	}, {
 		key: 'updateSelectView',
@@ -490,6 +497,7 @@ var BookingForm = function () {
 		key: 'regisEvent',
 		value: function regisEvent() {
 			var store = window.store;
+			var scope = this;
 
 			var outlet_select = this.outlet_select;
 			outlet_select.addEventListener('change', function () {
@@ -560,6 +568,17 @@ var BookingForm = function () {
 				//any other come later may re run on this function
 				store.dispatch({ type: 'DIALOG_HIDDEN' });
 			});
+
+			var btnNext = this.btnNext;
+			btnNext.addEventListener('click', function () {
+				scope.gotoFullfillView();
+			});
+
+			// let form = this.form;
+			// form.addEventListener('submit', (e)=>{
+			// 	console.log('submit');
+			// 	e.preventDefault();
+			// });
 		}
 	}, {
 		key: 'ajaxCall',
@@ -609,6 +628,15 @@ var BookingForm = function () {
 					console.log(res);
 				}
 			});
+		}
+	}, {
+		key: 'gotoFullfillView',
+		value: function gotoFullfillView() {
+			var a = this.queryView;
+			var b = this.fullfillView;
+
+			a.style.transform = 'scale(0,0)';
+			b.style.transform = 'scale(1,1)';
 		}
 	}]);
 
