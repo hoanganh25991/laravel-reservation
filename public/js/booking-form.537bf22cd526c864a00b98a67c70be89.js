@@ -219,17 +219,19 @@ var BookingForm = function () {
 						return Object.assign({}, state, {
 							show: action.show
 						});
+					case 'DIALOG_SHOWN':
+						return Object.assign({}, state, {
+							shown: true,
+							show: false
+						});
 					case 'DIALOG_HAS_DATA':
 						state.stop.has_data = action.dialog_has_data;
 						return JSON.parse(JSON.stringify(state));
 					case 'DIALOG_EXCEED_MIN_EXIST_TIME':
 						state.stop.exceed_min_exist_time = action.exceed_min_exist_time;
 						return JSON.parse(JSON.stringify(state));
-					case 'DIALOG_HIDE':
-						state.show = false;
-						state.stop.has_data = false;
-						return JSON.parse(JSON.stringify(state));
 					case 'DIALOG_HIDDEN':
+						state.shown = false;
 						state.stop.exceed_min_exist_time = false;
 						return JSON.parse(JSON.stringify(state));
 					default:
@@ -356,9 +358,8 @@ var BookingForm = function () {
 					}
 				}
 
-				if (state.dialog.show == true && state.dialog.stop.has_data == true && state.dialog.stop.exceed_min_exist_time == true) {
+				if (state.dialog.shown == true && state.dialog.stop.has_data == true && state.dialog.stop.exceed_min_exist_time == true) {
 					// prestate = state;
-					store.dispatch({ type: 'DIALOG_HIDE' });
 					_this.ajax_dialog.modal('hide');
 				}
 
@@ -401,37 +402,71 @@ var BookingForm = function () {
 				var state = store.getState();
 				var prestate = store.getPrestate();
 				pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));
+
 				/**
-     * Update input outlet name
+     * Date change
+     * @type {boolean}
      */
-
-				if (prestate.outlet.name != state.outlet.name) {
-					_this2.input_outlet.value = state.outlet.name;
-				}
-
-				if (prestate.reservation.date != state.reservation.date) {
+				var date_change = prestate.reservation.date != state.reservation.date;
+				if (date_change) {
 					_this2.label.innerText = state.reservation.date.format('MMM D Y');
 					_this2.inpute_date.value = state.reservation.date.format('Y-MM-DD');
+
+					//Reservation summary step 2 header
+					_this2.date_summary_step_2_span.innerText = state.reservation.date.format('MMM D Y');
 				}
 
-				if (prestate.outlet.name != state.outlet.name) {
+				/**
+     * Time change
+     */
+				var time_change = prestate.reservation.time == state.reservation.time;
+				if (time_change) {}
+
+				/**
+     * Outlet change
+     * @type {boolean}
+     */
+				var outlet_change = prestate.outlet.name != state.outlet.name;
+				if (outlet_change) {
+					_this2.input_outlet.value = state.outlet.name;
 					_this2.reservation_title.innerText = state.outlet.name;
+
+					//Reservation summary step 2 header
 				}
 
-				// if(state.ajax_call == true)
-				// 	this.updateSelectView(state.available_time);
-				if (prestate.available_time != state.available_time) {
+				/**
+     * Available time change
+     * @type {boolean}
+     */
+				var available_time_change = prestate.available_time != state.available_time;
+				if (available_time_change) {
 					_this2.updateSelectView(state.available_time);
 					_this2.updateCalendarView(state.available_time);
 				}
 
-				if (state.dialog.show == true) {
+				/**
+     * Dialog show
+     */
+				var dialog_show = state.dialog.show == true;
+				if (dialog_show) {
 					_this2.ajax_dialog.modal('show');
+					//store.dispatch({type: 'DIALOG_HIDE'});
 				}
 
-				if (prestate.form_step != state.form_step || state.form_step == 'form-step-1') {
+				/**
+     * Form step change
+     */
+				var form_step_change = prestate.form_step != state.form_step || state.form_step == 'form-step-1';
+				if (form_step_change) {
 					_this2.pointToFormStep();
 				}
+
+				/**
+     * Pax change
+     */
+				_this2.pax_size_summary_step_2_span.innerText = state.pax.adult + state.pax.children + 'people';
+				_this2.outlet_name_summary_step_2_span.innerText = state.outlet.name;
+				_this2.time_summary_step_2_span.innerText = state.reservation.time;
 			});
 		}
 	}, {
@@ -487,6 +522,15 @@ var BookingForm = function () {
 			this.customer_last_name_input = document.querySelector('input[name="last_name"]');
 			this.customer_email_input = document.querySelector('input[name="email"]');
 			this.customer_phone_input = document.querySelector('input[name="phone"]');
+
+			/**
+    * Reservation form step 2 header summary
+    */
+
+			this.outlet_name_summary_step_2_span = document.querySelector('#form-step-2 span[name="outlet_name"]');
+			this.pax_size_summary_step_2_span = document.querySelector('#form-step-2 span[name="pax_size"]');
+			this.time_summary_step_2_span = document.querySelector('#form-step-2 span[name="time"]');
+			this.date_summary_step_2_span = document.querySelector('#form-step-2 span[name="date"]');
 		}
 	}, {
 		key: 'updateSelectView',
@@ -650,6 +694,16 @@ var BookingForm = function () {
 				//bcs right after state change, should dispatch hide
 				//any other come later may re run on this function
 				store.dispatch({ type: 'DIALOG_HIDDEN' });
+			});
+
+			ajax_dialog.on('shown.bs.modal', function () {
+				// store.dispatch({type: 'DIALOG_HIDE'});
+				console.log('dialog shown');
+				//can dispatch something here
+				//but it NOT DIALOG_HIDE
+				//bcs right after state change, should dispatch hide
+				//any other come later may re run on this function
+				store.dispatch({ type: 'DIALOG_SHOWN' });
 			});
 
 			// let btnNext = this.btnNext;

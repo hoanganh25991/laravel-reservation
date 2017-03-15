@@ -95,8 +95,8 @@
             Confirm Diner Details
             <p class="sub">
                 We have a table for you at <br>
-                <span class="field"></span> for <span class="field bloc"> people</span>
-                <br> at <span class="field  bloc"></span> on <span class="field  bloc"></span>
+                <span class="field" name="outlet_name"></span> for <span class="field bloc" name="pax_size"></span>
+                <br> at <span class="field  bloc" name="time"></span> on <span class="field  bloc" name="date"></span>
             </p>
             @endslot
             @endcomponent

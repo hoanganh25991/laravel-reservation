@@ -189,17 +189,19 @@ class BookingForm {
 					return Object.assign({}, state, {
 						show: action.show
 					});
+				case 'DIALOG_SHOWN':
+					return Object.assign({}, state, {
+						shown: true,
+						show : false
+					});
 				case 'DIALOG_HAS_DATA':
 					state.stop.has_data = action.dialog_has_data;
 					return JSON.parse(JSON.stringify(state));
 				case 'DIALOG_EXCEED_MIN_EXIST_TIME':
 					state.stop.exceed_min_exist_time = action.exceed_min_exist_time;
 					return JSON.parse(JSON.stringify(state));
-				case 'DIALOG_HIDE':
-					state.show = false;
-					state.stop.has_data = false;
-					return JSON.parse(JSON.stringify(state));
 				case 'DIALOG_HIDDEN':
+					state.shown = false;
 					state.stop.exceed_min_exist_time = false;
 					return JSON.parse(JSON.stringify(state));
 				default:
@@ -308,11 +310,10 @@ class BookingForm {
 
 			}
 
-			if(state.dialog.show == true
+			if(state.dialog.shown == true
 				&& state.dialog.stop.has_data == true
 				&& state.dialog.stop.exceed_min_exist_time == true){
 				// prestate = state;
-				store.dispatch({type: 'DIALOG_HIDE'});
 				this.ajax_dialog.modal('hide');
 			}
 
@@ -353,40 +354,73 @@ class BookingForm {
 			let state    = store.getState();
 			let prestate = store.getPrestate();
 			pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));
+
 			/**
-			 * Update input outlet name
+			 * Date change
+			 * @type {boolean}
 			 */
-
-			if(prestate.outlet.name != state.outlet.name){
-				this.input_outlet.value = state.outlet.name;
-			}
-
-			if(prestate.reservation.date != state.reservation.date){
+			let date_change = (prestate.reservation.date != state.reservation.date);
+			if(date_change){
 				this.label.innerText    = state.reservation.date.format('MMM D Y');
 				this.inpute_date.value  = state.reservation.date.format('Y-MM-DD');
+
+				//Reservation summary step 2 header
+				this.date_summary_step_2_span.innerText = state.reservation.date.format('MMM D Y');
 			}
 
-			if(prestate.outlet.name != state.outlet.name){
+			/**
+			 * Time change
+			 */
+			let time_change = (prestate.reservation.time == state.reservation.time);
+			if(time_change){
+			}
+
+			/**
+			 * Outlet change
+			 * @type {boolean}
+			 */
+			let outlet_change = (prestate.outlet.name != state.outlet.name);
+			if(outlet_change){
+				this.input_outlet.value = state.outlet.name;
 				this.reservation_title.innerText  = state.outlet.name;
+
+				//Reservation summary step 2 header
 			}
 
-			// if(state.ajax_call == true)
-			// 	this.updateSelectView(state.available_time);
-			if(prestate.available_time != state.available_time){
+			/**
+			 * Available time change
+			 * @type {boolean}
+			 */
+			let available_time_change = (prestate.available_time != state.available_time);
+			if(available_time_change){
 				this.updateSelectView(state.available_time);
 				this.updateCalendarView(state.available_time);
 			}
 
-			if(state.dialog.show == true){
+			/**
+			 * Dialog show
+			 */
+			let dialog_show = (state.dialog.show == true);
+			if(dialog_show){
 				this.ajax_dialog.modal('show');
+				//store.dispatch({type: 'DIALOG_HIDE'});
 			}
 
-			if(prestate.form_step != state.form_step
-				|| state.form_step == 'form-step-1'){
+			/**
+			 * Form step change
+			 */
+			let form_step_change = (prestate.form_step != state.form_step
+									|| state.form_step == 'form-step-1');
+			if(form_step_change){
 				this.pointToFormStep();
 			}
 
-
+			/**
+			 * Pax change
+			 */
+			this.pax_size_summary_step_2_span.innerText = (state.pax.adult + state.pax.children) + 'people';
+			this.outlet_name_summary_step_2_span.innerText = state.outlet.name;
+			this.time_summary_step_2_span.innerText = state.reservation.time;
 		});
 
 
@@ -442,6 +476,15 @@ class BookingForm {
 		this.customer_last_name_input   = document.querySelector('input[name="last_name"]');
 		this.customer_email_input       = document.querySelector('input[name="email"]');
 		this.customer_phone_input       = document.querySelector('input[name="phone"]');
+
+		/**
+		 * Reservation form step 2 header summary
+		 */
+
+		this.outlet_name_summary_step_2_span = document.querySelector('#form-step-2 span[name="outlet_name"]');
+		this.pax_size_summary_step_2_span    = document.querySelector('#form-step-2 span[name="pax_size"]');
+		this.time_summary_step_2_span        = document.querySelector('#form-step-2 span[name="time"]');
+		this.date_summary_step_2_span        = document.querySelector('#form-step-2 span[name="date"]');
 
 	}
 
@@ -605,6 +648,16 @@ class BookingForm {
 			//bcs right after state change, should dispatch hide
 			//any other come later may re run on this function
 			store.dispatch({type: 'DIALOG_HIDDEN'});
+		});
+
+		ajax_dialog.on('shown.bs.modal', function(){
+			// store.dispatch({type: 'DIALOG_HIDE'});
+			console.log('dialog shown');
+			//can dispatch something here
+			//but it NOT DIALOG_HIDE
+			//bcs right after state change, should dispatch hide
+			//any other come later may re run on this function
+			store.dispatch({type: 'DIALOG_SHOWN'});
 		});
 
 		// let btnNext = this.btnNext;
