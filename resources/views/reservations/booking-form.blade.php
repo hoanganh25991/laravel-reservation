@@ -3,6 +3,8 @@
 @section('content')
     {{--<form id="booking-form">--}}
     <div class="container" id="form-step-container">
+        {{--<h1>@{{ outlet.name }}</h1>--}}
+        <h1>@{{ reservation.date.format('MMM D Y') }}</h1>
         <div class="box form-step" id="form-step-1">
             @component('reservations.header')
             @slot('title')
@@ -166,7 +168,7 @@
 @endsection
 
 @push('script')
-
+<script src="{{ url('js/vue.min.js') }}"></script>
 <script src="{{ url(substr(mix('js/calendar.js'), 1)) }}"></script>
 <script src="{{ url(substr(mix('js/syntax-highlight.js'), 1)) }}"></script>
 <script src="{{ url(substr(mix('js/booking-form.js'), 1)) }}"></script>

@@ -7,6 +7,7 @@ class BookingForm {
 	/** @namespace window.booking_form_state */
 	/** @namespace $ */
 	/** @namespace moment */
+	/** @namespace Vue */
 
 	constructor(){
 		this.buildRedux();
@@ -16,6 +17,8 @@ class BookingForm {
 		this.bindListener();
 
 		this.initView();
+
+
 	}
 
 	buildRedux(){
@@ -51,6 +54,49 @@ class BookingForm {
 		store.getPrestate = function(){
 			return store.prestate;
 		}
+
+		/**
+		 * Use vue to update data
+		 * self check too slow
+		 */
+		window.state = store.getState();
+		this.buildVue();
+	}
+
+
+	buildVue(){
+		window.vue_state = this.defaultState();
+		let form_vue = new Vue({
+			el: '#form-step-container',
+			data(){
+				return window.vue_state;
+			}
+		});
+		this.form_vue = form_vue;
+	}
+
+	shallowEqual(objA, objB) {
+		if (objA === objB) {
+			return true;
+		}
+
+		let keysA = Object.keys(objA),
+			keysB = Object.keys(objB),
+			hasOwn;
+
+		if (keysA.length !== keysB.length) {
+			return false;
+		}
+
+		// Test for A's keys different from B.
+		hasOwn = Object.prototype.hasOwnProperty;
+		for (let i = 0; i < keysA.length; i++) {
+			if (!hasOwn.call(objB, keysA[i]) ||
+				objA[keysA[i]] !== objB[keysA[i]]) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	defaultState(){
@@ -338,6 +384,8 @@ class BookingForm {
 	bindView(){
 		this.findView();
 		let store = window.store;
+		// this.form_vue.$data = store.getState();
+		// let form_vue = this.form_vue;
 		/**
 		 * Debug state
 		 * @type {Element}
@@ -352,6 +400,8 @@ class BookingForm {
 
 		store.subscribe(()=>{
 			let state    = store.getState();
+			//update this way for vue see it
+			Object.assign(window.vue_state, state);
 			let prestate = store.getPrestate();
 			pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));
 

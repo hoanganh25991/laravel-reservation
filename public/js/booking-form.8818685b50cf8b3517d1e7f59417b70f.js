@@ -13,6 +13,7 @@ var BookingForm = function () {
 	/** @namespace window.booking_form_state */
 	/** @namespace $ */
 	/** @namespace moment */
+	/** @namespace Vue */
 
 	function BookingForm() {
 		_classCallCheck(this, BookingForm);
@@ -61,6 +62,49 @@ var BookingForm = function () {
 			store.getPrestate = function () {
 				return store.prestate;
 			};
+
+			/**
+    * Use vue to update data
+    * self check too slow
+    */
+			window.state = store.getState();
+			this.buildVue();
+		}
+	}, {
+		key: 'buildVue',
+		value: function buildVue() {
+			window.vue_state = this.defaultState();
+			var form_vue = new Vue({
+				el: '#form-step-container',
+				data: function data() {
+					return window.vue_state;
+				}
+			});
+			this.form_vue = form_vue;
+		}
+	}, {
+		key: 'shallowEqual',
+		value: function shallowEqual(objA, objB) {
+			if (objA === objB) {
+				return true;
+			}
+
+			var keysA = Object.keys(objA),
+			    keysB = Object.keys(objB),
+			    hasOwn = void 0;
+
+			if (keysA.length !== keysB.length) {
+				return false;
+			}
+
+			// Test for A's keys different from B.
+			hasOwn = Object.prototype.hasOwnProperty;
+			for (var i = 0; i < keysA.length; i++) {
+				if (!hasOwn.call(objB, keysA[i]) || objA[keysA[i]] !== objB[keysA[i]]) {
+					return false;
+				}
+			}
+			return true;
 		}
 	}, {
 		key: 'defaultState',
@@ -386,6 +430,8 @@ var BookingForm = function () {
 
 			this.findView();
 			var store = window.store;
+			// this.form_vue.$data = store.getState();
+			// let form_vue = this.form_vue;
 			/**
     * Debug state
     * @type {Element}
@@ -400,6 +446,8 @@ var BookingForm = function () {
 
 			store.subscribe(function () {
 				var state = store.getState();
+				//update this way for vue see it
+				Object.assign(window.vue_state, state);
 				var prestate = store.getPrestate();
 				pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));
 
