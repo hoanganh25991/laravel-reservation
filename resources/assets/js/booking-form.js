@@ -338,7 +338,8 @@ class BookingForm {
 				this.ajax_dialog.modal('show');
 			}
 
-			if(prestate.form_step != state.form_step || state.form_step == 'form-step-1'){
+			if(prestate.form_step != state.form_step
+				|| state.form_step == 'form-step-1'){
 				this.pointToFormStep();
 			}
 
@@ -574,17 +575,24 @@ class BookingForm {
 	}
 
 	ajaxCall(){
-		let form = this.form;
-		let data =
-			$(form)
-				.serializeArray()
-				.reduce((carry, item) =>{
-					carry[item.name] = item.value;
-					return carry;
-				}, {});
-
+		// let form = this.form;
+		// let data =
+		// 	$(form)
+		// 		.serializeArray()
+		// 		.reduce((carry, item) =>{
+		// 			carry[item.name] = item.value;
+		// 			return carry;
+		// 		}, {});
 		let store = window.store;
 		let state = store.getState();
+
+		let data = {
+			outlet_id: state.outlet.id,
+			// outlet_name: state.outlet.name,
+			adult_pax: state.pax.adult,
+			children_pax: state.pax.children
+		};
+
 		store.dispatch({
 			type: 'DIALOG_SHOW',
 			show: true

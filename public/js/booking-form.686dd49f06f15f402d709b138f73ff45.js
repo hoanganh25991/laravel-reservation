@@ -616,14 +616,24 @@ var BookingForm = function () {
 	}, {
 		key: 'ajaxCall',
 		value: function ajaxCall() {
-			var form = this.form;
-			var data = $(form).serializeArray().reduce(function (carry, item) {
-				carry[item.name] = item.value;
-				return carry;
-			}, {});
-
+			// let form = this.form;
+			// let data =
+			// 	$(form)
+			// 		.serializeArray()
+			// 		.reduce((carry, item) =>{
+			// 			carry[item.name] = item.value;
+			// 			return carry;
+			// 		}, {});
 			var store = window.store;
 			var state = store.getState();
+
+			var data = {
+				outlet_id: state.outlet.id,
+				// outlet_name: state.outlet.name,
+				adult_pax: state.pax.adult,
+				children_pax: state.pax.children
+			};
+
 			store.dispatch({
 				type: 'DIALOG_SHOW',
 				show: true
