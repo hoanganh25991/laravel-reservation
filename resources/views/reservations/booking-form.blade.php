@@ -149,7 +149,8 @@
                     {{--<div style="width: 100px; display: inline-block">--}}
                     <div style="width: 184px; display: inline-block">
                         {{--<img src="{{ url('images/gears.svg') }}">--}}
-                        <img src="{{ url('images/hourglass.svg') }}">
+                        {{--<img src="{{ url('images/hourglass.svg') }}">--}}
+                        <img src="{{ url('images/gear.svg') }}">
                     </div>
                 </div>
                 <div class="modal-footer">

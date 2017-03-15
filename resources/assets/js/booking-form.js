@@ -159,8 +159,8 @@ class BookingForm {
 					has_data: false,
 					exceed_min_exist_time: false
 				},
-				//min_exist_time: 690 //ms
-				min_exist_time: 5000 //ms
+				min_exist_time: 690 //ms
+				// min_exist_time: 5000 //ms
 			},
 			available_time: {},
 			ajax_call: 0,
