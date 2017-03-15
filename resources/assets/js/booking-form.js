@@ -375,6 +375,11 @@ class BookingForm {
 		let store = window.store;
 		let self = this;
 		store.subscribe(()=>{
+			if(store.SELF_DISPATCH == true){
+				store.SELF_DISPATCH = false;
+				return;
+			}
+
 			let state = store.getState();
 			let prestate = store.getPrestate();
 
@@ -389,6 +394,13 @@ class BookingForm {
 
 			if(prestate.dialog.show == true && state.dialog.show == false){
 				self.ajax_dialog.modal('hide');
+			}
+
+			if(Number(state.pax.adult) + Number(state.pax.children) > 10){
+				store.SELF_DISPATCH = true;
+				store.dispatch({
+					type: 'PAX_OVER'
+				});
 			}
 		});
 
@@ -763,11 +775,11 @@ class BookingForm {
 	}
 
 	computePaxOver(){
-		let state = store.getState();
-
-		if((Number(state.pax.adult) + Number(state.pax.children)) > 10){
-			store.dispatch({type: 'PAX_OVER'});
-		}
+		// let state = store.getState();
+		//
+		// if((Number(state.pax.adult) + Number(state.pax.children)) > 10){
+		// 	store.dispatch({type: 'PAX_OVER'});
+		// }
 	}
 
 	ajaxCall(){
