@@ -41,6 +41,7 @@ var BookingForm = function () {
 				ajax_call: scope.buildAjaxCallReducer(),
 				init_view: scope.buildInitViewReducer(),
 				form_step: scope.buildFormStepReducer(),
+				customer: scope.buildCustomerReducer(),
 				outlet: scope.buildOutletReducer(),
 				dialog: scope.buildDialogReducer(),
 				pax: scope.buildPaxReducer()
@@ -92,10 +93,56 @@ var BookingForm = function () {
 				available_time: {},
 				ajax_call: false,
 				has_selected_day: false,
-				form_step: 'form-step-1'
+				form_step: 'form-step-1',
+				customer: {
+					phone_country_code: '+65'
+				}
 			};
 
 			return state;
+		}
+	}, {
+		key: 'buildCustomerReducer',
+		value: function buildCustomerReducer() {
+			var _state = this.state.customer;
+
+			return function () {
+				var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _state;
+				var action = arguments[1];
+
+				switch (action.type) {
+					case 'CHANGE_CUSTOMER_SANLUTATION':
+						return Object.assign({}, state, {
+							salutation: action.salutation
+						});
+					case 'CHANGE_CUSTOMER_FIRST_NAME':
+						return Object.assign({}, state, {
+							first_name: action.first_name
+						});
+					case 'CHANGE_CUSTOMER_LAST_NAME':
+						return Object.assign({}, state, {
+							last_name: action.last_name
+						});
+					case 'CHANGE_CUSTOMER_EMAIL':
+						return Object.assign({}, state, {
+							email: action.email
+						});
+					case 'CHANGE_CUSTOMER_PHONE_COUNTRY_CODE':
+						return Object.assign({}, state, {
+							phone_country_code: action.phone_country_code
+						});
+					case 'CHANGE_CUSTOMER_PHONE':
+						return Object.assign({}, state, {
+							phone: action.phone
+						});
+					case 'CHANGE_CUSTOMER_REMARKS':
+						return Object.assign({}, state, {
+							remarks: action.remarks
+						});
+					default:
+						return state;
+				}
+			};
 		}
 	}, {
 		key: 'buildOutletReducer',
@@ -429,6 +476,17 @@ var BookingForm = function () {
 
 			this.form_step_container = document.querySelector('#form-step-container');
 			this.btn_form_nexts = document.querySelectorAll('button.btn-form-next');
+
+			/**
+    * Customer info
+    */
+			this.customer_phone_country_code_input = document.querySelector('input[name="phone_country_code"]');
+			this.customer_salutation_select = document.querySelector('select[name="salutation"]');
+			this.customer_remarks_textarea = document.querySelector('textarea[name="remarks"]');
+			this.customer_firt_name_input = document.querySelector('input[name="first_name"]');
+			this.customer_last_name_input = document.querySelector('input[name="last_name"]');
+			this.customer_email_input = document.querySelector('input[name="email"]');
+			this.customer_phone_input = document.querySelector('input[name="phone"]');
 		}
 	}, {
 		key: 'updateSelectView',
@@ -611,6 +669,50 @@ var BookingForm = function () {
 					var destination = btn.getAttribute('destination');
 					store.dispatch({ type: 'CHANGE_FORM_STEP', form_step: destination });
 				});
+			});
+			/**
+    * Handle customer change info
+    */
+			this.customer_salutation_select.addEventListener('change', function () {
+				//binding in this way to get out this as email input
+				var salutation = this.selectedOptions[0].value;
+				store.dispatch({ type: 'CHANGE_CUSTOMER_SALUTATION', salutation: salutation });
+			});
+
+			this.customer_firt_name_input.addEventListener('change', function () {
+				//binding in this way to get out this as email input
+				var first_name = this.value;
+				store.dispatch({ type: 'CHANGE_CUSTOMER_FIRST_NAME', first_name: first_name });
+			});
+
+			this.customer_last_name_input.addEventListener('change', function () {
+				//binding in this way to get out this as email input
+				var last_name = this.value;
+				store.dispatch({ type: 'CHANGE_CUSTOMER_LAST_NAME', last_name: last_name });
+			});
+
+			this.customer_email_input.addEventListener('change', function () {
+				//binding in this way to get out this as email input
+				var email = this.value;
+				store.dispatch({ type: 'CHANGE_CUSTOMER_EMAIL', email: email });
+			});
+
+			this.customer_phone_country_code_input.addEventListener('change', function () {
+				//binding in this way to get out this as email input
+				var phone_country_code = this.value;
+				store.dispatch({ type: 'CHANGE_CUSTOMER_PHONE_COUNTRY_CODE', phone_country_code: phone_country_code });
+			});
+
+			this.customer_phone_input.addEventListener('change', function () {
+				//binding in this way to get out this as email input
+				var phone = this.value;
+				store.dispatch({ type: 'CHANGE_CUSTOMER_PHONE', phone: phone });
+			});
+
+			this.customer_remarks_textarea.addEventListener('change', function () {
+				//binding in this way to get out this as email input
+				var remarks = this.value;
+				store.dispatch({ type: 'CHANGE_CUSTOMER_REMARKS', remarks: remarks });
 			});
 		}
 	}, {

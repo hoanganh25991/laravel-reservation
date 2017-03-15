@@ -108,24 +108,23 @@
                         <option value="Mrs.">Mrs.</option>
                         <option value="Mdm.">Mdm.</option>
                     </select>
-                    <input type="text" id="forename" class="form-control d-name name_check" name="first_name" value=""
+                    <input type="text" class="form-control d-name name_check" name="first_name" value=""
                            placeholder="First Name" title="First Name">&nbsp;
-                    <input type="text" id="surname" class="form-control d-name name_check" name="last_name" value=""
-                           placeholder="Surname" title="Surname">
+                    <input type="text" class="form-control d-name name_check" name="last_name" value=""
+                           placeholder="Last Name" title="Last Name">
                 </div>
                 <br>
                 <div class="form-groups">
                     <label for="email">Email Address</label>
-                    <input type="email" id="email" class="form-control" name="email" value=""
+                    <input type="email" class="form-control" name="email" value=""
                            placeholder="Enter Email Address" title="Enter Email Address"><br>
                     <label for="telephone">Mobile Phone</label>
                     <input type="text" id="phone-area" class="form-control contry_check" name="phone_country_code"
                            value="+65" placeholder="+65" title="Area Code">
                     <input type="tel" id="telephone" class="form-control mobile_check" name="phone" value=""
                            placeholder="Phone Number" title="Phone Number"><br>
-                    <label for="notes" class="textarea">Special Requests</label><textarea id="notes"
-                                                                                          class="form-control"
-                                                                                          name="customer_remarks"
+                    <label for="notes" class="textarea">Special Requests</label><textarea class="form-control"
+                                                                                          name="remarks"
                                                                                           placeholder="Message (Maximum 85 characters.)"
                                                                                           maxlength="85"></textarea>
                     <p class="note">Special requests are not guaranteed and are subject to availability and
