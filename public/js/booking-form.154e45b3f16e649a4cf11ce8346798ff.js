@@ -40,6 +40,7 @@ var BookingForm = function () {
 				reservation: scope.buildReservationReducer(),
 				ajax_call: scope.buildAjaxCallReducer(),
 				init_view: scope.buildInitViewReducer(),
+				form_step: scope.buildFormStepReducer(),
 				outlet: scope.buildOutletReducer(),
 				dialog: scope.buildDialogReducer(),
 				pax: scope.buildPaxReducer()
@@ -90,7 +91,8 @@ var BookingForm = function () {
 				},
 				available_time: {},
 				ajax_call: false,
-				has_selected_day: false
+				has_selected_day: false,
+				form_step: 'form-step-1'
 			};
 
 			return state;
@@ -257,6 +259,22 @@ var BookingForm = function () {
 			};
 		}
 	}, {
+		key: 'buildFormStepReducer',
+		value: function buildFormStepReducer() {
+			var _state = this.state.form_step;
+			return function () {
+				var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _state;
+				var action = arguments[1];
+
+				switch (action.type) {
+					case 'CHANGE_FORM_STEP':
+						return action.form_step;
+					default:
+						return state;
+				}
+			};
+		}
+	}, {
 		key: 'bindListener',
 		value: function bindListener() {
 			var _this = this;
@@ -363,6 +381,10 @@ var BookingForm = function () {
 				if (state.dialog.show == true) {
 					_this2.ajax_dialog.modal('show');
 				}
+
+				if (prestate.form_step != state.form_step || state.form_step == 'form-step-1') {
+					_this2.pointToFormStep();
+				}
 			});
 		}
 	}, {
@@ -401,9 +423,12 @@ var BookingForm = function () {
 			/**
     * Swap view
     */
-			this.btnNext = document.querySelector('#btn_next');
-			this.queryView = document.querySelector('#query-time');
-			this.fullfillView = document.querySelector('#fullfill-info');
+			// this.btnNext  = document.querySelector('#btn_next');
+			// this.queryView = document.querySelector('#query-time');
+			// this.fullfillView = document.querySelector('#fullfill-info');
+
+			this.form_step_container = document.querySelector('#form-step-container');
+			this.btn_form_nexts = document.querySelectorAll('button.btn-form-next');
 		}
 	}, {
 		key: 'updateSelectView',
@@ -569,16 +594,24 @@ var BookingForm = function () {
 				store.dispatch({ type: 'DIALOG_HIDDEN' });
 			});
 
-			var btnNext = this.btnNext;
-			btnNext.addEventListener('click', function () {
-				scope.gotoFullfillView();
-			});
+			// let btnNext = this.btnNext;
+			// btnNext.addEventListener('click', function(){
+			// 	scope.gotoFullfillView();
+			// });
 
 			// let form = this.form;
 			// form.addEventListener('submit', (e)=>{
 			// 	console.log('submit');
 			// 	e.preventDefault();
 			// });
+
+			var btn_form_nexts = this.btn_form_nexts;
+			btn_form_nexts.forEach(function (btn) {
+				btn.addEventListener('click', function () {
+					var destination = btn.getAttribute('destination');
+					store.dispatch({ type: 'CHANGE_FORM_STEP', form_step: destination });
+				});
+			});
 		}
 	}, {
 		key: 'ajaxCall',
@@ -629,14 +662,31 @@ var BookingForm = function () {
 				}
 			});
 		}
-	}, {
-		key: 'gotoFullfillView',
-		value: function gotoFullfillView() {
-			var a = this.queryView;
-			var b = this.fullfillView;
 
-			a.style.transform = 'scale(0,0)';
-			b.style.transform = 'scale(1,1)';
+		// gotoFullfillView(){
+		// 	let a = this.queryView;
+		// 	let b = this.fullfillView;
+		//
+		//
+		// 	a.style.transform = 'scale(0,0)';
+		// 	b.style.transform = 'scale(1,1)';
+		// }
+
+	}, {
+		key: 'pointToFormStep',
+		value: function pointToFormStep() {
+			var state = store.getState();
+
+			var form_step_container = this.form_step_container;
+			form_step_container.querySelectorAll('.form-step').forEach(function (step) {
+				var form_step = step.getAttribute('id');
+				var transform = 'scale(0,0)';
+				if (form_step == state.form_step) {
+					transform = 'scale(1,1)';
+				}
+
+				step.style.transform = transform;
+			});
 		}
 	}]);
 

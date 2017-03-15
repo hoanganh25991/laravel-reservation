@@ -2251,3 +2251,10 @@ ul#user-options {
     /*width: 330px;*/
     /*margin: 0 auto 20px;*/
 /*}*/
+#form-step-container .form-step {
+    position: absolute;
+    top: 0;
+    left: calc(50vw - 250px);
+    transition: all 0.5s ease-in-out;
+    transform: scale(0,0);
+}
