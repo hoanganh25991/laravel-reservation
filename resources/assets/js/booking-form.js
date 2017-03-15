@@ -11,12 +11,17 @@ class BookingForm {
 
 	constructor(){
 		this.buildRedux();
+
+		this.buildVue();
+
 		this.bindView();
+
 		this.regisEvent();
 
 		this.bindListener();
 
 		this.initView();
+
 
 		BookingForm.logObjectAssignPer();
 	}
@@ -41,26 +46,19 @@ class BookingForm {
 		//may from server
 		//or self build
 		this.state = this.defaultState();
-		let scope = this;
+		let self = this;
 		let reducer = Redux.combineReducers({
-			has_selected_day : scope.buildHasSelectedDayReducer(),
-			available_time   : scope.buildAvailableTimeReducer(),
-			reservation      : scope.buildReservationReducer(),
-			ajax_call        : scope.buildAjaxCallReducer(),
-			init_view        : scope.buildInitViewReducer(),
-			form_step        : scope.buildFormStepReducer(),
-			customer         : scope.buildCustomerReducer(),
-			outlet           : scope.buildOutletReducer(),
-			dialog           : scope.buildDialogReducer(),
-			pax              : scope.buildPaxReducer(),
-			abc              : function(state = 'block', action){
-									switch(action.type){
-										case 'HIDDEN':
-											return 'none';
-										default:
-											return state;
-									}
-								},
+			has_selected_day : self.buildHasSelectedDayReducer(),
+			available_time   : self.buildAvailableTimeReducer(),
+			reservation      : self.buildReservationReducer(),
+			ajax_call        : self.buildAjaxCallReducer(),
+			init_view        : self.buildInitViewReducer(),
+			form_step        : self.buildFormStepReducer(),
+			customer         : self.buildCustomerReducer(),
+			pax_over         : self.buildPaxOverReducer(),
+			outlet           : self.buildOutletReducer(),
+			dialog           : self.buildDialogReducer(),
+			pax              : self.buildPaxReducer(),
 		});
 
 		window.store = Redux.createStore(reducer);
@@ -78,25 +76,39 @@ class BookingForm {
 		store.getPrestate = function(){
 			return store.prestate;
 		}
+	}
 
-		/**
-		 * Use vue to update data
-		 * self check too slow
-		 */
-		window.state = store.getState();
-		this.buildVue();
+	buildPaxOverReducer(){
+		let _state = this.state.pax_over;
+
+		return function(state = _state, action){
+			switch(action.type){
+				case 'PAX_OVER':
+					return 'none';
+				default:
+					return state;
+			}
+		};
+	}
+
+	getVueState(){
+		if(typeof window.vue_state == 'undefined'){
+			window.vue_state = this.defaultState();
+		}
+
+		return window.vue_state;
 	}
 
 
 	buildVue(){
-		window.vue_state = this.defaultState();
-		let form_vue = new Vue({
+		let vue_state = this.getVueState();
+
+		// let form_vue = new Vue({
+		new Vue({
 			el: '#form-step-container',
-			data(){
-				return window.vue_state;
-			}
+			data: vue_state
 		});
-		this.form_vue = form_vue;
+		// this.form_vue = form_vue;
 	}
 
 	shallowEqual(objA, objB) {
@@ -147,11 +159,11 @@ class BookingForm {
 					has_data: false,
 					exceed_min_exist_time: false
 				},
-				min_exist_time: 690 //ms
-				// min_exist_time: 5000 //ms
+				//min_exist_time: 690 //ms
+				min_exist_time: 5000 //ms
 			},
 			available_time: {},
-			ajax_call: false,
+			ajax_call: 0,
 			has_selected_day: false,
 			form_step: 'form-step-1',
 			customer: {
@@ -162,7 +174,7 @@ class BookingForm {
 				phone: '903865657',
 				remarks: 'hello world'
 			},
-			abc: "block"
+			pax_over: "block"
 		};
 
 		return state;
@@ -261,14 +273,9 @@ class BookingForm {
 		let _state = this.state.dialog;
 		return function(state = _state, action){
 			switch(action.type){
-				case 'DIALOG_SHOW':
+				case 'SHOW_DIALOG':
 					return Object.assign({}, state, {
 						show: action.show
-					});
-				case 'DIALOG_SHOWN':
-					return Object.assign({}, state, {
-						shown: true,
-						show : false
 					});
 				case 'DIALOG_HAS_DATA':
 					state.stop.has_data = action.dialog_has_data;
@@ -277,7 +284,7 @@ class BookingForm {
 					state.stop.exceed_min_exist_time = action.exceed_min_exist_time;
 					return JSON.parse(JSON.stringify(state));
 				case 'DIALOG_HIDDEN':
-					state.shown = false;
+					state.stop.has_data = false;
 					state.stop.exceed_min_exist_time = false;
 					return JSON.parse(JSON.stringify(state));
 				default:
@@ -319,7 +326,7 @@ class BookingForm {
 		return function(state = _state, action){
 			switch(action.type){
 				case 'AJAX_CALL':
-					return action.ajax_call;
+					return (Number(state) + Number(action.ajax_call));
 				default:
 					return state;
 			}
@@ -352,65 +359,37 @@ class BookingForm {
 
 	bindListener(){
 		let store = window.store;
-		let scope = this;
-		// let prestate;
+		let self = this;
 		store.subscribe(()=>{
 			let state = store.getState();
 			let prestate = store.getPrestate();
 
-			// if((state.pax.adult + state.pax.children) > 10){
-			// 	console.log('pax over');
-			// 	store.dispatch({type: 'HIDDEN'});
-			// }
-
-
-			/**
-			 * Update available time
-			 * When user change his condition
-			 *
-			 * #require has_selected_day
-			 */
-			if(prestate.has_selected_day
-				&& (prestate.pax.adult != state.pax.adult
-				||prestate.pax.children != state.pax.children
-				||prestate.outlet.id != state.outlet.id)
-			){
-				// prestate = state;
-				scope.ajaxCall();
+			if(prestate.ajax_call < state.ajax_call){
+				self.ajaxCall();
 			}
 
-			if(prestate.has_selected_day == false && state.has_selected_day == true){
-				// prestate = state;
-				scope.ajaxCall();
+			if(prestate.dialog.show == false && state.dialog.show == true){
+				self.ajax_dialog.modal('show');
 			}
 
-			if(prestate.reservation.date != state.reservation.date){
-				// prestate = state;
-				scope.ajaxCall();
+			if(prestate.dialog.show == true && state.dialog.show == false){
+				self.ajax_dialog.modal('hide');
 			}
-
-
-			//update prestate
-			// prestate = state;
-
-			// if(state.ajax_call == true){
-			// 	store.dispatch({type:'DIALOG_SHOW', show: true})
-			//
-			// 	scope.ajaxCall();
-			// 	store.dispatch({type: 'AJAX_CALL', ajax_call: false});
-			//
-			// 	let timeout = setTimeout(function(){
-			// 		store.dispatch({type: 'DIALOG_EXCEED_MIN_EXIST_TIME', exceed_min_exist_time: true});
-			// 		clearTimeout(timeout);
-			// 	}, state.dialog.min_exist_time);
-			// }
 		});
 
+	}
+
+	computeDialogShow(){
+		let state = store.getState();
+		if(state.dialog.show == true && state.dialog.stop.has_data == true && state.dialog.stop.exceed_min_exist_time == true){
+			store.dispatch({type: 'SHOW_DIALOG', show: false});
+		}
 	}
 
 	bindView(){
 		this.findView();
 		let store = window.store;
+		let self = this;
 		// this.form_vue.$data = store.getState();
 		// let form_vue = this.form_vue;
 		/**
@@ -428,7 +407,8 @@ class BookingForm {
 		store.subscribe(()=>{
 			let state    = store.getState();
 			//update this way for vue see it
-			Object.assign(window.vue_state, state);
+			let vue_state = self.getVueState();
+			Object.assign(vue_state, state);
 
 			//debug
 			let prestate = store.getPrestate();
@@ -465,6 +445,13 @@ class BookingForm {
 	}
 
 	findView(){
+		if(typeof this._hasRunFindView == 'undefined'){
+			this._hasRunFindView = true;
+		}else{
+			console.info('findView has run');
+			return;
+		}
+
 		let calendarDiv = $('#calendar-box');
 
 		this.calendar = calendarDiv.Calendar();
@@ -601,10 +588,9 @@ class BookingForm {
 	}
 
 	regisEvent(){
+		this.findView();
 		let store = window.store;
-		let scope = this;
-
-
+		let self = this;
 
 		let outlet_select = this.outlet_select;
 		outlet_select.addEventListener('change', function(){
@@ -617,6 +603,8 @@ class BookingForm {
 					name: selectedOption.innerText
 				}
 			});
+
+			self.computeAjaxCall();
 		});
 
 		let adult_pax_select = this.adult_pax_select;
@@ -628,12 +616,9 @@ class BookingForm {
 				adult_pax: selectedOption.value
 			});
 
-			let state = store.getState();
-			if((Number(state.pax.adult) + Number(state.pax.children)) > 10){
-				store.dispatch({type: 'HIDDEN'});
-			}
+			self.computePaxOver();
 
-
+			self.computeAjaxCall();
 		});
 
 		let children_pax_select = this.children_pax_select;
@@ -645,10 +630,9 @@ class BookingForm {
 				children_pax: selectedOption.value
 			});
 
-			let state = store.getState();
-			if((Number(state.pax.adult) + Number(state.pax.children)) > 10){
-				store.dispatch({type: 'HIDDEN'});
-			}
+			self.computePaxOver();
+
+			self.computeAjaxCall();
 		});
 
 		document.addEventListener('user-select-day', function(e){
@@ -659,9 +643,12 @@ class BookingForm {
 				date
 			});
 
-			// store.dispatch({
-			// 	type: 'HAS_SELECTED_DAY'
-			// });
+			let state = store.getState();
+			if(state.has_selected_day == false){
+				store.dispatch({type: 'HAS_SELECTED_DAY'});
+			}
+
+			self.computeAjaxCall();
 		});
 
 		let time_select = this.time_select;
@@ -736,20 +723,51 @@ class BookingForm {
 			    let remarks = this.value;
 			    store.dispatch({type: 'CHANGE_CUSTOMER_REMARKS', remarks});
 		    });
+
+		this.ajax_dialog
+			.on('hidden.bs.modal', function(){
+				store.dispatch({type: 'DIALOG_HIDDEN'});
+			});
+	}
+
+	computeAjaxCall(){
+		let state = store.getState();
+		let prestate = store.getPrestate();
+
+		if(state.has_selected_day
+		&& (prestate.pax.adult != state.pax.adult
+		||prestate.pax.children != state.pax.children
+		||prestate.outlet.id != state.outlet.id
+		||prestate.reservation.date != state.reservation.date)){
+			store.dispatch({type: 'AJAX_CALL', ajax_call: 1});
+		}
+
+		if(prestate.has_selected_day == false && state.has_selected_day == true){
+			store.dispatch({type: 'AJAX_CALL', ajax_call: 1});
+		}
+	}
+
+	computePaxOver(){
+		let state = store.getState();
+
+		if((Number(state.pax.adult) + Number(state.pax.children)) > 10){
+			store.dispatch({type: 'PAX_OVER'});
+		}
 	}
 
 	ajaxCall(){
-		console.info('ajax call');
-		// let form = this.form;
-		// let data =
-		// 	$(form)
-		// 		.serializeArray()
-		// 		.reduce((carry, item) =>{
-		// 			carry[item.name] = item.value;
-		// 			return carry;
-		// 		}, {});
+		// console.info('ajax call');
 		let store = window.store;
 		let state = store.getState();
+		let self = this;
+
+		store.dispatch({type: 'SHOW_DIALOG', show: true});
+
+		let timeout = setTimeout(function(){
+			store.dispatch({type: 'DIALOG_EXCEED_MIN_EXIST_TIME', exceed_min_exist_time: true});
+			clearTimeout(timeout);
+			self.computeDialogShow();
+		}, state.dialog.min_exist_time);
 
 		let data = {
 			outlet_id: state.outlet.id,
@@ -758,10 +776,7 @@ class BookingForm {
 			children_pax: state.pax.children
 		};
 
-		// let timeout = setTimeout(function(){
-		// 	store.dispatch({type: 'DIALOG_EXCEED_MIN_EXIST_TIME', exceed_min_exist_time: true});
-		// 	clearTimeout(timeout);
-		// }, state.dialog.min_exist_time);
+
 
 		$.ajax({
 			url: '',
@@ -776,25 +791,18 @@ class BookingForm {
 				});
 			},
 			complete(){
-				// store.dispatch( {
-				// 	type: 'DIALOG_HAS_DATA',
-				// 	dialog_has_data: true
-				// });
+				store.dispatch( {
+					type: 'DIALOG_HAS_DATA',
+					dialog_has_data: true
+				});
+
+				self.computeDialogShow();
 			},
 			error(res){
 				console.log(res);
 			}
 		});
 	}
-
-	// gotoFullfillView(){
-	// 	let a = this.queryView;
-	// 	let b = this.fullfillView;
-	//
-	//
-	// 	a.style.transform = 'scale(0,0)';
-	// 	b.style.transform = 'scale(1,1)';
-	// }
 
 	pointToFormStep(){
 		let state = store.getState();

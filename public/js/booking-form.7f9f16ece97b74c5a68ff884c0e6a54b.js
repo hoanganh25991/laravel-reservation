@@ -19,7 +19,11 @@ var BookingForm = function () {
 		_classCallCheck(this, BookingForm);
 
 		this.buildRedux();
+
+		this.buildVue();
+
 		this.bindView();
+
 		this.regisEvent();
 
 		this.bindListener();
@@ -36,29 +40,19 @@ var BookingForm = function () {
 			//may from server
 			//or self build
 			this.state = this.defaultState();
-			var scope = this;
+			var self = this;
 			var reducer = Redux.combineReducers({
-				has_selected_day: scope.buildHasSelectedDayReducer(),
-				available_time: scope.buildAvailableTimeReducer(),
-				reservation: scope.buildReservationReducer(),
-				ajax_call: scope.buildAjaxCallReducer(),
-				init_view: scope.buildInitViewReducer(),
-				form_step: scope.buildFormStepReducer(),
-				customer: scope.buildCustomerReducer(),
-				outlet: scope.buildOutletReducer(),
-				dialog: scope.buildDialogReducer(),
-				pax: scope.buildPaxReducer(),
-				abc: function abc() {
-					var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'block';
-					var action = arguments[1];
-
-					switch (action.type) {
-						case 'HIDDEN':
-							return 'none';
-						default:
-							return state;
-					}
-				}
+				has_selected_day: self.buildHasSelectedDayReducer(),
+				available_time: self.buildAvailableTimeReducer(),
+				reservation: self.buildReservationReducer(),
+				ajax_call: self.buildAjaxCallReducer(),
+				init_view: self.buildInitViewReducer(),
+				form_step: self.buildFormStepReducer(),
+				customer: self.buildCustomerReducer(),
+				pax_over: self.buildPaxOverReducer(),
+				outlet: self.buildOutletReducer(),
+				dialog: self.buildDialogReducer(),
+				pax: self.buildPaxReducer()
 			});
 
 			window.store = Redux.createStore(reducer);
@@ -76,25 +70,44 @@ var BookingForm = function () {
 			store.getPrestate = function () {
 				return store.prestate;
 			};
+		}
+	}, {
+		key: 'buildPaxOverReducer',
+		value: function buildPaxOverReducer() {
+			var _state = this.state.pax_over;
 
-			/**
-    * Use vue to update data
-    * self check too slow
-    */
-			window.state = store.getState();
-			this.buildVue();
+			return function () {
+				var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _state;
+				var action = arguments[1];
+
+				switch (action.type) {
+					case 'PAX_OVER':
+						return 'none';
+					default:
+						return state;
+				}
+			};
+		}
+	}, {
+		key: 'getVueState',
+		value: function getVueState() {
+			if (typeof window.vue_state == 'undefined') {
+				window.vue_state = this.defaultState();
+			}
+
+			return window.vue_state;
 		}
 	}, {
 		key: 'buildVue',
 		value: function buildVue() {
-			window.vue_state = this.defaultState();
-			var form_vue = new Vue({
+			var vue_state = this.getVueState();
+
+			// let form_vue = new Vue({
+			new Vue({
 				el: '#form-step-container',
-				data: function data() {
-					return window.vue_state;
-				}
+				data: vue_state
 			});
-			this.form_vue = form_vue;
+			// this.form_vue = form_vue;
 		}
 	}, {
 		key: 'shallowEqual',
@@ -145,11 +158,11 @@ var BookingForm = function () {
 						has_data: false,
 						exceed_min_exist_time: false
 					},
-					min_exist_time: 690 //ms
-					// min_exist_time: 5000 //ms
+					//min_exist_time: 690 //ms
+					min_exist_time: 5000 //ms
 				},
 				available_time: {},
-				ajax_call: false,
+				ajax_call: 0,
 				has_selected_day: false,
 				form_step: 'form-step-1',
 				customer: {
@@ -160,7 +173,7 @@ var BookingForm = function () {
 					phone: '903865657',
 					remarks: 'hello world'
 				},
-				abc: "block"
+				pax_over: "block"
 			};
 
 			return state;
@@ -279,14 +292,9 @@ var BookingForm = function () {
 				var action = arguments[1];
 
 				switch (action.type) {
-					case 'DIALOG_SHOW':
+					case 'SHOW_DIALOG':
 						return Object.assign({}, state, {
 							show: action.show
-						});
-					case 'DIALOG_SHOWN':
-						return Object.assign({}, state, {
-							shown: true,
-							show: false
 						});
 					case 'DIALOG_HAS_DATA':
 						state.stop.has_data = action.dialog_has_data;
@@ -295,7 +303,7 @@ var BookingForm = function () {
 						state.stop.exceed_min_exist_time = action.exceed_min_exist_time;
 						return JSON.parse(JSON.stringify(state));
 					case 'DIALOG_HIDDEN':
-						state.shown = false;
+						state.stop.has_data = false;
 						state.stop.exceed_min_exist_time = false;
 						return JSON.parse(JSON.stringify(state));
 					default:
@@ -349,7 +357,7 @@ var BookingForm = function () {
 
 				switch (action.type) {
 					case 'AJAX_CALL':
-						return action.ajax_call;
+						return Number(state) + Number(action.ajax_call);
 					default:
 						return state;
 				}
@@ -391,54 +399,31 @@ var BookingForm = function () {
 		key: 'bindListener',
 		value: function bindListener() {
 			var store = window.store;
-			var scope = this;
-			// let prestate;
+			var self = this;
 			store.subscribe(function () {
 				var state = store.getState();
 				var prestate = store.getPrestate();
 
-				// if((state.pax.adult + state.pax.children) > 10){
-				// 	console.log('pax over');
-				// 	store.dispatch({type: 'HIDDEN'});
-				// }
-
-
-				/**
-     * Update available time
-     * When user change his condition
-     *
-     * #require has_selected_day
-     */
-				if (prestate.has_selected_day && (prestate.pax.adult != state.pax.adult || prestate.pax.children != state.pax.children || prestate.outlet.id != state.outlet.id)) {
-					// prestate = state;
-					scope.ajaxCall();
+				if (prestate.ajax_call < state.ajax_call) {
+					self.ajaxCall();
 				}
 
-				if (prestate.has_selected_day == false && state.has_selected_day == true) {
-					// prestate = state;
-					scope.ajaxCall();
+				if (prestate.dialog.show == false && state.dialog.show == true) {
+					self.ajax_dialog.modal('show');
 				}
 
-				if (prestate.reservation.date != state.reservation.date) {
-					// prestate = state;
-					scope.ajaxCall();
+				if (prestate.dialog.show == true && state.dialog.show == false) {
+					self.ajax_dialog.modal('hide');
 				}
-
-				//update prestate
-				// prestate = state;
-
-				// if(state.ajax_call == true){
-				// 	store.dispatch({type:'DIALOG_SHOW', show: true})
-				//
-				// 	scope.ajaxCall();
-				// 	store.dispatch({type: 'AJAX_CALL', ajax_call: false});
-				//
-				// 	let timeout = setTimeout(function(){
-				// 		store.dispatch({type: 'DIALOG_EXCEED_MIN_EXIST_TIME', exceed_min_exist_time: true});
-				// 		clearTimeout(timeout);
-				// 	}, state.dialog.min_exist_time);
-				// }
 			});
+		}
+	}, {
+		key: 'computeDialogShow',
+		value: function computeDialogShow() {
+			var state = store.getState();
+			if (state.dialog.show == true && state.dialog.stop.has_data == true && state.dialog.stop.exceed_min_exist_time == true) {
+				store.dispatch({ type: 'SHOW_DIALOG', show: false });
+			}
 		}
 	}, {
 		key: 'bindView',
@@ -447,6 +432,7 @@ var BookingForm = function () {
 
 			this.findView();
 			var store = window.store;
+			var self = this;
 			// this.form_vue.$data = store.getState();
 			// let form_vue = this.form_vue;
 			/**
@@ -464,7 +450,8 @@ var BookingForm = function () {
 			store.subscribe(function () {
 				var state = store.getState();
 				//update this way for vue see it
-				Object.assign(window.vue_state, state);
+				var vue_state = self.getVueState();
+				Object.assign(vue_state, state);
 
 				//debug
 				var prestate = store.getPrestate();
@@ -500,6 +487,13 @@ var BookingForm = function () {
 	}, {
 		key: 'findView',
 		value: function findView() {
+			if (typeof this._hasRunFindView == 'undefined') {
+				this._hasRunFindView = true;
+			} else {
+				console.info('findView has run');
+				return;
+			}
+
 			var calendarDiv = $('#calendar-box');
 
 			this.calendar = calendarDiv.Calendar();
@@ -637,8 +631,9 @@ var BookingForm = function () {
 	}, {
 		key: 'regisEvent',
 		value: function regisEvent() {
+			this.findView();
 			var store = window.store;
-			var scope = this;
+			var self = this;
 
 			var outlet_select = this.outlet_select;
 			outlet_select.addEventListener('change', function () {
@@ -651,6 +646,8 @@ var BookingForm = function () {
 						name: selectedOption.innerText
 					}
 				});
+
+				self.computeAjaxCall();
 			});
 
 			var adult_pax_select = this.adult_pax_select;
@@ -662,10 +659,9 @@ var BookingForm = function () {
 					adult_pax: selectedOption.value
 				});
 
-				var state = store.getState();
-				if (Number(state.pax.adult) + Number(state.pax.children) > 10) {
-					store.dispatch({ type: 'HIDDEN' });
-				}
+				self.computePaxOver();
+
+				self.computeAjaxCall();
 			});
 
 			var children_pax_select = this.children_pax_select;
@@ -677,10 +673,9 @@ var BookingForm = function () {
 					children_pax: selectedOption.value
 				});
 
-				var state = store.getState();
-				if (Number(state.pax.adult) + Number(state.pax.children) > 10) {
-					store.dispatch({ type: 'HIDDEN' });
-				}
+				self.computePaxOver();
+
+				self.computeAjaxCall();
 			});
 
 			document.addEventListener('user-select-day', function (e) {
@@ -691,9 +686,12 @@ var BookingForm = function () {
 					date: date
 				});
 
-				// store.dispatch({
-				// 	type: 'HAS_SELECTED_DAY'
-				// });
+				var state = store.getState();
+				if (state.has_selected_day == false) {
+					store.dispatch({ type: 'HAS_SELECTED_DAY' });
+				}
+
+				self.computeAjaxCall();
 			});
 
 			var time_select = this.time_select;
@@ -760,21 +758,49 @@ var BookingForm = function () {
 				var remarks = this.value;
 				store.dispatch({ type: 'CHANGE_CUSTOMER_REMARKS', remarks: remarks });
 			});
+
+			this.ajax_dialog.on('hidden.bs.modal', function () {
+				store.dispatch({ type: 'DIALOG_HIDDEN' });
+			});
+		}
+	}, {
+		key: 'computeAjaxCall',
+		value: function computeAjaxCall() {
+			var state = store.getState();
+			var prestate = store.getPrestate();
+
+			if (state.has_selected_day && (prestate.pax.adult != state.pax.adult || prestate.pax.children != state.pax.children || prestate.outlet.id != state.outlet.id || prestate.reservation.date != state.reservation.date)) {
+				store.dispatch({ type: 'AJAX_CALL', ajax_call: 1 });
+			}
+
+			if (prestate.has_selected_day == false && state.has_selected_day == true) {
+				store.dispatch({ type: 'AJAX_CALL', ajax_call: 1 });
+			}
+		}
+	}, {
+		key: 'computePaxOver',
+		value: function computePaxOver() {
+			var state = store.getState();
+
+			if (Number(state.pax.adult) + Number(state.pax.children) > 10) {
+				store.dispatch({ type: 'PAX_OVER' });
+			}
 		}
 	}, {
 		key: 'ajaxCall',
 		value: function ajaxCall() {
-			console.info('ajax call');
-			// let form = this.form;
-			// let data =
-			// 	$(form)
-			// 		.serializeArray()
-			// 		.reduce((carry, item) =>{
-			// 			carry[item.name] = item.value;
-			// 			return carry;
-			// 		}, {});
+			// console.info('ajax call');
 			var store = window.store;
 			var state = store.getState();
+			var self = this;
+
+			store.dispatch({ type: 'SHOW_DIALOG', show: true });
+
+			var timeout = setTimeout(function () {
+				store.dispatch({ type: 'DIALOG_EXCEED_MIN_EXIST_TIME', exceed_min_exist_time: true });
+				clearTimeout(timeout);
+				self.computeDialogShow();
+			}, state.dialog.min_exist_time);
 
 			var data = {
 				outlet_id: state.outlet.id,
@@ -782,11 +808,6 @@ var BookingForm = function () {
 				adult_pax: state.pax.adult,
 				children_pax: state.pax.children
 			};
-
-			// let timeout = setTimeout(function(){
-			// 	store.dispatch({type: 'DIALOG_EXCEED_MIN_EXIST_TIME', exceed_min_exist_time: true});
-			// 	clearTimeout(timeout);
-			// }, state.dialog.min_exist_time);
 
 			$.ajax({
 				url: '',
@@ -801,26 +822,18 @@ var BookingForm = function () {
 					});
 				},
 				complete: function complete() {
-					// store.dispatch( {
-					// 	type: 'DIALOG_HAS_DATA',
-					// 	dialog_has_data: true
-					// });
+					store.dispatch({
+						type: 'DIALOG_HAS_DATA',
+						dialog_has_data: true
+					});
+
+					self.computeDialogShow();
 				},
 				error: function error(res) {
 					console.log(res);
 				}
 			});
 		}
-
-		// gotoFullfillView(){
-		// 	let a = this.queryView;
-		// 	let b = this.fullfillView;
-		//
-		//
-		// 	a.style.transform = 'scale(0,0)';
-		// 	b.style.transform = 'scale(1,1)';
-		// }
-
 	}, {
 		key: 'pointToFormStep',
 		value: function pointToFormStep() {
