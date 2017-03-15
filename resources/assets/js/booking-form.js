@@ -24,6 +24,9 @@ class BookingForm {
 
 
 		BookingForm.logObjectAssignPer();
+
+		// this.modalSelfDispatch();
+		BookingForm.modalSelfDispatch();
 	}
 
 	static logObjectAssignPer(){
@@ -41,6 +44,17 @@ class BookingForm {
 		}
 	}
 
+	static modalSelfDispatch(){
+		let o_modal = $.fn.modal;
+
+		$.fn.modal = function(b, d){
+			if(b == 'hide'){
+				store.dispatch({type: 'DIALOG_HIDDEN'});
+			}
+
+			o_modal.apply(this, [b,d]);
+		};
+	}
 	buildRedux(){
 		//assign default state
 		//may from server
@@ -370,6 +384,7 @@ class BookingForm {
 
 			if(prestate.dialog.show == false && state.dialog.show == true){
 				self.ajax_dialog.modal('show');
+				// store.dispatch({type: ''});
 			}
 
 			if(prestate.dialog.show == true && state.dialog.show == false){
@@ -726,7 +741,7 @@ class BookingForm {
 
 		this.ajax_dialog
 			.on('hidden.bs.modal', function(){
-				store.dispatch({type: 'DIALOG_HIDDEN'});
+				// store.dispatch({type: 'DIALOG_HIDDEN'});
 			});
 	}
 

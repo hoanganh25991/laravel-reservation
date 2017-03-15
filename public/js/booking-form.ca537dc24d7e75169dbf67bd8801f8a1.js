@@ -31,6 +31,9 @@ var BookingForm = function () {
 		this.initView();
 
 		BookingForm.logObjectAssignPer();
+
+		// this.modalSelfDispatch();
+		BookingForm.modalSelfDispatch();
 	}
 
 	_createClass(BookingForm, [{
@@ -410,6 +413,7 @@ var BookingForm = function () {
 
 				if (prestate.dialog.show == false && state.dialog.show == true) {
 					self.ajax_dialog.modal('show');
+					// store.dispatch({type: ''});
 				}
 
 				if (prestate.dialog.show == true && state.dialog.show == false) {
@@ -760,7 +764,7 @@ var BookingForm = function () {
 			});
 
 			this.ajax_dialog.on('hidden.bs.modal', function () {
-				store.dispatch({ type: 'DIALOG_HIDDEN' });
+				// store.dispatch({type: 'DIALOG_HIDDEN'});
 			});
 		}
 	}, {
@@ -867,6 +871,19 @@ var BookingForm = function () {
 				}
 
 				return o_assign.apply(Object, args);
+			};
+		}
+	}, {
+		key: 'modalSelfDispatch',
+		value: function modalSelfDispatch() {
+			var o_modal = $.fn.modal;
+
+			$.fn.modal = function (b, d) {
+				if (b == 'hide') {
+					store.dispatch({ type: 'DIALOG_HIDDEN' });
+				}
+
+				o_modal.apply(this, [b, d]);
 			};
 		}
 	}]);
