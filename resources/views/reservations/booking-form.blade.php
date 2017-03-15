@@ -3,26 +3,19 @@
 @section('content')
     {{--<form id="booking-form">--}}
     <div class="container" id="form-step-container">
-        {{--<h1>@{{ outlet.name }}</h1>--}}
-        <h1>@{{ reservation.date.format('MMM D Y') }}</h1>
         <div class="box form-step" id="form-step-1">
             @component('reservations.header')
             @slot('title')
             Make a Reservation at <span class="r-name"> <a href="{{ url('') }}" target="_blank"
-                                                           id="reservation_title">{{ $outlets->first()->name }}</a></span>
+                                                           id="reservation_title">@{{ outlet.name }}</a></span>
             <p class="sub"></p>
             @endslot
             @endcomponent
             <div id="check-availability" class="content">
                 <div class="rid-select">
-                    <input type="hidden" name='outlet_name' value="{{ $outlets->first()->name }}">
                     <select name="outlet_id" id="rid" title="spize" class="form-control">
                         @foreach($outlets as $outlet)
-                            <option value="{{ $outlet->id }}"
-                                    @if($loop->first)
-                                    selected
-                                    @endif
-                            >{{ $outlet->name }}</option>
+                            <option value="{{ $outlet->id }}">{{ $outlet->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -68,7 +61,7 @@
                     <div class="clear"></div>
                     <div id="calendar-box" align="center"></div>
                     <div id="dt-choice" class="cf">
-                        <label id="reservation_date">{{ date('M d Y') }}</label>
+                        <label id="reservation_date">@{{ reservation.date.format('MMM D Y') }}</label>
                         <input type="hidden" name="reservation_date" value="">
                         <select name="reservation_time" class="form-control">
                             <option>N/A</option>
@@ -97,8 +90,8 @@
             Confirm Diner Details
             <p class="sub">
                 We have a table for you at <br>
-                <span class="field" name="outlet_name"></span> for <span class="field bloc" name="pax_size"></span>
-                <br> at <span class="field  bloc" name="time"></span> on <span class="field  bloc" name="date"></span>
+                <span class="field" name="outlet_name">@{{ outlet.name }}</span> for <span class="field bloc" name="pax_size">@{{ Number(pax.adult) + Number(pax.children) }} people</span>
+                <br> at <span class="field  bloc" name="time">@{{ reservation.time }}</span> on <span class="field  bloc" name="date">@{{ reservation.date.format('MMM D Y') }}</span>
             </p>
             @endslot
             @endcomponent
@@ -110,25 +103,26 @@
                         <option value="Mrs.">Mrs.</option>
                         <option value="Mdm.">Mdm.</option>
                     </select>
-                    <input type="text" class="form-control d-name name_check" name="first_name" value=""
+                    <input type="text" class="form-control d-name name_check" name="first_name" :value="customer.first_name"
                            placeholder="First Name" title="First Name">&nbsp;
-                    <input type="text" class="form-control d-name name_check" name="last_name" value=""
+                    <input type="text" class="form-control d-name name_check" name="last_name" :value="customer.last_name"
                            placeholder="Last Name" title="Last Name">
                 </div>
                 <br>
                 <div class="form-groups">
                     <label for="email">Email Address</label>
-                    <input type="email" class="form-control" name="email" value=""
+                    <input type="email" class="form-control" name="email" :value="customer.email"
                            placeholder="Enter Email Address" title="Enter Email Address"><br>
                     <label for="telephone">Mobile Phone</label>
                     <input type="text" id="phone-area" class="form-control contry_check" name="phone_country_code"
-                           value="+65" placeholder="+65" title="Area Code">
-                    <input type="tel" id="telephone" class="form-control mobile_check" name="phone" value=""
+                           :value="customer.phone_country_code" placeholder="+65" title="Area Code">
+                    <input type="tel" id="telephone" class="form-control mobile_check" name="phone" :value="customer.phone"
                            placeholder="Phone Number" title="Phone Number"><br>
                     <label for="notes" class="textarea">Special Requests</label><textarea class="form-control"
                                                                                           name="remarks"
                                                                                           placeholder="Message (Maximum 85 characters.)"
-                                                                                          maxlength="85"></textarea>
+                                                                                          maxlength="85"
+                                                                                          :value="customer.remarks"></textarea>
                     <p class="note">Special requests are not guaranteed and are subject to availability and
                         restaurant discretion.</p></div>
 
