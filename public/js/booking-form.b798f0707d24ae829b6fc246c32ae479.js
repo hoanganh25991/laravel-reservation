@@ -404,8 +404,8 @@ var BookingForm = function () {
 			var store = window.store;
 			var self = this;
 			store.subscribe(function () {
-				if (store.SELF_DISPATCH == true) {
-					store.SELF_DISPATCH = false;
+				if (store.SELF_DISPATCH_FLAG == true) {
+					store.SELF_DISPATCH_FLAG = false;
 					return;
 				}
 
@@ -426,9 +426,17 @@ var BookingForm = function () {
 				}
 
 				if (Number(state.pax.adult) + Number(state.pax.children) > 10) {
-					store.SELF_DISPATCH = true;
+					store.SELF_DISPATCH_FLAG = true;
 					store.dispatch({
 						type: 'PAX_OVER'
+					});
+				}
+
+				if (state.dialog.show == true && state.dialog.stop.has_data == true && state.dialog.stop.exceed_min_exist_time == true) {
+					// store.SELF_DISPATCH_FLAG = true;
+					store.dispatch({
+						type: 'SHOW_DIALOG',
+						show: false
 					});
 				}
 			});
@@ -436,10 +444,10 @@ var BookingForm = function () {
 	}, {
 		key: 'computeDialogShow',
 		value: function computeDialogShow() {
-			var state = store.getState();
-			if (state.dialog.show == true && state.dialog.stop.has_data == true && state.dialog.stop.exceed_min_exist_time == true) {
-				store.dispatch({ type: 'SHOW_DIALOG', show: false });
-			}
+			// let state = store.getState();
+			// if(state.dialog.show == true && state.dialog.stop.has_data == true && state.dialog.stop.exceed_min_exist_time == true){
+			// 	store.dispatch({type: 'SHOW_DIALOG', show: false});
+			// }
 		}
 	}, {
 		key: 'bindView',
@@ -479,14 +487,19 @@ var BookingForm = function () {
      */
 				var available_time_change = prestate.available_time != state.available_time;
 				if (available_time_change) {
-					_this.updateSelectView(state.available_time);
-					_this.updateCalendarView(state.available_time);
+					requestAnimationFrame(function () {
+						_this.updateSelectView(state.available_time);
+					});
+					requestAnimationFrame(function () {
+						_this.updateCalendarView(state.available_time);
+					});
 				}
 				/**
      * Form step change
      */
-				var form_step_change = prestate.form_step != state.form_step || state.form_step == 'form-step-1';
+				var form_step_change = prestate.form_step != state.form_step || prestate.init_view == false && state.form_step == 'form-step-1';
 				if (form_step_change) {
+					console.info('pointToFormStep');
 					_this.pointToFormStep();
 				}
 			});
@@ -776,7 +789,15 @@ var BookingForm = function () {
 			});
 
 			this.ajax_dialog.on('hidden.bs.modal', function () {
-				// store.dispatch({type: 'DIALOG_HIDDEN'});
+				store.dispatch({ type: 'DIALOG_HIDDEN' });
+			});
+
+			this.ajax_dialog.on('shown.bs.modal', function () {
+				var state = store.getState();
+				setTimeout(function () {
+					store.dispatch({ type: 'DIALOG_EXCEED_MIN_EXIST_TIME', exceed_min_exist_time: true });
+					self.computeDialogShow();
+				}, state.dialog.min_exist_time);
 			});
 		}
 	}, {
@@ -811,12 +832,6 @@ var BookingForm = function () {
 			var self = this;
 
 			store.dispatch({ type: 'SHOW_DIALOG', show: true });
-
-			var timeout = setTimeout(function () {
-				store.dispatch({ type: 'DIALOG_EXCEED_MIN_EXIST_TIME', exceed_min_exist_time: true });
-				clearTimeout(timeout);
-				self.computeDialogShow();
-			}, state.dialog.min_exist_time);
 
 			var data = {
 				outlet_id: state.outlet.id,
@@ -888,15 +903,15 @@ var BookingForm = function () {
 	}, {
 		key: 'modalSelfDispatch',
 		value: function modalSelfDispatch() {
-			var o_modal = $.fn.modal;
-
-			$.fn.modal = function (b, d) {
-				if (b == 'hide') {
-					store.dispatch({ type: 'DIALOG_HIDDEN' });
-				}
-
-				o_modal.apply(this, [b, d]);
-			};
+			// let o_modal = $.fn.modal;
+			//
+			// $.fn.modal = function(b, d){
+			// 	if(b == 'hide'){
+			// 		store.dispatch({type: 'DIALOG_HIDDEN'});
+			// 	}
+			//
+			// 	o_modal.apply(this, [b,d]);
+			// };
 		}
 	}]);
 

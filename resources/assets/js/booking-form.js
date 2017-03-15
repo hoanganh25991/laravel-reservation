@@ -45,15 +45,15 @@ class BookingForm {
 	}
 
 	static modalSelfDispatch(){
-		let o_modal = $.fn.modal;
-
-		$.fn.modal = function(b, d){
-			if(b == 'hide'){
-				store.dispatch({type: 'DIALOG_HIDDEN'});
-			}
-
-			o_modal.apply(this, [b,d]);
-		};
+		// let o_modal = $.fn.modal;
+		//
+		// $.fn.modal = function(b, d){
+		// 	if(b == 'hide'){
+		// 		store.dispatch({type: 'DIALOG_HIDDEN'});
+		// 	}
+		//
+		// 	o_modal.apply(this, [b,d]);
+		// };
 	}
 	buildRedux(){
 		//assign default state
@@ -375,8 +375,8 @@ class BookingForm {
 		let store = window.store;
 		let self = this;
 		store.subscribe(()=>{
-			if(store.SELF_DISPATCH == true){
-				store.SELF_DISPATCH = false;
+			if(store.SELF_DISPATCH_FLAG == true){
+				store.SELF_DISPATCH_FLAG = false;
 				return;
 			}
 
@@ -397,20 +397,29 @@ class BookingForm {
 			}
 
 			if(Number(state.pax.adult) + Number(state.pax.children) > 10){
-				store.SELF_DISPATCH = true;
+				store.SELF_DISPATCH_FLAG = true;
 				store.dispatch({
 					type: 'PAX_OVER'
 				});
 			}
+
+			if(state.dialog.show == true && state.dialog.stop.has_data == true && state.dialog.stop.exceed_min_exist_time == true){
+				// store.SELF_DISPATCH_FLAG = true;
+				store.dispatch({
+					type: 'SHOW_DIALOG',
+					show: false
+				});
+			}
+
 		});
 
 	}
 
 	computeDialogShow(){
-		let state = store.getState();
-		if(state.dialog.show == true && state.dialog.stop.has_data == true && state.dialog.stop.exceed_min_exist_time == true){
-			store.dispatch({type: 'SHOW_DIALOG', show: false});
-		}
+		// let state = store.getState();
+		// if(state.dialog.show == true && state.dialog.stop.has_data == true && state.dialog.stop.exceed_min_exist_time == true){
+		// 	store.dispatch({type: 'SHOW_DIALOG', show: false});
+		// }
 	}
 
 	bindView(){
@@ -447,15 +456,21 @@ class BookingForm {
 			 */
 			let available_time_change = (prestate.available_time != state.available_time);
 			if(available_time_change){
-				this.updateSelectView(state.available_time);
-				this.updateCalendarView(state.available_time);
+				requestAnimationFrame(()=>{
+					this.updateSelectView(state.available_time);
+				});
+				requestAnimationFrame(()=>{
+					this.updateCalendarView(state.available_time);
+				});
 			}
 			/**
 			 * Form step change
 			 */
-			let form_step_change = (prestate.form_step != state.form_step
-									|| state.form_step == 'form-step-1');
+			let form_step_change = (prestate.form_step != state.form_step)
+									|| (prestate.init_view == false
+										&& state.form_step == 'form-step-1');
 			if(form_step_change){
+				console.info('pointToFormStep');
 				this.pointToFormStep();
 			}
 		});
@@ -753,7 +768,16 @@ class BookingForm {
 
 		this.ajax_dialog
 			.on('hidden.bs.modal', function(){
-				// store.dispatch({type: 'DIALOG_HIDDEN'});
+				store.dispatch({type: 'DIALOG_HIDDEN'});
+			});
+
+		this.ajax_dialog
+			.on('shown.bs.modal', function(){
+				let state = store.getState();
+				setTimeout(function(){
+					store.dispatch({type: 'DIALOG_EXCEED_MIN_EXIST_TIME', exceed_min_exist_time: true});
+					self.computeDialogShow();
+				}, state.dialog.min_exist_time);
 			});
 	}
 
@@ -790,11 +814,7 @@ class BookingForm {
 
 		store.dispatch({type: 'SHOW_DIALOG', show: true});
 
-		let timeout = setTimeout(function(){
-			store.dispatch({type: 'DIALOG_EXCEED_MIN_EXIST_TIME', exceed_min_exist_time: true});
-			clearTimeout(timeout);
-			self.computeDialogShow();
-		}, state.dialog.min_exist_time);
+
 
 		let data = {
 			outlet_id: state.outlet.id,
