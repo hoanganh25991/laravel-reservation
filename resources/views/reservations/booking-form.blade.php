@@ -7,7 +7,7 @@
             @component('reservations.header')
             @slot('title')
             Make a Reservation at <span class="r-name"> <a href="{{ url('') }}" target="_blank"
-                                                           id="reservation_title">@{{ outlet.name }}</a></span>
+                                                           id="reservation_title">@{{ outlet.name }} @{{ outlet.id }} @{{ customer.last_name }}</a></span>
             <p class="sub"></p>
             @endslot
             @endcomponent
@@ -19,7 +19,7 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="selectors cf">
+                <div class="selectors cf" :width="abc" :style="'display: ' + abc">
                     <div id="adults-wrap">
                         <label for="adults">Adults</label>
                         <select name="adult_pax" class="form-control">

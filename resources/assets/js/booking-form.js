@@ -18,7 +18,22 @@ class BookingForm {
 
 		this.initView();
 
+		BookingForm.logObjectAssignPer();
+	}
 
+	static logObjectAssignPer(){
+		let o_assign = Object.assign;
+
+		Object.assign = function(...args){
+			if(Object.keys(args[0]).length > 0){
+				console.time('obj assign');
+				o_assign.apply(Object, args);
+				console.timeEnd('obj assign');
+			}
+
+			return o_assign.apply(Object, args);
+
+		}
 	}
 
 	buildRedux(){
@@ -38,6 +53,14 @@ class BookingForm {
 			outlet           : scope.buildOutletReducer(),
 			dialog           : scope.buildDialogReducer(),
 			pax              : scope.buildPaxReducer(),
+			abc              : function(state = 'block', action){
+									switch(action.type){
+										case 'HIDDEN':
+											return 'none';
+										default:
+											return state;
+									}
+								},
 		});
 
 		window.store = Redux.createStore(reducer);
@@ -138,7 +161,8 @@ class BookingForm {
 				phone_country_code: '+65',
 				phone: '903865657',
 				remarks: 'hello world'
-			}
+			},
+			abc: "block"
 		};
 
 		return state;
@@ -334,6 +358,12 @@ class BookingForm {
 			let state = store.getState();
 			let prestate = store.getPrestate();
 
+			// if((state.pax.adult + state.pax.children) > 10){
+			// 	console.log('pax over');
+			// 	store.dispatch({type: 'HIDDEN'});
+			// }
+
+
 			/**
 			 * Update available time
 			 * When user change his condition
@@ -399,6 +429,8 @@ class BookingForm {
 			let state    = store.getState();
 			//update this way for vue see it
 			Object.assign(window.vue_state, state);
+
+			//debug
 			let prestate = store.getPrestate();
 			pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));
 
@@ -572,6 +604,8 @@ class BookingForm {
 		let store = window.store;
 		let scope = this;
 
+
+
 		let outlet_select = this.outlet_select;
 		outlet_select.addEventListener('change', function(){
 			let selectedOption = outlet_select.selectedOptions[0];
@@ -593,6 +627,13 @@ class BookingForm {
 				type: 'CHANGE_ADULT_PAX',
 				adult_pax: selectedOption.value
 			});
+
+			let state = store.getState();
+			if((Number(state.pax.adult) + Number(state.pax.children)) > 10){
+				store.dispatch({type: 'HIDDEN'});
+			}
+
+
 		});
 
 		let children_pax_select = this.children_pax_select;
@@ -603,6 +644,11 @@ class BookingForm {
 				type: 'CHANGE_CHILDREN_PAX',
 				children_pax: selectedOption.value
 			});
+
+			let state = store.getState();
+			if((Number(state.pax.adult) + Number(state.pax.children)) > 10){
+				store.dispatch({type: 'HIDDEN'});
+			}
 		});
 
 		document.addEventListener('user-select-day', function(e){

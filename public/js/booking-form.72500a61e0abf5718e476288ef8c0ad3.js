@@ -25,6 +25,8 @@ var BookingForm = function () {
 		this.bindListener();
 
 		this.initView();
+
+		BookingForm.logObjectAssignPer();
 	}
 
 	_createClass(BookingForm, [{
@@ -45,7 +47,18 @@ var BookingForm = function () {
 				customer: scope.buildCustomerReducer(),
 				outlet: scope.buildOutletReducer(),
 				dialog: scope.buildDialogReducer(),
-				pax: scope.buildPaxReducer()
+				pax: scope.buildPaxReducer(),
+				abc: function abc() {
+					var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'block';
+					var action = arguments[1];
+
+					switch (action.type) {
+						case 'HIDDEN':
+							return 'none';
+						default:
+							return state;
+					}
+				}
 			});
 
 			window.store = Redux.createStore(reducer);
@@ -146,7 +159,8 @@ var BookingForm = function () {
 					phone_country_code: '+65',
 					phone: '903865657',
 					remarks: 'hello world'
-				}
+				},
+				abc: "block"
 			};
 
 			return state;
@@ -383,6 +397,12 @@ var BookingForm = function () {
 				var state = store.getState();
 				var prestate = store.getPrestate();
 
+				// if((state.pax.adult + state.pax.children) > 10){
+				// 	console.log('pax over');
+				// 	store.dispatch({type: 'HIDDEN'});
+				// }
+
+
 				/**
      * Update available time
      * When user change his condition
@@ -445,6 +465,8 @@ var BookingForm = function () {
 				var state = store.getState();
 				//update this way for vue see it
 				Object.assign(window.vue_state, state);
+
+				//debug
 				var prestate = store.getPrestate();
 				pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));
 
@@ -639,6 +661,11 @@ var BookingForm = function () {
 					type: 'CHANGE_ADULT_PAX',
 					adult_pax: selectedOption.value
 				});
+
+				var state = store.getState();
+				if (Number(state.pax.adult) + Number(state.pax.children) > 10) {
+					store.dispatch({ type: 'HIDDEN' });
+				}
 			});
 
 			var children_pax_select = this.children_pax_select;
@@ -649,6 +676,11 @@ var BookingForm = function () {
 					type: 'CHANGE_CHILDREN_PAX',
 					children_pax: selectedOption.value
 				});
+
+				var state = store.getState();
+				if (Number(state.pax.adult) + Number(state.pax.children) > 10) {
+					store.dispatch({ type: 'HIDDEN' });
+				}
 			});
 
 			document.addEventListener('user-select-day', function (e) {
@@ -804,6 +836,25 @@ var BookingForm = function () {
 
 				step.style.transform = transform;
 			});
+		}
+	}], [{
+		key: 'logObjectAssignPer',
+		value: function logObjectAssignPer() {
+			var o_assign = Object.assign;
+
+			Object.assign = function () {
+				for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+					args[_key] = arguments[_key];
+				}
+
+				if (Object.keys(args[0]).length > 0) {
+					console.time('obj assign');
+					o_assign.apply(Object, args);
+					console.timeEnd('obj assign');
+				}
+
+				return o_assign.apply(Object, args);
+			};
 		}
 	}]);
 
