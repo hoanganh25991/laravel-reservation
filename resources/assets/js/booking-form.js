@@ -11,9 +11,7 @@ const CHANGE_RESERVATION_TIME		= 'CHANGE_RESERVATION_TIME'
 const CHANGE_AVAILABLE_TIME	        = 'CHANGE_AVAILABLE_TIME'
 
 const PAX_OVER 			= 'PAX_OVER'
-
 const AJAX_CALL			= 'AJAX_CALL'
-
 const DIALOG_SHOW_HIDE		= 'DIALOG_SHOW_HIDE'
 const DIALOG_HAS_DATA	= 'DIALOG_HAS_DATA'
 const DIALOG_HIDDEN		= 'DIALOG_HIDDEN'
@@ -43,22 +41,19 @@ class BookingForm {
 
 		this.buildVue();
 
-		this.storeSubscribeView();
+		this.event();
 
-		this.regisEvent();
+		this.listener();
 
-		this.storeSubscribeListener();
+		this.view();
 
 		this.initView();
 
 
-		BookingForm.logObjectAssignPer();
-
-		// this.modalSelfDispatch();
-		BookingForm.modalSelfDispatch();
+		BookingForm.logObjectAssignPerformance();
 	}
 
-	static logObjectAssignPer(){
+	static logObjectAssignPerformance(){
 		let o_assign = Object.assign;
 
 		Object.assign = function(...args){
@@ -73,37 +68,9 @@ class BookingForm {
 		}
 	}
 
-	static modalSelfDispatch(){
-		// let o_modal = $.fn.modal;
-		//
-		// $.fn.modal = function(b, d){
-		// 	if(b == 'hide'){
-		// 		store.dispatch({type: 'DIALOG_HIDDEN'});
-		// 	}
-		//
-		// 	o_modal.apply(this, [b,d]);
-		// };
-	}
 	buildRedux(){
-		//assign default state
-		//may from server
-		//or self build
 		let default_state = this.defaultState();
 		let self = this;
-		// let reducer = Redux.combineReducers({
-			// has_selected_day : self.buildHasSelectedDayReducer(state),
-			// available_time   : self.buildAvailableTimeReducer(state),
-			// reservation      : self.buildReservationReducer(state),
-			// ajax_call        : self.buildAjaxCallReducer(state),
-			// init_view        : self.buildInitViewReducer(state),
-			// form_step        : self.buildFormStepReducer(state),
-			// customer         : self.buildCustomerReducer(state),
-			// pax_over         : self.buildPaxOverReducer(state),
-			// outlet           : self.buildOutletReducer(state),
-			// dialog           : self.buildDialogReducer(state),
-			// pax              : self.buildPaxReducer(state),
-		// });
-
 		let rootReducer = function(state = default_state, action){
 			switch(action.type){
 				case INIT_VIEW:
@@ -189,30 +156,6 @@ class BookingForm {
 		}
 	}
 
-	buildPaxOverReducer(state){
-		let _state = state.pax_over;
-
-		return function(state = _state, action){
-			// console.log(action);
-			switch(action.type){
-				case 'PAX_OVER':
-					return 'none';
-				default:
-					return state;
-			}
-		};
-	}
-
-	paxOverReducer(state, action){
-		// console.log(action);
-		switch(action.type){
-			case 'PAX_OVER':
-				return 'none';
-			default:
-				return state;
-		}
-	}
-
 	getVueState(){
 		if(typeof window.vue_state == 'undefined'){
 			window.vue_state = this.defaultState();
@@ -220,7 +163,6 @@ class BookingForm {
 
 		return window.vue_state;
 	}
-
 
 	buildVue(){
 		let vue_state = this.getVueState();
@@ -233,28 +175,14 @@ class BookingForm {
 		// this.form_vue = form_vue;
 	}
 
-	shallowEqual(objA, objB) {
-		if (objA === objB) {
-			return true;
+	paxOverReducer(state, action){
+		// console.log(action);
+		switch(action.type){
+			case 'PAX_OVER':
+				return 'none';
+			default:
+				return state;
 		}
-
-		let keysA = Object.keys(objA),
-			keysB = Object.keys(objB),
-			hasOwn;
-
-		if (keysA.length !== keysB.length) {
-			return false;
-		}
-
-		// Test for A's keys different from B.
-		hasOwn = Object.prototype.hasOwnProperty;
-		for (let i = 0; i < keysA.length; i++) {
-			if (!hasOwn.call(objB, keysA[i]) ||
-				objA[keysA[i]] !== objB[keysA[i]]) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	defaultState(){
@@ -304,72 +232,33 @@ class BookingForm {
 		return this.state;
 	}
 
-	buildCustomerReducer(state){
-		let _state = state.customer;
-
-		return function(state = _state, action){
-			switch(action.type){
-				case 'CHANGE_CUSTOMER_SANLUTATION':
-					return Object.assign({}, state, {
-						salutation: action.salutation
-					});
-				case 'CHANGE_CUSTOMER_FIRST_NAME':
-					return Object.assign({}, state, {
-						first_name: action.first_name
-					});
-				case 'CHANGE_CUSTOMER_LAST_NAME':
-					return Object.assign({}, state, {
-						last_name: action.last_name
-					});
-				case 'CHANGE_CUSTOMER_EMAIL':
-					return Object.assign({}, state, {
-						email: action.email
-					});
-				case 'CHANGE_CUSTOMER_PHONE_COUNTRY_CODE':
-					return Object.assign({}, state, {
-						phone_country_code: action.phone_country_code
-					});
-				case 'CHANGE_CUSTOMER_PHONE':
-					return Object.assign({}, state, {
-						phone: action.phone
-					});
-				case 'CHANGE_CUSTOMER_REMARKS':
-					return Object.assign({}, state, {
-						remarks: action.remarks
-					});
-				default:
-					return state;
-			}
-		};
-	}
-
 	customerReducer(state, action){
 		switch(action.type){
-			case 'CHANGE_CUSTOMER_SANLUTATION':
+			case CHANGE_CUSTOMER_SANLUTATION:
 				return Object.assign({}, state, {
 					salutation: action.salutation
 				});
-			case 'CHANGE_CUSTOMER_FIRST_NAME':
+			case CHANGE_CUSTOMER_FIRST_NAME:
 				return Object.assign({}, state, {
 					first_name: action.first_name
 				});
-			case 'CHANGE_CUSTOMER_LAST_NAME':
+			case CHANGE_CUSTOMER_LAST_NAME:
 				return Object.assign({}, state, {
 					last_name: action.last_name
 				});
-			case 'CHANGE_CUSTOMER_EMAIL':
+			case CHANGE_CUSTOMER_EMAIL:
 				return Object.assign({}, state, {
 					email: action.email
 				});
-			case 'CHANGE_CUSTOMER_PHONE_COUNTRY_CODE':
+			case CHANGE_CUSTOMER_PHONE_COUNTRY_CODE:
 				return Object.assign({}, state, {
 					phone_country_code: action.phone_country_code
 				});
-			case 'CHANGE_CUSTOMER_PHONE':
+			case CHANGE_CUSTOMER_PHONE:
 				return Object.assign({}, state, {
 					phone: action.phone
 				});
-			case 'CHANGE_CUSTOMER_REMARKS':
+			case CHANGE_CUSTOMER_REMARKS:
 				return Object.assign({}, state, {
 					remarks: action.remarks
 				});
@@ -378,54 +267,22 @@ class BookingForm {
 		}
 	}
 
-	buildOutletReducer(state){
-		let _state = state.outlet;
-
-		return function(state = _state, action){
-			switch(action.type){
-				case 'CHANGE_OUTLET':
-					return action.outlet;
-				default:
-					return state;
-			}
-		};
-	}
-
 	outletReducer(state, action){
 		switch(action.type){
-			case 'CHANGE_OUTLET':
+			case CHANGE_OUTLET:
 				return action.outlet;
 			default:
 				return state;
 		}
 	}
 
-	buildPaxReducer(state){
-		let _state = state.pax;
-
-		return function(state = _state, action){
-			switch(action.type){
-				case 'CHANGE_ADULT_PAX':
-					return Object.assign({}, state, {
-						adult: Number(action.adult_pax)
-					});
-				case 'CHANGE_CHILDREN_PAX':
-					return Object.assign({}, state, {
-						children: Number(action.children_pax)
-					});
-				default:
-					return state;
-			}
-		};
-	}
-
 	paxReducer(state, action){
 		switch(action.type){
-			case 'CHANGE_ADULT_PAX':
+			case CHANGE_ADULT_PAX:
 				return Object.assign({}, state, {
 					adult: Number(action.adult_pax)
 				});
-			case 'CHANGE_CHILDREN_PAX':
+			case CHANGE_CHILDREN_PAX:
 				return Object.assign({}, state, {
 					children: Number(action.children_pax)
 				});
@@ -434,31 +291,13 @@ class BookingForm {
 		}
 	}
 
-	buildReservationReducer(state){
-		let _state = state.reservation;
-		return function(state = _state, action){
-			switch(action.type){
-				case 'CHANGE_RESERVATION_DATE':
-					return Object.assign({}, state, {
-						date: action.date
-					});
-				case 'CHANGE_RESERVATION_TIME':
-					return Object.assign({}, state, {
-						time: action.time
-					});
-				default:
-					return state;
-			}
-		};
-	}
-
 	reservationReducer(state, action){
 		switch(action.type){
-			case 'CHANGE_RESERVATION_DATE':
+			case CHANGE_RESERVATION_DATE:
 				return Object.assign({}, state, {
 					date: action.date
 				});
-			case 'CHANGE_RESERVATION_TIME':
+			case CHANGE_RESERVATION_TIME:
 				return Object.assign({}, state, {
 					time: action.time
 				});
@@ -467,43 +306,19 @@ class BookingForm {
 		}
 	}
 
-	buildDialogReducer(state){
-		let _state = state.dialog;
-		return function(state = _state, action){
-			switch(action.type){
-				case 'DIALOG_SHOW_HIDE':
-					return Object.assign({}, state, {
-						show: action.show
-					});
-				case 'DIALOG_HAS_DATA':
-					state.stop.has_data = action.dialog_has_data;
-					return JSON.parse(JSON.stringify(state));
-				case 'DIALOG_EXCEED_MIN_EXIST_TIME':
-					state.stop.exceed_min_exist_time = action.exceed_min_exist_time;
-					return JSON.parse(JSON.stringify(state));
-				case 'DIALOG_HIDDEN':
-					state.stop.has_data = false;
-					state.stop.exceed_min_exist_time = false;
-					return JSON.parse(JSON.stringify(state));
-				default:
-					return state;
-			}
-		};
-	}
-
 	dialogReducer(state, action){
 		switch(action.type){
-			case 'DIALOG_SHOW_HIDE':
+			case DIALOG_SHOW_HIDE:
 				return Object.assign({}, state, {
 					show: action.show
 				});
-			case 'DIALOG_HAS_DATA':
+			case DIALOG_HAS_DATA:
 				state.stop.has_data = action.dialog_has_data;
 				return JSON.parse(JSON.stringify(state));
-			case 'DIALOG_EXCEED_MIN_EXIST_TIME':
+			case DIALOG_EXCEED_MIN_EXIST_TIME:
 				state.stop.exceed_min_exist_time = action.exceed_min_exist_time;
 				return JSON.parse(JSON.stringify(state));
-			case 'DIALOG_HIDDEN':
+			case DIALOG_HIDDEN:
 				state.stop.has_data = false;
 				state.stop.exceed_min_exist_time = false;
 				return JSON.parse(JSON.stringify(state));
@@ -512,25 +327,9 @@ class BookingForm {
 		}
 	}
 
-	buildAvailableTimeReducer(state){
-		let _state = state.available_time;
-		return function(state = _state, action){
-			switch(action.type){
-				case 'CHANGE_AVAILABLE_TIME':
-					if(Array.isArray(action.available_time)){
-						action.available_time = {};
-					}
-					// return Object.assign({}, state, action.available_time);
-					return action.available_time;
-				default:
-					return state;
-			}
-		};
-	}
-
 	availableTimeReducer(state, action){
 		switch(action.type){
-			case 'CHANGE_AVAILABLE_TIME':
+			case CHANGE_AVAILABLE_TIME:
 				if(Array.isArray(action.available_time)){
 					action.available_time = {};
 				}
@@ -541,91 +340,43 @@ class BookingForm {
 		}
 	}
 
-	buildInitViewReducer(state){
-		let _state = state.init_view;
-		return function(state = _state, action){
-			switch(action.type){
-				case 'INIT_VIEW':
-					return true;
-				default:
-					return state;
-			}
-		}
-	}
-
 	initViewReducer(state, action){
 		switch(action.type){
-			case 'INIT_VIEW':
+			case INIT_VIEW:
 				return true;
 			default:
 				return state;
 		}
 	}
 
-	buildAjaxCallReducer(state){
-		let _state = state.ajax_call;
-		return function(state = _state, action){
-			switch(action.type){
-				case 'AJAX_CALL':
-					return (Number(state) + Number(action.ajax_call));
-				default:
-					return state;
-			}
-		}
-	}
-
 	ajaxCallReducer(state, action){
 		switch(action.type){
-			case 'AJAX_CALL':
+			case AJAX_CALL:
 				return (Number(state) + Number(action.ajax_call));
 			default:
 				return state;
 		}
 	}
 
-	buildHasSelectedDayReducer(state){
-		let _state = state.has_selected_day;
-		return function(state = _state, action){
-			switch(action.type){
-				case 'HAS_SELECTED_DAY':
-					return true;
-				default:
-					return state;
-			}
-		}
-	}
-
 	hasSelectedDayReducer(state, action){
 		switch(action.type){
-			case 'HAS_SELECTED_DAY':
+			case HAS_SELECTED_DAY:
 				return true;
 			default:
 				return state;
 		}
 	}
 
-	buildFormStepReducer(state){
-		let _state = state.form_step;
-		return function(state = _state, action){
-			switch(action.type){
-				case 'CHANGE_FORM_STEP':
-					return action.form_step;
-				default:
-					return state;
-			}
-		}
-	}
-
 	formStepReducer(state, action){
 		switch(action.type){
-			case 'CHANGE_FORM_STEP':
+			case CHANGE_FORM_STEP:
 				return action.form_step;
 			default:
 				return state;
 		}
 	}
 
-	storeSubscribeListener(){
+	listener(){
 		let store = window.store;
 		let self = this;
 		store.subscribe(()=>{
@@ -634,8 +385,9 @@ class BookingForm {
 				return;
 			}
 
-			let state = store.getState();
-			let prestate = store.getPrestate();
+			let state       = store.getState();
+			let prestate    = store.getPrestate();
+			let last_action = store.getLastAction();
 
 			if(prestate.ajax_call < state.ajax_call){
 				self.ajaxCall();
@@ -649,26 +401,47 @@ class BookingForm {
 				self.ajax_dialog.modal('hide');
 			}
 
-			let is_dialog_hide_self_loop = store.getLastAction() == 'DIALOG_SHOW_HIDE' && state.dialog.show == false;
+			let is_dialog_hide_self_loop = last_action == DIALOG_SHOW_HIDE && state.dialog.show == false;
 			let dialog_has_data_reach_exist_time = state.dialog.stop.has_data == true && state.dialog.stop.exceed_min_exist_time == true;
 			let should_hide_dialog  = !is_dialog_hide_self_loop && dialog_has_data_reach_exist_time;
 			if(should_hide_dialog){
 				store.dispatch({
-					type: 'DIALOG_SHOW_HIDE',
+					type: DIALOG_SHOW_HIDE,
 					show: false
 				});
 			}
 
 			let has_pax_over_dependency =
-				(store.getLastAction() == 'CHANGE_ADULT_PAX'
-				|| store.getLastAction() == 'CHANGE_CHILDREN_PAX');
+				(last_action == CHANGE_ADULT_PAX
+				|| last_action == CHANGE_CHILDREN_PAX);
 
 			let pax_over_30 =(state.pax.adult + state.pax.children) > 10;
 
 			let is_pax_over = has_pax_over_dependency && pax_over_30;
 
 			if(is_pax_over){
-				store.dispatch({type: 'PAX_OVER'});
+				store.dispatch({type: PAX_OVER});
+			}
+
+			if(prestate.has_selected_day == false && state.has_selected_day == true){
+				store.dispatch({type: AJAX_CALL, ajax_call: 1});
+			}
+
+			let has_ajax_dependency =
+				last_action == CHANGE_ADULT_PAX
+				|| last_action == CHANGE_CHILDREN_PAX
+				|| last_action == CHANGE_OUTLET;
+
+			let has_query_condition_change =
+				state.has_selected_day
+				&& (prestate.pax.adult != state.pax.adult
+				||prestate.pax.children != state.pax.children
+				||prestate.outlet.id != state.outlet.id
+				||prestate.reservation.date != state.reservation.date);
+
+			let should_call_ajax = has_ajax_dependency && has_query_condition_change;
+			if(should_call_ajax){
+				store.dispatch({type: AJAX_CALL, ajax_call: 1});
 			}
 
 
@@ -684,7 +457,7 @@ class BookingForm {
 		// }
 	}
 
-	storeSubscribeView(){
+	view(){
 		this.findView();
 		let store = window.store;
 		let self = this;
@@ -891,7 +664,7 @@ class BookingForm {
 		}
 	}
 
-	regisEvent(){
+	event(){
 		this.findView();
 		let store = window.store;
 		let self = this;
@@ -908,7 +681,7 @@ class BookingForm {
 				}
 			});
 
-			self.computeAjaxCall();
+			// self.computeAjaxCall();
 		});
 
 		let adult_pax_select = this.adult_pax_select;
@@ -920,9 +693,9 @@ class BookingForm {
 				adult_pax: selectedOption.value
 			});
 
-			self.computePaxOver();
+			// self.computePaxOver();
 
-			self.computeAjaxCall();
+			// self.computeAjaxCall();
 		});
 
 		let children_pax_select = this.children_pax_select;
@@ -934,9 +707,9 @@ class BookingForm {
 				children_pax: selectedOption.value
 			});
 
-			self.computePaxOver();
+			// self.computePaxOver();
 
-			self.computeAjaxCall();
+			// self.computeAjaxCall();
 		});
 
 		document.addEventListener('user-select-day', function(e){
@@ -952,7 +725,7 @@ class BookingForm {
 				store.dispatch({type: 'HAS_SELECTED_DAY'});
 			}
 
-			self.computeAjaxCall();
+			// self.computeAjaxCall();
 		});
 
 		let time_select = this.time_select;
@@ -1045,20 +818,20 @@ class BookingForm {
 	}
 
 	computeAjaxCall(){
-		let state = store.getState();
-		let prestate = store.getPrestate();
-
-		if(state.has_selected_day
-		&& (prestate.pax.adult != state.pax.adult
-		||prestate.pax.children != state.pax.children
-		||prestate.outlet.id != state.outlet.id
-		||prestate.reservation.date != state.reservation.date)){
-			store.dispatch({type: 'AJAX_CALL', ajax_call: 1});
-		}
-
-		if(prestate.has_selected_day == false && state.has_selected_day == true){
-			store.dispatch({type: 'AJAX_CALL', ajax_call: 1});
-		}
+		// let state = store.getState();
+		// let prestate = store.getPrestate();
+		//
+		// if(state.has_selected_day
+		// && (prestate.pax.adult != state.pax.adult
+		// ||prestate.pax.children != state.pax.children
+		// ||prestate.outlet.id != state.outlet.id
+		// ||prestate.reservation.date != state.reservation.date)){
+		// 	store.dispatch({type: 'AJAX_CALL', ajax_call: 1});
+		// }
+		//
+		// if(prestate.has_selected_day == false && state.has_selected_day == true){
+		// 	store.dispatch({type: 'AJAX_CALL', ajax_call: 1});
+		// }
 	}
 
 	computePaxOver(){
