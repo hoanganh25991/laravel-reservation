@@ -31,6 +31,8 @@ var CHANGE_CUSTOMER_EMAIL = 'CHANGE_CUSTOMER_EMAIL';
 var CHANGE_CUSTOMER_PHONE = 'CHANGE_CUSTOMER_PHONE';
 var CHANGE_CUSTOMER_REMARKS = 'CHANGE_CUSTOMER_REMARKS';
 
+window.count = 0;
+
 var BookingForm = function () {
 	/** @namespace res.statusMsg */
 	/** @namespace action.adult_pax */
@@ -476,6 +478,7 @@ var BookingForm = function () {
 			}
 
 			store.subscribe(function () {
+				console.warn(count++);
 				var state = store.getState();
 				//update this way for vue see it
 				var vue_state = self.getVueState();
@@ -492,6 +495,7 @@ var BookingForm = function () {
      * @type {boolean}
      */
 				var available_time_change = prestate.available_time != state.available_time;
+				// if(available_time_change){
 				if (available_time_change) {
 					requestAnimationFrame(function () {
 						_this.updateSelectView(state.available_time);
@@ -588,6 +592,10 @@ var BookingForm = function () {
 
 			var selectDiv = this.select;
 
+			console.warn('new dispatch in view');
+
+			store.dispatch({ type: 'CHANGE_RESERVATION_TIME', time: selectDiv.options[0].value });
+
 			selectDiv.innerHTML = '';
 			available_time_on_selected_day.forEach(function (time) {
 				//console.log(time);
@@ -600,7 +608,7 @@ var BookingForm = function () {
 				selectDiv.appendChild(optionDiv);
 			});
 
-			store.dispatch({ type: 'CHANGE_RESERVATION_TIME', time: selectDiv.options[0].value });
+			console.warn('update view success');
 		}
 	}, {
 		key: 'updateCalendarView',

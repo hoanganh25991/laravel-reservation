@@ -25,7 +25,7 @@ const CHANGE_CUSTOMER_EMAIL		  = 'CHANGE_CUSTOMER_EMAIL'
 const CHANGE_CUSTOMER_PHONE 	  = 'CHANGE_CUSTOMER_PHONE'
 const CHANGE_CUSTOMER_REMARKS	  = 'CHANGE_CUSTOMER_REMARKS'
 
-
+window.count = 0;
 class BookingForm {
 	/** @namespace res.statusMsg */
 	/** @namespace action.adult_pax */
@@ -456,9 +456,7 @@ class BookingForm {
 			}
 
 
-
 		});
-
 	}
 
 	view(){
@@ -480,6 +478,7 @@ class BookingForm {
 		}
 
 		store.subscribe(()=>{
+			console.warn(count++);
 			let state    = store.getState();
 			//update this way for vue see it
 			let vue_state = self.getVueState();
@@ -494,6 +493,7 @@ class BookingForm {
 			 * @type {boolean}
 			 */
 			let available_time_change = (prestate.available_time != state.available_time);
+			// if(available_time_change){
 			if(available_time_change){
 				requestAnimationFrame(()=>{
 					this.updateSelectView(state.available_time);
@@ -589,7 +589,11 @@ class BookingForm {
 
 		let selectDiv = this.select;
 
-	    selectDiv.innerHTML = '';
+		console.warn('new dispatch in view');
+
+		store.dispatch({type: 'CHANGE_RESERVATION_TIME', time: selectDiv.options[0].value});
+
+		selectDiv.innerHTML = '';
 	    available_time_on_selected_day.forEach(time => {
 	        //console.log(time);
 	        let optionDiv = document.createElement('option');
@@ -601,7 +605,8 @@ class BookingForm {
 	        selectDiv.appendChild(optionDiv);
 	    });
 
-		store.dispatch({type: 'CHANGE_RESERVATION_TIME', time: selectDiv.options[0].value});
+		console.warn('update view success');
+
 	}
 
 	updateCalendarView(available_time) {
