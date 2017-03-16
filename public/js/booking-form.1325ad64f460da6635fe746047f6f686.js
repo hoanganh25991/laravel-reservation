@@ -848,11 +848,14 @@ var BookingForm = function () {
 				success: function success(res) {
 					console.log(res);
 
+					//noinspection JSValidateTypes
 					if (res.statusMsg == 'reservation.confirm_id') {
 						store.dispatch({
 							type: CHANGE_RESERVATION_CONFIRM_ID,
 							confirm_id: res.data
 						});
+
+						return;
 					}
 
 					store.dispatch({

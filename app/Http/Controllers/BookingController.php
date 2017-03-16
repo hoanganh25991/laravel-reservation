@@ -377,8 +377,9 @@ class BookingController extends HoiController {
 
         //handle get
         $outlets = Outlet::all();
+        $should_show_confirm_id = false;
 
-        return view('reservations.booking-form', compact('outlets'));
+        return view('reservations.booking-form', compact('outlets', 'should_show_confirm_id'));
     }
 
     private function _padTelephone($telephone){
