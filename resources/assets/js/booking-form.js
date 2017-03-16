@@ -17,7 +17,7 @@ const DIALOG_HAS_DATA	= 'DIALOG_HAS_DATA'
 const DIALOG_HIDDEN		= 'DIALOG_HIDDEN'
 const DIALOG_EXCEED_MIN_EXIST_TIME = 'DIALOG_EXCEED_MIN_EXIST_TIME'
 
-const CHANGE_CUSTOMER_SANLUTATION = 'CHANGE_CUSTOMER_FIRST_NAME'
+const CHANGE_CUSTOMER_SALUTATION  = 'CHANGE_CUSTOMER_SALUTATION'
 const CHANGE_CUSTOMER_FIRST_NAME  = 'CHANGE_CUSTOMER_FIRST_NAME'
 const CHANGE_CUSTOMER_LAST_NAME	  = 'CHANGE_CUSTOMER_LAST_NAME'
 const CHANGE_CUSTOMER_EMAIL		  = 'CHANGE_CUSTOMER_EMAIL'
@@ -118,7 +118,7 @@ class BookingForm {
 					return Object.assign({}, state, {
 						available_time: self.availableTimeReducer(state.available_time, action)
 					});
-				case CHANGE_CUSTOMER_SANLUTATION:
+				case CHANGE_CUSTOMER_SALUTATION:
 				case CHANGE_CUSTOMER_FIRST_NAME:
 				case CHANGE_CUSTOMER_LAST_NAME:
 				case CHANGE_CUSTOMER_EMAIL:
@@ -156,35 +156,6 @@ class BookingForm {
 		}
 	}
 
-	getVueState(){
-		if(typeof window.vue_state == 'undefined'){
-			window.vue_state = this.defaultState();
-		}
-
-		return window.vue_state;
-	}
-
-	buildVue(){
-		let vue_state = this.getVueState();
-
-		// let form_vue = new Vue({
-		new Vue({
-			el: '#form-step-container',
-			data: vue_state
-		});
-		// this.form_vue = form_vue;
-	}
-
-	paxOverReducer(state, action){
-		// console.log(action);
-		switch(action.type){
-			case 'PAX_OVER':
-				return 'none';
-			default:
-				return state;
-		}
-	}
-
 	defaultState(){
 		if(window.booking_form_state)
 			return window.booking_form_state;
@@ -217,6 +188,7 @@ class BookingForm {
 			has_selected_day: false,
 			form_step: 'form-step-1',
 			customer: {
+				salutaion: 'Mr',
 				first_name: 'Anh',
 				last_name : 'Le Hoang',
 				email: 'lehoanganh25991@gmail.com',
@@ -232,9 +204,40 @@ class BookingForm {
 		return this.state;
 	}
 
+	getVueState(){
+		if(typeof window.vue_state == 'undefined'){
+			window.vue_state = this.defaultState();
+		}
+
+		return window.vue_state;
+	}
+
+	buildVue(){
+		let vue_state = this.getVueState();
+
+		// let form_vue = new Vue({
+		new Vue({
+			el: '#form-step-container',
+			data: vue_state
+		});
+		// this.form_vue = form_vue;
+	}
+
+	paxOverReducer(state, action){
+		// console.log(action);
+		switch(action.type){
+			case 'PAX_OVER':
+				return 'none';
+			default:
+				return state;
+		}
+	}
+
+
+
 	customerReducer(state, action){
 		switch(action.type){
-			case CHANGE_CUSTOMER_SANLUTATION:
+			case CHANGE_CUSTOMER_SALUTATION:
 				return Object.assign({}, state, {
 					salutation: action.salutation
 				});
@@ -380,10 +383,10 @@ class BookingForm {
 		let store = window.store;
 		let self = this;
 		store.subscribe(()=>{
-			if(store.SELF_DISPATCH_FLAG == true){
-				store.SELF_DISPATCH_FLAG = false;
-				return;
-			}
+			// if(store.SELF_DISPATCH_FLAG == true){
+			// 	store.SELF_DISPATCH_FLAG = false;
+			// 	return;
+			// }
 
 			let state       = store.getState();
 			let prestate    = store.getPrestate();
@@ -430,7 +433,8 @@ class BookingForm {
 			let has_ajax_dependency =
 				last_action == CHANGE_ADULT_PAX
 				|| last_action == CHANGE_CHILDREN_PAX
-				|| last_action == CHANGE_OUTLET;
+				|| last_action == CHANGE_OUTLET
+				|| last_action == CHANGE_RESERVATION_DATE;
 
 			let has_query_condition_change =
 				state.has_selected_day
@@ -448,13 +452,6 @@ class BookingForm {
 
 		});
 
-	}
-
-	computeDialogShow(){
-		// let state = store.getState();
-		// if(state.dialog.show == true && state.dialog.stop.has_data == true && state.dialog.stop.exceed_min_exist_time == true){
-		// 	store.dispatch({type: 'DIALOG_SHOW_HIDE', show: false});
-		// }
 	}
 
 	view(){
@@ -543,22 +540,8 @@ class BookingForm {
 		this.ajax_dialog = $('#ajax-dialog');
 
 		this.outlet_select = document.querySelector('select[name="outlet_id"]');
-		this.inpute_date = document.querySelector('input[name="reservation_date"]');
-		this.input_outlet = document.querySelector('input[name="outlet_name"]');
 
 		this.time_select = document.querySelector('select[name="reservation_time"]');
-
-		this.reservation_title = document.querySelector('#reservation_title');
-
-		/**
-		 * Swap view
-		 */
-		// this.btnNext  = document.querySelector('#btn_next');
-		// this.queryView = document.querySelector('#query-time');
-		// this.fullfillView = document.querySelector('#fullfill-info');
-
-		this.form_step_container = document.querySelector('#form-step-container');
-		this.btn_form_nexts      = document.querySelectorAll('button.btn-form-next');
 
 		/**
 		 * Customer info
@@ -572,8 +555,10 @@ class BookingForm {
 		this.customer_phone_input       = document.querySelector('input[name="phone"]');
 
 		/**
-		 * Reservation form step 2 header summary
+		 * Swap view
 		 */
+		this.form_step_container = document.querySelector('#form-step-container');
+		this.btn_form_nexts      = document.querySelectorAll('button.btn-form-next');
 	}
 
 	updateSelectView(available_time) {
@@ -667,14 +652,13 @@ class BookingForm {
 	event(){
 		this.findView();
 		let store = window.store;
-		let self = this;
 
 		let outlet_select = this.outlet_select;
 		outlet_select.addEventListener('change', function(){
 			let selectedOption = outlet_select.selectedOptions[0];
 
 			store.dispatch({
-				type: 'CHANGE_OUTLET',
+				type: CHANGE_OUTLET,
 				outlet: {
 					id: selectedOption.value,
 					name: selectedOption.innerText
@@ -689,7 +673,7 @@ class BookingForm {
 			let selectedOption = adult_pax_select.selectedOptions[0];
 
 			store.dispatch({
-				type: 'CHANGE_ADULT_PAX',
+				type: CHANGE_ADULT_PAX,
 				adult_pax: selectedOption.value
 			});
 
@@ -703,7 +687,7 @@ class BookingForm {
 			let selectedOption = children_pax_select.selectedOptions[0];
 
 			store.dispatch({
-				type: 'CHANGE_CHILDREN_PAX',
+				type: CHANGE_CHILDREN_PAX,
 				children_pax: selectedOption.value
 			});
 
@@ -716,13 +700,13 @@ class BookingForm {
 			let date = moment(e.detail.day, 'Y-M-D');
 
 			store.dispatch({
-				type: 'CHANGE_RESERVATION_DATE',
+				type: CHANGE_RESERVATION_DATE,
 				date
 			});
 
 			let state = store.getState();
 			if(state.has_selected_day == false){
-				store.dispatch({type: 'HAS_SELECTED_DAY'});
+				store.dispatch({type: HAS_SELECTED_DAY});
 			}
 
 			// self.computeAjaxCall();
@@ -734,7 +718,7 @@ class BookingForm {
 			let selectedOption = time_select.selectedOptions[0];
 
 			let action = {
-				type: 'CHANGE_RESERVATION_TIME',
+				type: CHANGE_RESERVATION_TIME,
 				time: selectedOption.value
 			};
 
@@ -746,7 +730,7 @@ class BookingForm {
 			.forEach((btn)=>{
 				btn.addEventListener('click', ()=>{
 					let destination = btn.getAttribute('destination');
-					store.dispatch({type: 'CHANGE_FORM_STEP', form_step: destination});
+					store.dispatch({type: CHANGE_FORM_STEP, form_step: destination});
 				});
 			});
 		/**
@@ -756,101 +740,72 @@ class BookingForm {
 			.addEventListener('change', function(){
 				//binding in this way to get out this as email input
 				let salutation = this.selectedOptions[0].value;
-				store.dispatch({type: 'CHANGE_CUSTOMER_SALUTATION', salutation});
+				store.dispatch({type: CHANGE_CUSTOMER_SALUTATION, salutation});
 			});
 
 		this.customer_firt_name_input
 		    .addEventListener('change', function(){
 			    //binding in this way to get out this as email input
 			    let first_name = this.value;
-			    store.dispatch({type: 'CHANGE_CUSTOMER_FIRST_NAME', first_name});
+			    store.dispatch({type: CHANGE_CUSTOMER_FIRST_NAME, first_name});
 		    });
 
 		this.customer_last_name_input
 		    .addEventListener('change', function(){
 			    //binding in this way to get out this as email input
 			    let last_name = this.value;
-			    store.dispatch({type: 'CHANGE_CUSTOMER_LAST_NAME', last_name});
+			    store.dispatch({type: CHANGE_CUSTOMER_LAST_NAME, last_name});
 		    });
 
 		this.customer_email_input
 		    .addEventListener('change', function(){
 			    //binding in this way to get out this as email input
 			    let email = this.value;
-			    store.dispatch({type: 'CHANGE_CUSTOMER_EMAIL', email});
+			    store.dispatch({type: CHANGE_CUSTOMER_EMAIL, email});
 		    });
 
 		this.customer_phone_country_code_input
 		    .addEventListener('change', function(){
 			    //binding in this way to get out this as email input
 			    let phone_country_code = this.value;
-			    store.dispatch({type: 'CHANGE_CUSTOMER_PHONE_COUNTRY_CODE', phone_country_code});
+			    store.dispatch({type: CHANGE_CUSTOMER_PHONE_COUNTRY_CODE, phone_country_code});
 		    });
 
 		this.customer_phone_input
 		    .addEventListener('change', function(){
 			    //binding in this way to get out this as email input
 			    let phone = this.value;
-			    store.dispatch({type: 'CHANGE_CUSTOMER_PHONE', phone});
+			    store.dispatch({type: CHANGE_CUSTOMER_PHONE, phone});
 		    });
 
 		this.customer_remarks_textarea
 		    .addEventListener('change', function(){
 			    //binding in this way to get out this as email input
 			    let remarks = this.value;
-			    store.dispatch({type: 'CHANGE_CUSTOMER_REMARKS', remarks});
+			    store.dispatch({type: CHANGE_CUSTOMER_REMARKS, remarks});
 		    });
 
 		this.ajax_dialog
 			.on('hidden.bs.modal', function(){
-				store.dispatch({type: 'DIALOG_HIDDEN'});
+				store.dispatch({type: DIALOG_HIDDEN});
 			});
 
 		this.ajax_dialog
 			.on('shown.bs.modal', function(){
 				let state = store.getState();
 				let timeId = setTimeout(function(){
-					store.dispatch({type: 'DIALOG_EXCEED_MIN_EXIST_TIME', exceed_min_exist_time: true});
-					self.computeDialogShow();
+					store.dispatch({type: DIALOG_EXCEED_MIN_EXIST_TIME, exceed_min_exist_time: true});
 					clearTimeout(timeId);
 				}, state.dialog.min_exist_time);
 			});
-	}
-
-	computeAjaxCall(){
-		// let state = store.getState();
-		// let prestate = store.getPrestate();
-		//
-		// if(state.has_selected_day
-		// && (prestate.pax.adult != state.pax.adult
-		// ||prestate.pax.children != state.pax.children
-		// ||prestate.outlet.id != state.outlet.id
-		// ||prestate.reservation.date != state.reservation.date)){
-		// 	store.dispatch({type: 'AJAX_CALL', ajax_call: 1});
-		// }
-		//
-		// if(prestate.has_selected_day == false && state.has_selected_day == true){
-		// 	store.dispatch({type: 'AJAX_CALL', ajax_call: 1});
-		// }
-	}
-
-	computePaxOver(){
-		// let state = store.getState();
-		//
-		// if((Number(state.pax.adult) + Number(state.pax.children)) > 10){
-		// 	store.dispatch({type: 'PAX_OVER'});
-		// }
 	}
 
 	ajaxCall(){
 		// console.info('ajax call');
 		let store = window.store;
 		let state = store.getState();
-		let self = this;
 
-		store.dispatch({type: 'DIALOG_SHOW_HIDE', show: true});
-
-
+		store.dispatch({type: DIALOG_SHOW_HIDE, show: true});
 
 		let data = {
 			outlet_id: state.outlet.id,
@@ -869,17 +824,15 @@ class BookingForm {
 				console.log(res);
 
 				store.dispatch({
-					type: 'CHANGE_AVAILABLE_TIME',
+					type: CHANGE_AVAILABLE_TIME,
 					available_time: res
 				});
 			},
 			complete(){
 				store.dispatch( {
-					type: 'DIALOG_HAS_DATA',
+					type: DIALOG_HAS_DATA,
 					dialog_has_data: true
 				});
-
-				self.computeDialogShow();
 			},
 			error(res){
 				console.log(res);

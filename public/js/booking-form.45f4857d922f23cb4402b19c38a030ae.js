@@ -23,7 +23,7 @@ var DIALOG_HAS_DATA = 'DIALOG_HAS_DATA';
 var DIALOG_HIDDEN = 'DIALOG_HIDDEN';
 var DIALOG_EXCEED_MIN_EXIST_TIME = 'DIALOG_EXCEED_MIN_EXIST_TIME';
 
-var CHANGE_CUSTOMER_SANLUTATION = 'CHANGE_CUSTOMER_FIRST_NAME';
+var CHANGE_CUSTOMER_SALUTATION = 'CHANGE_CUSTOMER_SALUTATION';
 var CHANGE_CUSTOMER_FIRST_NAME = 'CHANGE_CUSTOMER_FIRST_NAME';
 var CHANGE_CUSTOMER_LAST_NAME = 'CHANGE_CUSTOMER_LAST_NAME';
 var CHANGE_CUSTOMER_EMAIL = 'CHANGE_CUSTOMER_EMAIL';
@@ -114,7 +114,7 @@ var BookingForm = function () {
 						return Object.assign({}, state, {
 							available_time: self.availableTimeReducer(state.available_time, action)
 						});
-					case CHANGE_CUSTOMER_SANLUTATION:
+					case CHANGE_CUSTOMER_SALUTATION:
 					case CHANGE_CUSTOMER_FIRST_NAME:
 					case CHANGE_CUSTOMER_LAST_NAME:
 					case CHANGE_CUSTOMER_EMAIL:
@@ -152,38 +152,6 @@ var BookingForm = function () {
 			};
 		}
 	}, {
-		key: 'getVueState',
-		value: function getVueState() {
-			if (typeof window.vue_state == 'undefined') {
-				window.vue_state = this.defaultState();
-			}
-
-			return window.vue_state;
-		}
-	}, {
-		key: 'buildVue',
-		value: function buildVue() {
-			var vue_state = this.getVueState();
-
-			// let form_vue = new Vue({
-			new Vue({
-				el: '#form-step-container',
-				data: vue_state
-			});
-			// this.form_vue = form_vue;
-		}
-	}, {
-		key: 'paxOverReducer',
-		value: function paxOverReducer(state, action) {
-			// console.log(action);
-			switch (action.type) {
-				case 'PAX_OVER':
-					return 'none';
-				default:
-					return state;
-			}
-		}
-	}, {
 		key: 'defaultState',
 		value: function defaultState() {
 			if (window.booking_form_state) return window.booking_form_state;
@@ -216,6 +184,7 @@ var BookingForm = function () {
 				has_selected_day: false,
 				form_step: 'form-step-1',
 				customer: {
+					salutaion: 'Mr',
 					first_name: 'Anh',
 					last_name: 'Le Hoang',
 					email: 'lehoanganh25991@gmail.com',
@@ -231,10 +200,42 @@ var BookingForm = function () {
 			return this.state;
 		}
 	}, {
+		key: 'getVueState',
+		value: function getVueState() {
+			if (typeof window.vue_state == 'undefined') {
+				window.vue_state = this.defaultState();
+			}
+
+			return window.vue_state;
+		}
+	}, {
+		key: 'buildVue',
+		value: function buildVue() {
+			var vue_state = this.getVueState();
+
+			// let form_vue = new Vue({
+			new Vue({
+				el: '#form-step-container',
+				data: vue_state
+			});
+			// this.form_vue = form_vue;
+		}
+	}, {
+		key: 'paxOverReducer',
+		value: function paxOverReducer(state, action) {
+			// console.log(action);
+			switch (action.type) {
+				case 'PAX_OVER':
+					return 'none';
+				default:
+					return state;
+			}
+		}
+	}, {
 		key: 'customerReducer',
 		value: function customerReducer(state, action) {
 			switch (action.type) {
-				case CHANGE_CUSTOMER_SANLUTATION:
+				case CHANGE_CUSTOMER_SALUTATION:
 					return Object.assign({}, state, {
 						salutation: action.salutation
 					});
@@ -390,10 +391,10 @@ var BookingForm = function () {
 			var store = window.store;
 			var self = this;
 			store.subscribe(function () {
-				if (store.SELF_DISPATCH_FLAG == true) {
-					store.SELF_DISPATCH_FLAG = false;
-					return;
-				}
+				// if(store.SELF_DISPATCH_FLAG == true){
+				// 	store.SELF_DISPATCH_FLAG = false;
+				// 	return;
+				// }
 
 				var state = store.getState();
 				var prestate = store.getPrestate();
@@ -435,7 +436,7 @@ var BookingForm = function () {
 					store.dispatch({ type: AJAX_CALL, ajax_call: 1 });
 				}
 
-				var has_ajax_dependency = last_action == CHANGE_ADULT_PAX || last_action == CHANGE_CHILDREN_PAX || last_action == CHANGE_OUTLET;
+				var has_ajax_dependency = last_action == CHANGE_ADULT_PAX || last_action == CHANGE_CHILDREN_PAX || last_action == CHANGE_OUTLET || last_action == CHANGE_RESERVATION_DATE;
 
 				var has_query_condition_change = state.has_selected_day && (prestate.pax.adult != state.pax.adult || prestate.pax.children != state.pax.children || prestate.outlet.id != state.outlet.id || prestate.reservation.date != state.reservation.date);
 
@@ -444,14 +445,6 @@ var BookingForm = function () {
 					store.dispatch({ type: AJAX_CALL, ajax_call: 1 });
 				}
 			});
-		}
-	}, {
-		key: 'computeDialogShow',
-		value: function computeDialogShow() {
-			// let state = store.getState();
-			// if(state.dialog.show == true && state.dialog.stop.has_data == true && state.dialog.stop.exceed_min_exist_time == true){
-			// 	store.dispatch({type: 'DIALOG_SHOW_HIDE', show: false});
-			// }
 		}
 	}, {
 		key: 'view',
@@ -543,22 +536,8 @@ var BookingForm = function () {
 			this.ajax_dialog = $('#ajax-dialog');
 
 			this.outlet_select = document.querySelector('select[name="outlet_id"]');
-			this.inpute_date = document.querySelector('input[name="reservation_date"]');
-			this.input_outlet = document.querySelector('input[name="outlet_name"]');
 
 			this.time_select = document.querySelector('select[name="reservation_time"]');
-
-			this.reservation_title = document.querySelector('#reservation_title');
-
-			/**
-    * Swap view
-    */
-			// this.btnNext  = document.querySelector('#btn_next');
-			// this.queryView = document.querySelector('#query-time');
-			// this.fullfillView = document.querySelector('#fullfill-info');
-
-			this.form_step_container = document.querySelector('#form-step-container');
-			this.btn_form_nexts = document.querySelectorAll('button.btn-form-next');
 
 			/**
     * Customer info
@@ -572,8 +551,10 @@ var BookingForm = function () {
 			this.customer_phone_input = document.querySelector('input[name="phone"]');
 
 			/**
-    * Reservation form step 2 header summary
+    * Swap view
     */
+			this.form_step_container = document.querySelector('#form-step-container');
+			this.btn_form_nexts = document.querySelectorAll('button.btn-form-next');
 		}
 	}, {
 		key: 'updateSelectView',
@@ -668,14 +649,13 @@ var BookingForm = function () {
 		value: function event() {
 			this.findView();
 			var store = window.store;
-			var self = this;
 
 			var outlet_select = this.outlet_select;
 			outlet_select.addEventListener('change', function () {
 				var selectedOption = outlet_select.selectedOptions[0];
 
 				store.dispatch({
-					type: 'CHANGE_OUTLET',
+					type: CHANGE_OUTLET,
 					outlet: {
 						id: selectedOption.value,
 						name: selectedOption.innerText
@@ -690,7 +670,7 @@ var BookingForm = function () {
 				var selectedOption = adult_pax_select.selectedOptions[0];
 
 				store.dispatch({
-					type: 'CHANGE_ADULT_PAX',
+					type: CHANGE_ADULT_PAX,
 					adult_pax: selectedOption.value
 				});
 
@@ -704,7 +684,7 @@ var BookingForm = function () {
 				var selectedOption = children_pax_select.selectedOptions[0];
 
 				store.dispatch({
-					type: 'CHANGE_CHILDREN_PAX',
+					type: CHANGE_CHILDREN_PAX,
 					children_pax: selectedOption.value
 				});
 
@@ -717,13 +697,13 @@ var BookingForm = function () {
 				var date = moment(e.detail.day, 'Y-M-D');
 
 				store.dispatch({
-					type: 'CHANGE_RESERVATION_DATE',
+					type: CHANGE_RESERVATION_DATE,
 					date: date
 				});
 
 				var state = store.getState();
 				if (state.has_selected_day == false) {
-					store.dispatch({ type: 'HAS_SELECTED_DAY' });
+					store.dispatch({ type: HAS_SELECTED_DAY });
 				}
 
 				// self.computeAjaxCall();
@@ -735,7 +715,7 @@ var BookingForm = function () {
 				var selectedOption = time_select.selectedOptions[0];
 
 				var action = {
-					type: 'CHANGE_RESERVATION_TIME',
+					type: CHANGE_RESERVATION_TIME,
 					time: selectedOption.value
 				};
 
@@ -746,7 +726,7 @@ var BookingForm = function () {
 			btn_form_nexts.forEach(function (btn) {
 				btn.addEventListener('click', function () {
 					var destination = btn.getAttribute('destination');
-					store.dispatch({ type: 'CHANGE_FORM_STEP', form_step: destination });
+					store.dispatch({ type: CHANGE_FORM_STEP, form_step: destination });
 				});
 			});
 			/**
@@ -755,84 +735,56 @@ var BookingForm = function () {
 			this.customer_salutation_select.addEventListener('change', function () {
 				//binding in this way to get out this as email input
 				var salutation = this.selectedOptions[0].value;
-				store.dispatch({ type: 'CHANGE_CUSTOMER_SALUTATION', salutation: salutation });
+				store.dispatch({ type: CHANGE_CUSTOMER_SALUTATION, salutation: salutation });
 			});
 
 			this.customer_firt_name_input.addEventListener('change', function () {
 				//binding in this way to get out this as email input
 				var first_name = this.value;
-				store.dispatch({ type: 'CHANGE_CUSTOMER_FIRST_NAME', first_name: first_name });
+				store.dispatch({ type: CHANGE_CUSTOMER_FIRST_NAME, first_name: first_name });
 			});
 
 			this.customer_last_name_input.addEventListener('change', function () {
 				//binding in this way to get out this as email input
 				var last_name = this.value;
-				store.dispatch({ type: 'CHANGE_CUSTOMER_LAST_NAME', last_name: last_name });
+				store.dispatch({ type: CHANGE_CUSTOMER_LAST_NAME, last_name: last_name });
 			});
 
 			this.customer_email_input.addEventListener('change', function () {
 				//binding in this way to get out this as email input
 				var email = this.value;
-				store.dispatch({ type: 'CHANGE_CUSTOMER_EMAIL', email: email });
+				store.dispatch({ type: CHANGE_CUSTOMER_EMAIL, email: email });
 			});
 
 			this.customer_phone_country_code_input.addEventListener('change', function () {
 				//binding in this way to get out this as email input
 				var phone_country_code = this.value;
-				store.dispatch({ type: 'CHANGE_CUSTOMER_PHONE_COUNTRY_CODE', phone_country_code: phone_country_code });
+				store.dispatch({ type: CHANGE_CUSTOMER_PHONE_COUNTRY_CODE, phone_country_code: phone_country_code });
 			});
 
 			this.customer_phone_input.addEventListener('change', function () {
 				//binding in this way to get out this as email input
 				var phone = this.value;
-				store.dispatch({ type: 'CHANGE_CUSTOMER_PHONE', phone: phone });
+				store.dispatch({ type: CHANGE_CUSTOMER_PHONE, phone: phone });
 			});
 
 			this.customer_remarks_textarea.addEventListener('change', function () {
 				//binding in this way to get out this as email input
 				var remarks = this.value;
-				store.dispatch({ type: 'CHANGE_CUSTOMER_REMARKS', remarks: remarks });
+				store.dispatch({ type: CHANGE_CUSTOMER_REMARKS, remarks: remarks });
 			});
 
 			this.ajax_dialog.on('hidden.bs.modal', function () {
-				store.dispatch({ type: 'DIALOG_HIDDEN' });
+				store.dispatch({ type: DIALOG_HIDDEN });
 			});
 
 			this.ajax_dialog.on('shown.bs.modal', function () {
 				var state = store.getState();
 				var timeId = setTimeout(function () {
-					store.dispatch({ type: 'DIALOG_EXCEED_MIN_EXIST_TIME', exceed_min_exist_time: true });
-					self.computeDialogShow();
+					store.dispatch({ type: DIALOG_EXCEED_MIN_EXIST_TIME, exceed_min_exist_time: true });
 					clearTimeout(timeId);
 				}, state.dialog.min_exist_time);
 			});
-		}
-	}, {
-		key: 'computeAjaxCall',
-		value: function computeAjaxCall() {
-			// let state = store.getState();
-			// let prestate = store.getPrestate();
-			//
-			// if(state.has_selected_day
-			// && (prestate.pax.adult != state.pax.adult
-			// ||prestate.pax.children != state.pax.children
-			// ||prestate.outlet.id != state.outlet.id
-			// ||prestate.reservation.date != state.reservation.date)){
-			// 	store.dispatch({type: 'AJAX_CALL', ajax_call: 1});
-			// }
-			//
-			// if(prestate.has_selected_day == false && state.has_selected_day == true){
-			// 	store.dispatch({type: 'AJAX_CALL', ajax_call: 1});
-			// }
-		}
-	}, {
-		key: 'computePaxOver',
-		value: function computePaxOver() {
-			// let state = store.getState();
-			//
-			// if((Number(state.pax.adult) + Number(state.pax.children)) > 10){
-			// 	store.dispatch({type: 'PAX_OVER'});
-			// }
 		}
 	}, {
 		key: 'ajaxCall',
@@ -840,9 +792,8 @@ var BookingForm = function () {
 			// console.info('ajax call');
 			var store = window.store;
 			var state = store.getState();
-			var self = this;
 
-			store.dispatch({ type: 'DIALOG_SHOW_HIDE', show: true });
+			store.dispatch({ type: DIALOG_SHOW_HIDE, show: true });
 
 			var data = {
 				outlet_id: state.outlet.id,
@@ -859,17 +810,15 @@ var BookingForm = function () {
 					console.log(res);
 
 					store.dispatch({
-						type: 'CHANGE_AVAILABLE_TIME',
+						type: CHANGE_AVAILABLE_TIME,
 						available_time: res
 					});
 				},
 				complete: function complete() {
 					store.dispatch({
-						type: 'DIALOG_HAS_DATA',
+						type: DIALOG_HAS_DATA,
 						dialog_has_data: true
 					});
-
-					self.computeDialogShow();
 				},
 				error: function error(res) {
 					console.log(res);
