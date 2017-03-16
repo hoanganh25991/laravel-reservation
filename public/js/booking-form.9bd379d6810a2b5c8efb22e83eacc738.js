@@ -4,6 +4,34 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var INIT_VIEW = 'INIT_VIEW';
+var CHANGE_FORM_STEP = 'CHANGE_FORM_STEP';
+
+var CHANGE_CUSTOMER_PHONE_COUNTRY_CODE = 'CHANGE_CUSTOMER_PHONE_COUNTRY_CODE';
+var CHANGE_OUTLET = 'CHANGE_OUTLET';
+var CHANGE_ADULT_PAX = 'CHANGE_ADULT_PAX';
+var CHANGE_CHILDREN_PAX = 'CHANGE_CHILDREN_PAX';
+var HAS_SELECTED_DAY = 'HAS_SELECTED_DAY';
+var CHANGE_RESERVATION_DATE = 'CHANGE_RESERVATION_DATE';
+var CHANGE_RESERVATION_TIME = 'CHANGE_RESERVATION_TIME';
+var CHANGE_AVAILABLE_TIME = 'CHANGE_AVAILABLE_TIME';
+
+var PAX_OVER = 'PAX_OVER';
+
+var AJAX_CALL = 'AJAX_CALL';
+
+var DIALOG_SHOW_HIDE = 'DIALOG_SHOW_HIDE';
+var DIALOG_HAS_DATA = 'DIALOG_HAS_DATA';
+var DIALOG_HIDDEN = 'DIALOG_HIDDEN';
+var DIALOG_EXCEED_MIN_EXIST_TIME = 'DIALOG_EXCEED_MIN_EXIST_TIME';
+
+var CHANGE_CUSTOMER_SANLUTATION = 'CHANGE_CUSTOMER_FIRST_NAME';
+var CHANGE_CUSTOMER_FIRST_NAME = 'CHANGE_CUSTOMER_FIRST_NAME';
+var CHANGE_CUSTOMER_LAST_NAME = 'CHANGE_CUSTOMER_LAST_NAME';
+var CHANGE_CUSTOMER_EMAIL = 'CHANGE_CUSTOMER_EMAIL';
+var CHANGE_CUSTOMER_PHONE = 'CHANGE_CUSTOMER_PHONE';
+var CHANGE_CUSTOMER_REMARKS = 'CHANGE_CUSTOMER_REMARKS';
+
 var BookingForm = function () {
 	/** @namespace action.adult_pax */
 	/** @namespace action.children_pax */
@@ -22,11 +50,11 @@ var BookingForm = function () {
 
 		this.buildVue();
 
-		this.bindView();
+		this.storeSubscribeView();
 
 		this.regisEvent();
 
-		this.bindListener();
+		this.storeSubscribeListener();
 
 		this.initView();
 
@@ -42,23 +70,89 @@ var BookingForm = function () {
 			//assign default state
 			//may from server
 			//or self build
-			this.state = this.defaultState();
+			var default_state = this.defaultState();
 			var self = this;
-			var reducer = Redux.combineReducers({
-				has_selected_day: self.buildHasSelectedDayReducer(),
-				available_time: self.buildAvailableTimeReducer(),
-				reservation: self.buildReservationReducer(),
-				ajax_call: self.buildAjaxCallReducer(),
-				init_view: self.buildInitViewReducer(),
-				form_step: self.buildFormStepReducer(),
-				customer: self.buildCustomerReducer(),
-				pax_over: self.buildPaxOverReducer(),
-				outlet: self.buildOutletReducer(),
-				dialog: self.buildDialogReducer(),
-				pax: self.buildPaxReducer()
-			});
+			// let reducer = Redux.combineReducers({
+			// has_selected_day : self.buildHasSelectedDayReducer(state),
+			// available_time   : self.buildAvailableTimeReducer(state),
+			// reservation      : self.buildReservationReducer(state),
+			// ajax_call        : self.buildAjaxCallReducer(state),
+			// init_view        : self.buildInitViewReducer(state),
+			// form_step        : self.buildFormStepReducer(state),
+			// customer         : self.buildCustomerReducer(state),
+			// pax_over         : self.buildPaxOverReducer(state),
+			// outlet           : self.buildOutletReducer(state),
+			// dialog           : self.buildDialogReducer(state),
+			// pax              : self.buildPaxReducer(state),
+			// });
 
-			window.store = Redux.createStore(reducer);
+			var rootReducer = function rootReducer() {
+				var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : default_state;
+				var action = arguments[1];
+
+				switch (action.type) {
+					case INIT_VIEW:
+						return Object.assign({}, state, {
+							init_view: self.initViewReducer(state.init_view, action)
+						});
+					case CHANGE_FORM_STEP:
+						return Object.assign({}, state, {
+							form_step: self.formStepReducer(state.form_step, action)
+						});
+					case CHANGE_OUTLET:
+						return Object.assign({}, state, {
+							outlet: self.outletReducer(state.outlet, action)
+						});
+					case CHANGE_ADULT_PAX:
+					case CHANGE_CHILDREN_PAX:
+						return Object.assign({}, state, {
+							pax: self.paxReducer(state.pax, action)
+						});
+					case PAX_OVER:
+						return Object.assign({}, state, {
+							pax_over: self.paxOverReducer(state.pax_over, action)
+						});
+					case HAS_SELECTED_DAY:
+						return Object.assign({}, state, {
+							has_selected_day: self.hasSelectedDayReducer(state.has_selected_day, action)
+						});
+					case CHANGE_RESERVATION_DATE:
+					case CHANGE_RESERVATION_TIME:
+						return Object.assign({}, state, {
+							reservation: self.reservationReducer(state.reservation, action)
+						});
+					case AJAX_CALL:
+						return Object.assign({}, state, {
+							ajax_call: self.ajaxCallReducer(state.ajax_call, action)
+						});
+					case DIALOG_SHOW_HIDE:
+					case DIALOG_HAS_DATA:
+					case DIALOG_EXCEED_MIN_EXIST_TIME:
+					case DIALOG_HIDDEN:
+						return Object.assign({}, state, {
+							dialog: self.dialogReducer(state.dialog, action)
+						});
+					case CHANGE_AVAILABLE_TIME:
+						return Object.assign({}, state, {
+							available_time: self.availableTimeReducer(state.available_time, action)
+						});
+					case CHANGE_CUSTOMER_SANLUTATION:
+					case CHANGE_CUSTOMER_FIRST_NAME:
+					case CHANGE_CUSTOMER_LAST_NAME:
+					case CHANGE_CUSTOMER_EMAIL:
+					case CHANGE_CUSTOMER_PHONE_COUNTRY_CODE:
+					case CHANGE_CUSTOMER_PHONE:
+					case CHANGE_CUSTOMER_REMARKS:
+						return Object.assign({}, state, {
+							customer: self.customerReducer(state.customer, action)
+						});
+					default:
+						return state;
+				}
+			};
+
+			// window.store = Redux.createStore(reducer);
+			window.store = Redux.createStore(rootReducer);
 
 			/**
     * Enhance store with prestate
@@ -67,22 +161,28 @@ var BookingForm = function () {
 			store.dispatch = function (action) {
 				console.info(action.type);
 				store.prestate = store.getState();
+				store.last_action = action.type;
 				o_dispatch(action);
 			};
 
 			store.getPrestate = function () {
 				return store.prestate;
 			};
+
+			store.getLastAction = function () {
+				return store.last_action;
+			};
 		}
 	}, {
 		key: 'buildPaxOverReducer',
-		value: function buildPaxOverReducer() {
-			var _state = this.state.pax_over;
+		value: function buildPaxOverReducer(state) {
+			var _state = state.pax_over;
 
 			return function () {
 				var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _state;
 				var action = arguments[1];
 
+				// console.log(action);
 				switch (action.type) {
 					case 'PAX_OVER':
 						return 'none';
@@ -90,6 +190,17 @@ var BookingForm = function () {
 						return state;
 				}
 			};
+		}
+	}, {
+		key: 'paxOverReducer',
+		value: function paxOverReducer(state, action) {
+			// console.log(action);
+			switch (action.type) {
+				case 'PAX_OVER':
+					return 'none';
+				default:
+					return state;
+			}
 		}
 	}, {
 		key: 'getVueState',
@@ -179,12 +290,14 @@ var BookingForm = function () {
 				pax_over: "block"
 			};
 
-			return state;
+			this.state = state;
+
+			return this.state;
 		}
 	}, {
 		key: 'buildCustomerReducer',
-		value: function buildCustomerReducer() {
-			var _state = this.state.customer;
+		value: function buildCustomerReducer(state) {
+			var _state = state.customer;
 
 			return function () {
 				var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _state;
@@ -225,9 +338,45 @@ var BookingForm = function () {
 			};
 		}
 	}, {
+		key: 'customerReducer',
+		value: function customerReducer(state, action) {
+			switch (action.type) {
+				case 'CHANGE_CUSTOMER_SANLUTATION':
+					return Object.assign({}, state, {
+						salutation: action.salutation
+					});
+				case 'CHANGE_CUSTOMER_FIRST_NAME':
+					return Object.assign({}, state, {
+						first_name: action.first_name
+					});
+				case 'CHANGE_CUSTOMER_LAST_NAME':
+					return Object.assign({}, state, {
+						last_name: action.last_name
+					});
+				case 'CHANGE_CUSTOMER_EMAIL':
+					return Object.assign({}, state, {
+						email: action.email
+					});
+				case 'CHANGE_CUSTOMER_PHONE_COUNTRY_CODE':
+					return Object.assign({}, state, {
+						phone_country_code: action.phone_country_code
+					});
+				case 'CHANGE_CUSTOMER_PHONE':
+					return Object.assign({}, state, {
+						phone: action.phone
+					});
+				case 'CHANGE_CUSTOMER_REMARKS':
+					return Object.assign({}, state, {
+						remarks: action.remarks
+					});
+				default:
+					return state;
+			}
+		}
+	}, {
 		key: 'buildOutletReducer',
-		value: function buildOutletReducer() {
-			var _state = this.state.outlet;
+		value: function buildOutletReducer(state) {
+			var _state = state.outlet;
 
 			return function () {
 				var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _state;
@@ -242,9 +391,19 @@ var BookingForm = function () {
 			};
 		}
 	}, {
+		key: 'outletReducer',
+		value: function outletReducer(state, action) {
+			switch (action.type) {
+				case 'CHANGE_OUTLET':
+					return action.outlet;
+				default:
+					return state;
+			}
+		}
+	}, {
 		key: 'buildPaxReducer',
-		value: function buildPaxReducer() {
-			var _state = this.state.pax;
+		value: function buildPaxReducer(state) {
+			var _state = state.pax;
 
 			return function () {
 				var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _state;
@@ -253,11 +412,11 @@ var BookingForm = function () {
 				switch (action.type) {
 					case 'CHANGE_ADULT_PAX':
 						return Object.assign({}, state, {
-							adult: action.adult_pax
+							adult: Number(action.adult_pax)
 						});
 					case 'CHANGE_CHILDREN_PAX':
 						return Object.assign({}, state, {
-							children: action.children_pax
+							children: Number(action.children_pax)
 						});
 					default:
 						return state;
@@ -265,9 +424,25 @@ var BookingForm = function () {
 			};
 		}
 	}, {
+		key: 'paxReducer',
+		value: function paxReducer(state, action) {
+			switch (action.type) {
+				case 'CHANGE_ADULT_PAX':
+					return Object.assign({}, state, {
+						adult: Number(action.adult_pax)
+					});
+				case 'CHANGE_CHILDREN_PAX':
+					return Object.assign({}, state, {
+						children: Number(action.children_pax)
+					});
+				default:
+					return state;
+			}
+		}
+	}, {
 		key: 'buildReservationReducer',
-		value: function buildReservationReducer() {
-			var _state = this.state.reservation;
+		value: function buildReservationReducer(state) {
+			var _state = state.reservation;
 			return function () {
 				var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _state;
 				var action = arguments[1];
@@ -287,15 +462,31 @@ var BookingForm = function () {
 			};
 		}
 	}, {
+		key: 'reservationReducer',
+		value: function reservationReducer(state, action) {
+			switch (action.type) {
+				case 'CHANGE_RESERVATION_DATE':
+					return Object.assign({}, state, {
+						date: action.date
+					});
+				case 'CHANGE_RESERVATION_TIME':
+					return Object.assign({}, state, {
+						time: action.time
+					});
+				default:
+					return state;
+			}
+		}
+	}, {
 		key: 'buildDialogReducer',
-		value: function buildDialogReducer() {
-			var _state = this.state.dialog;
+		value: function buildDialogReducer(state) {
+			var _state = state.dialog;
 			return function () {
 				var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _state;
 				var action = arguments[1];
 
 				switch (action.type) {
-					case 'SHOW_DIALOG':
+					case 'DIALOG_SHOW_HIDE':
 						return Object.assign({}, state, {
 							show: action.show
 						});
@@ -315,9 +506,31 @@ var BookingForm = function () {
 			};
 		}
 	}, {
+		key: 'dialogReducer',
+		value: function dialogReducer(state, action) {
+			switch (action.type) {
+				case 'DIALOG_SHOW_HIDE':
+					return Object.assign({}, state, {
+						show: action.show
+					});
+				case 'DIALOG_HAS_DATA':
+					state.stop.has_data = action.dialog_has_data;
+					return JSON.parse(JSON.stringify(state));
+				case 'DIALOG_EXCEED_MIN_EXIST_TIME':
+					state.stop.exceed_min_exist_time = action.exceed_min_exist_time;
+					return JSON.parse(JSON.stringify(state));
+				case 'DIALOG_HIDDEN':
+					state.stop.has_data = false;
+					state.stop.exceed_min_exist_time = false;
+					return JSON.parse(JSON.stringify(state));
+				default:
+					return state;
+			}
+		}
+	}, {
 		key: 'buildAvailableTimeReducer',
-		value: function buildAvailableTimeReducer() {
-			var _state = this.state.available_time;
+		value: function buildAvailableTimeReducer(state) {
+			var _state = state.available_time;
 			return function () {
 				var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _state;
 				var action = arguments[1];
@@ -335,9 +548,23 @@ var BookingForm = function () {
 			};
 		}
 	}, {
+		key: 'availableTimeReducer',
+		value: function availableTimeReducer(state, action) {
+			switch (action.type) {
+				case 'CHANGE_AVAILABLE_TIME':
+					if (Array.isArray(action.available_time)) {
+						action.available_time = {};
+					}
+					// return Object.assign({}, state, action.available_time);
+					return action.available_time;
+				default:
+					return state;
+			}
+		}
+	}, {
 		key: 'buildInitViewReducer',
-		value: function buildInitViewReducer() {
-			var _state = this.state.init_view;
+		value: function buildInitViewReducer(state) {
+			var _state = state.init_view;
 			return function () {
 				var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _state;
 				var action = arguments[1];
@@ -351,9 +578,19 @@ var BookingForm = function () {
 			};
 		}
 	}, {
+		key: 'initViewReducer',
+		value: function initViewReducer(state, action) {
+			switch (action.type) {
+				case 'INIT_VIEW':
+					return true;
+				default:
+					return state;
+			}
+		}
+	}, {
 		key: 'buildAjaxCallReducer',
-		value: function buildAjaxCallReducer() {
-			var _state = this.state.ajax_call;
+		value: function buildAjaxCallReducer(state) {
+			var _state = state.ajax_call;
 			return function () {
 				var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _state;
 				var action = arguments[1];
@@ -367,9 +604,19 @@ var BookingForm = function () {
 			};
 		}
 	}, {
+		key: 'ajaxCallReducer',
+		value: function ajaxCallReducer(state, action) {
+			switch (action.type) {
+				case 'AJAX_CALL':
+					return Number(state) + Number(action.ajax_call);
+				default:
+					return state;
+			}
+		}
+	}, {
 		key: 'buildHasSelectedDayReducer',
-		value: function buildHasSelectedDayReducer() {
-			var _state = this.state.has_selected_day;
+		value: function buildHasSelectedDayReducer(state) {
+			var _state = state.has_selected_day;
 			return function () {
 				var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _state;
 				var action = arguments[1];
@@ -383,9 +630,19 @@ var BookingForm = function () {
 			};
 		}
 	}, {
+		key: 'hasSelectedDayReducer',
+		value: function hasSelectedDayReducer(state, action) {
+			switch (action.type) {
+				case 'HAS_SELECTED_DAY':
+					return true;
+				default:
+					return state;
+			}
+		}
+	}, {
 		key: 'buildFormStepReducer',
-		value: function buildFormStepReducer() {
-			var _state = this.state.form_step;
+		value: function buildFormStepReducer(state) {
+			var _state = state.form_step;
 			return function () {
 				var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _state;
 				var action = arguments[1];
@@ -399,8 +656,18 @@ var BookingForm = function () {
 			};
 		}
 	}, {
-		key: 'bindListener',
-		value: function bindListener() {
+		key: 'formStepReducer',
+		value: function formStepReducer(state, action) {
+			switch (action.type) {
+				case 'CHANGE_FORM_STEP':
+					return action.form_step;
+				default:
+					return state;
+			}
+		}
+	}, {
+		key: 'storeSubscribeListener',
+		value: function storeSubscribeListener() {
 			var store = window.store;
 			var self = this;
 			store.subscribe(function () {
@@ -418,26 +685,30 @@ var BookingForm = function () {
 
 				if (prestate.dialog.show == false && state.dialog.show == true) {
 					self.ajax_dialog.modal('show');
-					// store.dispatch({type: ''});
 				}
 
 				if (prestate.dialog.show == true && state.dialog.show == false) {
 					self.ajax_dialog.modal('hide');
 				}
 
-				if (Number(state.pax.adult) + Number(state.pax.children) > 10) {
-					store.SELF_DISPATCH_FLAG = true;
+				var is_dialog_hide_self_loop = store.getLastAction() == 'DIALOG_SHOW_HIDE' && state.dialog.show == false;
+				var dialog_has_data_reach_exist_time = state.dialog.stop.has_data == true && state.dialog.stop.exceed_min_exist_time == true;
+				var should_hide_dialog = !is_dialog_hide_self_loop && dialog_has_data_reach_exist_time;
+				if (should_hide_dialog) {
 					store.dispatch({
-						type: 'PAX_OVER'
+						type: 'DIALOG_SHOW_HIDE',
+						show: false
 					});
 				}
 
-				if (state.dialog.show == true && state.dialog.stop.has_data == true && state.dialog.stop.exceed_min_exist_time == true) {
-					// store.SELF_DISPATCH_FLAG = true;
-					store.dispatch({
-						type: 'SHOW_DIALOG',
-						show: false
-					});
+				var has_pax_over_dependency = store.getLastAction() == 'CHANGE_ADULT_PAX' || store.getLastAction() == 'CHANGE_CHILDREN_PAX';
+
+				var pax_over_30 = state.pax.adult + state.pax.children > 10;
+
+				var is_pax_over = has_pax_over_dependency && pax_over_30;
+
+				if (is_pax_over) {
+					store.dispatch({ type: 'PAX_OVER' });
 				}
 			});
 		}
@@ -446,12 +717,12 @@ var BookingForm = function () {
 		value: function computeDialogShow() {
 			// let state = store.getState();
 			// if(state.dialog.show == true && state.dialog.stop.has_data == true && state.dialog.stop.exceed_min_exist_time == true){
-			// 	store.dispatch({type: 'SHOW_DIALOG', show: false});
+			// 	store.dispatch({type: 'DIALOG_SHOW_HIDE', show: false});
 			// }
 		}
 	}, {
-		key: 'bindView',
-		value: function bindView() {
+		key: 'storeSubscribeView',
+		value: function storeSubscribeView() {
 			var _this = this;
 
 			this.findView();
@@ -479,7 +750,9 @@ var BookingForm = function () {
 
 				//debug
 				var prestate = store.getPrestate();
-				pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));
+				requestAnimationFrame(function () {
+					pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));
+				});
 
 				/**
      * Available time change
@@ -794,9 +1067,10 @@ var BookingForm = function () {
 
 			this.ajax_dialog.on('shown.bs.modal', function () {
 				var state = store.getState();
-				setTimeout(function () {
+				var timeId = setTimeout(function () {
 					store.dispatch({ type: 'DIALOG_EXCEED_MIN_EXIST_TIME', exceed_min_exist_time: true });
 					self.computeDialogShow();
+					clearTimeout(timeId);
 				}, state.dialog.min_exist_time);
 			});
 		}
@@ -831,7 +1105,7 @@ var BookingForm = function () {
 			var state = store.getState();
 			var self = this;
 
-			store.dispatch({ type: 'SHOW_DIALOG', show: true });
+			store.dispatch({ type: 'DIALOG_SHOW_HIDE', show: true });
 
 			var data = {
 				outlet_id: state.outlet.id,

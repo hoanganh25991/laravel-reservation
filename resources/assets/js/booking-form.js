@@ -1,3 +1,32 @@
+const INIT_VIEW			= 'INIT_VIEW'
+const CHANGE_FORM_STEP	= 'CHANGE_FORM_STEP'
+
+const CHANGE_CUSTOMER_PHONE_COUNTRY_CODE = 'CHANGE_CUSTOMER_PHONE_COUNTRY_CODE'
+const CHANGE_OUTLET					= 'CHANGE_OUTLET'
+const CHANGE_ADULT_PAX				= 'CHANGE_ADULT_PAX'
+const CHANGE_CHILDREN_PAX			= 'CHANGE_CHILDREN_PAX'
+const HAS_SELECTED_DAY	            = 'HAS_SELECTED_DAY'
+const CHANGE_RESERVATION_DATE		= 'CHANGE_RESERVATION_DATE'
+const CHANGE_RESERVATION_TIME		= 'CHANGE_RESERVATION_TIME'
+const CHANGE_AVAILABLE_TIME	        = 'CHANGE_AVAILABLE_TIME'
+
+const PAX_OVER 			= 'PAX_OVER'
+
+const AJAX_CALL			= 'AJAX_CALL'
+
+const DIALOG_SHOW_HIDE		= 'DIALOG_SHOW_HIDE'
+const DIALOG_HAS_DATA	= 'DIALOG_HAS_DATA'
+const DIALOG_HIDDEN		= 'DIALOG_HIDDEN'
+const DIALOG_EXCEED_MIN_EXIST_TIME = 'DIALOG_EXCEED_MIN_EXIST_TIME'
+
+const CHANGE_CUSTOMER_SANLUTATION = 'CHANGE_CUSTOMER_FIRST_NAME'
+const CHANGE_CUSTOMER_FIRST_NAME  = 'CHANGE_CUSTOMER_FIRST_NAME'
+const CHANGE_CUSTOMER_LAST_NAME	  = 'CHANGE_CUSTOMER_LAST_NAME'
+const CHANGE_CUSTOMER_EMAIL		  = 'CHANGE_CUSTOMER_EMAIL'
+const CHANGE_CUSTOMER_PHONE 	  = 'CHANGE_CUSTOMER_PHONE'
+const CHANGE_CUSTOMER_REMARKS	  = 'CHANGE_CUSTOMER_REMARKS'
+
+
 class BookingForm {
 	/** @namespace action.adult_pax */
 	/** @namespace action.children_pax */
@@ -14,11 +43,11 @@ class BookingForm {
 
 		this.buildVue();
 
-		this.bindView();
+		this.storeSubscribeView();
 
 		this.regisEvent();
 
-		this.bindListener();
+		this.storeSubscribeListener();
 
 		this.initView();
 
@@ -59,23 +88,86 @@ class BookingForm {
 		//assign default state
 		//may from server
 		//or self build
-		this.state = this.defaultState();
+		let default_state = this.defaultState();
 		let self = this;
-		let reducer = Redux.combineReducers({
-			has_selected_day : self.buildHasSelectedDayReducer(),
-			available_time   : self.buildAvailableTimeReducer(),
-			reservation      : self.buildReservationReducer(),
-			ajax_call        : self.buildAjaxCallReducer(),
-			init_view        : self.buildInitViewReducer(),
-			form_step        : self.buildFormStepReducer(),
-			customer         : self.buildCustomerReducer(),
-			pax_over         : self.buildPaxOverReducer(),
-			outlet           : self.buildOutletReducer(),
-			dialog           : self.buildDialogReducer(),
-			pax              : self.buildPaxReducer(),
-		});
+		// let reducer = Redux.combineReducers({
+			// has_selected_day : self.buildHasSelectedDayReducer(state),
+			// available_time   : self.buildAvailableTimeReducer(state),
+			// reservation      : self.buildReservationReducer(state),
+			// ajax_call        : self.buildAjaxCallReducer(state),
+			// init_view        : self.buildInitViewReducer(state),
+			// form_step        : self.buildFormStepReducer(state),
+			// customer         : self.buildCustomerReducer(state),
+			// pax_over         : self.buildPaxOverReducer(state),
+			// outlet           : self.buildOutletReducer(state),
+			// dialog           : self.buildDialogReducer(state),
+			// pax              : self.buildPaxReducer(state),
+		// });
 
-		window.store = Redux.createStore(reducer);
+		let rootReducer = function(state = default_state, action){
+			switch(action.type){
+				case INIT_VIEW:
+					return Object.assign({}, state, {
+						init_view: self.initViewReducer(state.init_view, action)
+					});
+				case CHANGE_FORM_STEP:
+					return Object.assign({}, state, {
+						form_step: self.formStepReducer(state.form_step, action)
+					});
+				case CHANGE_OUTLET:
+					return Object.assign({}, state, {
+						outlet: self.outletReducer(state.outlet, action)
+					});
+				case CHANGE_ADULT_PAX:
+				case CHANGE_CHILDREN_PAX:
+					return Object.assign({}, state, {
+						pax: self.paxReducer(state.pax, action)
+					});
+				case PAX_OVER:
+					return Object.assign({}, state, {
+						pax_over: self.paxOverReducer(state.pax_over, action)
+					});
+				case HAS_SELECTED_DAY:
+					return Object.assign({}, state, {
+						has_selected_day: self.hasSelectedDayReducer(state.has_selected_day, action)
+					});
+				case CHANGE_RESERVATION_DATE:
+				case CHANGE_RESERVATION_TIME:
+					return Object.assign({}, state, {
+						reservation: self.reservationReducer(state.reservation, action)
+					});
+				case AJAX_CALL:
+					return Object.assign({}, state, {
+						ajax_call: self.ajaxCallReducer(state.ajax_call, action)
+					});
+				case DIALOG_SHOW_HIDE:
+				case DIALOG_HAS_DATA:
+				case DIALOG_EXCEED_MIN_EXIST_TIME:
+				case DIALOG_HIDDEN:
+					return Object.assign({}, state, {
+						dialog: self.dialogReducer(state.dialog, action)
+					});
+				case CHANGE_AVAILABLE_TIME:
+					return Object.assign({}, state, {
+						available_time: self.availableTimeReducer(state.available_time, action)
+					});
+				case CHANGE_CUSTOMER_SANLUTATION:
+				case CHANGE_CUSTOMER_FIRST_NAME:
+				case CHANGE_CUSTOMER_LAST_NAME:
+				case CHANGE_CUSTOMER_EMAIL:
+				case CHANGE_CUSTOMER_PHONE_COUNTRY_CODE:
+				case CHANGE_CUSTOMER_PHONE:
+				case CHANGE_CUSTOMER_REMARKS:
+					return Object.assign({}, state, {
+						customer: self.customerReducer(state.customer, action)
+					});
+				default:
+					return state;
+			}
+		}
+
+		// window.store = Redux.createStore(reducer);
+		window.store = Redux.createStore(rootReducer);
 
 		/**
 		 * Enhance store with prestate
@@ -84,18 +176,24 @@ class BookingForm {
 		store.dispatch = function(action){
 			console.info(action.type);
 			store.prestate = store.getState();
+			store.last_action = action.type;
 			o_dispatch(action);
 		}
 
 		store.getPrestate = function(){
 			return store.prestate;
 		}
+
+		store.getLastAction = function(){
+			return store.last_action;
+		}
 	}
 
-	buildPaxOverReducer(){
-		let _state = this.state.pax_over;
+	buildPaxOverReducer(state){
+		let _state = state.pax_over;
 
 		return function(state = _state, action){
+			// console.log(action);
 			switch(action.type){
 				case 'PAX_OVER':
 					return 'none';
@@ -103,6 +201,16 @@ class BookingForm {
 					return state;
 			}
 		};
+	}
+
+	paxOverReducer(state, action){
+		// console.log(action);
+		switch(action.type){
+			case 'PAX_OVER':
+				return 'none';
+			default:
+				return state;
+		}
 	}
 
 	getVueState(){
@@ -191,11 +299,13 @@ class BookingForm {
 			pax_over: "block"
 		};
 
-		return state;
+		this.state = state;
+
+		return this.state;
 	}
 
-	buildCustomerReducer(){
-		let _state = this.state.customer;
+	buildCustomerReducer(state){
+		let _state = state.customer;
 
 		return function(state = _state, action){
 			switch(action.type){
@@ -233,8 +343,43 @@ class BookingForm {
 		};
 	}
 
-	buildOutletReducer(){
-		let _state = this.state.outlet;
+	customerReducer(state, action){
+		switch(action.type){
+			case 'CHANGE_CUSTOMER_SANLUTATION':
+				return Object.assign({}, state, {
+					salutation: action.salutation
+				});
+			case 'CHANGE_CUSTOMER_FIRST_NAME':
+				return Object.assign({}, state, {
+					first_name: action.first_name
+				});
+			case 'CHANGE_CUSTOMER_LAST_NAME':
+				return Object.assign({}, state, {
+					last_name: action.last_name
+				});
+			case 'CHANGE_CUSTOMER_EMAIL':
+				return Object.assign({}, state, {
+					email: action.email
+				});
+			case 'CHANGE_CUSTOMER_PHONE_COUNTRY_CODE':
+				return Object.assign({}, state, {
+					phone_country_code: action.phone_country_code
+				});
+			case 'CHANGE_CUSTOMER_PHONE':
+				return Object.assign({}, state, {
+					phone: action.phone
+				});
+			case 'CHANGE_CUSTOMER_REMARKS':
+				return Object.assign({}, state, {
+					remarks: action.remarks
+				});
+			default:
+				return state;
+		}
+	}
+
+	buildOutletReducer(state){
+		let _state = state.outlet;
 
 		return function(state = _state, action){
 			switch(action.type){
@@ -246,18 +391,27 @@ class BookingForm {
 		};
 	}
 
-	buildPaxReducer(){
-		let _state = this.state.pax;
+	outletReducer(state, action){
+		switch(action.type){
+			case 'CHANGE_OUTLET':
+				return action.outlet;
+			default:
+				return state;
+		}
+	}
+
+	buildPaxReducer(state){
+		let _state = state.pax;
 
 		return function(state = _state, action){
 			switch(action.type){
 				case 'CHANGE_ADULT_PAX':
 					return Object.assign({}, state, {
-						adult: action.adult_pax
+						adult: Number(action.adult_pax)
 					});
 				case 'CHANGE_CHILDREN_PAX':
 					return Object.assign({}, state, {
-						children: action.children_pax
+						children: Number(action.children_pax)
 					});
 				default:
 					return state;
@@ -265,8 +419,23 @@ class BookingForm {
 		};
 	}
 
-	buildReservationReducer(){
-		let _state = this.state.reservation;
+	paxReducer(state, action){
+		switch(action.type){
+			case 'CHANGE_ADULT_PAX':
+				return Object.assign({}, state, {
+					adult: Number(action.adult_pax)
+				});
+			case 'CHANGE_CHILDREN_PAX':
+				return Object.assign({}, state, {
+					children: Number(action.children_pax)
+				});
+			default:
+				return state;
+		}
+	}
+
+	buildReservationReducer(state){
+		let _state = state.reservation;
 		return function(state = _state, action){
 			switch(action.type){
 				case 'CHANGE_RESERVATION_DATE':
@@ -283,11 +452,26 @@ class BookingForm {
 		};
 	}
 
-	buildDialogReducer(){
-		let _state = this.state.dialog;
+	reservationReducer(state, action){
+		switch(action.type){
+			case 'CHANGE_RESERVATION_DATE':
+				return Object.assign({}, state, {
+					date: action.date
+				});
+			case 'CHANGE_RESERVATION_TIME':
+				return Object.assign({}, state, {
+					time: action.time
+				});
+			default:
+				return state;
+		}
+	}
+
+	buildDialogReducer(state){
+		let _state = state.dialog;
 		return function(state = _state, action){
 			switch(action.type){
-				case 'SHOW_DIALOG':
+				case 'DIALOG_SHOW_HIDE':
 					return Object.assign({}, state, {
 						show: action.show
 					});
@@ -307,8 +491,29 @@ class BookingForm {
 		};
 	}
 
-	buildAvailableTimeReducer(){
-		let _state = this.state.available_time;
+	dialogReducer(state, action){
+		switch(action.type){
+			case 'DIALOG_SHOW_HIDE':
+				return Object.assign({}, state, {
+					show: action.show
+				});
+			case 'DIALOG_HAS_DATA':
+				state.stop.has_data = action.dialog_has_data;
+				return JSON.parse(JSON.stringify(state));
+			case 'DIALOG_EXCEED_MIN_EXIST_TIME':
+				state.stop.exceed_min_exist_time = action.exceed_min_exist_time;
+				return JSON.parse(JSON.stringify(state));
+			case 'DIALOG_HIDDEN':
+				state.stop.has_data = false;
+				state.stop.exceed_min_exist_time = false;
+				return JSON.parse(JSON.stringify(state));
+			default:
+				return state;
+		}
+	}
+
+	buildAvailableTimeReducer(state){
+		let _state = state.available_time;
 		return function(state = _state, action){
 			switch(action.type){
 				case 'CHANGE_AVAILABLE_TIME':
@@ -323,8 +528,21 @@ class BookingForm {
 		};
 	}
 
-	buildInitViewReducer(){
-		let _state = this.state.init_view;
+	availableTimeReducer(state, action){
+		switch(action.type){
+			case 'CHANGE_AVAILABLE_TIME':
+				if(Array.isArray(action.available_time)){
+					action.available_time = {};
+				}
+				// return Object.assign({}, state, action.available_time);
+				return action.available_time;
+			default:
+				return state;
+		}
+	}
+
+	buildInitViewReducer(state){
+		let _state = state.init_view;
 		return function(state = _state, action){
 			switch(action.type){
 				case 'INIT_VIEW':
@@ -335,8 +553,17 @@ class BookingForm {
 		}
 	}
 
-	buildAjaxCallReducer(){
-		let _state = this.state.ajax_call;
+	initViewReducer(state, action){
+		switch(action.type){
+			case 'INIT_VIEW':
+				return true;
+			default:
+				return state;
+		}
+	}
+
+	buildAjaxCallReducer(state){
+		let _state = state.ajax_call;
 		return function(state = _state, action){
 			switch(action.type){
 				case 'AJAX_CALL':
@@ -347,8 +574,17 @@ class BookingForm {
 		}
 	}
 
-	buildHasSelectedDayReducer(){
-		let _state = this.state.has_selected_day;
+	ajaxCallReducer(state, action){
+		switch(action.type){
+			case 'AJAX_CALL':
+				return (Number(state) + Number(action.ajax_call));
+			default:
+				return state;
+		}
+	}
+
+	buildHasSelectedDayReducer(state){
+		let _state = state.has_selected_day;
 		return function(state = _state, action){
 			switch(action.type){
 				case 'HAS_SELECTED_DAY':
@@ -359,8 +595,17 @@ class BookingForm {
 		}
 	}
 
-	buildFormStepReducer(){
-		let _state = this.state.form_step;
+	hasSelectedDayReducer(state, action){
+		switch(action.type){
+			case 'HAS_SELECTED_DAY':
+				return true;
+			default:
+				return state;
+		}
+	}
+
+	buildFormStepReducer(state){
+		let _state = state.form_step;
 		return function(state = _state, action){
 			switch(action.type){
 				case 'CHANGE_FORM_STEP':
@@ -371,7 +616,16 @@ class BookingForm {
 		}
 	}
 
-	bindListener(){
+	formStepReducer(state, action){
+		switch(action.type){
+			case 'CHANGE_FORM_STEP':
+				return action.form_step;
+			default:
+				return state;
+		}
+	}
+
+	storeSubscribeListener(){
 		let store = window.store;
 		let self = this;
 		store.subscribe(()=>{
@@ -389,27 +643,35 @@ class BookingForm {
 
 			if(prestate.dialog.show == false && state.dialog.show == true){
 				self.ajax_dialog.modal('show');
-				// store.dispatch({type: ''});
 			}
 
 			if(prestate.dialog.show == true && state.dialog.show == false){
 				self.ajax_dialog.modal('hide');
 			}
 
-			if(Number(state.pax.adult) + Number(state.pax.children) > 10){
-				store.SELF_DISPATCH_FLAG = true;
+			let is_dialog_hide_self_loop = store.getLastAction() == 'DIALOG_SHOW_HIDE' && state.dialog.show == false;
+			let dialog_has_data_reach_exist_time = state.dialog.stop.has_data == true && state.dialog.stop.exceed_min_exist_time == true;
+			let should_hide_dialog  = !is_dialog_hide_self_loop && dialog_has_data_reach_exist_time;
+			if(should_hide_dialog){
 				store.dispatch({
-					type: 'PAX_OVER'
-				});
-			}
-
-			if(state.dialog.show == true && state.dialog.stop.has_data == true && state.dialog.stop.exceed_min_exist_time == true){
-				// store.SELF_DISPATCH_FLAG = true;
-				store.dispatch({
-					type: 'SHOW_DIALOG',
+					type: 'DIALOG_SHOW_HIDE',
 					show: false
 				});
 			}
+
+			let has_pax_over_dependency =
+				(store.getLastAction() == 'CHANGE_ADULT_PAX'
+				|| store.getLastAction() == 'CHANGE_CHILDREN_PAX');
+
+			let pax_over_30 =(state.pax.adult + state.pax.children) > 10;
+
+			let is_pax_over = has_pax_over_dependency && pax_over_30;
+
+			if(is_pax_over){
+				store.dispatch({type: 'PAX_OVER'});
+			}
+
+
 
 		});
 
@@ -418,11 +680,11 @@ class BookingForm {
 	computeDialogShow(){
 		// let state = store.getState();
 		// if(state.dialog.show == true && state.dialog.stop.has_data == true && state.dialog.stop.exceed_min_exist_time == true){
-		// 	store.dispatch({type: 'SHOW_DIALOG', show: false});
+		// 	store.dispatch({type: 'DIALOG_SHOW_HIDE', show: false});
 		// }
 	}
 
-	bindView(){
+	storeSubscribeView(){
 		this.findView();
 		let store = window.store;
 		let self = this;
@@ -448,7 +710,7 @@ class BookingForm {
 
 			//debug
 			let prestate = store.getPrestate();
-			pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));
+			requestAnimationFrame(()=>{pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));});
 
 			/**
 			 * Available time change
@@ -774,9 +1036,10 @@ class BookingForm {
 		this.ajax_dialog
 			.on('shown.bs.modal', function(){
 				let state = store.getState();
-				setTimeout(function(){
+				let timeId = setTimeout(function(){
 					store.dispatch({type: 'DIALOG_EXCEED_MIN_EXIST_TIME', exceed_min_exist_time: true});
 					self.computeDialogShow();
+					clearTimeout(timeId);
 				}, state.dialog.min_exist_time);
 			});
 	}
@@ -812,7 +1075,7 @@ class BookingForm {
 		let state = store.getState();
 		let self = this;
 
-		store.dispatch({type: 'SHOW_DIALOG', show: true});
+		store.dispatch({type: 'DIALOG_SHOW_HIDE', show: true});
 
 
 
