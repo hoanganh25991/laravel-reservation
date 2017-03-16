@@ -318,9 +318,6 @@ class BookingController extends HoiController {
             $outlet_id = $req->get('outlet_id');
             session(compact('outlet_id'));
 
-            /**
-             *
-             */
             $this->reservation_pax_size = $req->get('adult_pax') + $req->get('children_pax');
 
             $available_time = $this->availableTime();
@@ -341,6 +338,7 @@ class BookingController extends HoiController {
                 'email'            => 'required',
                 'phone_country_code' => 'required',
                 'phone'            => 'required',
+//                'customer_remarks' => 'required'
             ]);
 
             if($validator->fails()){

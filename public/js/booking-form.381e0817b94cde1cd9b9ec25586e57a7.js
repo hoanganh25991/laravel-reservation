@@ -187,7 +187,7 @@ var BookingForm = function () {
 				has_selected_day: false,
 				form_step: 'form-step-1',
 				customer: {
-					salutation: 'Mr',
+					salutation: 'Mr.',
 					first_name: 'Anh',
 					last_name: 'Le Hoang',
 					email: 'lehoanganh25991@gmail.com',
@@ -587,12 +587,7 @@ var BookingForm = function () {
 			}
 
 			var selectDiv = this.select;
-			// if(selectDiv.available_time){
-			// 	if(selectDiv.available_time == available_time)
-			// 		return;
-			// }
-			// selectDiv.available_time = available_time;
-			//reset selectDiv options
+
 			selectDiv.innerHTML = '';
 			available_time_on_selected_day.forEach(function (time) {
 				//console.log(time);
@@ -604,6 +599,8 @@ var BookingForm = function () {
 
 				selectDiv.appendChild(optionDiv);
 			});
+
+			store.dispatch({ type: 'CHANGE_RESERVATION_TIME', time: selectDiv.options[0].value });
 		}
 	}, {
 		key: 'updateCalendarView',

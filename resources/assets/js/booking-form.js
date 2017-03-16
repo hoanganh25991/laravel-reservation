@@ -191,7 +191,7 @@ class BookingForm {
 			has_selected_day: false,
 			form_step: 'form-step-1',
 			customer: {
-				salutation: 'Mr',
+				salutation: 'Mr.',
 				first_name: 'Anh',
 				last_name : 'Le Hoang',
 				email: 'lehoanganh25991@gmail.com',
@@ -588,12 +588,7 @@ class BookingForm {
 	    }
 
 		let selectDiv = this.select;
-		// if(selectDiv.available_time){
-		// 	if(selectDiv.available_time == available_time)
-		// 		return;
-		// }
-		// selectDiv.available_time = available_time;
-	    //reset selectDiv options
+
 	    selectDiv.innerHTML = '';
 	    available_time_on_selected_day.forEach(time => {
 	        //console.log(time);
@@ -605,6 +600,8 @@ class BookingForm {
 
 	        selectDiv.appendChild(optionDiv);
 	    });
+
+		store.dispatch({type: 'CHANGE_RESERVATION_TIME', time: selectDiv.options[0].value});
 	}
 
 	updateCalendarView(available_time) {
