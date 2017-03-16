@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Response;
 use Validator;
 use App\Outlet;
 use App\Timing;
@@ -296,7 +297,7 @@ class BookingController extends HoiController {
      * @return $this|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function getBookingForm(ApiRequest $req){
-        if($req->method() == 'POST'){
+        if($req->method() == 'POST' && !$req->has('step')){
             //return $this->apiResponse($req->all());
             /* @var Validator $validator*/
             $validator = Validator::make($req->all(), [
@@ -322,13 +323,59 @@ class BookingController extends HoiController {
              */
             $this->reservation_pax_size = $req->get('adult_pax') + $req->get('children_pax');
 
-
             $available_time = $this->availableTime();
 
             return $this->apiResponse($available_time);
         }
 
+        if($req->method() == 'POST' && $req->get('step') == 'form-step-3'){
+            $validator = Validator::make($req->all(), [
+                'outlet_id'        => 'required',
+                'adult_pax'        => 'required',
+                'children_pax'     => 'required',
+                'reservation_date' => 'required',
+                'reservation_time' => 'required|regex:/\d+:\d{2}/',
+                'salutation'       => 'required',
+                'first_name'       => 'required',
+                'last_name'        => 'required',
+                'email'            => 'required',
+                'phone_country_code' => 'required',
+                'phone'            => 'required',
+            ]);
 
+            if($validator->fails()){
+                return $this->apiResponse($req->all(), 422, $validator->getMessageBag()->toArray());
+            }
+
+            $reservation_info =
+                $req->only([
+                    'outlet_id',
+                    'adult_pax',
+                    'children_pax',
+                    'reservation_date',
+                    'reservation_time',
+                    'salutation',
+                    'first_name',
+                    'last_name',
+                    'email',
+                    'phone_country_code',
+                    'phone',
+                ]);
+
+            $reservation_info['reservation_timestamp'] = "{$reservation_info['reservation_date']} {$reservation_info['reservation_time']}:00";
+
+            $reservation = new Reservation($reservation_info);
+            $reservation->status = Reservation::CONFIRMED;//
+            $reservation->save();
+            
+            $confirm_id =  $reservation->confirm_id;
+            
+            return Response::json([
+                'statusCode' => 200,
+                'statusMsg' => 'reservation.confirm_id',
+                'data' => $confirm_id
+            ], 200)->setEncodingOptions(JSON_NUMERIC_CHECK);
+        }
 
         //handle get
         $outlets = Outlet::all();

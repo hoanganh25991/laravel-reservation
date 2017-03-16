@@ -14,6 +14,7 @@ var CHANGE_CHILDREN_PAX = 'CHANGE_CHILDREN_PAX';
 var HAS_SELECTED_DAY = 'HAS_SELECTED_DAY';
 var CHANGE_RESERVATION_DATE = 'CHANGE_RESERVATION_DATE';
 var CHANGE_RESERVATION_TIME = 'CHANGE_RESERVATION_TIME';
+var CHANGE_RESERVATION_CONFIRM_ID = 'CHANGE_RESERVATION_CONFIRM_ID';
 var CHANGE_AVAILABLE_TIME = 'CHANGE_AVAILABLE_TIME';
 
 var PAX_OVER = 'PAX_OVER';
@@ -31,6 +32,7 @@ var CHANGE_CUSTOMER_PHONE = 'CHANGE_CUSTOMER_PHONE';
 var CHANGE_CUSTOMER_REMARKS = 'CHANGE_CUSTOMER_REMARKS';
 
 var BookingForm = function () {
+	/** @namespace res.statusMsg */
 	/** @namespace action.adult_pax */
 	/** @namespace action.children_pax */
 	/** @namespace action.dialog_has_data */
@@ -96,6 +98,7 @@ var BookingForm = function () {
 						});
 					case CHANGE_RESERVATION_DATE:
 					case CHANGE_RESERVATION_TIME:
+					case CHANGE_RESERVATION_CONFIRM_ID:
 						return Object.assign({}, state, {
 							reservation: self.reservationReducer(state.reservation, action)
 						});
@@ -184,7 +187,7 @@ var BookingForm = function () {
 				has_selected_day: false,
 				form_step: 'form-step-1',
 				customer: {
-					salutaion: 'Mr',
+					salutation: 'Mr',
 					first_name: 'Anh',
 					last_name: 'Le Hoang',
 					email: 'lehoanganh25991@gmail.com',
@@ -305,6 +308,10 @@ var BookingForm = function () {
 					return Object.assign({}, state, {
 						time: action.time
 					});
+				case CHANGE_RESERVATION_CONFIRM_ID:
+					return Object.assign({}, state, {
+						confirm_id: action.confirm_id
+					});
 				default:
 					return state;
 			}
@@ -360,7 +367,7 @@ var BookingForm = function () {
 		value: function ajaxCallReducer(state, action) {
 			switch (action.type) {
 				case AJAX_CALL:
-					return Number(state) + Number(action.ajax_call);
+					return Number(state) + 1;
 				default:
 					return state;
 			}
@@ -499,7 +506,9 @@ var BookingForm = function () {
 				var form_step_change = prestate.form_step != state.form_step || prestate.init_view == false && state.form_step == 'form-step-1';
 				if (form_step_change) {
 					console.info('pointToFormStep');
-					_this.pointToFormStep();
+					requestAnimationFrame(function () {
+						_this.pointToFormStep();
+					});
 				}
 			});
 		}
@@ -724,9 +733,14 @@ var BookingForm = function () {
 
 			var btn_form_nexts = this.btn_form_nexts;
 			btn_form_nexts.forEach(function (btn) {
+
 				btn.addEventListener('click', function () {
 					var destination = btn.getAttribute('destination');
 					store.dispatch({ type: CHANGE_FORM_STEP, form_step: destination });
+
+					if (destination == 'form-step-3') {
+						store.dispatch({ type: AJAX_CALL, ajax_call: 1 });
+					}
 				});
 			});
 			/**
@@ -797,10 +811,38 @@ var BookingForm = function () {
 
 			var data = {
 				outlet_id: state.outlet.id,
-				// outlet_name: state.outlet.name,
 				adult_pax: state.pax.adult,
 				children_pax: state.pax.children
 			};
+
+			if (state.form_step == 'form-step-3') {
+				var _state$reservation = state.reservation,
+				    date = _state$reservation.date,
+				    time = _state$reservation.time;
+				var _state$customer = state.customer,
+				    salutation = _state$customer.salutation,
+				    first_name = _state$customer.first_name,
+				    last_name = _state$customer.last_name,
+				    email = _state$customer.email,
+				    phone_country_code = _state$customer.phone_country_code,
+				    phone = _state$customer.phone,
+				    remarks = _state$customer.remarks;
+
+				data = Object.assign(data, {
+					salutation: salutation,
+					first_name: first_name,
+					last_name: last_name,
+					email: email,
+					phone_country_code: phone_country_code,
+					phone: phone,
+					customer_remarks: remarks,
+					reservation_date: date.format('Y-M-D'),
+					reservation_time: time,
+					step: 'form-step-3'
+				});
+
+				console.log(data);
+			}
 
 			$.ajax({
 				url: '',
@@ -808,6 +850,13 @@ var BookingForm = function () {
 				data: data,
 				success: function success(res) {
 					console.log(res);
+
+					if (res.statusMsg == 'reservation.confirm_id') {
+						store.dispatch({
+							type: CHANGE_RESERVATION_CONFIRM_ID,
+							confirm_id: res.data
+						});
+					}
 
 					store.dispatch({
 						type: CHANGE_AVAILABLE_TIME,

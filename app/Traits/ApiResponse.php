@@ -11,9 +11,9 @@ trait ApiResponse{
         /** change format of response */
         /** if 200, only return data */
         if($statusCode == 200){
-            if(get_class($data) == Collection::class){
-                dd($data);
-            }
+//            if(get_class($data) == Collection::class){
+//                dd($data);
+//            }
             
             
             

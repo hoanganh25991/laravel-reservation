@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Builder;
  * @property mixed id
  * @property mixed status
  * @property mixed date_string
+ * @property mixed confirm_id
  */
 class Reservation extends HoiModel {
 
@@ -127,7 +128,7 @@ class Reservation extends HoiModel {
     public function getConfirmIdAttribute(){
         $id = $this->id;
 //        $hashids = new Hashids(Setting::HASH_SALT, 5);
-        $hashids = new Hashids('', 5);
+        $hashids = new Hashids('', 7);
         $confirm_id = $hashids->encode($id);
         
         return $confirm_id;

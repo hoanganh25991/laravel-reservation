@@ -157,7 +157,7 @@
 
                     <tr>
                         <td><label>Confirmation ID:</label></td>
-                        <td>xxx</td>
+                        <td>@{{ reservation.confirm_id }}</td>
                     </tr>
 
                     </tbody>
