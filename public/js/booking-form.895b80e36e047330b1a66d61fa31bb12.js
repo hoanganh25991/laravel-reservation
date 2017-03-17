@@ -474,9 +474,10 @@ var BookingForm = function () {
 			}
 
 			store.subscribe(function () {
-				console.warn(count++);
+				console.group('update view at subscribe', count++);
 				var state = store.getState();
 				//update this way for vue see it
+				console.warn('update time view');
 				var vue_state = self.getVueState();
 				Object.assign(vue_state, state);
 
@@ -492,9 +493,11 @@ var BookingForm = function () {
      */
 				var available_time_change = prestate.available_time != state.available_time;
 				if (available_time_change) {
+					console.warn('update select view');
 					requestAnimationFrame(function () {
 						_this.updateSelectView(state.available_time);
 					});
+					console.warn('update calendar view');
 					requestAnimationFrame(function () {
 						_this.updateCalendarView(state.available_time);
 					});
@@ -509,6 +512,7 @@ var BookingForm = function () {
 						_this.pointToFormStep();
 					});
 				}
+				console.groupEnd('update view at subscribe', count);
 			});
 		}
 	}, {
@@ -570,6 +574,8 @@ var BookingForm = function () {
 				available_time_on_selected_day = [];
 			}
 
+			store.dispatch({ type: 'ABC', time: 1 });
+
 			if (available_time_on_selected_day.length == 0) {
 				var default_time = {
 					time: 'N/A',
@@ -578,6 +584,7 @@ var BookingForm = function () {
 
 				available_time_on_selected_day.push(default_time);
 			}
+			store.dispatch({ type: 'ABC', time: 1 });
 
 			var time_select = this.time_select;
 

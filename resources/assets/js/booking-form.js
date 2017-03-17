@@ -474,9 +474,10 @@ class BookingForm {
 		}
 
 		store.subscribe(()=>{
-			console.warn(count++);
+			console.group('update view at subscribe', count++);
 			let state    = store.getState();
 			//update this way for vue see it
+			console.warn('update time view');
 			let vue_state = self.getVueState();
 			Object.assign(vue_state, state);
 
@@ -490,9 +491,11 @@ class BookingForm {
 			 */
 			let available_time_change = (prestate.available_time != state.available_time);
 			if(available_time_change){
+				console.warn('update select view');
 				requestAnimationFrame(()=>{
 					this.updateSelectView(state.available_time);
 				});
+				console.warn('update calendar view');
 				requestAnimationFrame(()=>{
 					this.updateCalendarView(state.available_time);
 				});
@@ -507,6 +510,7 @@ class BookingForm {
 				console.info('pointToFormStep');
 				requestAnimationFrame(()=>{this.pointToFormStep();});
 			}
+			console.groupEnd('update view at subscribe', count);
 		});
 
 
@@ -568,7 +572,9 @@ class BookingForm {
 		    available_time_on_selected_day = [];
 	    }
 
-	    if (available_time_on_selected_day.length == 0) {
+		store.dispatch({type: 'ABC', time: 1});
+
+		if (available_time_on_selected_day.length == 0) {
 	        let default_time = {
 	            time: 'N/A',
 	            session_name: ''
@@ -576,6 +582,7 @@ class BookingForm {
 
 	        available_time_on_selected_day.push(default_time);
 	    }
+		store.dispatch({type: 'ABC', time: 1});
 
 		let time_select = this.time_select;
 
