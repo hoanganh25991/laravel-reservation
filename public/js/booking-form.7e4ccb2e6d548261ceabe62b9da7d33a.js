@@ -31,8 +31,6 @@ var CHANGE_CUSTOMER_EMAIL = 'CHANGE_CUSTOMER_EMAIL';
 var CHANGE_CUSTOMER_PHONE = 'CHANGE_CUSTOMER_PHONE';
 var CHANGE_CUSTOMER_REMARKS = 'CHANGE_CUSTOMER_REMARKS';
 
-window.count = 0;
-
 var BookingForm = function () {
 	/** @namespace res.statusMsg */
 	/** @namespace action.adult_pax */
@@ -182,7 +180,7 @@ var BookingForm = function () {
 						exceed_min_exist_time: false
 					},
 					min_exist_time: 690 //ms
-					// min_exist_time: 5000 //ms
+					//min_exist_time: 5000 //ms
 				},
 				available_time: {},
 				ajax_call: 0,
@@ -333,9 +331,13 @@ var BookingForm = function () {
 					state.stop.exceed_min_exist_time = action.exceed_min_exist_time;
 					return JSON.parse(JSON.stringify(state));
 				case DIALOG_HIDDEN:
-					state.stop.has_data = false;
-					state.stop.exceed_min_exist_time = false;
-					return JSON.parse(JSON.stringify(state));
+					return Object.assign({}, state, {
+						show: false,
+						stop: {
+							has_data: false,
+							exceed_min_exist_time: false
+						}
+					});
 				default:
 					return state;
 			}
@@ -474,18 +476,14 @@ var BookingForm = function () {
 			}
 
 			store.subscribe(function () {
-				console.group('update view at subscribe', count++);
 				var state = store.getState();
 				//update this way for vue see it
-				console.warn('update time view');
 				var vue_state = self.getVueState();
 				Object.assign(vue_state, state);
 
 				//debug
 				var prestate = store.getPrestate();
-				requestAnimationFrame(function () {
-					pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));
-				});
+				pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));
 
 				/**
      * Available time change
@@ -493,14 +491,8 @@ var BookingForm = function () {
      */
 				var available_time_change = prestate.available_time != state.available_time;
 				if (available_time_change) {
-					console.warn('update select view');
-					requestAnimationFrame(function () {
-						_this.updateSelectView(state.available_time);
-					});
-					console.warn('update calendar view');
-					requestAnimationFrame(function () {
-						_this.updateCalendarView(state.available_time);
-					});
+					_this.updateSelectView(state.available_time);
+					_this.updateCalendarView(state.available_time);
 				}
 				/**
      * Form step change
@@ -508,11 +500,8 @@ var BookingForm = function () {
 				var form_step_change = prestate.form_step != state.form_step || prestate.init_view == false && state.form_step == 'form-step-1';
 				if (form_step_change) {
 					console.info('pointToFormStep');
-					requestAnimationFrame(function () {
-						_this.pointToFormStep();
-					});
+					_this.pointToFormStep();
 				}
-				console.groupEnd('update view at subscribe', count);
 			});
 		}
 	}, {
@@ -574,8 +563,6 @@ var BookingForm = function () {
 				available_time_on_selected_day = [];
 			}
 
-			store.dispatch({ type: 'ABC', time: 1 });
-
 			if (available_time_on_selected_day.length == 0) {
 				var default_time = {
 					time: 'N/A',
@@ -584,7 +571,6 @@ var BookingForm = function () {
 
 				available_time_on_selected_day.push(default_time);
 			}
-			store.dispatch({ type: 'ABC', time: 1 });
 
 			var time_select = this.time_select;
 
@@ -595,8 +581,8 @@ var BookingForm = function () {
 				return carry;
 			}, '');
 
+			// requestAnimationFrame(()=>{time_select.innerHTML = newInnerHtml;});
 			time_select.innerHTML = newInnerHtml;
-
 			store.dispatch({ type: CHANGE_RESERVATION_TIME, time: time_select.selectedOptions[0].value });
 		}
 	}, {
@@ -790,7 +776,10 @@ var BookingForm = function () {
 			this.ajax_dialog.on('shown.bs.modal', function () {
 				var state = store.getState();
 				var timeId = setTimeout(function () {
-					store.dispatch({ type: DIALOG_EXCEED_MIN_EXIST_TIME, exceed_min_exist_time: true });
+					var state = store.getState();
+					if (state.dialog.show == true) {
+						store.dispatch({ type: DIALOG_EXCEED_MIN_EXIST_TIME, exceed_min_exist_time: true });
+					}
 					clearTimeout(timeId);
 				}, state.dialog.min_exist_time);
 			});

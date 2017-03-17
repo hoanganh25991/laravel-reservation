@@ -47,6 +47,6 @@
     </table>
     <div class="form-actions cf bottom_room">
         <button class="btn-form-next btn btn-primary pull-left" destination="form-step-2">Back</button>
-        <a href="{{ url('') }}" type="button" class="btn btn-success pull-right">Home</a>
+        <a href="{{ url('') }}" type="button" class="btn btn-primary pull-right">Home</a>
     </div>
 </div>

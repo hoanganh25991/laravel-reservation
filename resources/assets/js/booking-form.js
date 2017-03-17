@@ -25,7 +25,6 @@ const CHANGE_CUSTOMER_EMAIL		  = 'CHANGE_CUSTOMER_EMAIL'
 const CHANGE_CUSTOMER_PHONE 	  = 'CHANGE_CUSTOMER_PHONE'
 const CHANGE_CUSTOMER_REMARKS	  = 'CHANGE_CUSTOMER_REMARKS'
 
-window.count = 0;
 class BookingForm {
 	/** @namespace res.statusMsg */
 	/** @namespace action.adult_pax */
@@ -184,7 +183,7 @@ class BookingForm {
 					exceed_min_exist_time: false
 				},
 				min_exist_time: 690 //ms
-				// min_exist_time: 5000 //ms
+				//min_exist_time: 5000 //ms
 			},
 			available_time: {},
 			ajax_call: 0,
@@ -329,9 +328,13 @@ class BookingForm {
 				state.stop.exceed_min_exist_time = action.exceed_min_exist_time;
 				return JSON.parse(JSON.stringify(state));
 			case DIALOG_HIDDEN:
-				state.stop.has_data = false;
-				state.stop.exceed_min_exist_time = false;
-				return JSON.parse(JSON.stringify(state));
+				return Object.assign({}, state, {
+					show: false,
+					stop: {
+						has_data: false,
+						exceed_min_exist_time: false,
+					}
+				});
 			default:
 				return state;
 		}
@@ -474,16 +477,14 @@ class BookingForm {
 		}
 
 		store.subscribe(()=>{
-			console.group('update view at subscribe', count++);
 			let state    = store.getState();
 			//update this way for vue see it
-			console.warn('update time view');
 			let vue_state = self.getVueState();
 			Object.assign(vue_state, state);
 
 			//debug
 			let prestate = store.getPrestate();
-			requestAnimationFrame(()=>{pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));});
+			pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));
 
 			/**
 			 * Available time change
@@ -491,14 +492,8 @@ class BookingForm {
 			 */
 			let available_time_change = (prestate.available_time != state.available_time);
 			if(available_time_change){
-				console.warn('update select view');
-				requestAnimationFrame(()=>{
-					this.updateSelectView(state.available_time);
-				});
-				console.warn('update calendar view');
-				requestAnimationFrame(()=>{
-					this.updateCalendarView(state.available_time);
-				});
+				this.updateSelectView(state.available_time);
+				this.updateCalendarView(state.available_time);
 			}
 			/**
 			 * Form step change
@@ -508,9 +503,8 @@ class BookingForm {
 										&& state.form_step == 'form-step-1');
 			if(form_step_change){
 				console.info('pointToFormStep');
-				requestAnimationFrame(()=>{this.pointToFormStep();});
+				this.pointToFormStep();
 			}
-			console.groupEnd('update view at subscribe', count);
 		});
 
 
@@ -572,8 +566,6 @@ class BookingForm {
 		    available_time_on_selected_day = [];
 	    }
 
-		store.dispatch({type: 'ABC', time: 1});
-
 		if (available_time_on_selected_day.length == 0) {
 	        let default_time = {
 	            time: 'N/A',
@@ -582,7 +574,6 @@ class BookingForm {
 
 	        available_time_on_selected_day.push(default_time);
 	    }
-		store.dispatch({type: 'ABC', time: 1});
 
 		let time_select = this.time_select;
 
@@ -593,8 +584,8 @@ class BookingForm {
 			return carry;
 		}, '');
 
+		// requestAnimationFrame(()=>{time_select.innerHTML = newInnerHtml;});
 		time_select.innerHTML = newInnerHtml;
-
 		store.dispatch({type: CHANGE_RESERVATION_TIME, time: time_select.selectedOptions[0].value});
 	}
 
@@ -608,15 +599,15 @@ class BookingForm {
 
 	    let available_days = Object.keys(available_time);
 		calendar.day_tds.each(function() {
-	        let td = $(this);
-	        let td_day_str = `${td.attr('year')}-${calendar._prefix2Dec(td.attr('month'))}-${calendar._prefix2Dec(td.attr('day'))}`;
+			let td = $(this);
+			let td_day_str = `${td.attr('year')}-${calendar._prefix2Dec(td.attr('month'))}-${calendar._prefix2Dec(td.attr('day'))}`;
 
-	        if (available_days.includes(td_day_str)) {
-		        calendar._pickable(td);
-	        } else {
-		        calendar._unpickable(td);
-	        }
-	    });
+			if (available_days.includes(td_day_str)) {
+				calendar._pickable(td);
+			} else {
+				calendar._unpickable(td);
+			}
+		});
 
 	}
 
@@ -801,7 +792,10 @@ class BookingForm {
 			.on('shown.bs.modal', function(){
 				let state = store.getState();
 				let timeId = setTimeout(function(){
-					store.dispatch({type: DIALOG_EXCEED_MIN_EXIST_TIME, exceed_min_exist_time: true});
+					let state = store.getState();
+					if(state.dialog.show == true){
+						store.dispatch({type: DIALOG_EXCEED_MIN_EXIST_TIME, exceed_min_exist_time: true});
+					}
 					clearTimeout(timeId);
 				}, state.dialog.min_exist_time);
 			});
