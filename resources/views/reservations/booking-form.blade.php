@@ -128,12 +128,13 @@
 
                 <div class="form-actions cf bottom_room">
                     <button class="btn-form-next btn btn-primary pull-right" destination="form-step-3">Next</button>
+                    <button class="btn-form-next btn btn-primary pull-left" destination="form-step-1">Back</button>
                 </div>
             </div>
             @include('reservations.footer')
         </div><!-- /box -->
         <div class="box form-step" id="form-step-3">
-            @include('reservations.booking-summary', ['should_show_confirm_id' => $should_show_confirm_id]);
+            @include('reservations.booking-summary', ['should_show_confirm_id' => false]);
         </div>
     </div>
     {{--modal--}}

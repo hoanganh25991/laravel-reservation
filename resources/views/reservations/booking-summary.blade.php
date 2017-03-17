@@ -18,12 +18,10 @@
             <td>@{{ pax.adult }} Adults</td>
             <td>@{{ pax.children }} Children</td>
         </tr>
-        @if($should_show_confirm_id)
-            <tr>
-                <td><label>Confirmation ID:</label></td>
-                <td>@{{ reservation.confirm_id }}</td>
-            </tr>
-        @endif
+        <tr>
+            <td><label>Confirmation ID:</label></td>
+            <td>@{{ reservation.confirm_id }}</td>
+        </tr>
         </tbody>
     </table>
 
@@ -47,10 +45,8 @@
         </tr>
         </tbody>
     </table>
-    <div class="form-actions cf legend">
-        @if($should_show_confirm_id)
-            <a href="{{ url('') }}" type="button" class="btn btn-success">Confirm</a>
-        @endif
-            <a href="{{ url('') }}" type="button" class="btn btn-success">Home</a>
+    <div class="form-actions cf bottom_room">
+        <button class="btn-form-next btn btn-primary pull-left" destination="form-step-2">Back</button>
+        <a href="{{ url('') }}" type="button" class="btn btn-success pull-right">Home</a>
     </div>
 </div>
