@@ -463,13 +463,9 @@ var BookingForm = function () {
 			this.findView();
 			var store = window.store;
 			var self = this;
-			// this.form_vue.$data = store.getState();
-			// let form_vue = this.form_vue;
 			/**
     * Debug state
-    * @type {Element}
     */
-			// let pre = document.querySelector('#expand');
 			var pre = document.querySelector('#redux-state');
 			if (!pre) {
 				var body = document.querySelector('body');
@@ -495,7 +491,6 @@ var BookingForm = function () {
      * @type {boolean}
      */
 				var available_time_change = prestate.available_time != state.available_time;
-				// if(available_time_change){
 				if (available_time_change) {
 					requestAnimationFrame(function () {
 						_this.updateSelectView(state.available_time);
@@ -535,13 +530,7 @@ var BookingForm = function () {
 				return;
 			}
 
-			var calendarDiv = $('#calendar-box');
-
-			this.calendar = calendarDiv.Calendar();
-			this.day_tds = calendarDiv.find('td.day');
-			this.label = document.querySelector('#reservation_date');
-			this.select = document.querySelector('select[name="reservation_time"]');
-			this.form = document.querySelector('#booking-form');
+			this.calendar = $('#calendar-box').Calendar();
 
 			this.adult_pax_select = document.querySelector('select[name="adult_pax"]');
 			this.children_pax_select = document.querySelector('select[name="children_pax"]');
@@ -590,43 +579,29 @@ var BookingForm = function () {
 				available_time_on_selected_day.push(default_time);
 			}
 
-			var selectDiv = this.select;
+			var time_select = this.time_select;
 
-			console.warn('new dispatch in view');
+			var newInnerHtml = available_time_on_selected_day.reduce(function (carry, time) {
+				var option = '<option value="' + time.time + '">' + time.session_name + ' ' + time.time + '</option>';
+				carry += option;
 
-			store.dispatch({ type: 'CHANGE_RESERVATION_TIME', time: selectDiv.options[0].value });
+				return carry;
+			}, '');
 
-			selectDiv.innerHTML = '';
-			available_time_on_selected_day.forEach(function (time) {
-				//console.log(time);
-				var optionDiv = document.createElement('option');
+			time_select.innerHTML = newInnerHtml;
 
-				optionDiv.setAttribute('value', time.time);
-				//noinspection JSUnresolvedVariable
-				optionDiv.innerText = time.session_name + ' ' + time.time;
-
-				selectDiv.appendChild(optionDiv);
-			});
-
-			console.warn('update view success');
+			store.dispatch({ type: CHANGE_RESERVATION_TIME, time: time_select.selectedOptions[0].value });
 		}
 	}, {
 		key: 'updateCalendarView',
 		value: function updateCalendarView(available_time) {
+			var calendar = this.calendar;
 			if (Object.keys(available_time).length == 0) return;
 
-			var calendar = this.calendar;
 			this._addCalendarHelper(calendar);
 
-			// if(calendar.available_time){
-			// 	calendar.available_time == available_time;
-			// 	return;
-			// }
-			//
-			// calendar.available_time = available_time;
-
 			var available_days = Object.keys(available_time);
-			this.day_tds.each(function () {
+			calendar.day_tds.each(function () {
 				var td = $(this);
 				var td_day_str = td.attr('year') + '-' + calendar._prefix2Dec(td.attr('month')) + '-' + calendar._prefix2Dec(td.attr('day'));
 
@@ -640,6 +615,10 @@ var BookingForm = function () {
 	}, {
 		key: '_addCalendarHelper',
 		value: function _addCalendarHelper(calendar) {
+			if (typeof calendar.day_tds == 'undefined') {
+				calendar.day_tds = $('#calendar-box').find('td');
+			}
+
 			if (!calendar._prefix2Dec || !calendar._pickable || calendar._unpickable) {
 				calendar._prefix2Dec = function (val) {
 					if (val < 10) return '0' + val;
@@ -724,6 +703,10 @@ var BookingForm = function () {
 			});
 
 			var time_select = this.time_select;
+			// time_select.addEventListener('DOMSubtreeModified', function(){
+			// 	console.log('time_select modified');
+			// 	store.dispatch({type: CHANGE_RESERVATION_TIME, time: time_select.options[0].value});
+			// });
 			time_select.addEventListener('change', function () {
 				console.log('time change');
 				var selectedOption = time_select.selectedOptions[0];

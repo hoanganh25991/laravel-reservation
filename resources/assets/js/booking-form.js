@@ -463,13 +463,9 @@ class BookingForm {
 		this.findView();
 		let store = window.store;
 		let self = this;
-		// this.form_vue.$data = store.getState();
-		// let form_vue = this.form_vue;
 		/**
 		 * Debug state
-		 * @type {Element}
 		 */
-		// let pre = document.querySelector('#expand');
 		let pre = document.querySelector('#redux-state');
 		if(!pre){
 			let body = document.querySelector('body');
@@ -493,7 +489,6 @@ class BookingForm {
 			 * @type {boolean}
 			 */
 			let available_time_change = (prestate.available_time != state.available_time);
-			// if(available_time_change){
 			if(available_time_change){
 				requestAnimationFrame(()=>{
 					this.updateSelectView(state.available_time);
@@ -533,13 +528,8 @@ class BookingForm {
 			return;
 		}
 
-		let calendarDiv = $('#calendar-box');
 
-		this.calendar = calendarDiv.Calendar();
-		this.day_tds = calendarDiv.find('td.day');
-		this.label = document.querySelector('#reservation_date');
-		this.select = document.querySelector('select[name="reservation_time"]');
-		this.form = document.querySelector('#booking-form');
+		this.calendar = $('#calendar-box').Calendar();
 
 		this.adult_pax_select = document.querySelector('select[name="adult_pax"]');
 		this.children_pax_select = document.querySelector('select[name="children_pax"]');
@@ -587,44 +577,30 @@ class BookingForm {
 	        available_time_on_selected_day.push(default_time);
 	    }
 
-		let selectDiv = this.select;
+		let time_select = this.time_select;
 
-		console.warn('new dispatch in view');
+		let newInnerHtml = available_time_on_selected_day.reduce((carry, time) => {
+			let option = `<option value="${time.time}">${time.session_name} ${time.time}</option>`;
+			carry += option;
 
-		store.dispatch({type: 'CHANGE_RESERVATION_TIME', time: selectDiv.options[0].value});
+			return carry;
+		}, '');
 
-		selectDiv.innerHTML = '';
-	    available_time_on_selected_day.forEach(time => {
-	        //console.log(time);
-	        let optionDiv = document.createElement('option');
+		time_select.innerHTML = newInnerHtml;
 
-	        optionDiv.setAttribute('value', time.time);
-	        //noinspection JSUnresolvedVariable
-	        optionDiv.innerText = time.session_name + ' ' + time.time;
-
-	        selectDiv.appendChild(optionDiv);
-	    });
-
-		console.warn('update view success');
-
+		store.dispatch({type: CHANGE_RESERVATION_TIME, time: time_select.selectedOptions[0].value});
 	}
 
 	updateCalendarView(available_time) {
+		let calendar = this.calendar;
 		if(Object.keys(available_time).length == 0)
 			return
 
-		let calendar = this.calendar;
+		
 		this._addCalendarHelper(calendar);
 
-		// if(calendar.available_time){
-		// 	calendar.available_time == available_time;
-		// 	return;
-		// }
-		//
-		// calendar.available_time = available_time;
-
 	    let available_days = Object.keys(available_time);
-	    this.day_tds.each(function() {
+		calendar.day_tds.each(function() {
 	        let td = $(this);
 	        let td_day_str = `${td.attr('year')}-${calendar._prefix2Dec(td.attr('month'))}-${calendar._prefix2Dec(td.attr('day'))}`;
 
@@ -638,6 +614,10 @@ class BookingForm {
 	}
 
 	_addCalendarHelper(calendar){
+		if(typeof calendar.day_tds == 'undefined'){
+			calendar.day_tds = $('#calendar-box').find('td');
+		}
+		
 		if(!calendar._prefix2Dec || !calendar._pickable || calendar._unpickable){
 			calendar._prefix2Dec = function(val) {
 				if (val < 10)
@@ -722,6 +702,10 @@ class BookingForm {
 		});
 
 		let time_select = this.time_select;
+		// time_select.addEventListener('DOMSubtreeModified', function(){
+		// 	console.log('time_select modified');
+		// 	store.dispatch({type: CHANGE_RESERVATION_TIME, time: time_select.options[0].value});
+		// });
 		time_select.addEventListener('change', function(){
 			console.log('time change');
 			let selectedOption = time_select.selectedOptions[0];
