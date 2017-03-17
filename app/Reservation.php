@@ -5,8 +5,8 @@ namespace App;
 use Carbon\Carbon;
 use Hashids\Hashids;
 use App\Traits\ApiUtils;
+use App\Events\ReservationCreated;
 use App\OutletReservationSetting as Setting;
-use Illuminate\Database\Eloquent\Builder;
 
 /**
  * @property mixed reservation_timestamp
@@ -18,6 +18,9 @@ use Illuminate\Database\Eloquent\Builder;
  * @property mixed status
  * @property mixed date_string
  * @property mixed confirm_id
+ * @property mixed phone_country_code
+ * @property mixed phone
+ * @property mixed full_phone_number
  */
 class Reservation extends HoiModel {
 
@@ -68,6 +71,10 @@ class Reservation extends HoiModel {
         'payment_amount',
         'payment_required',
         'is_outdoor'
+    ];
+
+    protected $events = [
+        'created' => ReservationCreated::class,
     ];
 
 
@@ -132,5 +139,9 @@ class Reservation extends HoiModel {
         $confirm_id = $hashids->encode($id);
         
         return $confirm_id;
+    }
+    
+    public function getFullPhoneNumberAttribute(){
+        return "{$this->phone_country_code}{$this->phone}";
     }
 }

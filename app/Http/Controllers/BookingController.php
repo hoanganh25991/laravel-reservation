@@ -285,6 +285,9 @@ class BookingController extends HoiController {
      * @return $this|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function getBookingForm(ApiRequest $req){
+        /**
+         * Customer query to get available time
+         */
         if($req->method() == 'POST' && !$req->has('step')){
             //return $this->apiResponse($req->all());
             /* @var Validator $validator*/
@@ -313,6 +316,10 @@ class BookingController extends HoiController {
             return $this->apiResponse($available_time);
         }
 
+        /**
+         * Customer submit complete form
+         * to create reservation
+         */
         if($req->method() == 'POST' && $req->get('step') == 'form-step-3'){
             $validator = Validator::make($req->all(), [
                 'outlet_id'        => 'required',
@@ -351,7 +358,7 @@ class BookingController extends HoiController {
             $reservation_info['reservation_timestamp'] = "{$reservation_info['reservation_date']} {$reservation_info['reservation_time']}:00";
 
             $reservation = new Reservation($reservation_info);
-            $reservation->status = Reservation::CONFIRMED;//
+            $reservation->status = Reservation::RESERVED;//
             $reservation->save();
             
             $confirm_id =  $reservation->confirm_id;
@@ -370,65 +377,6 @@ class BookingController extends HoiController {
         return view('reservations.booking-form', compact('outlets', 'should_show_confirm_id'));
     }
 
-    private function _padTelephone($telephone){
-        if (substr($telephone,0,3)!="+65"){
-            if (substr($telephone,0,2)!="65"){
-                $telephone="+65".$telephone;
-            }else{
-                $telephone="+".$telephone;
-            }
-        }
-        return $telephone;
-    }
-    private function sendOverHoiio($telephone,$message,$sender_name){
-
-        //pad the phone number
-
-        $telephone=$this->_padTelephone($telephone);
-
-
-
-        $hoiioAppId = "n0rwoAWlLNvTZpXo";
-        $hoiioAccessToken = "OsiquwPsGPkpXrxV";
-        $sendSmsURL = "https://secure.hoiio.com/open/sms/send";
-        $fields = array(
-            'app_id' => urlencode($hoiioAppId),
-            'access_token' => urlencode($hoiioAccessToken),
-            'dest' => urlencode($telephone),     // send SMS to this phone
-
-            'msg' => urlencode($message),                // message content in SMS
-            'sender_name'=>$sender_name
-        );
-
-        // form up variables in the correct format for HTTP POST
-        $fields_string = "";
-        foreach($fields as $key => $value)
-            $fields_string .= $key . '=' . $value . '&';
-
-        $fields_string = rtrim($fields_string,'&');
-
-        /* initialize cURL */
-        $ch = curl_init();
-
-        /* set options for cURL */
-        curl_setopt($ch, CURLOPT_URL, $sendSmsURL);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
-
-        /* execute HTTP POST request */
-        $raw_result = curl_exec($ch);
-        $result = json_decode($raw_result);     // parse JSON formatted result
-
-        /* close connection */
-        curl_close($ch);
-
-
-        if($result->status == "success_ok") {
-            return true;
-        } else {
-            return false;
-        }
-    }
+    
 
 }

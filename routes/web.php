@@ -90,6 +90,9 @@ Route::get('test', function(App\Http\Controllers\BookingController $c){
 //    dd($c->reservation_pax_size);
 
 //    dd(App\OutletReservationSetting::bufferConfigAsMap());
-    dd(App\OutletReservationSetting::brandId());
+//    dd(App\OutletReservationSetting::brandId());
+
+    $r = new \App\Reservation();
+    $r->save();
 });
 

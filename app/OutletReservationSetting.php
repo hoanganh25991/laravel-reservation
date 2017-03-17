@@ -24,8 +24,9 @@ class OutletReservationSetting extends HoiModel {
     /**
      * SETTING default config
      */
-    const SETTING_GROUP                  = 1;
-    const BRAND_ID                       = 1;
+    const SETTING_GROUP   = 1;
+    const BRAND_ID        = 1;
+    const SMS_SENDER_NAME = 'ALFRED';
 
     /**
      * Cast value by type
@@ -108,8 +109,8 @@ class OutletReservationSetting extends HoiModel {
     
     public function scopeAllConfig(){
         //query database to get data
-        $config = Setting::$all_config ?: $this->query()->get();
-//        dd($config);
+        $config = Setting::$all_config ?: Setting::all();
+        //dd($config);
         $config_by_group = 
             $config
                 ->groupBy(function($c){return $c->setting_group;})
@@ -122,11 +123,27 @@ class OutletReservationSetting extends HoiModel {
         return $config_by_group;
     }
     
-    
     public static function brandId(){
         $config = Setting::allConfig();
-        $setting_config = $config[(string)Setting::SETTING_GROUP];
+        //dd($config);
+        try{
+            $setting_config = $config[(string)Setting::SETTING_GROUP];
+        }catch(\Exception $e){
+            return Setting::BRAND_ID;
+        }
 
         return $setting_config('BRAND_ID') ?: Setting::BRAND_ID;
+    }
+
+    public static function smsSenderName(){
+        $config = Setting::allConfig();
+        //dd($config);
+        try{
+            $setting_config = $config[(string)Setting::SETTING_GROUP];
+        }catch(\Exception $e){
+            return Setting::BRAND_ID;
+        }
+
+        return $setting_config('SMS_SENDER_NAME') ?: Setting::SMS_SENDER_NAME;
     }
 }
