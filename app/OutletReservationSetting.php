@@ -2,9 +2,10 @@
 
 namespace App;
 
-use App\Traits\ApiUtils;
 use Carbon\Carbon;
+use App\Traits\ApiUtils;
 use App\OutletReservationSetting as Setting;
+use Illuminate\Database\Eloquent\Collection;
 
 class OutletReservationSetting extends HoiModel {
 
@@ -19,6 +20,12 @@ class OutletReservationSetting extends HoiModel {
     const MAX_DAYS_IN_ADVANCE               = 7;
     const MIN_HOURS_IN_ADVANCE_SLOT_TIME    = 3;
     const MIN_HOURS_IN_ADVANCE_SESSION_TIME = 3;
+
+    /**
+     * SETTING default config
+     */
+    const SETTING_GROUP                  = 1;
+    const BRAND_ID                       = 1;
 
     /**
      * Cast value by type
@@ -41,12 +48,11 @@ class OutletReservationSetting extends HoiModel {
      */
     const HASH_SALT = 'Hashids is a small open-source library that generates short, unique, non-sequential ids from numbers.';
 
-    /**
-     * Cache filename
-     */
-    public static $buffer_config = null;
-
     protected $table = 'outlet_reservation_setting';
+
+    public static $buffer_config = null;
+    /** @var Collection $all_config */
+    public static $all_config = null;
 
     protected static function boot(){
         parent::boot();
@@ -60,7 +66,7 @@ class OutletReservationSetting extends HoiModel {
     }
 
     public function scopeBufferConfig($query){
-        return $query->where('setting_group', self::BUFFER_GROUP);
+        return $query->where('setting_group', Setting::BUFFER_GROUP);
     }
 
     /**
@@ -69,7 +75,7 @@ class OutletReservationSetting extends HoiModel {
      */
     protected function bufferConfigAsMap(){
         //$config = static::bufferConfig()->get();
-        $config = Setting::$buffer_config ?: Setting::bufferConfig()->get();
+        $config = Setting::$buffer_config ?: $this->scopeBufferConfig($this->query())->get();
         //assign to static for reuse ONLY in this request
         Setting::$buffer_config = $config;
 
@@ -99,6 +105,28 @@ class OutletReservationSetting extends HoiModel {
     public static function outletId(){
         return session('outlet_id', 1);
     }
+    
+    public function scopeAllConfig(){
+        //query database to get data
+        $config = Setting::$all_config ?: $this->query()->get();
+//        dd($config);
+        $config_by_group = 
+            $config
+                ->groupBy(function($c){return $c->setting_group;})
+                ->map(function($group){
+                    $group->getKey = $this->buildGetKey();
+                    
+                    return $group->getKey->bindTo($group);
+                });
+        
+        return $config_by_group;
+    }
+    
+    
+    public static function brandId(){
+        $config = Setting::allConfig();
+        $setting_config = $config[(string)Setting::SETTING_GROUP];
 
-
+        return $setting_config('BRAND_ID') ?: Setting::BRAND_ID;
+    }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Response;
 use Validator;
 use App\Outlet;
 use App\Timing;
@@ -15,6 +14,7 @@ use App\Http\Requests\ApiRequest;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Response;
 use App\OutletReservationSetting as Setting;
 use App\Listeners\UpdateCacheDatesWithAvailableTimeListener as CacheListener;
 
@@ -27,7 +27,6 @@ class BookingController extends HoiController {
     public $valid_reservations;
 
     /** @var  int $reservation_pax_size */
-//    protected $reservation_pax_size;
     public $reservation_pax_size;
 
     public $recalculate;
@@ -279,17 +278,6 @@ class BookingController extends HoiController {
 
         return $filename;
     }
-
-    /**
-     * Get on reservation pax size to assign default
-     */
-//    public function getReservationPaxSizeAttribute(){
-//        return $this->reservation_pax_size ?: Setting::RESERVATION_PAX_SIZE;
-//    }
-//
-//    public function setReservationPaxSize($val){
-//        $this->reservation_pax_size = $val;
-//    }
 
     /**
      * Booking Form step 1
