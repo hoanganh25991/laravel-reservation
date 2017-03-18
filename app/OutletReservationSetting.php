@@ -58,8 +58,6 @@ class OutletReservationSetting extends HoiModel {
 
     protected $table = 'outlet_reservation_setting';
 
-    public static $buffer_config = null;
-    /** @var Collection $all_config */
     public static $all_config = null;
 
     protected static function boot(){
@@ -73,35 +71,46 @@ class OutletReservationSetting extends HoiModel {
         return env('TIMEZONE', 'Asia/Singapore');
     }
 
-    public function scopeBufferConfig($query){
-        return $query->where('setting_group', Setting::BUFFER_GROUP);
+    public static function bufferConfig(){
+        return (new Setting)->getConfigGroup(Setting::BUFFER_GROUP);
     }
 
-    /**
-     * Dynamic function call getKey on buffer
-     * @return string
-     */
-    protected function bufferConfigAsMap(){
-        //$config = static::bufferConfig()->get();
-        $config = Setting::$buffer_config ?: $this->scopeBufferConfig($this->query())->get();
-        //assign to static for reuse ONLY in this request
-        Setting::$buffer_config = $config;
+    private static function allConfigByGroup(){
+        $setting = new Setting;
 
-        /**
-         * Train config how to getKey
-         * Dynamic add up function to object
-         * ~ prototype in js, JUST nearly like
-         */
-        $config->getKey = $this->functionGetKey();
-        
-        return $config->getKey->bindTo($config);
+        if(!is_null(Setting::$all_config)){
+            return Setting::$all_config;
+        }
+
+        $config = $setting->query()->get();
+        //config by group
+        $config_by_group =
+            $config
+                ->groupBy(function($c){return $c->setting_group;})
+                ->map(function($group) use($setting){
+                    return $setting->buildConfigAsMap($group);
+                });
+
+        //Store all config to reuse in this request
+        Setting::$all_config = $config_by_group;
+
+        return Setting::$all_config;
     }
 
-    /**
-     * @return Carbon[]
-     */
-    protected function dateRange(){
-        $buffer_config = Setting::bufferConfigAsMap();
+    private function getConfigGroup($group_name = Setting::BUFFER_GROUP){
+        $config_by_group = Setting::allConfigByGroup();
+
+        try{
+            $config_group = $config_by_group[(string)$group_name];
+        }catch(\Exception $e){
+            return (new Setting)->buildConfigAsMap(collect([]));
+        }
+
+        return $config_group;
+    }
+
+    public static function dateRange(){
+        $buffer_config       = Setting::bufferConfig();
         $max_days_in_advance = $buffer_config('MAX_DAYS_IN_ADVANCE');
 
         $today   = Carbon::now(Setting::timezone());
@@ -114,63 +123,24 @@ class OutletReservationSetting extends HoiModel {
         return session('outlet_id', 1);
     }
     
-    public static function allConfigByGroup(){
-        $setting = new Setting;
-        if(!is_null(Setting::$all_config)){
-            return Setting::$all_config;
-        }
-        
-        $config = $setting->query()->get();
-        //config by group
-        $config_by_group = 
-            $config
-                ->groupBy(function($c){return $c->setting_group;})
-                ->map(function($group) use($setting){
-                    $group->getKey = $setting->functionGetKey();
-                    
-                    return $group->getKey->bindTo($group);
-                });
-        
-        //Store all config to reuse in this request
-        Setting::$all_config = $config_by_group;
-        
-        return Setting::$all_config;
-    }
-    
     public static function brandId(){
-        $config = Setting::allConfigByGroup();
-        //dd($config);
-        try{
-            $setting_config = $config[(string)Setting::SETTING_GROUP];
-        }catch(\Exception $e){
-            return Setting::BRAND_ID;
-        }
+        $setting_config = Setting::settingConfig();
 
-        return $setting_config('BRAND_ID') ?: Setting::BRAND_ID;
+        return $setting_config('BRAND_ID');
     }
 
     public static function smsSenderName(){
-        $config = Setting::allConfigByGroup();
-        //dd($config);
-        try{
-            $setting_config = $config[(string)Setting::SETTING_GROUP];
-        }catch(\Exception $e){
-            return Setting::SMS_SENDER_NAME;
-        }
+        $setting_config = Setting::settingConfig();
 
-        return $setting_config('SMS_SENDER_NAME') ?: Setting::SMS_SENDER_NAME;
+        return $setting_config('SMS_SENDER_NAME');
+    }
+
+    public static function settingConfig(){
+        return (new Setting)->getConfigGroup(Setting::SETTING_GROUP);
     }
 
     public static function notificationConfig(){
-        $config_by_group = Setting::allConfigByGroup();
-
-        try{
-            $notification_config = $config_by_group[(string)Setting::NOTIFICATION_GROUP];
-        }catch(\Exception $e){
-            return (new Setting)->buildConfigAsMap(collect([]));
-        }
-
-        return $notification_config;
+        return (new Setting)->getConfigGroup(Setting::NOTIFICATION_GROUP);
     }
 
     /**
@@ -180,7 +150,7 @@ class OutletReservationSetting extends HoiModel {
      * @param $group
      * @return \Closure
      */
-    public function buildConfigAsMap($group){
+    private function buildConfigAsMap($group){
         $group->getKey = function($key){
             /* @var Collection $this */
             $item = $this->filter(function($i) use($key){return $i->setting_key == $key;})->first();
@@ -214,11 +184,11 @@ class OutletReservationSetting extends HoiModel {
              * Special key config
              */
             switch($key){
-                case 'HOURS_BEFORE_RESERVATION_TIME_TO_SEND_SMS':
-                    if(env('APP_ENV') != 'production'){
-                        $item_value = 0;
-                    }
-                    break;
+//                case 'HOURS_BEFORE_RESERVATION_TIME_TO_SEND_SMS':
+//                    if(env('APP_ENV') != 'production'){
+//                        $item_value = 0;
+//                    }
+//                    break;
 
             }
 
@@ -227,7 +197,7 @@ class OutletReservationSetting extends HoiModel {
         
         return $group->getKey->bindTo($group);
     }
-    
+
     public static function hash(){
         $hash = new HoiHash();
 

@@ -37,6 +37,7 @@ class SendConfirmSMS implements ShouldQueue{
      * @throws SMSException
      */
     public function handle(){
+        Log::info('SendConfirmSMS handled');
         $reservation = $this->reservation;
 
         $telephone    = $reservation->full_phone_number;

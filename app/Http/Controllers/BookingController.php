@@ -44,7 +44,7 @@ class BookingController extends HoiController {
                 $chunks->each(function($chunk) use($date){
                     $time = $chunk->time;
                     foreach(Timing::CAPACITY_X as $capacity){
-                        $group_name = Reservation::getGroupNameByDateTimeCapacity($date, $time, $capacity);
+                        $group_name = Reservation::groupNameByDateTimeCapacity($date, $time, $capacity);
     
                         try{
                             $reserved_cap     = $this->valid_reservations[$group_name];
@@ -203,7 +203,7 @@ class BookingController extends HoiController {
                  * Get buffer config
                  */
                 /** @var string $buffer_config */
-                $buffer_config = Setting::bufferConfigAsMap();
+                $buffer_config = Setting::bufferConfig();
                 $min_hours_slot_time    = $buffer_config('MIN_HOURS_IN_ADVANCE_SLOT_TIME');
                 $min_hours_session_time = $buffer_config('MIN_HOURS_IN_ADVANCE_SESSION_TIME');
 

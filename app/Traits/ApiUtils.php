@@ -18,7 +18,7 @@ trait ApiUtils{
     }
 
     protected function availableDateRange(){
-        $buffer_config = Setting::bufferConfigAsMap();
+        $buffer_config = Setting::bufferConfig();
         $max_days_in_advance = $buffer_config('MAX_DAYS_IN_ADVANCE');
         
         $today   = Carbon::now(Setting::timezone());
@@ -26,49 +26,4 @@ trait ApiUtils{
         
         return [$today, $max_day];
     }
-    
-    public function functionGetKey(){
-        return function($key){
-            /* @var Collection $this */
-            $item = $this->filter(function($i) use($key){return $i->setting_key == $key;})->first();
-
-            /**
-             * When no item found, use default config
-             */
-            if(is_null($item)){
-                /**
-                 * Should i try catch
-                 * Or through exception here
-                 * to notify that
-                 * they try to access on sth null
-                 */
-                try{
-                    $setting_class = new \ReflectionClass(Setting::class);
-                    $item_value = $setting_class->getConstant($key);
-                    return $item_value;
-                }catch(\Exception $e){
-
-                    return 0;
-                }
-            }
-
-            $item_value = $item->setting_value;
-            switch($item->setting_type){
-                case Setting::INT:
-                    $item_value = (int) $item_value;
-                    break;
-            }
-            
-            return $item_value;
-        };
-    }
-
-
-    
-    
-//    public static function cacheFilename(){
-//        return 'xxx';
-//    }
-    
-    
 }

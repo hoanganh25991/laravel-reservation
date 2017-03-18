@@ -3,7 +3,7 @@
 namespace App;
 
 use Carbon\Carbon;
-use Hashids\Hashids;
+//use Hashids\Hashids;
 use App\Traits\ApiUtils;
 use App\Events\ReservationCreated;
 use App\OutletReservationSetting as Setting;
@@ -87,6 +87,11 @@ class Reservation extends HoiModel {
         'created' => ReservationCreated::class,
     ];
 
+    protected static function boot() {
+        parent::boot();
+
+        static::byOutletId();
+    }
 
     public function scopeValidInDateRange($query){
         $date_range = $this->availableDateRange();
@@ -103,20 +108,21 @@ class Reservation extends HoiModel {
         $valid_reservations   = Reservation::validInDateRange()->get();
 
         $capacity_counted_reservations =
-            $valid_reservations->map(function($reservation){
-                                    $date  = $reservation->date->format('Y-m-d');
-                                    $time  = $reservation->date->format('H:i');
-                                    $capacity   = Timing::getCapacityName($reservation->pax_size);
+            $valid_reservations
+                ->map(function($reservation){
+                    $date  = $reservation->date->format('Y-m-d');
+                    $time  = $reservation->date->format('H:i');
+                    $capacity   = Timing::getCapacityName($reservation->pax_size);
 
-                                    return static::getGroupNameByDateTimeCapacity($date, $time, $capacity);
-                                })
-                                ->groupBy(function($group_name){return $group_name;})
-                                ->map(function($group){return $group->count();});
+                    return static::groupNameByDateTimeCapacity($date, $time, $capacity);
+                })
+                ->groupBy(function($group_name){return $group_name;})
+                ->map(function($group){return $group->count();});
 
         return $capacity_counted_reservations;
     }
     
-    public static function getGroupNameByDateTimeCapacity($date, $time, $capacity){
+    public static function groupNameByDateTimeCapacity($date, $time, $capacity){
         return "{$date}_{$time}_{$capacity}";
     }
     
@@ -140,15 +146,8 @@ class Reservation extends HoiModel {
         return "capacity_x";
     }
 
-    protected static function boot() {
-        parent::boot();
-
-        static::byOutletId();
-    }
-
     public function getConfirmIdAttribute(){
-        $id = $this->id;
-//        $hashids = new Hashids(Setting::HASH_SALT, 5);
+        $id         = $this->id;
         $confirm_id = Setting::hash()->encode($id);
         
         return $confirm_id;
@@ -161,6 +160,10 @@ class Reservation extends HoiModel {
     public function getConfirmSMSDateAttribute(){
         $notification_config = Setting::notificationConfig();
         $hours_before_reservation_timing_send_sms = $notification_config('HOURS_BEFORE_RESERVATION_TIME_TO_SEND_SMS');
+        
+        if(env('APP_ENV' != 'production')){
+            return Carbon::now(Setting::timezone())->addMinutes(2);
+        }
         
         return $this->date->subHours($hours_before_reservation_timing_send_sms);
     }

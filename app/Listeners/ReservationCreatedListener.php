@@ -2,9 +2,9 @@
 
 namespace App\Listeners;
 
-use App\Jobs\SendConfirmSMS;
 use App\Reservation;
 use App\Traits\SendSMS;
+use App\Jobs\SendConfirmSMS;
 //use App\Events\SentReminderSMS;
 use App\Exceptions\SMSException;
 use App\Events\ReservationCreated;
