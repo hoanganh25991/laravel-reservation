@@ -94,6 +94,7 @@ class BookingController extends HoiController {
         $timings_by_date =
             Session::availableSession()->get()
                 ->map->assignDate()->collapse()
+                ->filter->availableToBook()
                 ->groupBy(function($session){return $session->date->format('Y-m-d');})
                 ->map(function($session_by_date){return $session_by_date->map->timings->collapse();});
 
@@ -227,10 +228,12 @@ class BookingController extends HoiController {
                             $diff_in_hour = $item_in_hour - $today_in_hour;
 
                             $satisfied_in_advance_slot_time    = $diff_in_hour >= $min_hours_slot_time;
-                            $satisfied_in_advance_session_time = $diff_in_hour >= $min_hours_session_time;
+                            //$satisfied_in_advance_session_time = $diff_in_hour >= $min_hours_session_time;
 
-                            return $satisfied_in_advance_slot_time
-                                   && $satisfied_in_advance_session_time;
+                            //return $satisfied_in_advance_slot_time
+                            //       && $satisfied_in_advance_session_time;
+
+                            return $satisfied_in_advance_slot_time;
                         })->values();
                 }
 

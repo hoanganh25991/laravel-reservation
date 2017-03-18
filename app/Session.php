@@ -4,13 +4,14 @@ namespace App;
 
 use Carbon\Carbon;
 use App\Traits\ApiUtils;
+use Illuminate\Support\Collection;
 use App\OutletReservationSetting as Setting;
 
 /**
  * @property mixed one_off
- * @property static date
+ * @property Carbon date
  * @property mixed one_off_date
- * @property mixed timings
+ * @property Collection timings
  * @property mixed type
  * @property mixed session_name
  */
@@ -47,6 +48,12 @@ class Session extends HoiModel {
     ];
 
     protected  $table = 'session';
+
+    protected static function boot() {
+        parent::boot();
+
+        static::byOutletId();
+    }
     
     public function isSpecial(){
         return $this->one_off == Session::SPECIAL_SESSION;
@@ -136,12 +143,28 @@ class Session extends HoiModel {
         return $sessions;
     }
 
+    public function availableToBook(){
+        //if session has day diff more than 1, no need to compare in hours
+        if($this->date->diffInDays(Carbon::now(Setting::timezone())) > 0){
+            return true;
+        }
 
-    protected static function boot() {
-        parent::boot();
+        $earliest_timing          = $this->timings->first();
+        $session_start_timing_str = $earliest_timing->first_arrival_time;
+        $minutes     = $this->getMinutes($session_start_timing_str);
+        $time_hour   = (int)round($minutes / 60);
+        $time_minute = $minutes % 60;
+        //compute exactly start timing of session
+        $session_start_timing = $this->date->copy()->setTime($time_hour, $time_minute);
 
-        static::byOutletId();
+        $buffer_config          = Setting::bufferConfig();
+        $min_hours_session_time = $buffer_config('MIN_HOURS_IN_ADVANCE_SESSION_TIME');
+        $diff_in_hours          = $session_start_timing->diffInHours(Carbon::now());
+
+        $satisfied_in_advance_session_time = $diff_in_hours > $min_hours_session_time;
+        return $satisfied_in_advance_session_time;
     }
+
     
     
 
