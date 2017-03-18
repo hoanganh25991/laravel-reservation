@@ -9,7 +9,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 
-class SentSMS{
+class SentReminderSMS{
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $reservation;

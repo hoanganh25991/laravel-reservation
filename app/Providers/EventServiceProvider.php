@@ -19,8 +19,8 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\ReservationCreated' => [
             'App\Listeners\ReservationCreatedListener',
         ],
-        'App\Events\SentSMS' => [
-            'App\Listeners\SentSMSListener',
+        'App\Events\SentReminderSMS' => [
+            'App\Listeners\SentConfirmSMSListener',
         ],
     ];
 

@@ -209,6 +209,18 @@ class OutletReservationSetting extends HoiModel {
                     break;
             }
 
+            /**
+             * Special key config
+             */
+            switch($key){
+                case 'HOURS_BEFORE_RESERVATION_TIME_TO_SEND_SMS':
+                    if(env('APP_ENV') != 'production'){
+                        $item_value = 0;
+                    }
+                    break;
+
+            }
+
             return $item_value;
         };
         

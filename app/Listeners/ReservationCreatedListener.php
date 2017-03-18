@@ -5,7 +5,7 @@ namespace App\Listeners;
 use App\Jobs\SendConfirmSMS;
 use App\Reservation;
 use App\Traits\SendSMS;
-use App\Events\SentSMS;
+use App\Events\SentReminderSMS;
 use App\Exceptions\SMSException;
 use App\Events\ReservationCreated;
 use App\OutletReservationSetting as Setting;
@@ -37,9 +37,9 @@ class ReservationCreatedListener{
         $success_sent = $this->sendOverHoiio($telephone, $message, $sender_name);
 
         if($success_sent){
-            event(new SentSMS($reservation));
+            //event(new SentSMS($reservation));
             
-            $send_confirm_sms = (new SendConfirmSMS($reservation))->delay(Setting::);
+            $send_confirm_sms = (new SendConfirmSMS($reservation))->delay($reservation->confirm_SMS_date);
             dispatch($send_confirm_sms);
         }else{
             throw new SMSException('SMS not sent');
@@ -48,8 +48,8 @@ class ReservationCreatedListener{
 
     private function getMessage($reservation){
         //send out an SMS
-        $long_datetime_str = $reservation->date->format('M d Y');
-        return "Your reservation at $reservation->outlet_name on $long_datetime_str has been received. Reservation code: $reservation->confirm_id";
+        $long_datetime_str = $reservation->date->format('on M d Y at H:i');
+        return "Your reservation at $reservation->outlet_name $long_datetime_str has been received. Reservation code: $reservation->confirm_id";
 
     }
 

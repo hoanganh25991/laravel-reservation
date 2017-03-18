@@ -3,9 +3,9 @@
 namespace App\Listeners;
 
 use App\Reservation;
-use App\Events\SentSMS;
+use App\Events\SentReminderSMS;
 
-class SentSMSListener{
+class SentConfirmSMSListener{
     /**
      * Create the event listener.
      *
@@ -18,10 +18,9 @@ class SentSMSListener{
     /**
      * Handle the event.
      *
-     * @param  SMSSent $event
-     * @return void
+     * @param SentReminderSMS|SMSSent $event
      */
-    public function handle(SentSMS $event){
+    public function handle(SentReminderSMS $event){
         $reservation = $event->reservation;
         $reservation->status = Reservation::REMINDER_SENT;
         $reservation->save();

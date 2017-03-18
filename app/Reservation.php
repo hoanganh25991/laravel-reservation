@@ -10,7 +10,7 @@ use App\OutletReservationSetting as Setting;
 
 /**
  * @property mixed reservation_timestamp
- * @property static date
+ * @property Carbon date
  * @property mixed adult_pax
  * @property mixed children_pax
  * @property mixed pax_size
@@ -21,6 +21,9 @@ use App\OutletReservationSetting as Setting;
  * @property mixed phone_country_code
  * @property mixed phone
  * @property mixed full_phone_number
+ * @property Carbon confirm_SMS_date
+ * @property string outlet_name
+ * @property string confirm_comming_url
  */
 class Reservation extends HoiModel {
 
@@ -145,7 +148,16 @@ class Reservation extends HoiModel {
         return "{$this->phone_country_code}{$this->phone}";
     }
 
-    public function getSendSMSDateAttribute(){
-        $hours_before_reservation_timing_send_sms = Setting::
+    public function getConfirmSMSDateAttribute(){
+        $notification_config = Setting::notificationConfig();
+        $hours_before_reservation_timing_send_sms = $notification_config('HOURS_BEFORE_RESERVATION_TIME_TO_SEND_SMS');
+        
+        return $this->date->subHours($hours_before_reservation_timing_send_sms);
+    }
+
+    public function getConfirmComingUrlAttribute(){
+        $confirm_id = $this->confirm_id;
+
+        return url("reservations/$confirm_id");
     }
 }
