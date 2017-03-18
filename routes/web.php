@@ -92,7 +92,17 @@ Route::get('test', function(App\Http\Controllers\BookingController $c){
 //    dd(App\OutletReservationSetting::bufferConfigAsMap());
 //    dd(App\OutletReservationSetting::brandId());
 
-    $r = new \App\Reservation();
-    $r->save();
+    /**
+     * Setter on reservation CANNOT mutate on attribute X
+     * when reservation_info not pass attribute X
+     *
+     * Getter otherwise can
+     */
+//    $r = new \App\Reservation();
+//    $r->save();
+
+    //dd(App\OutletReservationSetting::allConfigByGroup());
+    $notification_config = App\OutletReservationSetting::notificationConfig();
+    dd($notification_config('HOURS_BEFORE_RESERVATION_TIME_TO_SEND_SMS'));
 });
 

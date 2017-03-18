@@ -29,6 +29,12 @@ class OutletReservationSetting extends HoiModel {
     const SMS_SENDER_NAME = 'ALFRED';
 
     /**
+     * NOTIFICATION default config
+     */
+    const NOTIFICATION_GROUP = 2;
+    const HOURS_BEFORE_RESERVATION_TIME_TO_SEND_SMS = 2;
+
+    /**
      * Cast value by type
      */
     const STRING = 0;
@@ -85,7 +91,7 @@ class OutletReservationSetting extends HoiModel {
          * Dynamic add up function to object
          * ~ prototype in js, JUST nearly like
          */
-        $config->getKey = $this->buildGetKey();
+        $config->getKey = $this->functionGetKey();
         
         return $config->getKey->bindTo($config);
     }
@@ -107,24 +113,31 @@ class OutletReservationSetting extends HoiModel {
         return session('outlet_id', 1);
     }
     
-    public function scopeAllConfig(){
-        //query database to get data
-        $config = Setting::$all_config ?: Setting::all();
-        //dd($config);
+    public static function allConfigByGroup(){
+        $setting = new Setting;
+        if(!is_null(Setting::$all_config)){
+            return Setting::$all_config;
+        }
+        
+        $config = $setting->query()->get();
+        //config by group
         $config_by_group = 
             $config
                 ->groupBy(function($c){return $c->setting_group;})
-                ->map(function($group){
-                    $group->getKey = $this->buildGetKey();
+                ->map(function($group) use($setting){
+                    $group->getKey = $setting->functionGetKey();
                     
                     return $group->getKey->bindTo($group);
                 });
         
-        return $config_by_group;
+        //Store all config to reuse in this request
+        Setting::$all_config = $config_by_group;
+        
+        return Setting::$all_config;
     }
     
     public static function brandId(){
-        $config = Setting::allConfig();
+        $config = Setting::allConfigByGroup();
         //dd($config);
         try{
             $setting_config = $config[(string)Setting::SETTING_GROUP];
@@ -136,14 +149,69 @@ class OutletReservationSetting extends HoiModel {
     }
 
     public static function smsSenderName(){
-        $config = Setting::allConfig();
+        $config = Setting::allConfigByGroup();
         //dd($config);
         try{
             $setting_config = $config[(string)Setting::SETTING_GROUP];
         }catch(\Exception $e){
-            return Setting::BRAND_ID;
+            return Setting::SMS_SENDER_NAME;
         }
 
         return $setting_config('SMS_SENDER_NAME') ?: Setting::SMS_SENDER_NAME;
+    }
+
+    public static function notificationConfig(){
+        $config_by_group = Setting::allConfigByGroup();
+
+        try{
+            $notification_config = $config_by_group[(string)Setting::NOTIFICATION_GROUP];
+        }catch(\Exception $e){
+            return (new Setting)->buildConfigAsMap(collect([]));
+        }
+
+        return $notification_config;
+    }
+
+    /**
+     * as a map, ex: $setting_config
+     * can get 'HOURS_BEFORE_RESERVATION_TIME_TO_SEND_SMS
+     * by $setting_config('HOURS_BEFORE_RESERVATION_TIME_TO_SEND_SMS');
+     * @param $group
+     * @return \Closure
+     */
+    public function buildConfigAsMap($group){
+        $group->getKey = function($key){
+            /* @var Collection $this */
+            $item = $this->filter(function($i) use($key){return $i->setting_key == $key;})->first();
+
+            /**
+             * When no item found, use default config
+             */
+            if(is_null($item)){
+                try{
+                    $setting_class = new \ReflectionClass(Setting::class);
+                    $item_value = $setting_class->getConstant($key);
+                    return $item_value;
+                }catch(\Exception $e){
+                    $msg = "Key $key can find in database & default config";
+                    throw new \Exception($msg);
+                }
+            }
+
+            /**
+             * $item_value has type
+             * check type to return
+             */
+            $item_value = $item->setting_value;
+            switch($item->setting_type){
+                case Setting::INT:
+                    $item_value = (int) $item_value;
+                    break;
+            }
+
+            return $item_value;
+        };
+        
+        return $group->getKey->bindTo($group);
     }
 }

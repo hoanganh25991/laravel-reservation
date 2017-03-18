@@ -144,4 +144,8 @@ class Reservation extends HoiModel {
     public function getFullPhoneNumberAttribute(){
         return "{$this->phone_country_code}{$this->phone}";
     }
+
+    public function getSendSMSDateAttribute(){
+        $hours_before_reservation_timing_send_sms = Setting::
+    }
 }

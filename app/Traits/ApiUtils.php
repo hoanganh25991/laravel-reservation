@@ -27,7 +27,7 @@ trait ApiUtils{
         return [$today, $max_day];
     }
     
-    public function buildGetKey(){
+    public function functionGetKey(){
         return function($key){
             /* @var Collection $this */
             $item = $this->filter(function($i) use($key){return $i->setting_key == $key;})->first();
