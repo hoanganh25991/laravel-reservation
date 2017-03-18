@@ -8,7 +8,8 @@ class HoiHash {
     public function __construct(){
         //new Hashids(Setting::HASH_SALT, 7);
         //simple hash, which return same hash value
-        $this->hashIds = new Hashids('', 7);
+        $custom_alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $this->hashIds = new Hashids('', 7, $custom_alphabet);
     }
 
     public function encode($id){
