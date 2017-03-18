@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Reservation;
 use Illuminate\Support\Facades\Route;
+use App\OutletReservationSetting as Setting;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 
 class RouteServiceProvider extends ServiceProvider
@@ -23,9 +25,14 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
-
         parent::boot();
+
+        Route::bind('confirm_id', function($confirm_id){
+            $reservation_id = Setting::hash()->decode($confirm_id);
+
+            return Reservation::find($reservation_id);
+        });
+
     }
 
     /**

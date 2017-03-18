@@ -4,6 +4,7 @@ namespace App;
 
 use Carbon\Carbon;
 use App\Traits\ApiUtils;
+use App\Library\HoiHash;
 use App\OutletReservationSetting as Setting;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -225,5 +226,11 @@ class OutletReservationSetting extends HoiModel {
         };
         
         return $group->getKey->bindTo($group);
+    }
+    
+    public static function hash(){
+        $hash = new HoiHash();
+
+        return $hash;
     }
 }

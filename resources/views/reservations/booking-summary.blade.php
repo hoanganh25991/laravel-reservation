@@ -5,7 +5,6 @@
 @endslot
 @endcomponent
 <div id="reservation-details" class="content legend">
-
     <h6 class="r-title">Your Reservation Information</h6>
     <table id="r-rsrve-info">
         <tbody>
@@ -46,7 +45,19 @@
         </tbody>
     </table>
     <div class="form-actions cf bottom_room">
-        <button class="btn-form-next btn btn-primary pull-left" destination="form-step-2">Back</button>
-        <a href="{{ url('') }}" type="button" class="btn btn-primary pull-right">Home</a>
+        @php
+            $is_summary_page = isset($is_summary_page) ? $is_summary_page : true;
+        @endphp
+        @if($is_summary_page)
+            <button class="btn-form-next btn btn-primary pull-left" destination="form-step-2">Back</button>
+            <a href="{{ url('') }}" type="button" class="btn btn-primary pull-right">Home</a>
+        @endif
+
+        @if(!$is_summary_page)
+            <form method="POST">
+                <button class="btn btn-primary">Confirm</button>
+            </form>
+        @endif
     </div>
 </div>
+

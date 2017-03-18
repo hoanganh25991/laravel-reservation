@@ -39,7 +39,6 @@ class SendConfirmSMS implements ShouldQueue{
         $sender_name  = Setting::smsSenderName();
 
         $success_sent = $this->sendOverHoiio($telephone, $message, $sender_name);
-
         if($success_sent){
             event(new SentReminderSMS($reservation));
         }else{

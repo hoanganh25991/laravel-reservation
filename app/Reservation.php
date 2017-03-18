@@ -24,6 +24,13 @@ use App\OutletReservationSetting as Setting;
  * @property Carbon confirm_SMS_date
  * @property string outlet_name
  * @property string confirm_comming_url
+ * @property mixed outlet_id
+ * @property mixed time
+ * @property mixed salutation
+ * @property mixed first_name
+ * @property mixed last_name
+ * @property mixed email
+ * @property mixed customer_remarks
  */
 class Reservation extends HoiModel {
 
@@ -116,6 +123,10 @@ class Reservation extends HoiModel {
     public function getDateAttribute(){
         return $this->reservation_timestamp;
     }
+    
+    public function getTimeAttribute(){
+        return $this->date->format('H:i');
+    }
 
     public function getPaxSizeAttribute(){
         return ($this->adult_pax + $this->children_pax);
@@ -138,8 +149,7 @@ class Reservation extends HoiModel {
     public function getConfirmIdAttribute(){
         $id = $this->id;
 //        $hashids = new Hashids(Setting::HASH_SALT, 5);
-        $hashids = new Hashids('', 7);
-        $confirm_id = $hashids->encode($id);
+        $confirm_id = Setting::hash()->encode($id);
         
         return $confirm_id;
     }
@@ -158,6 +168,6 @@ class Reservation extends HoiModel {
     public function getConfirmComingUrlAttribute(){
         $confirm_id = $this->confirm_id;
 
-        return url("reservations/$confirm_id");
+        return route("reservation_confirm", compact('confirm_id'));
     }
 }
