@@ -8,11 +8,13 @@ use App\Traits\SendSMS;
 use App\Events\SentReminderSMS;
 use Illuminate\Bus\Queueable;
 use App\Exceptions\SMSException;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\OutletReservationSetting as Setting;
+
 //use Illuminate\Support\Facades\Log;
 
 class SendConfirmSMS implements ShouldQueue{
@@ -37,7 +39,7 @@ class SendConfirmSMS implements ShouldQueue{
      * @throws SMSException
      */
     public function handle(){
-        Log::info('SendConfirmSMS handled');
+        //Log::info('SendConfirmSMS handled');
         $reservation = $this->reservation;
 
         $telephone    = $reservation->full_phone_number;

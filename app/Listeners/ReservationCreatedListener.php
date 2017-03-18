@@ -8,6 +8,7 @@ use App\Jobs\SendConfirmSMS;
 //use App\Events\SentReminderSMS;
 use App\Exceptions\SMSException;
 use App\Events\ReservationCreated;
+use Illuminate\Support\Facades\Log;
 use App\OutletReservationSetting as Setting;
 
 class ReservationCreatedListener{
@@ -38,6 +39,7 @@ class ReservationCreatedListener{
 
         if($success_sent){
             //event(new SentSMS($reservation));
+            Log::info($reservation->confirm_SMS_date);
             $send_confirm_sms = (new SendConfirmSMS($reservation))->delay($reservation->confirm_SMS_date);
             dispatch($send_confirm_sms);
         }else{

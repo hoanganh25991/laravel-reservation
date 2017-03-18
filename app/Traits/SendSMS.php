@@ -1,6 +1,8 @@
 <?php
 namespace App\Traits;
 
+use Illuminate\Support\Facades\Log;
+
 trait SendSMS{
     private function _padTelephone($telephone){
         if(substr($telephone, 0, 3) != "+65"){
@@ -16,7 +18,9 @@ trait SendSMS{
     private function sendOverHoiio($telephone, $message, $sender_name){
         //pad the phone number
         //$telephone = $this->_padTelephone($telephone);
+        //Log::info('Sending SMS');
         if(env('APP_ENV') != 'production'){
+            //Log::info('SMS on dev environment, fake return true as success sending');
             return true;
         }
 

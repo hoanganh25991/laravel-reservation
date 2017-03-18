@@ -191,7 +191,7 @@ var BookingForm = function () {
 					first_name: 'Anh',
 					last_name: 'Le Hoang',
 					email: 'lehoanganh25991@gmail.com',
-					phone_country_code: '+65',
+					phone_country_code: '+84',
 					phone: '903865657',
 					remarks: 'hello world'
 				},
@@ -554,7 +554,9 @@ var BookingForm = function () {
 	}, {
 		key: 'updateSelectView',
 		value: function updateSelectView(available_time) {
-			var selected_day_str = moment().format('Y-MM-DD');
+			var state = store.getState();
+			var reservation_date = state.reservation.date;
+			var selected_day_str = reservation_date.format('Y-MM-DD');
 
 			var available_time_on_selected_day = available_time[selected_day_str];
 			if (typeof available_time_on_selected_day == 'undefined') {

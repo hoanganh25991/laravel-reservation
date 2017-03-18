@@ -6,6 +6,7 @@ use Carbon\Carbon;
 //use Hashids\Hashids;
 use App\Traits\ApiUtils;
 use App\Events\ReservationCreated;
+use Illuminate\Support\Facades\Log;
 use App\OutletReservationSetting as Setting;
 
 /**
@@ -160,9 +161,9 @@ class Reservation extends HoiModel {
     public function getConfirmSMSDateAttribute(){
         $notification_config = Setting::notificationConfig();
         $hours_before_reservation_timing_send_sms = $notification_config('HOURS_BEFORE_RESERVATION_TIME_TO_SEND_SMS');
-        
-        if(env('APP_ENV' != 'production')){
-            return Carbon::now(Setting::timezone())->addMinutes(2);
+
+        if(env('APP_ENV') != 'production'){
+            return Carbon::now(Setting::timezone())->addMinutes(1);
         }
         
         return $this->date->subHours($hours_before_reservation_timing_send_sms);

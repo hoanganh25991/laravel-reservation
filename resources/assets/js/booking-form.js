@@ -194,7 +194,7 @@ class BookingForm {
 				first_name: 'Anh',
 				last_name : 'Le Hoang',
 				email: 'lehoanganh25991@gmail.com',
-				phone_country_code: '+65',
+				phone_country_code: '+84',
 				phone: '903865657',
 				remarks: 'hello world'
 			},
@@ -557,7 +557,9 @@ class BookingForm {
 	}
 
 	updateSelectView(available_time) {
-	    let selected_day_str = moment().format('Y-MM-DD');
+		let state = store.getState();
+		let reservation_date = state.reservation.date;
+	    let selected_day_str = reservation_date.format('Y-MM-DD');
 
 	    let available_time_on_selected_day = available_time[selected_day_str];
 	    if (typeof available_time_on_selected_day == 'undefined'){
