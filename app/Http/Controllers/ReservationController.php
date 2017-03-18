@@ -11,6 +11,16 @@ class ReservationController extends HoiController{
     use ApiResponse;
     
     public function getConfirmPage(ApiRequest $req, Reservation $reservation){
+        /**
+         * Customer confirm resrevation
+         */
+        if($req->method() == 'POST'){
+            $reservation->status = Reservation::CONFIRMED;
+            $reservation->save();
+
+            return redirect()->route('reservation_thank_you');
+        }
+        
         if(is_null($reservation)){
             return redirect('');
         }
@@ -18,6 +28,10 @@ class ReservationController extends HoiController{
         $state = $this->buildAppState($reservation);
         
         return view('reservations.confirm-page')->with(compact('state'));
+    }
+
+    public function getThankYouPage(){
+        return view('reservations.thank-you');
     }
 
     public function buildAppState(Reservation $reservation){

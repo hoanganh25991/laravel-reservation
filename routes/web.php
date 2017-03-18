@@ -14,7 +14,9 @@ Auth::routes();
 Route::get( '', 'BookingController@getBookingForm');
 Route::post('', 'BookingController@getBookingForm');
 
-Route::get('reservations/{confirm_id}', 'ReservationController@getConfirmPage')->name('reservation_confirm');
+Route::get( 'reservations/thank-you', 'ReservationController@getThankYouPage')->name('reservation_thank_you');
+Route::get( 'reservations/{confirm_id}', 'ReservationController@getConfirmPage')->name('reservation_confirm');
+Route::post('reservations/{confirm_id}', 'ReservationController@getConfirmPage');
 
 Route::get('admin', 'AdminController@getDashboard');
 

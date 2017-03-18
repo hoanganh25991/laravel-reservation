@@ -2,7 +2,9 @@
 
 namespace App\Jobs;
 
+use Carbon\Carbon;
 use App\Reservation;
+use App\Traits\SendSMS;
 use App\Events\SentReminderSMS;
 use Illuminate\Bus\Queueable;
 use App\Exceptions\SMSException;
@@ -11,10 +13,13 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\OutletReservationSetting as Setting;
+//use Illuminate\Support\Facades\Log;
 
 class SendConfirmSMS implements ShouldQueue{
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use SendSMS;
 
+    /** @var  Reservation $reservation */
     protected $reservation;
 
     /**
@@ -23,7 +28,7 @@ class SendConfirmSMS implements ShouldQueue{
      * @param Reservation $reservation
      */
     public function __construct(Reservation $reservation){
-
+        $this->reservation = $reservation;
     }
 
     /**
