@@ -9,7 +9,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 
-class ReservationCreated{
+class ReservationReserved {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $reservation;

@@ -16,8 +16,8 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\ShouldUpdateCacheDatesWithAvailableTimeEvent' => [
             'App\Listeners\UpdateCacheDatesWithAvailableTimeListener',
         ],
-        'App\Events\ReservationCreated' => [
-            'App\Listeners\ReservationCreatedListener',
+        'App\Events\ReservationReserved' => [
+            'App\Listeners\ReservationReservedListener',
         ],
         'App\Events\SentReminderSMS' => [
             'App\Listeners\SentConfirmSMSListener',

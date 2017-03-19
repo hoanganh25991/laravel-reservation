@@ -338,6 +338,10 @@ class BookingController extends HoiController {
              */
             $available_time = $this->availableTime();
 
+            /**
+             * @warn need update to has it own statusMsg
+             * rather than implicit tell available time on return
+             */
             return $this->apiResponse($available_time);
         }
 
@@ -390,12 +394,28 @@ class BookingController extends HoiController {
              * Base on deposit config
              * Ask customer amount of money in advance
              */
+            if($reservation->requiredDeposit()){
+                $reservation->status = Reservation::REQUIRED_DEPOSIT;    
+            }
             
             $reservation->save();
-            
+
+            /**
+             * Case: Reservation with deposit require
+             */
+            if($reservation->requiredDeposit()){
+                return Response::json([
+                    'statusCode' => 200,
+                    'statusMsg' => 'reservation.required_deposit',
+                    'data' => $reservation->deposit,
+                ], 200)->setEncodingOptions(JSON_NUMERIC_CHECK);
+            }
+
+            /**
+             * Normal case: Reservation created
+             * RESERVED
+             */
             $confirm_id =  $reservation->confirm_id;
-            
-            
             
             return Response::json([
                 'statusCode' => 200,

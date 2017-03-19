@@ -5,7 +5,7 @@ namespace App;
 use Carbon\Carbon;
 //use Hashids\Hashids;
 use App\Traits\ApiUtils;
-use App\Events\ReservationCreated;
+use App\Events\ReservationReserved;
 use Illuminate\Support\Facades\Log;
 use App\OutletReservationSetting as Setting;
 
@@ -52,6 +52,12 @@ use App\OutletReservationSetting as Setting;
  *
  * @property mixed $send_confirmation_by_timestamp
  * @see Reservation::getSendConfirmationByTimestampAttribute
+ * 
+ * @property mixed $deposit
+ * @see Reservation::getDepositAttribute
+ *
+ * @property mixed send_sms_confirmation
+ * @see
  */
 class Reservation extends HoiModel {
 
@@ -61,6 +67,7 @@ class Reservation extends HoiModel {
     /**
      * Reservation status
      */
+    const REQUIRED_DEPOSIT= 50;
     const RESERVED        = 100; //init at first
     const REMINDER_SENT   = 200; //sms sent to summary info
     const CONFIRMED       = 300; //remider with CONFIRM link
@@ -105,25 +112,43 @@ class Reservation extends HoiModel {
     ];
 
     protected $events = [
-        'created' => ReservationCreated::class,
+        //'created' => ReservationReserved::class,
     ];
 
     protected static function boot() {
         parent::boot();
         
-        self::creating(function(Reservation $model){
+        self::creating(function(Reservation $reservation){
             /**
-             * Auto compute send confirmation timestamp
+             * Auto compute send_confirmation_by_timestamp
              * Base on current config
              */
-            $model->attributes['send_confirmation_by_timestamp'] = $model->send_confirmation_by_timestamp;
+            $reservation->attributes['send_confirmation_by_timestamp'] = $reservation->send_confirmation_by_timestamp;
+
+            /**
+             * Auto compuate send_sms_confirmation
+             * Base on current config
+             */
+            $reservation->attributes['send_sms_confirmation'] = $reservation->send_sms_confirmation;
             
             /**
              * Default with no status explicit bind
              * Reservation consider as RESERVERD
              */
-            if(!isset($model->attributes['status'])){
-                $model->attributes['status'] = Reservation::RESERVED;
+            if(!isset($reservation->attributes['status'])){
+                $reservation->attributes['status'] = Reservation::RESERVED;
+            }
+        });
+
+        self::created(function(Reservation $reservation){
+            if($reservation->status == Reservation::RESERVED){
+                event(new ReservationReserved($reservation));
+            }
+        });
+
+        self::updated(function(Reservation $reservation){
+            if($reservation->status == Reservation::RESERVED){
+                event(new ReservationReserved($reservation));
             }
         });
 
@@ -234,7 +259,7 @@ class Reservation extends HoiModel {
      */
     public function shouldSendConfirmSMS(){
         $notification_config = Setting::notificationConfig();
-        $should_send_sms_to_confirm_reservation = $notification_config(Setting::SEND_SMS_TO_CONFIRM_RESERVATION) == Setting::SHOULD_SEND;
+        $should_send_sms_to_confirm_reservation = $notification_config(Setting::SEND_SMS_CONFIRMATION) == Setting::SHOULD_SEND;
 
         return $should_send_sms_to_confirm_reservation;
     }
@@ -263,5 +288,67 @@ class Reservation extends HoiModel {
         $confirm_id = $this->confirm_id;
 
         return route("reservation_confirm", compact('confirm_id'));;
+    }
+    
+    /**
+     * Base on deposit config
+     * Reservation over specific pax
+     * Need pay in advance
+     */
+
+    /**
+     * Check if reservation require deposit
+     * @return bool
+     */
+    public function requiredDeposit(){
+        $deposit_config = Setting::depositConfig();
+        $deposit_threshold_pax = $deposit_config(Setting::DEPOSIT_THRESHOLD_PAX);
+
+        if($this->pax_size > $deposit_threshold_pax){
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * If require, compute as $deposit property
+     * of reservation
+     * @return int|mixed
+     * @throws \Exception
+     */
+    public function getDepositAttribute(){
+        if($this->requiredDeposit()){
+            $deposit_config = Setting::depositConfig();
+            $deposit_type   = $deposit_config(Setting::DEPOSIT_TYPE);
+            
+            $val = 0;
+            switch($deposit_type){
+                case Setting::FIXED_SUM:
+                    $val = $deposit_config(Setting::FIXED_SUM_VALUE);
+                    break;
+                case Setting::PER_PAX:
+                    $per_pax_value = $deposit_config(Setting::PER_PAX_VALUE);
+                    $val = $this->pax_size *  $per_pax_value;
+                    break;
+            }
+            
+            return $val;
+        }
+        
+        throw new \Exception('Should not call deposit on reservation which not');
+    }
+
+    /**
+     * Auto compute send sms confirmation on booot
+     * Base on current config
+     */
+    /**
+     * @return int
+     */
+    public function getSendSMSConfirmationAttribute(){
+        $notification_config = Setting::notificationConfig();
+
+        return $notification_config(Setting::SEND_SMS_CONFIRMATION);
     }
 }

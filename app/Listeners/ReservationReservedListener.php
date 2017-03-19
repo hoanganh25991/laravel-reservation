@@ -7,11 +7,11 @@ use App\Traits\SendSMS;
 use App\Jobs\SendConfirmSMS;
 //use App\Events\SentReminderSMS;
 use App\Exceptions\SMSException;
-use App\Events\ReservationCreated;
+use App\Events\ReservationReserved;
 use Illuminate\Support\Facades\Log;
 use App\OutletReservationSetting as Setting;
 
-class ReservationCreatedListener{
+class ReservationReservedListener{
     use SendSMS;
 
     /**
@@ -25,10 +25,10 @@ class ReservationCreatedListener{
     /**
      * Handle the event.
      *
-     * @param  ReservationCreated $event
+     * @param  ReservationReserved $event
      * @throws SMSException
      */
-    public function handle(ReservationCreated $event){
+    public function handle(ReservationReserved $event){
         /** @var Reservation $reservation */
         $reservation = $event->reservation;
 

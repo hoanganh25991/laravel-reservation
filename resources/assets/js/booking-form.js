@@ -855,6 +855,13 @@ class BookingForm {
 					return;
 				}
 
+				//noinspection JSValidateTypes
+				if(res.statusMsg == 'reservation.required_deposit'){
+					console.log('REQUIRED DEPOSIT, payment amount: ', res.data);
+
+					return;
+				}
+
 				store.dispatch({
 					type: CHANGE_AVAILABLE_TIME,
 					available_time: res
