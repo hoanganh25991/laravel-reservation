@@ -4,7 +4,7 @@ namespace App;
 
 use Carbon\Carbon;
 use App\Traits\ApiUtils;
-use App\Library\HoiHash;
+use App\Libraries\HoiHash;
 use App\OutletReservationSetting as Setting;
 use Illuminate\Database\Eloquent\Collection;
 

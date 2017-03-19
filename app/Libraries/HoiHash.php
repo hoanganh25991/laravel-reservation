@@ -1,5 +1,5 @@
 <?php
-namespace App\Library;
+namespace App\Libraries;
 
 use Hashids\Hashids;
 

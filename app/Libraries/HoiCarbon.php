@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Library;
+namespace App\Libraries;
 
 use Carbon\Carbon;
 use DateTimeZone;

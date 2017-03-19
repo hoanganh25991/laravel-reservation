@@ -16,12 +16,14 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Response;
 use App\OutletReservationSetting as Setting;
-use App\Listeners\UpdateCacheDatesWithAvailableTimeListener as CacheListener;
 
 class BookingController extends HoiController {
 
     use ApiUtils;
     use ApiResponse;
+
+    const DATES_WITH_AVAILABLE_TIME = 'DATES_WITH_AVAILABLE_TIME';
+    const SHOULD_UPDATE_DATES_WITH_AVAILABLE_TIME = 'SHOULD_UPDATE_DATES_WITH_AVAILABLE_TIME';
 
     /** @var  Collection $valid_reservations */
     public $valid_reservations;
@@ -79,7 +81,7 @@ class BookingController extends HoiController {
         if($this->shouldUseCache()){
             Log::info('Using cache');
 
-            $file_name = $this->getCacheFilename('DATES_WITH_AVAILABLE_TIME');
+            $file_name = static::cacheFilename(static::DATES_WITH_AVAILABLE_TIME);
             $val =  Cache::get($file_name);
 
             if(is_null($val)){Log::info('Cache DATES_WITH_AVAILABLE_TIME null');}
@@ -245,7 +247,7 @@ class BookingController extends HoiController {
         /**
          * Save cache before move on
          */
-        $file_name = $this->getCacheFilename('DATES_WITH_AVAILABLE_TIME');
+        $file_name = static::cacheFilename(static::DATES_WITH_AVAILABLE_TIME);
         Cache::put($file_name, $return, 24 * 60);//expire in day
 
         return $return;
@@ -261,22 +263,34 @@ class BookingController extends HoiController {
         if(env('APP_ENV') != 'production')
             return false;
 
-        $outlet_id = Setting::outletId();
-        $filename  = CacheListener::getCacheFileName('SHOULD_UPDATE_DATES_WITH_AVAILABLE_TIME', $outlet_id);
+        $filename  = static::cacheFileName(static::SHOULD_UPDATE_DATES_WITH_AVAILABLE_TIME);
         $shouldUpdateCache = Cache::pull($filename, false);
 
         return !$shouldUpdateCache;
     }
 
-    public function getCacheFilename($key = 'DATES_WITH_AVAILABLE_TIME'){
+    /**
+     * Compute dates with available time is hard
+     * cache if it should be
+     * filename consistent by call this function to get
+     * @param $key
+     * @param null $oulet_id
+     * @return string
+     */
+    
+    public static function cacheFilename($key, $oulet_id = null){
         $filename = '';
 
         switch($key){
-            case 'DATES_WITH_AVAILABLE_TIME':
+            case BookingController::DATES_WITH_AVAILABLE_TIME:
                 $today        = Carbon::now(Setting::timezone());
-                $outlet_id    = Setting::outletId();
+                $outlet_id    = $oulet_id ?: Setting::outletId();
                 $today_string = $today->format('Y-m-d');
-                $filename     = "DATES_WITH_AVAILABLE_TIME_outlet_{$outlet_id}_$today_string";
+                $filename     = BookingController::DATES_WITH_AVAILABLE_TIME."_outlet_{$outlet_id}_{$today_string}";
+                break;
+            case BookingController::SHOULD_UPDATE_DATES_WITH_AVAILABLE_TIME:
+                $outlet_id = $oulet_id ?: Setting::outletId();
+                $filename  = BookingController::SHOULD_UPDATE_DATES_WITH_AVAILABLE_TIME."_outlet_{$outlet_id}";
                 break;
         }
 
