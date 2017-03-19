@@ -11,9 +11,10 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
-    {
-        //
+    public function boot(){
+        $hoi_helpers_path = app_path('Libraries/HoiHelpers.php');
+        /** @noinspection PhpIncludeInspection */
+        require_once($hoi_helpers_path);
     }
 
     /**

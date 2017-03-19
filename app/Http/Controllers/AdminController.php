@@ -2,14 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-
-class AdminController extends Controller {
-
-
-
+class AdminController extends HoiController {
 
     public function getDashboard(){
-        return view('layouts.admin');
+        return view('admin.index');
     }
 }
