@@ -50,7 +50,7 @@ use App\OutletReservationSetting as Setting;
  * @property Carbon $confirm_sms_date
  * @see Reservation::getConfirmSMSDateAttribute
  *
- * @property mixed $send_confirmation_by_timestampe
+ * @property mixed $send_confirmation_by_timestamp
  * @see Reservation::getSendConfirmationByTimestampAttribute
  */
 class Reservation extends HoiModel {
@@ -112,9 +112,19 @@ class Reservation extends HoiModel {
         parent::boot();
         
         self::creating(function(Reservation $model){
-            //Log::info('Interrupt creating of reservation to modify');
-            $model->attributes['send_confirmation_by_timestamp'] = $model->confirm_sms_date;
-            $model->attributes['status'] = Reservation::RESERVED;
+            /**
+             * Auto compute send confirmation timestamp
+             * Base on current config
+             */
+            $model->attributes['send_confirmation_by_timestamp'] = $model->send_confirmation_by_timestamp;
+            
+            /**
+             * Default with no status explicit bind
+             * Reservation consider as RESERVERD
+             */
+            if(!isset($model->attributes['status'])){
+                $model->attributes['status'] = Reservation::RESERVED;
+            }
         });
 
         static::byOutletId();

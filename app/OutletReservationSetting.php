@@ -55,6 +55,26 @@ class OutletReservationSetting extends HoiModel{
     const DEFAULT_SEND_SMS_TO_CONFIRM_RESERVATION = 1;
 
     /**
+     * DEPOSIT GROUP
+     */
+    const DEPOSIT_GROUP = 3;
+    const REQUIRED = 1;
+
+    const REQUIRE_DEPOSIT = 'REQUIRE_DEPOSIT';
+    const DEFAULT_REQUIRE_DEPOSIT = 1;
+
+    const DEPOSIT_TYPE = 'DEPOSIT_TYPE';
+    const DEFAULT_DEPOSIT_TYPE = 0;
+    const FIXED_SUM = 0;
+    const PER_PAX = 1;
+
+    const FIXED_SUM_VALUE = 'FIXED_SUM_VALUE';
+    const DEFAULT_FIXED_SUM_VALUE = 5;
+
+    const PER_PAX_VALUE = 'PER_PAX_VALUE';
+    const DEFAULT_PER_PAX_VALUE = 5;
+
+    /**
      * Cast value by type
      */
     const STRING = 0;
@@ -91,10 +111,13 @@ class OutletReservationSetting extends HoiModel{
         return env('TIMEZONE', 'Asia/Singapore');
     }
 
-    public static function bufferConfig(){
-        return (new Setting)->getConfigGroup(Setting::BUFFER_GROUP);
-    }
-
+    /**
+     * Get all config for an outlet
+     * Group in each grooup
+     * Build convenience function call style as map
+     * Store in static to reuse in current request
+     * @return mixed
+     */
     private static function allConfigByGroup(){
         $setting = new Setting;
 
@@ -115,18 +138,12 @@ class OutletReservationSetting extends HoiModel{
         return Setting::$all_config;
     }
 
-    private function getConfigGroup($group_name = Setting::BUFFER_GROUP){
-        $config_by_group = Setting::allConfigByGroup();
-
-        try{
-            $config_group = $config_by_group[(string)$group_name];
-        }catch(\Exception $e){
-            return (new Setting)->buildConfigAsMap(collect([]));
-        }
-
-        return $config_group;
-    }
-
+    /**
+     * Available date range for booking
+     * Base on current time & buffer config of
+     * MAX_DAYS_IN_ADVANCE
+     * @return array
+     */
     public static function dateRange(){
         $buffer_config = Setting::bufferConfig();
         $max_days_in_advance = $buffer_config(Setting::MAX_DAYS_IN_ADVANCE);
@@ -140,20 +157,41 @@ class OutletReservationSetting extends HoiModel{
         ];
     }
 
+    /**
+     * Session, Reservation filter by outlet id
+     * outlet_id as global scope when query in database
+     * @return mixed
+     */
     public static function outletId(){
         return session('outlet_id', 1);
     }
 
-    public static function brandId(){
-        $setting_config = Setting::settingConfig();
+    /**
+     * Config of each group
+     * @param int $group_name
+     * @return \Closure
+     */
+    private function getConfigGroup($group_name = Setting::BUFFER_GROUP){
+        $config_by_group = Setting::allConfigByGroup();
 
-        return $setting_config('BRAND_ID');
+        try{
+            $config_group = $config_by_group[(string)$group_name];
+        }catch(\Exception $e){
+            return (new Setting)->buildConfigAsMap(collect([]));
+        }
+
+        return $config_group;
     }
 
-    public static function smsSenderName(){
-        $setting_config = Setting::settingConfig();
+    /**
+     * Alias of
+     * @see OutletReservationSetting::getConfigGroup
+     * convenience call
+     * @return \Closure
+     */
 
-        return $setting_config(Setting::SMS_SENDER_NAME);
+    public static function bufferConfig(){
+        return (new Setting)->getConfigGroup(Setting::BUFFER_GROUP);
     }
 
     public static function settingConfig(){
@@ -162,6 +200,34 @@ class OutletReservationSetting extends HoiModel{
 
     public static function notificationConfig(){
         return (new Setting)->getConfigGroup(Setting::NOTIFICATION_GROUP);
+    }
+
+    public static function depositConfig(){
+        return (new Setting)->getConfigGroup(Setting::DEPOSIT_GROUP);
+    }
+
+    /**
+     * Base on config
+     * Convenience call
+     */
+    /**
+     * Oulet filter by specific brand id in config
+     * @return mixed
+     */
+    public static function brandId(){
+        $setting_config = Setting::settingConfig();
+
+        return $setting_config(Setting::BRAND_ID);
+    }
+
+    /**
+     * Send SMS with sender name
+     * @return mixed
+     */
+    public static function smsSenderName(){
+        $setting_config = Setting::settingConfig();
+
+        return $setting_config(Setting::SMS_SENDER_NAME);
     }
 
     /**
@@ -219,6 +285,10 @@ class OutletReservationSetting extends HoiModel{
         return $group->getKey->bindTo($group);
     }
 
+    /**
+     * Wrap create Hash on id
+     * @return HoiHash
+     */
     public static function hash(){
         $hash = new HoiHash();
 

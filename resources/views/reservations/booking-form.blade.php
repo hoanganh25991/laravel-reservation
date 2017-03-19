@@ -134,7 +134,7 @@
             @include('reservations.footer')
         </div><!-- /box -->
         <div class="box form-step" id="form-step-3">
-            @include('reservations.booking-summary', ['should_show_confirm_id' => false]);
+            @include('reservations.booking-summary')
         </div>
     </div>
     {{--modal--}}

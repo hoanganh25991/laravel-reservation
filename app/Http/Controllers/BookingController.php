@@ -327,8 +327,15 @@ class BookingController extends HoiController {
             $outlet_id = $req->get('outlet_id');
             session(compact('outlet_id'));
 
+            /**
+             * Compute pax size as query condition
+             * @see BookingController::availableTime
+             */
             $this->reservation_pax_size = $req->get('adult_pax') + $req->get('children_pax');
 
+            /**
+             * Compute available time
+             */
             $available_time = $this->availableTime();
 
             return $this->apiResponse($available_time);
@@ -378,9 +385,17 @@ class BookingController extends HoiController {
 
             //$reservation_info['reservation_timestamp'] = "{$reservation_info['reservation_date']} {$reservation_info['reservation_time']}:00";
             $reservation = new Reservation($reservation_info);
+
+            /**
+             * Base on deposit config
+             * Ask customer amount of money in advance
+             */
+            
             $reservation->save();
             
             $confirm_id =  $reservation->confirm_id;
+            
+            
             
             return Response::json([
                 'statusCode' => 200,
@@ -391,9 +406,8 @@ class BookingController extends HoiController {
 
         //handle get
         $outlets = Outlet::all();
-        $should_show_confirm_id = false;
 
-        return view('reservations.booking-form', compact('outlets', 'should_show_confirm_id'));
+        return view('reservations.booking-form', compact('outlets'));
     }
 
     
