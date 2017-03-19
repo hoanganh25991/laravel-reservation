@@ -56,9 +56,12 @@ Route::get('test', function(App\Http\Controllers\BookingController $c){
 //    $notification_config = App\OutletReservationSetting::notificationConfig();
 //    dd($notification_config('HOURS_BEFORE_RESERVATION_TIME_TO_SEND_SMS'));
 
-    $r = App\Reservation::first();
-    $confirm_id = $r->confirm_id;
-
-    return redirect()->route('reservation_confirm', compact('confirm_id'));
+    /** @var \App\Reservation $r */
+//    $r = App\Reservation::first();
+//    dd($r);
+//    $confirm_id = $r->confirm_id;
+//    dd($r->confirm_coming_url);
+    //return redirect()->route('reservation_confirm', compact('confirm_id'));
+    dd($c->buildDatesWithAvailableTime());
 });
 

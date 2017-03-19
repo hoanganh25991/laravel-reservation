@@ -8,7 +8,7 @@ use App\Library\HoiHash;
 use App\OutletReservationSetting as Setting;
 use Illuminate\Database\Eloquent\Collection;
 
-class OutletReservationSetting extends HoiModel {
+class OutletReservationSetting extends HoiModel{
 
     use ApiUtils;
 
@@ -17,39 +17,59 @@ class OutletReservationSetting extends HoiModel {
     /**
      * BUFFER default config
      */
-    const BUFFER_GROUP                      = 0;
-    const MAX_DAYS_IN_ADVANCE               = 7;
-    const MIN_HOURS_IN_ADVANCE_SLOT_TIME    = 3;
-    const MIN_HOURS_IN_ADVANCE_SESSION_TIME = 3;
+    const BUFFER_GROUP = 0;
+
+    const MAX_DAYS_IN_ADVANCE = 'MAX_DAYS_IN_ADVANCE';
+    const DEFAULT_MAX_DAYS_IN_ADVANCE = 7;
+
+    const MIN_HOURS_IN_ADVANCE_SLOT_TIME = 'MIN_HOURS_IN_ADVANCE_SLOT_TIME';
+    const DEFAULT_MIN_HOURS_IN_ADVANCE_SLOT_TIME = 3;
+
+    const MIN_HOURS_IN_ADVANCE_SESSION_TIME = 'MIN_HOURS_IN_ADVANCE_SESSION_TIME';
+    const DEFAULT_MIN_HOURS_IN_ADVANCE_SESSION_TIME = 3;
 
     /**
      * SETTING default config
      */
-    const SETTING_GROUP   = 1;
-    const BRAND_ID        = 1;
-    const SMS_SENDER_NAME = 'ALFRED';
+    const SETTING_GROUP = 1;
+
+    const BRAND_ID = 'BRAND_ID';
+    const DEFAULT_BRAND_ID = 1;
+
+    const SMS_SENDER_NAME = 'SMS_SENDER_NAME';
+    const DEFAULT_SMS_SENDER_NAME = 'ALFRED';
 
     /**
      * NOTIFICATION default config
      */
     const NOTIFICATION_GROUP = 2;
-    const HOURS_BEFORE_RESERVATION_TIME_TO_SEND_SMS = 2;
+    const SHOULD_SEND = 1;
+
+    const SEND_SMS_ON_BOOKING = 'SEND_SMS_ON_BOOKING';
+    const DEFAULT_SEND_SMS_ON_BOOKING = 1;
+
+    const HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM = 'HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM';
+    const DEFAULT_HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM = 2;
+
+    const SEND_SMS_TO_CONFIRM_RESERVATION = 'SEND_SMS_TO_CONFIRM_RESERVATION';
+    const DEFAULT_SEND_SMS_TO_CONFIRM_RESERVATION = 1;
 
     /**
      * Cast value by type
      */
     const STRING = 0;
-    const INT    = 1;
+    const INT = 1;
 
     /**
      * Default fallback when pax size not set
      */
-    const RESERVATION_PAX_SIZE = 7;
+    const RESERVATION_PAX_SIZE = 'RESERVATION_PAX_SIZE';
+    const DEFAULT_RESERVATION_PAX_SIZE = 7;
 
     /**
      * Default fallback when max pax not set
      */
-    const TIMING_MAX_PAX = 8;
+    const TIMING_MAX_PAX = 10;
 
     /**
      * Hash id SALT
@@ -85,11 +105,9 @@ class OutletReservationSetting extends HoiModel {
         $config = $setting->query()->get();
         //config by group
         $config_by_group =
-            $config
-                ->groupBy(function($c){return $c->setting_group;})
-                ->map(function($group) use($setting){
-                    return $setting->buildConfigAsMap($group);
-                });
+            $config->groupBy(function ($c){ return $c->setting_group; })->map(function ($group) use ($setting){
+                return $setting->buildConfigAsMap($group);
+            });
 
         //Store all config to reuse in this request
         Setting::$all_config = $config_by_group;
@@ -110,19 +128,22 @@ class OutletReservationSetting extends HoiModel {
     }
 
     public static function dateRange(){
-        $buffer_config       = Setting::bufferConfig();
-        $max_days_in_advance = $buffer_config('MAX_DAYS_IN_ADVANCE');
+        $buffer_config = Setting::bufferConfig();
+        $max_days_in_advance = $buffer_config(Setting::MAX_DAYS_IN_ADVANCE);
 
-        $today   = Carbon::now(Setting::timezone());
+        $today = Carbon::now(Setting::timezone());
         $max_day = $today->copy()->addDays($max_days_in_advance);
 
-        return [$today, $max_day];
+        return [
+            $today,
+            $max_day
+        ];
     }
-    
+
     public static function outletId(){
         return session('outlet_id', 1);
     }
-    
+
     public static function brandId(){
         $setting_config = Setting::settingConfig();
 
@@ -132,7 +153,7 @@ class OutletReservationSetting extends HoiModel {
     public static function smsSenderName(){
         $setting_config = Setting::settingConfig();
 
-        return $setting_config('SMS_SENDER_NAME');
+        return $setting_config(Setting::SMS_SENDER_NAME);
     }
 
     public static function settingConfig(){
@@ -151,9 +172,9 @@ class OutletReservationSetting extends HoiModel {
      * @return \Closure
      */
     private function buildConfigAsMap($group){
-        $group->getKey = function($key){
+        $group->getKey = function ($key){
             /* @var Collection $this */
-            $item = $this->filter(function($i) use($key){return $i->setting_key == $key;})->first();
+            $item = $this->filter(function ($i) use ($key){ return $i->setting_key == $key; })->first();
 
             /**
              * When no item found, use default config
@@ -161,7 +182,7 @@ class OutletReservationSetting extends HoiModel {
             if(is_null($item)){
                 try{
                     $setting_class = new \ReflectionClass(Setting::class);
-                    $item_value = $setting_class->getConstant($key);
+                    $item_value = $setting_class->getConstant("DEFAULT_$key");
                     return $item_value;
                 }catch(\Exception $e){
                     $msg = "Key $key can find in database & default config";
@@ -176,7 +197,7 @@ class OutletReservationSetting extends HoiModel {
             $item_value = $item->setting_value;
             switch($item->setting_type){
                 case Setting::INT:
-                    $item_value = (int) $item_value;
+                    $item_value = (int)$item_value;
                     break;
             }
 
@@ -194,7 +215,7 @@ class OutletReservationSetting extends HoiModel {
 
             return $item_value;
         };
-        
+
         return $group->getKey->bindTo($group);
     }
 

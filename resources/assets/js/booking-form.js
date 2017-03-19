@@ -819,8 +819,12 @@ class BookingForm {
 
 		if(state.form_step == 'form-step-3'){
 			let {date, time} = state.reservation;
+			let reservation_timestamp = `${date.format('Y-M-D')} ${time}:00`;
 			let {salutation, first_name, last_name, email, phone_country_code, phone, remarks} = state.customer;
 			data = Object.assign(data, {
+				// reservation_date: date.format('Y-M-D'),
+				// reservation_time: time,
+				reservation_timestamp,
 				salutation,
 				first_name,
 				last_name,
@@ -828,8 +832,6 @@ class BookingForm {
 				phone_country_code,
 				phone,
 				customer_remarks: remarks,
-				reservation_date: date.format('Y-M-D'),
-				reservation_time: time,
 				step: 'form-step-3'
 			});
 

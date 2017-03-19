@@ -17,7 +17,7 @@ trait ApiUtils{
         return $hour * 60 + $minute;
     }
 
-    protected function availableDateRange(){
+    protected function availableOnDay(){
         $buffer_config = Setting::bufferConfig();
         $max_days_in_advance = $buffer_config('MAX_DAYS_IN_ADVANCE');
         

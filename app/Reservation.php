@@ -11,27 +11,47 @@ use App\OutletReservationSetting as Setting;
 
 /**
  * @property mixed reservation_timestamp
+ * @see Reservation::getReservationTimestampAttribute
+ * 
  * @property Carbon date
+ * @see Reservation::getDateAttribute
+ * 
  * @property mixed adult_pax
  * @property mixed children_pax
  * @property mixed pax_size
  * @property mixed id
  * @property mixed status
- * @property mixed date_string
- * @property mixed confirm_id
- * @property mixed phone_country_code
- * @property mixed phone
- * @property mixed full_phone_number
- * @property Carbon confirm_SMS_date
- * @property string outlet_name
- * @property string confirm_comming_url
- * @property mixed outlet_id
- * @property mixed time
- * @property mixed salutation
- * @property mixed first_name
- * @property mixed last_name
- * @property mixed email
- * @property mixed customer_remarks
+ * 
+ * @property mixed $confirm_id
+ * @see Reservation::getConfirmIdAttribute
+ * 
+ * @property mixed $phone_country_code
+ * @property mixed $phone
+ * 
+ * @property mixed $full_phone_number
+ * @see Reservation::getFullPhoneNumberAttribute
+ * 
+ * @property string $outlet_name
+ * 
+ * @property string $confirm_coming_url
+ * @see Reservation::getConfirmCommingUrlAttribute
+ * 
+ * @property mixed $outlet_id
+ * 
+ * @property mixed $time
+ * @see Reservation::getTimeAttribute
+ * 
+ * @property mixed $salutation
+ * @property mixed $first_name
+ * @property mixed $last_name
+ * @property mixed $email
+ * @property mixed $customer_remarks
+ * 
+ * @property Carbon $confirm_sms_date
+ * @see Reservation::getConfirmSMSDateAttribute
+ *
+ * @property mixed $send_confirmation_by_timestampe
+ * @see Reservation::getSendConfirmationByTimestampAttribute
  */
 class Reservation extends HoiModel {
 
@@ -90,23 +110,30 @@ class Reservation extends HoiModel {
 
     protected static function boot() {
         parent::boot();
+        
+        self::creating(function(Reservation $model){
+            //Log::info('Interrupt creating of reservation to modify');
+            $model->attributes['send_confirmation_by_timestamp'] = $model->confirm_sms_date;
+            $model->attributes['status'] = Reservation::RESERVED;
+        });
 
         static::byOutletId();
     }
 
     public function scopeValidInDateRange($query){
-        $date_range = $this->availableDateRange();
+        $date_range = $this->availableOnDay();
 
         //consider status > CONFIRMED as booked
         return $query->where([
             ['reservation_timestamp', '>=', $date_range[0]->format('Y-m-d H:i:s')],
             ['reservation_timestamp', '<=', $date_range[1]->format('Y-m-d H:i:s')],
-            ['status', '>=', Reservation::CONFIRMED] 
+            ['status', '>=', Reservation::CONFIRMED]
         ]);
     }
     
-    protected function validGroupByDateTimeCapacity(){
-        $valid_reservations   = Reservation::validInDateRange()->get();
+    public static function validGroupByDateTimeCapacity(){
+        $self = (new Reservation);
+        $valid_reservations   = $self->scopeValidInDateRange($self->query())->get();
 
         $capacity_counted_reservations =
             $valid_reservations
@@ -126,27 +153,43 @@ class Reservation extends HoiModel {
     public static function groupNameByDateTimeCapacity($date, $time, $capacity){
         return "{$date}_{$time}_{$capacity}";
     }
-    
+
+    /**
+     * Alias for reservatin_timestamp as Carbon date obj
+     * @return Carbon
+     */
     public function getDateAttribute(){
         return $this->reservation_timestamp;
     }
-    
+
+    /**
+     * Compute reservation time as H:i
+     * @return string
+     */
     public function getTimeAttribute(){
         return $this->date->format('H:i');
     }
 
+    /*
+     * Compute pax size for summary
+     */
     public function getPaxSizeAttribute(){
         return ($this->adult_pax + $this->children_pax);
     }
 
+    /**
+     * @param $date_tring
+     * @return Carbon
+     */
     public function getReservationTimestampAttribute($date_tring){
         return Carbon::createFromFormat('Y-m-d H:i:s', $date_tring, Setting::timezone());
     }
 
-    public function getCapacityNameAttribute(){
-        return "capacity_x";
-    }
-
+    /**
+     * Hash reservaion id to generate confirm id
+     * Customer will not know the order
+     * @return string
+     */
     public function getConfirmIdAttribute(){
         $id         = $this->id;
         $confirm_id = Setting::hash()->encode($id);
@@ -158,20 +201,57 @@ class Reservation extends HoiModel {
         return "{$this->phone_country_code}{$this->phone}";
     }
 
-    public function getConfirmSMSDateAttribute(){
+    /**
+     * Base on notification config: HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM
+     * determine when should send
+     * @return Carbon
+     */
+    public function getSendConfirmationByTimestampAttribute(){
         $notification_config = Setting::notificationConfig();
-        $hours_before_reservation_timing_send_sms = $notification_config('HOURS_BEFORE_RESERVATION_TIME_TO_SEND_SMS');
+        $hours_before_reservation_timing_send_sms = $notification_config(Setting::HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM);
 
         if(env('APP_ENV') != 'production'){
             return Carbon::now(Setting::timezone())->addMinutes(1);
         }
-        
+
         return $this->date->subHours($hours_before_reservation_timing_send_sms);
     }
 
+    /**
+     * Base on notification config: SEND_SMS_TO_CONFIRM_RESERVATION
+     * check should send confirm cms
+     * @return bool
+     */
+    public function shouldSendConfirmSMS(){
+        $notification_config = Setting::notificationConfig();
+        $should_send_sms_to_confirm_reservation = $notification_config(Setting::SEND_SMS_TO_CONFIRM_RESERVATION) == Setting::SHOULD_SEND;
+
+        return $should_send_sms_to_confirm_reservation;
+    }
+
+    public function getConfirmSMSDateAttribute(){
+        return $this->send_confirmation_by_timestamp;
+    }
+
+    /**
+     * Base on notification config: SEND_SMS_ON_BOOKING
+     * check should send summary cms on booking
+     * @return bool
+     */
+    public function shoudlSendSMSOnBooking(){
+        $notification_config = Setting::notificationConfig();
+        $should_send_sms_on_booking = $notification_config(Setting::SEND_SMS_ON_BOOKING) == Setting::SHOULD_SEND;
+
+        return $should_send_sms_on_booking;
+    }
+
+    /**
+     * Confirm url for reservation
+     * @return string
+     */
     public function getConfirmComingUrlAttribute(){
         $confirm_id = $this->confirm_id;
 
-        return route("reservation_confirm", compact('confirm_id'));
+        return route("reservation_confirm", compact('confirm_id'));;
     }
 }

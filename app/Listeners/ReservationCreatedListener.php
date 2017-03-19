@@ -39,8 +39,8 @@ class ReservationCreatedListener{
 
         if($success_sent){
             //event(new SentSMS($reservation));
-            Log::info($reservation->confirm_SMS_date);
-            $send_confirm_sms = (new SendConfirmSMS($reservation))->delay($reservation->confirm_SMS_date);
+            //Log::info($reservation->confirm_sms_date);
+            $send_confirm_sms = (new SendConfirmSMS($reservation))->delay($reservation->confirm_sms_date);
             dispatch($send_confirm_sms);
         }else{
             throw new SMSException('SMS not sent');

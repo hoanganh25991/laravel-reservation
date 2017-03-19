@@ -19,6 +19,7 @@ trait SendSMS{
         //pad the phone number
         //$telephone = $this->_padTelephone($telephone);
         //Log::info('Sending SMS');
+        Log::info($message);
         if(env('APP_ENV') != 'production'){
             //Log::info('SMS on dev environment, fake return true as success sending');
             return true;

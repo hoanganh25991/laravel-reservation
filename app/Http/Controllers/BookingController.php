@@ -205,8 +205,8 @@ class BookingController extends HoiController {
                  */
                 /** @var string $buffer_config */
                 $buffer_config = Setting::bufferConfig();
-                $min_hours_slot_time    = $buffer_config('MIN_HOURS_IN_ADVANCE_SLOT_TIME');
-                $min_hours_session_time = $buffer_config('MIN_HOURS_IN_ADVANCE_SESSION_TIME');
+                $min_hours_slot_time    = $buffer_config(Setting::MIN_HOURS_IN_ADVANCE_SLOT_TIME);
+                $min_hours_session_time = $buffer_config(Setting::MIN_HOURS_IN_ADVANCE_SESSION_TIME);
 
                 $satisfied_prior_time_chunks = $fixed_interval_chunks;
 
@@ -216,12 +216,13 @@ class BookingController extends HoiController {
                 $today = Carbon::now(Setting::timezone());
                 $today_in_hour = $this->getMinutes($today->format('H:i:s')) / 60;
                 $current_date =  Carbon::createFromFormat('Y-m-d', $date_string, Setting::timezone());
-                $on_same_day = $current_date->diffInDays($today) == 0;
+                $diff_less_than_a_day = $today->diffInDays($current_date, false) == 0;
 
                 /**
-                 * Care on hours, only check for session on same day with today
+                 * Care on hours, only check for
+                 * session different time form current booking less than a day
                  */
-                if($on_same_day){
+                if($diff_less_than_a_day){
                     $satisfied_prior_time_chunks =
                         $fixed_interval_chunks->filter(function($item) use($min_hours_slot_time, $min_hours_session_time, $today_in_hour){
                             $item_in_hour = $this->getMinutes($item->time) / 60;
@@ -328,8 +329,9 @@ class BookingController extends HoiController {
                 'outlet_id'        => 'required',
                 'adult_pax'        => 'required',
                 'children_pax'     => 'required',
-                'reservation_date' => 'required',
-                'reservation_time' => 'required|regex:/\d+:\d{2}/',
+//                'reservation_date' => 'required',
+//                'reservation_time' => 'required|regex:/\d+:\d{2}/',
+                'reservation_timestamp' => 'required',
                 'salutation'       => 'required',
                 'first_name'       => 'required',
                 'last_name'        => 'required',
@@ -348,20 +350,20 @@ class BookingController extends HoiController {
                     'outlet_id',
                     'adult_pax',
                     'children_pax',
-                    'reservation_date',
-                    'reservation_time',
+//                    'reservation_date',
+//                    'reservation_time',
+                    'reservation_timestamp',
                     'salutation',
                     'first_name',
                     'last_name',
                     'email',
                     'phone_country_code',
                     'phone',
+                    'customer_remarks'
                 ]);
 
-            $reservation_info['reservation_timestamp'] = "{$reservation_info['reservation_date']} {$reservation_info['reservation_time']}:00";
-
+            //$reservation_info['reservation_timestamp'] = "{$reservation_info['reservation_date']} {$reservation_info['reservation_time']}:00";
             $reservation = new Reservation($reservation_info);
-            $reservation->status = Reservation::RESERVED;//
             $reservation->save();
             
             $confirm_id =  $reservation->confirm_id;

@@ -805,6 +805,8 @@ var BookingForm = function () {
 				var _state$reservation = state.reservation,
 				    date = _state$reservation.date,
 				    time = _state$reservation.time;
+
+				var reservation_timestamp = date.format('Y-M-D') + ' ' + time + ':00';
 				var _state$customer = state.customer,
 				    salutation = _state$customer.salutation,
 				    first_name = _state$customer.first_name,
@@ -815,6 +817,9 @@ var BookingForm = function () {
 				    remarks = _state$customer.remarks;
 
 				data = Object.assign(data, {
+					// reservation_date: date.format('Y-M-D'),
+					// reservation_time: time,
+					reservation_timestamp: reservation_timestamp,
 					salutation: salutation,
 					first_name: first_name,
 					last_name: last_name,
@@ -822,8 +827,6 @@ var BookingForm = function () {
 					phone_country_code: phone_country_code,
 					phone: phone,
 					customer_remarks: remarks,
-					reservation_date: date.format('Y-M-D'),
-					reservation_time: time,
 					step: 'form-step-3'
 				});
 

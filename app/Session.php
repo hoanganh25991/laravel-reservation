@@ -76,7 +76,7 @@ class Session extends HoiModel {
     }
 
     public function scopeSpecialSession($query){
-        $date_range = $this->availableDateRange();
+        $date_range = Setting::dateRange();
 
         return $query->where([
             ['one_off', '=', Session::SPECIAL_SESSION],
@@ -126,7 +126,7 @@ class Session extends HoiModel {
                 $current_day = $current->dayOfWeek;
                 $session_day = Session::DAY_OF_WEEK[$current_day];
 
-                if($this->availableDateRange($session_day)){
+                if($this->availableOnDay($session_day)){
                     $as = clone $this;
                     $as->date = $current->copy();
 
@@ -144,25 +144,29 @@ class Session extends HoiModel {
     }
 
     public function availableToBook(){
-        //if session has day diff more than 1, no need to compare in hours
-        if($this->date->diffInDays(Carbon::now(Setting::timezone())) > 0){
-            return true;
+        $diff_less_than_a_day = Carbon::now(Setting::timezone())->diffInDays($this->date, false) == 0;
+        /**
+         * Care on hours, only check for
+         * session different in time less than a day should be checked
+         */
+        if($diff_less_than_a_day){
+            $earliest_timing          = $this->timings->first();
+            $session_start_timing_str = $earliest_timing->first_arrival_time;
+            $minutes     = $this->getMinutes($session_start_timing_str);
+            $time_hour   = (int)round($minutes / 60);
+            $time_minute = $minutes % 60;
+            //compute exactly start timing of session
+            $session_start_timing = $this->date->copy()->setTime($time_hour, $time_minute);
+
+            $buffer_config          = Setting::bufferConfig();
+            $min_hours_session_time = $buffer_config('MIN_HOURS_IN_ADVANCE_SESSION_TIME');
+            $diff_in_hours          = Carbon::now(Setting::timezone())->diffInHours($session_start_timing, false);
+
+            $satisfied_in_advance_session_time = $diff_in_hours > $min_hours_session_time;
+            return $satisfied_in_advance_session_time;
         }
 
-        $earliest_timing          = $this->timings->first();
-        $session_start_timing_str = $earliest_timing->first_arrival_time;
-        $minutes     = $this->getMinutes($session_start_timing_str);
-        $time_hour   = (int)round($minutes / 60);
-        $time_minute = $minutes % 60;
-        //compute exactly start timing of session
-        $session_start_timing = $this->date->copy()->setTime($time_hour, $time_minute);
-
-        $buffer_config          = Setting::bufferConfig();
-        $min_hours_session_time = $buffer_config('MIN_HOURS_IN_ADVANCE_SESSION_TIME');
-        $diff_in_hours          = $session_start_timing->diffInHours(Carbon::now());
-
-        $satisfied_in_advance_session_time = $diff_in_hours > $min_hours_session_time;
-        return $satisfied_in_advance_session_time;
+        return true;
     }
 
     
