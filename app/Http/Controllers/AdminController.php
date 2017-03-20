@@ -23,8 +23,8 @@ class AdminController extends HoiController {
         /**
          * Sessions data
          */
-        $weekly_sessions   = Session::normalSession()->get();
-        $special_sesssions = Session::allSpecialSession()->get();
+        $weekly_sessions   = Session::normalSession()->with('timings')->get();
+        $special_sesssions = Session::allSpecialSession()->with('timings')->get();
 
         /**
          * Config data
@@ -51,7 +51,7 @@ class AdminController extends HoiController {
 
         $state = [
             'weekly_sessions'   => $weekly_sessions,
-            'special_sesssions' => $special_sesssions,
+            'special_sessions' => $special_sesssions,
             'buffer'            => Setting::buildKeyValueOfConfig($buffer_config, $buffer_keys),
             'notifcation'       => Setting::buildKeyValueOfConfig($notification_config, $notification_keys),
             'settings'          => Setting::buildKeyValueOfConfig($settings_config, $settings_keys),

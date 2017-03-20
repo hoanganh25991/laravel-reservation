@@ -208,7 +208,7 @@ class BookingForm {
 
 	getVueState(){
 		if(typeof window.vue_state == 'undefined'){
-			window.vue_state = this.defaultState();
+			window.vue_state = Object.assign({}, store.getState());
 		}
 
 		return window.vue_state;

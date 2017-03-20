@@ -6,7 +6,7 @@
     @include('admin.navigator')
 
     <!-- Main component for a primary marketing message or call to action -->
-    <div id ='app' style="position: relative; height: calc(100vh - 100px)">
+    <div id='app' style="position: relative; height: calc(100vh - 100px)">
         <div id="settings_content" class="row">
             <div id="reservations_content" class="col-md-2">
                 <div class="navbar navbar-default">
@@ -26,10 +26,125 @@
                         <h1>Weekly Sessions</h1>
                     </div>
                     <div class="modal-body">
+                        <h2>Striped Rows</h2>
+                        <p>The .table-striped class adds zebra-stripes to a table:</p>
+
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Mondays</th>
+                                <th>Tuesdays</th>
+                                <th>Wednesdays</th>
+                                <th>Thursdays</th>
+                                <th>Fridays</th>
+                                <th>Saturdays</th>
+                                <th>Sundays</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <template v-for="item in weekly_sessions">
+                                <tr class="small-label">
+                                    <td>{{ item.session_name }}</td>
+                                    <td>
+                                        <input type="checkbox" :id="'session_' + item.id"
+                                               :checked="(item.on_mondays == 1) ? 'checked' : false"/>
+                                        <label :for="'session_' + item.id">
+                                        </label>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" :id="'session_' + item.id"
+                                               :checked="(item.on_tuesdays == 1) ? 'checked' : false"/>
+                                        <label :for="'session_' + item.id">
+                                        </label>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" :id="'session_' + item.id"
+                                               :checked="(item.on_wednesdays == 1) ? 'checked' : false"/>
+                                        <label :for="'session_' + item.id">
+                                        </label>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" :id="'session_' + item.id"
+                                               :checked="(item.on_thursdays == 1) ? 'checked' : false"/>
+                                        <label :for="'session_' + item.id">
+                                        </label>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" :id="'session_' + item.id"
+                                               :checked="(item.on_fridays == 1) ? 'checked' : false"/>
+                                        <label :for="'session_' + item.id">
+                                        </label>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" :id="'session_' + item.id"
+                                               :checked="(item.on_satdays == 1) ? 'checked' : false"/>
+                                        <label :for="'session_' + item.id">
+                                        </label>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" :id="'session_' + item.id"
+                                               :checked="(item.on_sundays == 1) ? 'checked' : false"/>
+                                        <label :for="'session_' + item.id">
+                                        </label>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="8">
+                                        <table class="table table-striped sub-level">
+                                            <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th>Name</th>
+                                                <th>First arrival time</th>
+                                                <th>Last arrival time</th>
+                                                <th>Interval time</th>
+                                                <th>Capacity 1</th>
+                                                <th>Capacity 2</th>
+                                                <th>Capacity 3_4</th>
+                                                <th>Capacity 5_6</th>
+                                                <th>Capacity 7_x</th>
+                                                <th>Max pax</th>
+                                                <th>Children</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <template v-for="timing in item.timings">
+                                                <tr>
+                                                    <td>
+                                                        <label class="switch">
+                                                            <input type="checkbox" :checked="(timing.disabled == 1) ? 'checked' : false">
+                                                            <div class="slider round"></div>
+                                                        </label>
+                                                    </td>
+                                                    <td>{{ timing.timing_name }}</td>
+                                                    <td>{{ timing.firt_arrival_time }}</td>
+                                                    <td>{{ timing.last_arrival_time }}</td>
+                                                    <td>{{ timing.interval_minutes }}</td>
+                                                    <td>{{ timing.capacity_1 }}</td>
+                                                    <td>{{ timing.capacity_2 }}</td>
+                                                    <td>{{ timing.capacity_3_4 }}</td>
+                                                    <td>{{ timing.capacity_5_6 }}</td>
+                                                    <td>{{ timing.capacity_7_x }}</td>
+                                                    <td>{{ timing.max_pax }}</td>
+                                                    <td>
+                                                        <input type="checkbox" :id="'children_allowed_' + timing.id"
+                                                               :checked="(timing.children_allowed == 1) ? 'checked' : false"/>
+                                                        <label :for="'children_allowed_' + timing.id">
+                                                        </label>
+                                                    </td>
+                                                </tr>
+                                            </template>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </template>
+                            </tbody>
+                        </table>
                     </div>
                     <hr>
                     <div class="modal-footer">
-                        <button class="btn btn-success">Save</button>
                     </div>
                 </div>
                 <div id="special_sessions" class="modal-content admin-step">
@@ -37,6 +152,75 @@
                         <h1>Special Sessions</h1>
                     </div>
                     <div class="modal-body">
+                        <h2>Striped Rows</h2>
+                        <p>The .table-striped class adds zebra-stripes to a table:</p>
+
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>On</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <template v-for="item in special_sessions">
+                                <tr class="small-label">
+                                    <td>{{ item.session_name }}</td>
+                                    <td>{{ item.one_off_date }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="8">
+                                        <table class="table table-striped sub-level">
+                                            <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th>Name</th>
+                                                <th>First arrival time</th>
+                                                <th>Last arrival time</th>
+                                                <th>Interval time</th>
+                                                <th>Capacity 1</th>
+                                                <th>Capacity 2</th>
+                                                <th>Capacity 3_4</th>
+                                                <th>Capacity 5_6</th>
+                                                <th>Capacity 7_x</th>
+                                                <th>Max pax</th>
+                                                <th>Children</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <template v-for="timing in item.timings">
+                                                <tr>
+                                                    <td>
+                                                        <label class="switch">
+                                                            <input type="checkbox" :checked="(timing.disabled == 1) ? 'checked' : false">
+                                                            <div class="slider round"></div>
+                                                        </label>
+                                                    </td>
+                                                    <td>{{ timing.timing_name }}</td>
+                                                    <td>{{ timing.firt_arrival_time }}</td>
+                                                    <td>{{ timing.last_arrival_time }}</td>
+                                                    <td>{{ timing.interval_minutes }}</td>
+                                                    <td>{{ timing.capacity_1 }}</td>
+                                                    <td>{{ timing.capacity_2 }}</td>
+                                                    <td>{{ timing.capacity_3_4 }}</td>
+                                                    <td>{{ timing.capacity_5_6 }}</td>
+                                                    <td>{{ timing.capacity_7_x }}</td>
+                                                    <td>{{ timing.max_pax }}</td>
+                                                    <td>
+                                                        <input type="checkbox" :id="'children_allowed_' + timing.id"
+                                                               :checked="(timing.children_allowed == 1) ? 'checked' : false"/>
+                                                        <label :for="'children_allowed_' + timing.id">
+                                                        </label>
+                                                    </td>
+                                                </tr>
+                                            </template>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </template>
+                            </tbody>
+                        </table>
                     </div>
                     <hr>
                     <div class="modal-footer">
@@ -58,14 +242,16 @@
                         <div class="form-group row">
                             <label for="2" class="col-md-3">Min hours in advance prior to a reservation time</label>
                             <div class="col-md-4">
-                                <input class="form-control" type="number" :value="buffer.MIN_HOURS_IN_ADVANCE_SLOT_TIME" id="2">
+                                <input class="form-control" type="number" :value="buffer.MIN_HOURS_IN_ADVANCE_SLOT_TIME"
+                                       id="2">
                             </div>
                         </div>
 
                         <div class="form-group row">
                             <label for="3" class="col-md-3">Min hours in advance prior to a session</label>
                             <div class="col-md-4">
-                                <input class="form-control" type="number" :value="buffer.MIN_HOURS_IN_ADVANCE_SESSION_TIME" id="3">
+                                <input class="form-control" type="number"
+                                       :value="buffer.MIN_HOURS_IN_ADVANCE_SESSION_TIME" id="3">
                             </div>
                         </div>
 
