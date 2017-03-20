@@ -2312,9 +2312,15 @@ input:checked + .slider:before {
     border-radius: 50%;
 }
 
-/*#admin-step-container .admin-step {*/
-    /*position: absolute;*/
-    /*top: 0;*/
-    /*transition: all 0.5s ease-in-out;*/
-    /*transform: scale(0,0);*/
-/*}*/
+#admin-step-container .admin-step {
+    position: absolute;
+    top: 0;
+    transition: all 0.5s ease-in-out;
+    transform: scale(0,0);
+    width: 800px;
+}
+
+#go-container .btn {
+    white-space: normal;
+    text-align: left;
+}

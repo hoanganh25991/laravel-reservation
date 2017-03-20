@@ -14,6 +14,15 @@ use App\OutletReservationSetting as Setting;
  * @property Collection timings
  * @property mixed type
  * @property mixed session_name
+ * 
+ * @method static normalSession
+ * @see Session::scopeNormalSession
+ * 
+ * @method static specialSession
+ * @see Session::scopeSpecialSession
+ * 
+ * @method static allSpecialSession
+ * @see Session::scopeAllSpecialSession
  */
 class Session extends HoiModel {
     
@@ -71,10 +80,20 @@ class Session extends HoiModel {
         return $this->hasMany(Timing::class, 'session_id', 'id');
     }
 
+    /**
+     * Query normal session
+     * @param $query
+     * @return mixed
+     */
     public function scopeNormalSession($query){
         return $query->where('one_off', Session::NORMAL_SESSION);
     }
 
+    /**
+     * Query special session in date range
+     * @param $query
+     * @return mixed
+     */
     public function scopeSpecialSession($query){
         $date_range = Setting::dateRange();
 
@@ -85,6 +104,11 @@ class Session extends HoiModel {
         ]);
     }
 
+    /**
+     * Combine both normal session & special session
+     * @param $query
+     * @return mixed
+     */
     public function scopeAvailableSession($query){
         return $query->normalSession()
             ->orWhere(function($q){$q->specialSession();})
@@ -143,6 +167,12 @@ class Session extends HoiModel {
         return $sessions;
     }
 
+    /**
+     * Bcs min hour before session time
+     * Which turn session into unavailable to pick
+     * Consider earliest time as session time
+     * @return bool
+     */
     public function availableToBook(){
         $diff_less_than_a_day = Carbon::now(Setting::timezone())->diffInDays($this->date, false) == 0;
         /**
@@ -169,7 +199,16 @@ class Session extends HoiModel {
         return true;
     }
 
-    
-    
-
+    /**
+     * Get all session which special
+     *
+     * Other method
+     * @see Session::scopeSpecialSession
+     * Limit session in available date range
+     * @param $query
+     * @return
+     */
+    public function scopeAllSpecialSession($query){
+        return $query->where('one_off', Session::SPECIAL_SESSION);
+    }
 }

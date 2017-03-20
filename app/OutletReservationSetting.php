@@ -31,7 +31,7 @@ class OutletReservationSetting extends HoiModel{
     /**
      * SETTING default config
      */
-    const SETTING_GROUP = 1;
+    const SETTINGS_GROUP = 1;
 
     const BRAND_ID = 'BRAND_ID';
     const DEFAULT_BRAND_ID = 1;
@@ -197,8 +197,8 @@ class OutletReservationSetting extends HoiModel{
         return (new Setting)->getConfigGroup(Setting::BUFFER_GROUP);
     }
 
-    public static function settingConfig(){
-        return (new Setting)->getConfigGroup(Setting::SETTING_GROUP);
+    public static function settingsConfig(){
+        return (new Setting)->getConfigGroup(Setting::SETTINGS_GROUP);
     }
 
     public static function notificationConfig(){
@@ -218,7 +218,7 @@ class OutletReservationSetting extends HoiModel{
      * @return mixed
      */
     public static function brandId(){
-        $setting_config = Setting::settingConfig();
+        $setting_config = Setting::settingsConfig();
 
         return $setting_config(Setting::BRAND_ID);
     }
@@ -228,7 +228,7 @@ class OutletReservationSetting extends HoiModel{
      * @return mixed
      */
     public static function smsSenderName(){
-        $setting_config = Setting::settingConfig();
+        $setting_config = Setting::settingsConfig();
 
         return $setting_config(Setting::SMS_SENDER_NAME);
     }
@@ -296,5 +296,24 @@ class OutletReservationSetting extends HoiModel{
         $hash = new HoiHash();
 
         return $hash;
+    }
+
+    /**
+     * Build app-state for config
+     * as key => value on specific config
+     * @param \Closure $config
+     * @param array $keys
+     */
+    public static function buildKeyValueOfConfig($config, $keys = []){
+        $collect_keys = collect($keys);
+
+        /** @var TYPE_NAME $collect_keys */
+        return $collect_keys->map(/**
+         * @param $key
+         * @return mixed
+         */
+            function($key) use($config){
+            return [$key => $config($key)];
+        })->collapse();
     }
 }

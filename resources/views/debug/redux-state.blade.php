@@ -1,3 +1,4 @@
+@push('css')
 <style>
     #redux-state {
         display: block;
@@ -26,6 +27,7 @@
         /*float: right;*/
     }
 </style>
+@endpush
 <pre id="redux-state"></pre>
 <svg id='redux-state-svg' xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
     <path d="M18.546 3h-13.069l-5.477 8.986v9.014h24v-9.014l-5.454-8.986zm-3.796 12h-5.5l-2.25-3h-4.666l4.266-7h10.82l4.249 7h-4.669l-2.25 3z"/>
@@ -55,3 +57,6 @@
         });
     })();
 </script>
+@push('script')
+<script src="{{ url_mix('js/syntax-highlight.js') }}"></script>
+@endpush

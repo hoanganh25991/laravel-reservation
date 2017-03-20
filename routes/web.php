@@ -19,6 +19,7 @@ Route::get( 'reservations/{confirm_id}', 'ReservationController@getConfirmPage')
 Route::post('reservations/{confirm_id}', 'ReservationController@getConfirmPage');
 
 Route::get('admin', 'AdminController@getDashboard');
+Route::get('admin/settings', 'AdminController@getSettingsDashboard');
 
 Route::get('test', function(App\Http\Controllers\BookingController $c){
 

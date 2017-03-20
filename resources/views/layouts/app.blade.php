@@ -14,11 +14,6 @@
 <script src="{{ url('js/bootstrap.min.js') }}"></script>
 <script src="{{ url('js/moment.min.js') }}"></script>
 <script src="{{ url('js/redux.min.js') }}"></script>
-
-{{--<script src="{{ url(substr(mix('js/vendor.js'), 1)) }}"></script>--}}
-{{--<script src="{{ url(substr(mix('js/manifest.js'), 1)) }}"></script>--}}
-{{--<script src="{{ url('js/bootstrap.min.js') }}"></script>--}}
 @stack('script')
-
 </body>
 </html>
