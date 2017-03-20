@@ -48,7 +48,7 @@ class HoiModel extends Model {
     }
 
     /**
-     * Inherit class want to scope query by outlet id
+     * Global scope query by outlet id
      * static call on this function to assign global scope on query
      */
     protected static function byOutletId(){
@@ -56,6 +56,16 @@ class HoiModel extends Model {
         static::addGlobalScope('outlet_id', function (Builder $builder){
             $outlet_id = Setting::outletId();
             $builder->where('outlet_id', $outlet_id);
+        });
+    }
+
+    /**
+     * Global scope query by brand id
+     */
+    protected static function byBrandId(){
+        static::addGlobalScope('brand_id', function(Builder $buidler){
+            $brand_id = Setting::brandId();
+            $buidler->where('brand_id', $brand_id);
         });
     }
 }

@@ -20,10 +20,4 @@ class Outlet extends HoiModel {
         static::byBrandId();
     }
     
-    protected static function byBrandId(){
-        static::addGlobalScope('brand_id', function(Builder $buidler){
-            $brand_id = Setting::brandId();
-            $buidler->where('brand_id', $brand_id);
-        });
-    }
 }

@@ -57,7 +57,11 @@ use App\OutletReservationSetting as Setting;
  * @see Reservation::getDepositAttribute
  *
  * @property mixed send_sms_confirmation
- * @see
+ * @see Reservation::getSendSMSConfirmationAttribute
+ *
+ * Loading through relationship
+ * @property mixed $outlet
+ * @see Reservation::outlet
  */
 class Reservation extends HoiModel {
 
@@ -351,4 +355,21 @@ class Reservation extends HoiModel {
 
         return $notification_config(Setting::SEND_SMS_CONFIRMATION);
     }
+
+    /**
+     * Relationship with Outlet
+     */
+    public function outlet(){
+        return $this->hasOne(Outlet::class, 'id', 'outlet_id');
+    }
+
+    /**
+     * Convenience get outlet name
+     */
+    public function getOutletNameAttribute(){
+        $outlet = $this->outlet;
+
+        return $outlet->outlet_name;
+    }
+
 }

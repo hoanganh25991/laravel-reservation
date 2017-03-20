@@ -41,17 +41,13 @@ class SendConfirmSMS implements ShouldQueue{
     public function handle(){
         //Log::info('SendConfirmSMS handled');
         $reservation = $this->reservation;
-        if(!$reservation->shouldSendConfirmSMS()){
-            Log::info('Should send confirm SMS false');
-            return;
-        }
-
         $telephone    = $reservation->full_phone_number;
         $message      = $this->getMessage($reservation);
         $sender_name  = Setting::smsSenderName();
 
         $success_sent = $this->sendOverHoiio($telephone, $message, $sender_name);
         if($success_sent){
+            Log::info('Success send sms to reminder');
             event(new SentReminderSMS($reservation));
         }else{
             throw new SMSException('SMS not sent');
@@ -62,10 +58,10 @@ class SendConfirmSMS implements ShouldQueue{
     private function getMessage(Reservation $reservation){
         $hours_before = $reservation->confirm_sms_date->diffInHours(Carbon::now(Setting::timezone()));
         $sender_name  = Setting::smsSenderName();
-        $time_str     = $reservation->date->format('at H:i');
+        $time_str     = $reservation->date->format('H:i');
         
         $msg  = "You are $hours_before hours from your $sender_name reservation! ";
-        $msg .= "$reservation->adult_pax adults $reservation->children_pax children $time_str at $reservation->outlet_name. ";
+        $msg .= "$reservation->adult_pax adults $reservation->children_pax children at $time_str at $reservation->outlet_name. ";
         $msg .= "Confirm you are coming: $reservation->confirm_coming_url";
         
         return $msg;

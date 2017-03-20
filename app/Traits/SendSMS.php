@@ -1,6 +1,7 @@
 <?php
 namespace App\Traits;
 
+use App\BrandCredit;
 use Illuminate\Support\Facades\Log;
 
 trait SendSMS{
@@ -15,7 +16,30 @@ trait SendSMS{
         return $telephone;
     }
 
-    private function sendOverHoiio($telephone, $message, $sender_name){
+    /**
+     * Send SMS through Hoiio
+     * @param $telephone
+     * @param $message
+     * @param $sender_name
+     * @return bool
+     */
+    public function sendOverHoiio($telephone, $message, $sender_name){
+        $success_sent = $this->_sendOverHoiio($telephone, $message, $sender_name);
+
+        /**
+         * When success sent
+         * Update credit to keep track
+         */
+        if($success_sent){
+            $this->callUpdateBrandCredit();
+        }
+
+        /**
+         * Resturn back sent sms status
+         */
+        return $success_sent;
+    }
+    public function _sendOverHoiio($telephone, $message, $sender_name){
         //pad the phone number
         //$telephone = $this->_padTelephone($telephone);
         //Log::info('Sending SMS');
@@ -68,5 +92,12 @@ trait SendSMS{
         }else{
             return false;
         }
+    }
+
+    /**
+     * Save send sms credit in DB
+     */
+    private function callUpdateBrandCredit(){
+        (new BrandCredit)->updateSMSCredit();
     }
 }

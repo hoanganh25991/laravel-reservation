@@ -32,19 +32,35 @@ class ReservationReservedListener{
         /** @var Reservation $reservation */
         $reservation = $event->reservation;
 
-        $telephone    = $reservation->full_phone_number;
-        $message      = $this->getMessage($reservation);
-        $sender_name  = Setting::smsSenderName();
-        $success_sent = $this->sendOverHoiio($telephone, $message, $sender_name);
+        /**
+         * Base on config for reservation
+         * Should Send Confirm SMS
+         */
+        if($reservation->shoudlSendSMSOnBooking()){
+            $telephone    = $reservation->full_phone_number;
+            $message      = $this->getMessage($reservation);
+            $sender_name  = Setting::smsSenderName();
+            $success_sent = $this->sendOverHoiio($telephone, $message, $sender_name);
 
-        if($success_sent){
-            //event(new SentSMS($reservation));
-            //Log::info($reservation->confirm_sms_date);
+            if($success_sent){
+                //event(new SentSMS($reservation));
+                //Log::info($reservation->confirm_sms_date);
+               Log::info('Success send sms on booking');
+            }else{
+                throw new SMSException('SMS not sent');
+            }
+        }
+        
+        /**
+         * Base on config for reservation
+         * Should send reminder sms
+         * (send confirmation sms)
+         */
+        if($reservation->shouldSendConfirmSMS()){
             $send_confirm_sms = (new SendConfirmSMS($reservation))->delay($reservation->confirm_sms_date);
             dispatch($send_confirm_sms);
-        }else{
-            throw new SMSException('SMS not sent');
         }
+
     }
 
     private function getMessage($reservation){
