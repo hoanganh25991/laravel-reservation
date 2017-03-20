@@ -69,11 +69,10 @@ class AdminSettings {
 	}
 
 	buildVue(){
-		let vue_state = this.getVueState();
-
+		let state = this.getVueState();
 		this.vue = new Vue({
 			el: '#app',
-			data: vue_state
+			data: state
 		});
 	}
 
@@ -82,7 +81,14 @@ class AdminSettings {
 			return window.vue_state;
 		}
 
-		window.vue_state = {init_view: false};
+		// window.vue_state = store.getState();
+		/**
+		 * Above assign go wrong
+		 * BCS vue will modifed on given state
+		 * Which will change state of store
+		 * >>> hard to understand workflow
+		 */
+		window.vue_state = Object.assign({}, store.getState());
 
 		return window.vue_state;
 	}
@@ -131,10 +137,6 @@ class AdminSettings {
 				el.addEventListener('click', ()=>{
 					let destination = el.getAttribute('destination');
 					store.dispatch({type: CHANGE_ADMIN_STEP, step: destination});
-
-					if(destination == 'form-step-3'){
-						store.dispatch({type: AJAX_CALL, ajax_call: 1});
-					}
 				});
 			});
 	}
