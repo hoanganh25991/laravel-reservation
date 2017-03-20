@@ -62,6 +62,12 @@ use App\OutletReservationSetting as Setting;
  * Loading through relationship
  * @property mixed $outlet
  * @see Reservation::outlet
+ * 
+ * @property mixed $sms_message_on_reserved
+ * @see Reservation::getSMSMessageOnReservedAttribute
+ * 
+ * @property mixed $confirmation_sms_message
+ * @see Reservation::getConfirmationSMSMessageAttribute
  */
 class Reservation extends HoiModel {
 
@@ -277,11 +283,21 @@ class Reservation extends HoiModel {
      * check should send summary cms on booking
      * @return bool
      */
-    public function shoudlSendSMSOnBooking(){
+    public function shouldSendSMSOnBooking(){
         $notification_config = Setting::notificationConfig();
         $should_send_sms_on_booking = $notification_config(Setting::SEND_SMS_ON_BOOKING) == Setting::SHOULD_SEND;
 
         return $should_send_sms_on_booking;
+    }
+
+    /**
+     * Alias of should send SMS on booking
+     * BCS new logic only when reservation RESERVED
+     * SMS sent out
+     * @return bool
+     */
+    public function shouldSendSMSOnReserved(){
+        return $this->shouldSendSMSOnBooking();
     }
 
     /**
@@ -372,4 +388,31 @@ class Reservation extends HoiModel {
         return $outlet->outlet_name;
     }
 
+    /**
+     * Reservation SMS on booking reserved
+     * @return string
+     */
+    public function getSMSMessageOnReservedAttribute(){
+        //send out an SMS
+        $long_datetime_str = $this->date->format('M d Y');
+
+        return "Your reservation at $this->outlet_name $long_datetime_str has been received. Reservation code: $this->confirm_id";
+    }
+
+    public function getConfirmationSMSMessageAttribute(){
+        $minutes_before = Carbon::now(Setting::timezone())->diffInMinutes($this->confirm_sms_date, false);
+        /**
+         * Bcs of interval loop read database to pop a reservation to send
+         * Compute hours before as ceiling round
+         */
+        $hours_before = ceil($minutes_before / 60);
+        $sender_name  = Setting::smsSenderName();
+        $time_str     = $this->date->format('H:i');
+
+        $msg  = "You are $hours_before hours from your $sender_name reservation! ";
+        $msg .= "$this->adult_pax adults $this->children_pax children at $time_str at $this->outlet_name. ";
+        $msg .= "Confirm you are coming: $this->confirm_coming_url";
+
+        return $msg;
+    }
 }

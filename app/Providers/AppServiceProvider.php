@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Jobs\HoiJobs;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -12,9 +13,18 @@ class AppServiceProvider extends ServiceProvider
      * @return void
      */
     public function boot(){
+        /**
+         * Add HoiHelpers function
+         * In global
+         */
         $hoi_helpers_path = app_path('Libraries/HoiHelpers.php');
         /** @noinspection PhpIncludeInspection */
         require_once($hoi_helpers_path);
+        
+        /**
+         * Interval run HoiJobs
+         */
+        //dispatch(new HoiJobs);
     }
 
     /**
@@ -22,8 +32,6 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
-    {
-        //
+    public function register(){
     }
 }

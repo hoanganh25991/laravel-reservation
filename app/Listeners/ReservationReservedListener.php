@@ -4,7 +4,8 @@ namespace App\Listeners;
 
 use App\Reservation;
 use App\Traits\SendSMS;
-use App\Jobs\SendConfirmSMS;
+use App\Events\SentReminderSMS;
+//use App\Jobs\SendConfirmSMS;
 //use App\Events\SentReminderSMS;
 use App\Exceptions\SMSException;
 use App\Events\ReservationReserved;
@@ -36,16 +37,14 @@ class ReservationReservedListener{
          * Base on config for reservation
          * Should Send Confirm SMS
          */
-        if($reservation->shoudlSendSMSOnBooking()){
+        if($reservation->shouldSendSMSOnReserved()){
             $telephone    = $reservation->full_phone_number;
-            $message      = $this->getMessage($reservation);
+            $message      = $reservation->sms_message_on_reserved;
             $sender_name  = Setting::smsSenderName();
             $success_sent = $this->sendOverHoiio($telephone, $message, $sender_name);
 
             if($success_sent){
-                //event(new SentSMS($reservation));
-                //Log::info($reservation->confirm_sms_date);
-               Log::info('Success send sms on booking');
+                Log::info('Success send sms on reserved');
             }else{
                 throw new SMSException('SMS not sent');
             }
@@ -56,19 +55,14 @@ class ReservationReservedListener{
          * Should send reminder sms
          * (send confirmation sms)
          */
-        if($reservation->shouldSendConfirmSMS()){
-            $send_confirm_sms = (new SendConfirmSMS($reservation))->delay($reservation->confirm_sms_date);
-            dispatch($send_confirm_sms);
-        }
+//        if($reservation->shouldSendConfirmSMS()){
+//            $send_confirm_sms = (new SendConfirmSMS($reservation))->delay($reservation->confirm_sms_date);
+//            dispatch($send_confirm_sms);
+//        }
+        /**
+         * Replace with interval jobs
+         * Which pop out reservations to send
+         */
 
     }
-
-    private function getMessage($reservation){
-        //send out an SMS
-        $long_datetime_str = $reservation->date->format('on M d Y at H:i');
-        return "Your reservation at $reservation->outlet_name $long_datetime_str has been received. Reservation code: $reservation->confirm_id";
-
-    }
-
-
 }
