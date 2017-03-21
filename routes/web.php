@@ -63,6 +63,12 @@ Route::get('test', function(App\Http\Controllers\BookingController $c){
 //    $confirm_id = $r->confirm_id;
 //    dd($r->confirm_coming_url);
     //return redirect()->route('reservation_confirm', compact('confirm_id'));
-    dd($c->buildDatesWithAvailableTime());
+    //dd($c->buildDatesWithAvailableTime());
+
+//    $t = App\Timing::all();
+//    dd($t);
+    //return view('layouts.app');
+
+    dd($c->availableTime());
 });
 

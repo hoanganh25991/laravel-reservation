@@ -6,21 +6,25 @@ use Carbon\Carbon;
 use App\Helpers\GCD;
 use App\Traits\ApiUtils;
 use App\Helpers\GreatestCommonFactor;
-use Illuminate\Database\Eloquent\Model;
-//use App\OutletReservationSetting as Setting;
+use App\OutletReservationSetting as Setting;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
- * @property mixed first_arrival_time
- * @property mixed interval_minutes
- * @property mixed capacity_1
- * @property mixed last_arrival_time
- * @property mixed capacity_2
- * @property mixed capacity_3_4
- * @property mixed capacity_5_6
- * @property mixed type
- * @property Session session
- * @property mixed capacity_7_x
- * @property mixed max_pax
+ * @property mixed $first_arrival_time
+ * @property mixed $interval_minutes
+ * @property mixed $capacity_1
+ * @property mixed $last_arrival_time
+ * @property mixed $capacity_2
+ * @property mixed $capacity_3_4
+ * @property mixed $capacity_5_6
+ * @property mixed $type
+ * @property Session $session
+ * @property mixed $capacity_7_x
+ * @property mixed $max_pax
+ * @property mixed $min_pax_for_booking_deposit
+ * 
+ * @property mixed $disabled
+ * @see Timing::getDisabledAttribute
  */
 class Timing extends HoiModel {
     
@@ -55,7 +59,32 @@ class Timing extends HoiModel {
     const AVAILABLE = 0;
     const DISABLED  = 1;
 
+    /**
+     * Store Booking type Deposit Or Not Or...
+     */
+    const NO_DEPOSIT  = 0;
+    const HAS_DEPOSIT = 1;
+
     protected $table = 'timing';
+
+    protected static function boot(){
+        parent::boot();
+
+        static::orderByFirstArrival();
+
+        static::creating(function(Timing $timing){
+            if(!isset($timing->attributes['min_pax_for_booking_deposit'])){
+                $deposit_config = Setting::depositConfig();
+                $timing->attributes['min_pax_for_booking_deposit'] = $deposit_config(Setting::DEPOSIT_THRESHOLD_PAX);
+            }
+        });
+    }
+    
+    public static function orderByFirstArrival(){
+        static::addGlobalScope('order_by_first_arrival', function(Builder $builder){
+            $builder->orderBy('first_arrival_time', 'asc');
+        });
+    }
 
     /**
      * Relationship with session
@@ -107,6 +136,7 @@ class Timing extends HoiModel {
                 'capacity_5_6'       => $this->capacity_5_6,
                 'capacity_7_x'       => $this->capacity_7_x,
                 'max_pax'            => $this->max_pax,
+                'min_pax_for_booking_deposit' => $this->min_pax_for_booking_deposit,
             ];
 
             $chunks->push($chunk);
@@ -149,12 +179,33 @@ class Timing extends HoiModel {
         return "{$capacity_name}_{$value}";
     }
     
-    public function scopeAvailable($query){
-        return $this->withAvailable($query);
+    public function isAvailable(){
+        return $this->disabled == Timing::AVAILABLE;
     }
-    
-    protected function withAvailable($query){
+
+    /**
+     * When disabled state not set, default as available
+     * @param $value
+     * @return int
+     */
+    public function getDisabledAttribute($value){
+        return is_null($value) ? Timing::AVAILABLE : $value;
+    }
+
+    /**
+     * Timing which is available
+     * @param $query
+     * @return mixed
+     */
+    public function scopeAvailableToBook($query){
         return $query->where('disabled', Timing::AVAILABLE);
+    }
+
+    /**
+     * Base on current config, timing store min pax for deposit rule
+     */
+    public function getMinPaxForBookingDepositAttribute(){
+                
     }
 
 }

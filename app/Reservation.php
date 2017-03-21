@@ -176,7 +176,7 @@ class Reservation extends HoiModel {
         ]);
     }
     
-    public static function validGroupByDateTimeCapacity(){
+    public static function reservedGroupByDateTimeCapacity(){
         $self = (new Reservation);
         $valid_reservations   = $self->scopeValidInDateRange($self->query())->get();
 

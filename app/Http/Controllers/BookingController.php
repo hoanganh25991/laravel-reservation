@@ -22,6 +22,9 @@ class BookingController extends HoiController {
     use ApiUtils;
     use ApiResponse;
 
+    /**
+     * Cache filenames
+     */
     const DATES_WITH_AVAILABLE_TIME = 'DATES_WITH_AVAILABLE_TIME';
     const SHOULD_UPDATE_DATES_WITH_AVAILABLE_TIME = 'SHOULD_UPDATE_DATES_WITH_AVAILABLE_TIME';
 
@@ -31,6 +34,7 @@ class BookingController extends HoiController {
     /** @var  int $reservation_pax_size */
     public $reservation_pax_size;
 
+    /** @var  bool $recalculate */
     public $recalculate;
 
     public function availableTime(){
@@ -39,7 +43,7 @@ class BookingController extends HoiController {
         /**
          * Change chunk time capacity base on already reservations
          */
-        $this->valid_reservations = Reservation::validGroupByDateTimeCapacity();
+        $this->valid_reservations = Reservation::reservedGroupByDateTimeCapacity();
 
         $date_with_available_time
             ->each(function($chunks, $date){
@@ -92,13 +96,35 @@ class BookingController extends HoiController {
         return null;
     }
 
+    /**
+     * @return mixed
+     */
     public function buildDatesWithAvailableTime(){
+        /**
+         * Explain step
+         * 1. Session fetch from DB
+         * @see App\Session::scopeMayAvailableSession
+         *
+         * 2. Assign date to session
+         * @see App\Session::assignDate
+         *
+         * 3. Filter base on date
+         * @see App\Session::availableToBook
+         *
+         * 4. Group session by date
+         *
+         * 5. Only get timings of session on each [group by date]
+         *
+         * Example return of $timing_by_date
+         * @example "booking-controler_@available-time.html"
+         */
         $timings_by_date =
-            Session::availableSession()->get()
+            Session
+                ::mayAvailableSession()->get()
                 ->map->assignDate()->collapse()
                 ->filter->availableToBook()
                 ->groupBy(function($session){return $session->date->format('Y-m-d');})
-                ->map(function($session_by_date){return $session_by_date->map->timings->collapse();});
+                ->map(function($sessions_by_date){return $sessions_by_date->map->timings->collapse();});
 
         $return =
             $timings_by_date->map(function($timings_in_date, $date_string){

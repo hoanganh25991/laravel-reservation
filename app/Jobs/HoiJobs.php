@@ -40,12 +40,11 @@ class HoiJobs implements ShouldQueue
          * Self dispatch jobs
          * As internal loop after 5 minutes (1 on DEV)
          */
-        $delay_time = Carbon::now(Setting::timezone())->addMinutes(5);
-        if(env('APP_ENV') != 'production'){
-            $delay_time = Carbon::now(Setting::timezone())->addMinutes(1);
-        }
-        
+        $interval_in_minutes = env('APP_ENV') != 'production' ? 1 : 5;
+        $delay_time          = Carbon::now(Setting::timezone())->addMinutes($interval_in_minutes);
+
         $hoi_jobs = (new HoiJobs)->delay($delay_time);
+        Log::info('Redispatch as interval loop');
         dispatch($hoi_jobs);
     }
 

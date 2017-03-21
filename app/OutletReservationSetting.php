@@ -69,7 +69,7 @@ class OutletReservationSetting extends HoiModel{
     const DEPOSIT_TYPE = 'DEPOSIT_TYPE';
     const DEFAULT_DEPOSIT_TYPE = 0;
     const FIXED_SUM = 0;
-    const PER_PAX = 1;
+    const PER_PAX   = 1;
 
     const FIXED_SUM_VALUE = 'FIXED_SUM_VALUE';
     const DEFAULT_FIXED_SUM_VALUE = 5;

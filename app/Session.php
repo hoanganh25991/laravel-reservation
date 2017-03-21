@@ -5,6 +5,8 @@ namespace App;
 use Carbon\Carbon;
 use App\Traits\ApiUtils;
 use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use App\OutletReservationSetting as Setting;
 
 /**
@@ -14,56 +16,56 @@ use App\OutletReservationSetting as Setting;
  * @property Collection timings
  * @property mixed type
  * @property mixed session_name
- * 
+ *
  * @method static normalSession
  * @see Session::scopeNormalSession
- * 
+ *
  * @method static specialSession
  * @see Session::scopeSpecialSession
- * 
+ *
  * @method static allSpecialSession
  * @see Session::scopeAllSpecialSession
  */
-class Session extends HoiModel {
-    
+class Session extends HoiModel{
+
     use ApiUtils;
 
     /**
      * Session type
      * base on one_off
      * one_off == 0 > normal session
-     * one_off == 1 > special session 
+     * one_off == 1 > special session
      */
-    const NORMAL_SESSION  = 0;
+    const NORMAL_SESSION = 0;
     const SPECIAL_SESSION = 1;
 
     /**
      * Normal session reused on_x day
      * if it's value = 1
      */
-    const DAY_AVAILABLE  = 1;
+    const DAY_AVAILABLE = 1;
 
     /**
      * Convert Carbon day const to session day
      */
     const DAY_OF_WEEK = [
-        Carbon::MONDAY    => 'on_mondays',
-        Carbon::TUESDAY   => 'on_tuesdays',
+        Carbon::MONDAY => 'on_mondays',
+        Carbon::TUESDAY => 'on_tuesdays',
         Carbon::WEDNESDAY => 'on_wednesdays',
-        Carbon::THURSDAY  => 'on_thursdays',
-        Carbon::FRIDAY    => 'on_fridays',
-        Carbon::SATURDAY  => 'on_saturdays',
-        Carbon::SUNDAY    => 'on_sundays'
+        Carbon::THURSDAY => 'on_thursdays',
+        Carbon::FRIDAY => 'on_fridays',
+        Carbon::SATURDAY => 'on_saturdays',
+        Carbon::SUNDAY => 'on_sundays'
     ];
 
-    protected  $table = 'session';
+    protected $table = 'session';
 
-    protected static function boot() {
+    protected static function boot(){
         parent::boot();
 
         static::byOutletId();
     }
-    
+
     public function isSpecial(){
         return $this->one_off == Session::SPECIAL_SESSION;
     }
@@ -98,21 +100,52 @@ class Session extends HoiModel {
         $date_range = Setting::dateRange();
 
         return $query->where([
-            ['one_off', '=', Session::SPECIAL_SESSION],
-            ['one_off_date', '>=', $date_range[0]->format('Y-m-d')],
-            ['one_off_date',  '<', $date_range[1]->format('Y-m-d')]
+            [
+                'one_off',
+                '=',
+                Session::SPECIAL_SESSION
+            ],
+            [
+                'one_off_date',
+                '>=',
+                $date_range[0]->format('Y-m-d')
+            ],
+            [
+                'one_off_date',
+                '<',
+                $date_range[1]->format('Y-m-d')
+            ]
         ]);
     }
 
     /**
      * Combine both normal session & special session
+     * @warn At this step, we still don't know session is available
+     *           Session should have its earliest time satisfied MIN_HOURS_IN_ADVANCE_SESSION_TIME
+     *       Which base on its Timing
      * @param $query
      * @return mixed
      */
-    public function scopeAvailableSession($query){
-        return $query->normalSession()
-            ->orWhere(function($q){$q->specialSession();})
-            ->with(['timings' => function($relation){Timing::available($relation)->with('session');}]);
+    public function scopeMayAvailableSession($query){
+        return 
+            $query
+                ->normalSession()
+                ->orWhere(function ($current_query){ $current_query->specialSession(); })
+                ->with([
+                    'timings' => function (Relation $relation){
+                        /**
+                         * Query on $relation overload to its Builder inside
+                         * Timing when call query X, also overload on this Builder
+                         * @see Builder
+                         * @see Timing
+                         */
+                        /**
+                         * Find timing which available
+                         * @see Timing::scopeAvailableToBook
+                         */
+                        return $relation->where('disabled', Timing::AVAILABLE)->with('session');
+                    }
+                ]);
     }
 
     /**
@@ -129,14 +162,14 @@ class Session extends HoiModel {
      * @warn normal session can reuse for many days
      * > return as collection of session with date
      * > to normalize the consistent
-     * > special session after assigned also return a collection 
+     * > special session after assigned also return a collection
      * @return \Illuminate\Support\Collection
      */
     public function assignDate(){
         $sessions = collect([]);
 
         if($this->isSpecial()){
-            /* @case one_off_date NULL */  
+            /* @case one_off_date NULL */
             $this->date = Carbon::createFromFormat('Y-m-d', $this->one_off_date, Setting::timezone());
 
             return $sessions->push($this);
@@ -168,29 +201,49 @@ class Session extends HoiModel {
     }
 
     /**
+     * Not available to book when
+     * 1. No timings
+     * AAA, session after filter out disabled timings
+     * Has empty collection of timings
+     * If this happen > not available to book
+     *
+     * 2. Min hours before session time
      * Bcs min hour before session time
      * Which turn session into unavailable to pick
      * Consider earliest time as session time
+     * @see Setting::MIN_HOURS_IN_ADVANCE_SESSION_TIME
+     *
      * @return bool
      */
     public function availableToBook(){
+        /**
+         * No timings
+         */
+        if($this->timings->count() == 0){
+            return false;
+        }
+
+        /**
+         * Min hours before session time
+         */
         $diff_less_than_a_day = Carbon::now(Setting::timezone())->diffInDays($this->date, false) == 0;
         /**
          * Care on hours, only check for
          * session different in time less than a day should be checked
          */
         if($diff_less_than_a_day){
-            $earliest_timing          = $this->timings->first();
+            //dd($this->timings->first());
+            $earliest_timing = $this->timings->first();
             $session_start_timing_str = $earliest_timing->first_arrival_time;
-            $minutes     = $this->getMinutes($session_start_timing_str);
-            $time_hour   = (int)round($minutes / 60);
+            $minutes = $this->getMinutes($session_start_timing_str);
+            $time_hour = (int)round($minutes / 60);
             $time_minute = $minutes % 60;
             //compute exactly start timing of session
             $session_start_timing = $this->date->copy()->setTime($time_hour, $time_minute);
 
-            $buffer_config          = Setting::bufferConfig();
-            $min_hours_session_time = $buffer_config('MIN_HOURS_IN_ADVANCE_SESSION_TIME');
-            $diff_in_hours          = Carbon::now(Setting::timezone())->diffInHours($session_start_timing, false);
+            $buffer_config = Setting::bufferConfig();
+            $min_hours_session_time = $buffer_config(Setting::MIN_HOURS_IN_ADVANCE_SESSION_TIME);
+            $diff_in_hours = Carbon::now(Setting::timezone())->diffInHours($session_start_timing, false);
 
             $satisfied_in_advance_session_time = $diff_in_hours > $min_hours_session_time;
             return $satisfied_in_advance_session_time;
