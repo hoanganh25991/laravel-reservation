@@ -3,7 +3,7 @@
 namespace App;
 
 use Carbon\Carbon;
-use App\Helpers\GCD;
+use App\Libraries\GCD;
 use App\Traits\ApiUtils;
 use App\Helpers\GreatestCommonFactor;
 use App\OutletReservationSetting as Setting;
@@ -109,20 +109,6 @@ class Timing extends HoiModel {
         $chunks = collect([]);
 
         while($start_time->lt($end_time)){
-
-//            $chunk = new TimingChunk([
-//                'time'               => $start_time->format('H:i'),
-//                'session_type'       => $this->session->type,
-//                'session_name'       => $this->session->session_name,
-//                'first_arrival_time' => $this->first_arrival_time,
-//                'interval_minutes'   => $this->interval_minutes,
-//                'capacity_1'         => $this->capacity_1,
-//                'capacity_2'         => $this->capacity_2,
-//                'capacity_3_4'       => $this->capacity_3_4,
-//                'capacity_5_6'       => $this->capacity_5_6,
-//                'capacity_7_x'       => $this->capacity_7_x,
-//                'max_pax'            => $this->max_pax,
-//            ]);
 
             $chunk = (object)[
                 'time'               => $start_time->format('H:i'),

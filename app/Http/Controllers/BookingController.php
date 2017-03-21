@@ -116,7 +116,7 @@ class BookingController extends HoiController {
          * 5. Only get timings of session on each [group by date]
          *
          * Example return of $timing_by_date
-         * @example "booking-controler_@available-time.html"
+         * @example "example/booking-controler_@available-time.html"
          */
         $timings_by_date =
             Session

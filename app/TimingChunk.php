@@ -3,6 +3,7 @@
 namespace App;
 
 use App\OutletReservationSetting as Setting;
+use Illuminate\Support\Str;
 
 class TimingChunk {
     protected $time;
@@ -15,9 +16,23 @@ class TimingChunk {
     protected $capacity_5_6;
     protected $capacity_7_x;
     protected $max_pax;
+    protected $children_allowed;
+    /**
+     * 
+     */
+    protected $min_pax_bookinf_for_deposit;
+    protected $min_pax_for_booking_deposit;
+    protected $booking_deposit_amount;
+
+    public function __construct($attributes = []){
+        foreach($attributes as $key => $value){
+            $this->$key = $value;
+        }
+    }
 
     public function getMaxPaxAttribute(){
-        return $this->max_pax ?: Setting::TIMING_MAX_PAX;
+        $null_val = is_null($this->max_pax);
+        return $null_val ? Setting::TIMING_MAX_PAX : $this->max_pax;
     }
 
     public function __get($field){

@@ -3,6 +3,8 @@
 namespace App\Exceptions;
 
 use Exception;
+use Illuminate\Log\Writer;
+use Psr\Log\LoggerInterface;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
@@ -30,9 +32,20 @@ class Handler extends ExceptionHandler
      * @param  \Exception  $exception
      * @return void
      */
-    public function report(Exception $exception)
-    {
-        parent::report($exception);
+    public function report(Exception $exception){
+//        parent::report($exception);
+
+        /** @var Writer $logger */
+        $logger = $this->container->make(LoggerInterface::class);
+        $logger->useDailyFiles(storage_path('logs/error.log'), 0);
+
+        $message = $exception->getMessage();
+        $file    = $exception->getFile();
+        $line    = $exception->getLine();
+
+        $logger->error($message, [
+            'file|line' => "$file|$line"
+        ]);
     }
 
     /**
@@ -42,8 +55,7 @@ class Handler extends ExceptionHandler
      * @param  \Exception  $exception
      * @return \Illuminate\Http\Response
      */
-    public function render($request, Exception $exception)
-    {
+    public function render($request, Exception $exception){
         return parent::render($request, $exception);
     }
 

@@ -23,6 +23,8 @@ class AppServiceProvider extends ServiceProvider
         
         /**
          * Interval run HoiJobs
+         * @fail bcs, each request dispatch job????
+         * @see "queue-jobs.php"
          */
         //dispatch(new HoiJobs);
     }

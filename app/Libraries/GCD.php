@@ -1,5 +1,5 @@
 <?php
-namespace App\Helpers;
+namespace App\Libraries;
 
 class GCD{
     public static function find($arg){
