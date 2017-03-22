@@ -5,9 +5,11 @@ namespace App;
 use Carbon\Carbon;
 use App\Libraries\GCD;
 use App\Traits\ApiUtils;
-use App\Helpers\GreatestCommonFactor;
-use App\OutletReservationSetting as Setting;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
+use App\OutletReservationSetting as Setting;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 
 /**
  * @property mixed $first_arrival_time
@@ -176,10 +178,6 @@ class Timing extends HoiModel {
         return "{$capacity_name}_{$value}";
     }
     
-    public function isAvailable(){
-        return $this->disabled == Timing::AVAILABLE;
-    }
-
     /**
      * When disabled state not set, default as available
      * @param $value
@@ -190,12 +188,24 @@ class Timing extends HoiModel {
     }
 
     /**
+     * Reuse Filter condition
+     * Where clause on Builder to call into DATABASE   >>> FILTER
+     * Has a collection than filter to find what match >>> FILTER
+     * @param Collection|Builder|QueryBuilder|Relation $can_query
+     * @return bool
+     */
+    public static function filterAvailableToBook($can_query){
+        return $can_query->where('disabled', Timing::AVAILABLE);
+    }
+
+    /**
      * Timing which is available
      * @param $query
      * @return mixed
      */
     public function scopeAvailableToBook($query){
-        return $query->where('disabled', Timing::AVAILABLE);
+//        return $query->where('disabled', Timing::AVAILABLE);
+        return Timing::filterAvailableToBook($query);
     }
 
     /**

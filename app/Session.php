@@ -143,7 +143,8 @@ class Session extends HoiModel{
                          * Find timing which available
                          * @see Timing::scopeAvailableToBook
                          */
-                        return $relation->where('disabled', Timing::AVAILABLE)->with('session');
+//                        return $relation->where('disabled', Timing::AVAILABLE)->with('session');
+                        Timing::filterAvailableToBook($relation);
                     }
                 ]);
     }
