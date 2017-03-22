@@ -31,16 +31,15 @@
                     </div>
                     <div id="weekly_sessions" class="modal-content admin-step">
                         <div class="modal-header">
-                            <h1>Weekly Sessions</h1>
+                            <span class="h1">Weekly Sessions</span>
+                            <button id="add_session_btn" class="btn bg-info pull-right" style="border-radius: 20px">Add Session</button>
                         </div>
                         <div class="modal-body">
                             @include('admin.settings.session_timing_edit_mode')
-                            <button id="add_session" class="btn bg-info pull-right" style="border-radius: 20px">Add
-                                Session
-                            </button>
                         </div>
                         <hr>
                         <div class="modal-footer">
+                            <button id="save_session_btn" class="btn bg-info">Save</button>
                         </div>
                     </div>
                     <div id="special_sessions" class="modal-content admin-step">
@@ -144,9 +143,6 @@
                 </div>
             </div>
         </div>
-        <div id="weekly_session_sample" style="width: 0; height: 0">
-            @include('admin.settings.session_timing_edit_mode', ['session_group' => 'new_weekly_sessions'])
-        </div>
         @include('partial.toast')
     </div>
 
@@ -174,6 +170,7 @@
 @endsection
 
 @push('script')
+{{--<script src="{{ url('js/hashids.min.js') }}"></script>--}}
 <script src="{{ url('js/vue.min.js') }}"></script>
 <script>@php
         $state_json = json_encode($state);

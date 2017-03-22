@@ -1,6 +1,6 @@
 @php
     $session_group = isset($session_group) ? $session_group : 'weekly_sessions';
-    $v_for = "(item, index) in $session_group";
+    $v_for = "(session, session_index) in $session_group";
 @endphp
 
 <table class="table table-striped">
@@ -20,68 +20,74 @@
     <template v-for="{{ $v_for }}">
         @verbatim
         <tr>
-            <td>{{ item.session_name }}</td>
+            <td>
+                <input type="text"
+                       style="width: 90px"
+                       :id="'session_' + session.id + 'session_name'"
+                       :value="session.session_name"
+                       v-model="session['session_name']">
+            </td>
             <td>
                 <input type="checkbox"
-                       :checked="(item.on_mondays == 1) ? 'checked' : false"
-                       :id="'session_' + item.id + 'on_mondays'"
-                       v-model="item['on_mondays']"/>
+                       :checked="(session.on_mondays == 1) ? 'checked' : false"
+                       :id="'session_' + session.id + 'on_mondays'"
+                       v-model="session['on_mondays']"/>
                 <label style="width: 12px"
-                       :for="'session_' + item.id + 'on_mondays'">
+                       :for="'session_' + session.id + 'on_mondays'">
                 </label>
             </td>
             <td>
                 <input type="checkbox"
-                       :checked="(item.on_tuesdays == 1) ? 'checked' : false"
-                       :id="'session_' + item.id + 'on_tuesdays'"
-                       v-model="item['on_tuesdays']"/>
+                       :checked="(session.on_tuesdays == 1) ? 'checked' : false"
+                       :id="'session_' + session.id + 'on_tuesdays'"
+                       v-model="session['on_tuesdays']"/>
                 <label style="width: 12px"
-                       :for="'session_' + item.id + 'on_tuesdays'">
+                       :for="'session_' + session.id + 'on_tuesdays'">
                 </label>
             </td>
             <td>
                 <input type="checkbox"
-                       :checked="(item.on_wednesdays == 1) ? 'checked' : false"
-                       :id="'session_' + item.id + 'on_wednesdays'"
-                       v-model="item['on_wednesdays']"/>
+                       :checked="(session.on_wednesdays == 1) ? 'checked' : false"
+                       :id="'session_' + session.id + 'on_wednesdays'"
+                       v-model="session['on_wednesdays']"/>
                 <label style="width: 12px"
-                       :for="'session_' + item.id + 'on_wednesdays'">
+                       :for="'session_' + session.id + 'on_wednesdays'">
                 </label>
             </td>
             <td>
                 <input type="checkbox"
-                       :checked="(item.on_thursdays == 1) ? 'checked' : false"
-                       :id="'session_' + item.id + 'on_thursdays'"
-                       v-model="item['on_thursdays']"/>
+                       :checked="(session.on_thursdays == 1) ? 'checked' : false"
+                       :id="'session_' + session.id + 'on_thursdays'"
+                       v-model="session['on_thursdays']"/>
                 <label style="width: 12px"
-                       :for="'session_' + item.id + 'on_thursdays'">
+                       :for="'session_' + session.id + 'on_thursdays'">
                 </label>
             </td>
             <td>
                 <input type="checkbox"
-                       :checked="(item.on_fridays == 1) ? 'checked' : false"
-                       :id="'session_' + item.id + 'on_fridays'"
-                       v-model="item['on_fridays']"/>
+                       :checked="(session.on_fridays == 1) ? 'checked' : false"
+                       :id="'session_' + session.id + 'on_fridays'"
+                       v-model="session['on_fridays']"/>
                 <label style="width: 12px"
-                       :for="'session_' + item.id + 'on_fridays'">
+                       :for="'session_' + session.id + 'on_fridays'">
                 </label>
             </td>
             <td>
                 <input type="checkbox"
-                       :checked="(item.on_satdays == 1) ? 'checked' : false"
-                       :id="'session_' + item.id + 'on_satdays'"
-                       v-model="item['on_satdays']"/>
+                       :checked="(session.on_satdays == 1) ? 'checked' : false"
+                       :id="'session_' + session.id + 'on_satdays'"
+                       v-model="session['on_satdays']"/>
                 <label style="width: 12px"
-                       :for="'session_' + item.id + 'on_satdays'">
+                       :for="'session_' + session.id + 'on_satdays'">
                 </label>
             </td>
             <td>
                 <input type="checkbox"
-                       :checked="(item.on_sundays == 1) ? 'checked' : false"
-                       :id="'session_' + item.id + 'on_sundays'"
-                       v-model="item['on_sundays']"/>
+                       :checked="(session.on_sundays == 1) ? 'checked' : false"
+                       :id="'session_' + session.id + 'on_sundays'"
+                       v-model="session['on_sundays']"/>
                 <label style="width: 12px"
-                       :for="'session_' + item.id + 'on_sundays'">
+                       :for="'session_' + session.id + 'on_sundays'">
                 </label>
             </td>
         </tr>
@@ -105,7 +111,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <template v-for="(timing, t_index) in item.timings">
+                    <template v-for="(timing, t_index) in session.timings">
                         <tr>
                             <td>
                                 <label class="switch">
@@ -188,6 +194,14 @@
                             </td>
                         </tr>
                     </template>
+                        <tr>
+                            <td colspan="12" style="background-color: white">
+                                <button :session-id="session_index"
+                                        class="btn bg-info btn-sm pull-right"
+                                        v-on:click="_addTimingToSession"
+                                >add timing</button>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </td>

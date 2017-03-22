@@ -2,10 +2,15 @@
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var INIT_VIEW = 'INIT_VIEW';
+
 var CHANGE_ADMIN_STEP = 'CHANGE_ADMIN_STEP';
+
+var ADD_WEEKLY_SESSION = 'ADD_WEEKLY_SESSION';
 var CHANGE_WEEKLY_SESSIONS = 'CHANGE_WEEKLY_SESSIONS';
 
 var AdminSettings = function () {
@@ -20,7 +25,11 @@ var AdminSettings = function () {
 
 		this.buildVue();
 
-		this.event();
+		/**
+   * Unsafe to bind event when vue not sure init
+   * Bind inside vue-mounted
+   */
+		//this.event();
 
 		this.view();
 
@@ -61,11 +70,14 @@ var AdminSettings = function () {
 							init_view: self.initViewReducer(state.init_view, action)
 						});
 					case CHANGE_ADMIN_STEP:
-						{
-							return Object.assign({}, state, {
-								admin_step: self.adminStepReducer(state.admin_step, action)
-							});
-						}
+						return Object.assign({}, state, {
+							admin_step: self.adminStepReducer(state.admin_step, action)
+						});
+					case ADD_WEEKLY_SESSION:
+					case CHANGE_WEEKLY_SESSIONS:
+						return Object.assign({}, state, {
+							weekly_sessions: self.weeklySessionsReducer(state.weekly_sessions, action)
+						});
 					default:
 						return state;
 				}
@@ -97,8 +109,7 @@ var AdminSettings = function () {
 			var default_state = window.state || {};
 			var frontend_state = {
 				init_view: false,
-				// admin_step: '#weekly_sessions',
-				admin_step: '#weekly_sessions_view'
+				admin_step: '#weekly_sessions'
 			};
 
 			return Object.assign(frontend_state, default_state);
@@ -107,12 +118,28 @@ var AdminSettings = function () {
 		key: 'buildVue',
 		value: function buildVue() {
 			var state = this.getVueState();
+			var self = this;
 			this.vue = new Vue({
 				el: '#app',
 				data: state,
 				mounted: function mounted() {
 					document.dispatchEvent(new CustomEvent('vue-mounted'));
+					self.event();
+				},
+
+				methods: {
+					_addTimingToSession: function _addTimingToSession(e) {
+						//console.log(e);
+						console.log('see add timing');
+
+						var btn = e.target;
+						var session_id = btn.getAttribute('session-id');
+						var session = this.weekly_sessions[session_id];
+
+						session.timings.push(self._dumpTiming());
+					}
 				}
+
 			});
 		}
 	}, {
@@ -180,6 +207,93 @@ var AdminSettings = function () {
 			}
 		}
 	}, {
+		key: 'weeklySessionsReducer',
+		value: function weeklySessionsReducer(state, action) {
+			switch (action.type) {
+				case ADD_WEEKLY_SESSION:
+					{
+						var new_session = this._dumpWeeklySession();
+						var weekly_sessions = [].concat(_toConsumableArray(state), [new_session]);
+
+						return weekly_sessions;
+					}
+				case CHANGE_WEEKLY_SESSIONS:
+					{
+						/**
+       * Vue as watch div manager
+       * Store what he see as new data for weekly_sessions
+       */
+						var _weekly_sessions = this.vue.weekly_sessions.map(function (session) {
+							return session;
+						});
+
+						return _weekly_sessions;
+					}
+				default:
+					return state;
+			}
+		}
+
+		/**
+   * Make sure random id as tring
+   */
+
+	}, {
+		key: '_randomId',
+		value: function _randomId() {
+			return Math.random().toString(36).slice(-4);
+		}
+	}, {
+		key: '_dumpWeeklySession',
+		value: function _dumpWeeklySession() {
+			var dump_session = {
+				"id": this._randomId(),
+				"outlet_id": 1,
+				"session_name": "Lunch time",
+				"on_mondays": 1,
+				"on_tuesdays": 1,
+				"on_wednesdays": 1,
+				"on_thursdays": 1,
+				"on_fridays": 1,
+				"on_saturdays": 1,
+				"on_sundays": 1,
+				"created_timestamp": "2017-03-03 21:39:39",
+				"modified_timestamp": "2017-03-06 21:39:33",
+				"one_off": 0,
+				"one_off_date": null,
+				"first_arrival_time": "05:00:00",
+				"last_arrival_time": "12:00:00",
+				"timings": [this._dumpTiming()]
+			};
+
+			return dump_session;
+		}
+	}, {
+		key: '_dumpTiming',
+		value: function _dumpTiming() {
+			var dump_timing = {
+				"id": this._randomId(),
+				"session_id": 2,
+				"timing_name": "12-16",
+				"disabled": false,
+				"first_arrival_time": "05:00:00",
+				"last_arrival_time": "08:00:00",
+				"interval_minutes": 30,
+				"capacity_1": 1,
+				"capacity_2": 1,
+				"capacity_3_4": 1,
+				"capacity_5_6": 1,
+				"capacity_7_x": 1,
+				"max_pax": 20,
+				"children_allowed": true,
+				"is_outdoor": null,
+				"created_timestamp": "2017-03-02 20:11:45",
+				"modified_timestamp": "2017-03-02 21:51:41"
+			};
+
+			return dump_timing;
+		}
+	}, {
 		key: 'findView',
 		value: function findView() {
 			/**
@@ -192,6 +306,9 @@ var AdminSettings = function () {
 
 			this.admin_step_go = document.querySelectorAll('.go');
 			this.admin_step = document.querySelectorAll('#admin-step-container .admin-step');
+
+			this.add_session_btn = document.querySelector('#add_session_btn');
+			this.save_session_btn = document.querySelector('#save_session_btn');
 		}
 	}, {
 		key: 'event',
@@ -202,6 +319,18 @@ var AdminSettings = function () {
 				el.addEventListener('click', function () {
 					var destination = el.getAttribute('destination');
 					store.dispatch({ type: CHANGE_ADMIN_STEP, step: destination });
+				});
+			});
+
+			this.add_session_btn.addEventListener('click', function () {
+				store.dispatch({
+					type: ADD_WEEKLY_SESSION
+				});
+			});
+
+			this.save_session_btn.addEventListener('click', function () {
+				store.dispatch({
+					type: CHANGE_WEEKLY_SESSIONS
 				});
 			});
 		}
@@ -230,9 +359,11 @@ var AdminSettings = function () {
      * Update state for vue
      * @type {boolean}
      */
-				var vue_state = self.getVueState();
-				Object.assign(vue_state, state);
-
+				var is_reuse_vue_state = action == CHANGE_WEEKLY_SESSIONS;
+				if (!is_reuse_vue_state) {
+					var _vue_state = self.getVueState();
+					Object.assign(_vue_state, state);
+				}
 				//debug
 				pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));
 

@@ -9,57 +9,10 @@
         <h3 class="bg-info">{{ group_name }}</h3>
         <div style="margin-left: 30px">
             <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th>Session Name</th>
-                    <th>Mondays</th>
-                    <th>Tuesdays</th>
-                    <th>Wednesdays</th>
-                    <th>Thursdays</th>
-                    <th>Fridays</th>
-                    <th>Saturdays</th>
-                    <th>Sundays</th>
-                </tr>
-                </thead>
                 <tbody>
                 <template v-for="item in session_group">
                     <tr>
-                        <td>{{ item.session_name }}</td>
-                        <td>
-                            <input type="checkbox"
-                                   :checked="(item.on_mondays == 1) ? 'checked' : false"/>
-                            <label style="width: 12px"></label>
-                        </td>
-                        <td>
-                            <input type="checkbox"
-                                   :checked="(item.on_tuesdays == 1) ? 'checked' : false"/>
-                            <label style="width: 12px"></label>
-                        </td>
-                        <td>
-                            <input type="checkbox"
-                                   :checked="(item.on_wednesdays == 1) ? 'checked' : false"/>
-                            <label style="width: 12px"></label>
-                        </td>
-                        <td>
-                            <input type="checkbox"
-                                   :checked="(item.on_thursdays == 1) ? 'checked' : false"/>
-                            <label style="width: 12px"></label>
-                        </td>
-                        <td>
-                            <input type="checkbox"
-                                   :checked="(item.on_fridays == 1) ? 'checked' : false"/>
-                            <label style="width: 12px"></label>
-                        </td>
-                        <td>
-                            <input type="checkbox"
-                                   :checked="(item.on_satdays == 1) ? 'checked' : false"/>
-                            <label style="width: 12px"></label>
-                        </td>
-                        <td>
-                            <input type="checkbox"
-                                   :checked="(item.on_sundays == 1) ? 'checked' : false"/>
-                            <label style="width: 12px"></label>
-                        </td>
+                        <td>{{ item.session_name }} {{ item.first_arrival_time }} : {{ item.last_arrival_time }}</td>
                     </tr>
                     <tr>
                         <td colspan="8" style="padding-left: 50px">
