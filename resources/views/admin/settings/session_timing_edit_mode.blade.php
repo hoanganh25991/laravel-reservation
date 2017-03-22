@@ -194,11 +194,12 @@
                                 </label>
                             </td>
                             <td>
-                                <button class="btn btn-sm">
+                                <button class="btn btn-sm"
+                                        v-on:click="_deleteTiming"
+                                >
                                     <i class="fa fa-trash" aria-hidden="true"
                                        :timing-index="timing_index"
                                        :session-index="session_index"
-                                       v-on:click="_deleteTiming"
                                     ></i>
                                 </button>
                             </td>

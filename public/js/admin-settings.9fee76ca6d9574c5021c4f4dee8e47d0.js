@@ -138,12 +138,26 @@ var AdminSettings = function () {
 						session.timings.push(self._dumpTiming());
 					},
 					_deleteTiming: function _deleteTiming(e) {
+						console.log(e.target);
 						console.log('see delete timing');
 
 						var i = e.target;
 						if (i.tagName != 'I') {
-							console.log('Only handle when click on <i>');
-							return;
+							console.log('Please click on <i>');
+							if (i.tagName != 'BUTTON') {
+								return;
+							}
+
+							console.log('Try to find <i>');
+							if (i.tagName == 'BUTTON') {
+								var real_i = i.querySelector('i');
+
+								if (real_i.tagName == 'I') {
+									i = real_i;
+								} else {
+									return;
+								}
+							}
 						}
 						var session_index = i.getAttribute('session-index');
 						var timing_index = i.getAttribute('timing-index');

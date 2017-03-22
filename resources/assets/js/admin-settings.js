@@ -122,12 +122,26 @@ class AdminSettings {
 				},
 
 				_deleteTiming(e){
+					console.log(e.target);
 					console.log('see delete timing');
 
 					let i           = e.target;
 					if(i.tagName != 'I'){
-						console.log('Only handle when click on <i>');
-						return;
+						console.log('Please click on <i>');
+						if(i.tagName != 'BUTTON'){
+							return;
+						}
+
+						console.log('Try to find <i>');
+						if(i.tagName == 'BUTTON'){
+							let real_i = i.querySelector('i');
+
+							if(real_i.tagName == 'I'){
+								i = real_i;
+							}else{
+								return;
+							}
+						}
 					}
 					let session_index = i.getAttribute('session-index');
 					let timing_index  = i.getAttribute('timing-index');
