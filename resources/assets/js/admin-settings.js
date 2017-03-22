@@ -62,7 +62,7 @@ class AdminSettings {
 		let default_state  = window.state || {};
 		let frontend_state = {
 			init_view : false,
-			admin_step: '#weekly_sessions_view',
+			admin_step: '#weekly_sessions',
 		};
 
 		return Object.assign(frontend_state, default_state);
