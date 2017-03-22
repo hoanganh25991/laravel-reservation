@@ -6,11 +6,12 @@
     @include('admin.navigator')
 
     <!-- Main component for a primary marketing message or call to action -->
-    <div id='app' style="position: relative; height: calc(100vh - 100px)">
+    <div id='app' style="position: relative; height: calc(100vh - 100px); overflow-y: scroll; overflow-x: hidden;">
         <div id="settings_content" class="row">
             <div id="reservations_content" class="col-md-2">
                 <div class="navbar navbar-default">
                     <ul class="nav navbar-nav" id="go-container">
+                        <li><a destination="#weekly_sessions_view" class="btn go">Weekly Sessions View</a></li>
                         <li><a destination="#weekly_sessions" class="btn go">Weekly Sessions</a></li>
                         <li><a destination="#special_sessions" class="btn go">Special Sessions</a></li>
                         <li><a destination="#buffer" class="btn go">Buffer</a></li>
@@ -21,6 +22,127 @@
             </div>
             @verbatim
             <div class="col-md-10" id="admin-step-container">
+                <div id="weekly_sessions_view" class="modal-content admin-step">
+                    <div class="modal-header">
+                        <h1>Weekly Sessions View</h1>
+                    </div>
+                    <div class="modal-body">
+                        <template v-for="(session_group, group_name) in weekly_view">
+                            <div style="box-shadow: 0 5px 15px rgba(0,0,0,.5);">
+                                <h3 class="bg-info">{{ group_name }}</h3>
+                                <div style="margin-left: 30px">
+                                    <table class="table table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th>Session Name</th>
+                                            <th>Mondays</th>
+                                            <th>Tuesdays</th>
+                                            <th>Wednesdays</th>
+                                            <th>Thursdays</th>
+                                            <th>Fridays</th>
+                                            <th>Saturdays</th>
+                                            <th>Sundays</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <template v-for="item in session_group">
+                                            <tr>
+                                                <td>{{ item.session_name }}</td>
+                                                <td>
+                                                    <input type="checkbox"
+                                                           :checked="(item.on_mondays == 1) ? 'checked' : false"/>
+                                                    <label style="width: 12px"></label>
+                                                </td>
+                                                <td>
+                                                    <input type="checkbox"
+                                                           :checked="(item.on_tuesdays == 1) ? 'checked' : false"/>
+                                                    <label style="width: 12px"></label>
+                                                </td>
+                                                <td>
+                                                    <input type="checkbox"
+                                                           :checked="(item.on_wednesdays == 1) ? 'checked' : false"/>
+                                                    <label style="width: 12px"></label>
+                                                </td>
+                                                <td>
+                                                    <input type="checkbox"
+                                                           :checked="(item.on_thursdays == 1) ? 'checked' : false"/>
+                                                    <label style="width: 12px"></label>
+                                                </td>
+                                                <td>
+                                                    <input type="checkbox"
+                                                           :checked="(item.on_fridays == 1) ? 'checked' : false"/>
+                                                    <label style="width: 12px"></label>
+                                                </td>
+                                                <td>
+                                                    <input type="checkbox"
+                                                           :checked="(item.on_satdays == 1) ? 'checked' : false"/>
+                                                    <label style="width: 12px"></label>
+                                                </td>
+                                                <td>
+                                                    <input type="checkbox"
+                                                           :checked="(item.on_sundays == 1) ? 'checked' : false"/>
+                                                    <label style="width: 12px"></label>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="8" style="padding-left: 50px">
+                                                    <table class="table table-striped sub-level">
+                                                        <thead>
+                                                        <tr>
+                                                            <th></th>
+                                                            <th>Name</th>
+                                                            <th>First arrival time</th>
+                                                            <th>Last arrival time</th>
+                                                            <th>Interval time</th>
+                                                            <th>Capacity 1</th>
+                                                            <th>Capacity 2</th>
+                                                            <th>Capacity 3_4</th>
+                                                            <th>Capacity 5_6</th>
+                                                            <th>Capacity 8_x</th>
+                                                            <th>Max pax</th>
+                                                            <th>Children</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        <template v-for="timing in item.timings">
+                                                            <tr>
+                                                                <td>
+                                                                    <label class="switch">
+                                                                        <input type="checkbox"
+                                                                               disabled
+                                                                               :checked="(timing.disabled == 0) ? 'checked' : false">
+                                                                        <div class="slider round"></div>
+                                                                    </label>
+                                                                </td>
+                                                                <td>{{ timing.timing_name }}</td>
+                                                                <td>{{ timing.first_arrival_time }}</td>
+                                                                <td>{{ timing.last_arrival_time }}</td>
+                                                                <td>{{ timing.interval_minutes }}</td>
+                                                                <td>{{ timing.capacity_1 }}</td>
+                                                                <td>{{ timing.capacity_2 }}</td>
+                                                                <td>{{ timing.capacity_3_4 }}</td>
+                                                                <td>{{ timing.capacity_5_6 }}</td>
+                                                                <td>{{ timing.capacity_8_x }}</td>
+                                                                <td>{{ timing.max_pax }}</td>
+                                                                <td>
+                                                                    <input type="checkbox"
+                                                                           :checked="(timing.children_allowed == 1) ? 'checked' : false"/>
+                                                                    <label style="width: 12px"></label>
+                                                                </td>
+                                                            </tr>
+                                                        </template>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
                 <div id="weekly_sessions" class="modal-content admin-step">
                     <div class="modal-header">
                         <h1>Weekly Sessions</h1>
@@ -28,11 +150,10 @@
                     <div class="modal-body">
                         <h2>Striped Rows</h2>
                         <p>The .table-striped class adds zebra-stripes to a table:</p>
-
                         <table class="table table-striped">
                             <thead>
                             <tr>
-                                <th>Name</th>
+                                <th>Session Name</th>
                                 <th>Mondays</th>
                                 <th>Tuesdays</th>
                                 <th>Wednesdays</th>
@@ -44,53 +165,46 @@
                             </thead>
                             <tbody>
                             <template v-for="item in weekly_sessions">
-                                <tr class="small-label">
+                                <tr>
                                     <td>{{ item.session_name }}</td>
                                     <td>
-                                        <input type="checkbox" :id="'session_' + item.id"
+                                        <input type="checkbox"
                                                :checked="(item.on_mondays == 1) ? 'checked' : false"/>
-                                        <label :for="'session_' + item.id">
-                                        </label>
+                                        <label style="width: 12px"></label>
                                     </td>
                                     <td>
-                                        <input type="checkbox" :id="'session_' + item.id"
+                                        <input type="checkbox"
                                                :checked="(item.on_tuesdays == 1) ? 'checked' : false"/>
-                                        <label :for="'session_' + item.id">
-                                        </label>
+                                        <label style="width: 12px"></label>
                                     </td>
                                     <td>
-                                        <input type="checkbox" :id="'session_' + item.id"
+                                        <input type="checkbox"
                                                :checked="(item.on_wednesdays == 1) ? 'checked' : false"/>
-                                        <label :for="'session_' + item.id">
-                                        </label>
+                                        <label style="width: 12px"></label>
                                     </td>
                                     <td>
-                                        <input type="checkbox" :id="'session_' + item.id"
+                                        <input type="checkbox"
                                                :checked="(item.on_thursdays == 1) ? 'checked' : false"/>
-                                        <label :for="'session_' + item.id">
-                                        </label>
+                                        <label style="width: 12px"></label>
                                     </td>
                                     <td>
-                                        <input type="checkbox" :id="'session_' + item.id"
+                                        <input type="checkbox"
                                                :checked="(item.on_fridays == 1) ? 'checked' : false"/>
-                                        <label :for="'session_' + item.id">
-                                        </label>
+                                        <label style="width: 12px"></label>
                                     </td>
                                     <td>
-                                        <input type="checkbox" :id="'session_' + item.id"
+                                        <input type="checkbox"
                                                :checked="(item.on_satdays == 1) ? 'checked' : false"/>
-                                        <label :for="'session_' + item.id">
-                                        </label>
+                                        <label style="width: 12px"></label>
                                     </td>
                                     <td>
-                                        <input type="checkbox" :id="'session_' + item.id"
+                                        <input type="checkbox"
                                                :checked="(item.on_sundays == 1) ? 'checked' : false"/>
-                                        <label :for="'session_' + item.id">
-                                        </label>
+                                        <label style="width: 12px"></label>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td colspan="8">
+                                    <td colspan="8" style="padding-left: 50px">
                                         <table class="table table-striped sub-level">
                                             <thead>
                                             <tr>
@@ -103,7 +217,7 @@
                                                 <th>Capacity 2</th>
                                                 <th>Capacity 3_4</th>
                                                 <th>Capacity 5_6</th>
-                                                <th>Capacity 7_x</th>
+                                                <th>Capacity 8_x</th>
                                                 <th>Max pax</th>
                                                 <th>Children</th>
                                             </tr>
@@ -113,7 +227,9 @@
                                                 <tr>
                                                     <td>
                                                         <label class="switch">
-                                                            <input type="checkbox" :checked="(timing.disabled == 1) ? 'checked' : false">
+                                                            <input type="checkbox"
+                                                                   disabled
+                                                                   :checked="(timing.disabled == 0) ? 'checked' : false">
                                                             <div class="slider round"></div>
                                                         </label>
                                                     </td>
@@ -125,13 +241,12 @@
                                                     <td>{{ timing.capacity_2 }}</td>
                                                     <td>{{ timing.capacity_3_4 }}</td>
                                                     <td>{{ timing.capacity_5_6 }}</td>
-                                                    <td>{{ timing.capacity_7_x }}</td>
+                                                    <td>{{ timing.capacity_8_x }}</td>
                                                     <td>{{ timing.max_pax }}</td>
                                                     <td>
-                                                        <input type="checkbox" :id="'children_allowed_' + timing.id"
+                                                        <input type="checkbox"
                                                                :checked="(timing.children_allowed == 1) ? 'checked' : false"/>
-                                                        <label :for="'children_allowed_' + timing.id">
-                                                        </label>
+                                                        <label style="width: 12px"></label>
                                                     </td>
                                                 </tr>
                                             </template>
@@ -182,7 +297,7 @@
                                                 <th>Capacity 2</th>
                                                 <th>Capacity 3_4</th>
                                                 <th>Capacity 5_6</th>
-                                                <th>Capacity 7_x</th>
+                                                <th>Capacity 8_x</th>
                                                 <th>Max pax</th>
                                                 <th>Children</th>
                                             </tr>
@@ -192,7 +307,8 @@
                                                 <tr>
                                                     <td>
                                                         <label class="switch">
-                                                            <input type="checkbox" :checked="(timing.disabled == 1) ? 'checked' : false">
+                                                            <input type="checkbox"
+                                                                   :checked="(timing.disabled == 1) ? 'checked' : false">
                                                             <div class="slider round"></div>
                                                         </label>
                                                     </td>
@@ -204,7 +320,7 @@
                                                     <td>{{ timing.capacity_2 }}</td>
                                                     <td>{{ timing.capacity_3_4 }}</td>
                                                     <td>{{ timing.capacity_5_6 }}</td>
-                                                    <td>{{ timing.capacity_7_x }}</td>
+                                                    <td>{{ timing.capacity_8_x }}</td>
                                                     <td>{{ timing.max_pax }}</td>
                                                     <td>
                                                         <input type="checkbox" :id="'children_allowed_' + timing.id"

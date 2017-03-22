@@ -22,7 +22,7 @@ Route::get('admin', 'AdminController@getDashboard');
 Route::get('admin/settings', 'AdminController@getSettingsDashboard');
 
 
-Route::get('test', function(App\Http\Controllers\BookingController $c){
+Route::get('test', function(App\Http\Controllers\BookingController $c, App\Http\Controllers\AdminController $a){
 
     //return \App\Timing::hasNewUpdate()->get()->count();
 
@@ -72,8 +72,10 @@ Route::get('test', function(App\Http\Controllers\BookingController $c){
 
     //dd($c->availableTime());
 
-    $r = App\Reservation::first();
-    //dd($r);
-    return $c->apiResponse($r->toArray());
+//    $r = App\Reservation::first();
+//    //dd($r);
+//    return $c->apiResponse($r->toArray());
+    $req =  new \App\Http\Requests\ApiRequest();
+    dd($a->getSettingsDashboard($req));
 });
 

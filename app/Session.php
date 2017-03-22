@@ -16,15 +16,21 @@ use App\OutletReservationSetting as Setting;
  * @property Collection timings
  * @property mixed type
  * @property mixed session_name
+ * 
+ * @property mixed $first_arrival_time
+ * @see App\Session::getFirstArrivalTimeAttribute
+ * 
+ * @property mixed $last_arrival_time
+ * @see App\Session::getLastArrivalTimeAttribute
  *
  * @method static normalSession
- * @see Session::scopeNormalSession
+ * @see App\Session::scopeNormalSession
  *
  * @method static specialSession
- * @see Session::scopeSpecialSession
+ * @see App\Session::scopeSpecialSession
  *
  * @method static allSpecialSession
- * @see Session::scopeAllSpecialSession
+ * @see App\Session::scopeAllSpecialSession
  */
 class Session extends HoiModel{
 
@@ -59,6 +65,18 @@ class Session extends HoiModel{
     ];
 
     protected $table = 'session';
+
+    /**
+     * Bring these computed field when serialize to JSON
+     * @var array
+     */
+    protected $appends = [
+        'first_arrival_time',
+        'last_arrival_time'
+    ];
+    
+    protected $casts = [];
+    
 
     protected static function boot(){
         parent::boot();
@@ -164,9 +182,10 @@ class Session extends HoiModel{
      * > return as collection of session with date
      * > to normalize the consistent
      * > special session after assigned also return a collection
-     * @return \Illuminate\Support\Collection
+     * @param null $date_range
+     * @return Collection
      */
-    public function assignDate(){
+    public function assignDate($date_range = null){
         $sessions = collect([]);
 
         if($this->isSpecial()){
@@ -177,7 +196,7 @@ class Session extends HoiModel{
         }
 
         if(!$this->isSpecial()){
-            $date_range = Setting::dateRange();
+            $date_range = $date_range ?: Setting::dateRange();
 
             $current = $date_range[0]->copy();
             while($current->lte($date_range[1])){
@@ -266,5 +285,32 @@ class Session extends HoiModel{
      */
     public function scopeAllSpecialSession($query){
         return $query->where('one_off', Session::SPECIAL_SESSION);
+    }
+
+    /**
+     * Session has timings, find the earliest arrival time
+     * Timings in session order by first arrival time
+     * as global scope
+     * @see Timing::orderByFirstArrival
+     */
+    public function getFirstArrivalTimeAttribute(){
+        $timings = $this->timings;
+        if($timings->isEmpty()){
+            return null;
+        }
+
+        return $timings->first()->first_arrival_time;
+    }
+
+    /**
+     * Session has timings, find the last arrival time
+     */
+    public function getLastArrivalTimeAttribute(){
+        $timings = $this->timings;
+        if($timings->isEmpty()){
+            return null;
+        }
+
+        return $timings->last()->last_arrival_time;
     }
 }

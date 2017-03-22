@@ -2382,11 +2382,11 @@ label:hover:before {
     border: 2px solid #4778d9!important;
 }
 
-.small-label label {
-    width: 10px;
-}
+/*.small-label label {*/
+    /*width: 10px;*/
+/*}*/
 
 .sub-level {
-    margin-left: 20px;
+    /*margin-left: 20px;*/
     font-size: 9px;
 }

@@ -77,7 +77,7 @@ var AdminSettings = function () {
 			var default_state = window.state || {};
 			var frontend_state = {
 				init_view: false,
-				admin_step: '#buffer'
+				admin_step: '#weekly_sessions_view'
 			};
 
 			return Object.assign(frontend_state, default_state);
