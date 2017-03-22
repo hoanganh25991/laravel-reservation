@@ -25,10 +25,24 @@
             class Toast {
                 constructor(){
                     this.toast = document.querySelector('#toast');
+
+                    /**
+                     * Clear setTimeout to auto hide
+                     * Which multiple show > cpu halt
+                     */
+                    this.auto_hide = null;
                 }
 
                 show(){
                     this.toast.style.transform = 'translateX(0px) scale(1,1)';
+                    let self = this;
+                    let auto_hide = setTimeout(function(){
+                        if(self.auto_hide){
+                            clearTimeout(self.auto_hide);
+                        }
+                        this.auto_hide = auto_hide;
+                        self.hide();
+                    }, 3000);
                 }
 
                 hide(){
