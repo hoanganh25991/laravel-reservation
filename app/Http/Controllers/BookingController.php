@@ -28,8 +28,8 @@ class BookingController extends HoiController {
     const DATES_WITH_AVAILABLE_TIME = 'DATES_WITH_AVAILABLE_TIME';
     const SHOULD_UPDATE_DATES_WITH_AVAILABLE_TIME = 'SHOULD_UPDATE_DATES_WITH_AVAILABLE_TIME';
 
-    /** @var  Collection $valid_reservations */
-    public $valid_reservations;
+    /** @var  Collection $reserved_reservations */
+    public $reserved_reservations;
 
     /** @var  int $reservation_pax_size */
     public $reservation_pax_size;
@@ -75,6 +75,32 @@ class BookingController extends HoiController {
         return $this->booking_condition['children_pax'] > 0;
     }
 
+    public function bookingStillAvailable(ApiRequest $req){
+        $this->setUpBookingConditions($req->only([
+            'outlet_id',
+            'adult_pax',
+            'children_pax'
+        ]));
+
+        $booking_date   = Carbon::createFromFormat('Y-m-d H:i:s', $req->get('reservation_timestamp'), Setting::timezone());
+        $available_time = $this->availableTime();
+
+        if(!isset($available_time[$booking_date->format('Y-m-d')])){
+            return false;
+        }
+
+        $available_time_on_booking_date = $available_time[$booking_date->format('Y-m-d')];
+
+        /** @var Collection $available_chunk */
+        $available_chunk =
+            $available_time_on_booking_date
+                ->filter(function($chunk) use($booking_date){
+                    return $chunk->time == $booking_date->format('H:i');
+                })->values();
+
+        return $available_chunk->isNotEmpty();
+    }
+
     /**
      * Finding available time from customer booking conditions
      * @return mixed
@@ -85,7 +111,7 @@ class BookingController extends HoiController {
         /**
          * Change chunk time capacity base on already reservations
          */
-        $this->valid_reservations = Reservation::reservedGroupByDateTimeCapacity();
+        $this->reserved_reservations = Reservation::reservedGroupByDateTimeCapacity();
 
         $date_with_available_time
             ->each(function($chunks, $date){
@@ -95,7 +121,7 @@ class BookingController extends HoiController {
                         $group_name = Reservation::groupNameByDateTimeCapacity($date, $time, $capacity);
 
                         try{
-                            $reserved_cap     = $this->valid_reservations[$group_name];
+                            $reserved_cap     = $this->reserved_reservations[$group_name];
                             $chunk->$capacity = $chunk->$capacity - $reserved_cap;
                         }catch(\Exception $e){}
                     }
@@ -379,7 +405,6 @@ class BookingController extends HoiController {
          * Customer query to get available time
          */
         if($req->method() == 'POST' && !$req->has('step')){
-            //return $this->apiResponse($req->all());
             /* @var Validator $validator*/
             $validator = Validator::make($req->all(), [
                 'outlet_id'    => 'required',
@@ -397,12 +422,6 @@ class BookingController extends HoiController {
             $this->setUpBookingConditions($req->all());
 
             /**
-             * Compute pax size as query condition
-             * @see BookingController::availableTime
-             */
-            $this->reservation_pax_size = $req->get('adult_pax') + $req->get('children_pax');
-
-            /**
              * Compute available time
              */
             $available_time = $this->availableTime();
@@ -411,7 +430,10 @@ class BookingController extends HoiController {
              * @warn need update to has it own statusMsg
              * rather than implicit tell available time on return
              */
-            return $this->apiResponse($available_time);
+            $data = $available_time;
+            $code = 200;
+            $msg  = 'available_time';
+            return $this->apiResponse($data, $code, $msg);
         }
 
         /**
@@ -423,8 +445,6 @@ class BookingController extends HoiController {
                 'outlet_id'        => 'required',
                 'adult_pax'        => 'required',
                 'children_pax'     => 'required',
-//                'reservation_date' => 'required',
-//                'reservation_time' => 'required|regex:/\d+:\d{2}/',
                 'reservation_timestamp' => 'required',
                 'salutation'       => 'required',
                 'first_name'       => 'required',
@@ -439,45 +459,35 @@ class BookingController extends HoiController {
                 return $this->apiResponse($req->all(), 422, $validator->getMessageBag()->toArray());
             }
 
-            $reservation_info =
-                $req->only([
-                    'outlet_id',
-                    'adult_pax',
-                    'children_pax',
-//                    'reservation_date',
-//                    'reservation_time',
-                    'reservation_timestamp',
-                    'salutation',
-                    'first_name',
-                    'last_name',
-                    'email',
-                    'phone_country_code',
-                    'phone',
-                    'customer_remarks'
-                ]);
-
-            //$reservation_info['reservation_timestamp'] = "{$reservation_info['reservation_date']} {$reservation_info['reservation_time']}:00";
-            $reservation = new Reservation($reservation_info);
-
             /**
-             * Base on deposit config
-             * Ask customer amount of money in advance
+             * Recheck if customer with reservation info still available
+             * Customer may search through any condition
+             * But only Submit hit, info send
+             * In that longtime, not sure reservation still available
              */
-            if($reservation->requiredDeposit()){
-                $reservation->status = Reservation::REQUIRED_DEPOSIT;    
+            if(!$this->bookingStillAvailable($req)){
+                $data = [];
+                $code = 200;
+                $msg  = 'resesrvation.no_longer_available';
+                return $this->apiResponse($data, $code, $msg);
             }
-            
+
+            $reservation = new Reservation($req->all());
+
+            //Store reservation
             $reservation->save();
 
             /**
              * Case: Reservation with deposit require
              */
             if($reservation->requiredDeposit()){
-                return Response::json([
-                    'statusCode' => 200,
-                    'statusMsg' => 'reservation.required_deposit',
-                    'data' => $reservation->deposit,
-                ], 200)->setEncodingOptions(JSON_NUMERIC_CHECK);
+                $deposit    = $reservation->deposit;
+                $confirm_id = $reservation->confirm_id;
+
+                $data  = compact('confirm_id', 'deposit');
+                $code  = 200;
+                $msg   = 'reservation.required_deposit';
+                return $this->apiResponse($data, $code, $msg);
             }
 
             /**
@@ -485,15 +495,14 @@ class BookingController extends HoiController {
              * RESERVED
              */
             $confirm_id =  $reservation->confirm_id;
-            
-            return Response::json([
-                'statusCode' => 200,
-                'statusMsg' => 'reservation.confirm_id',
-                'data' => $confirm_id
-            ], 200)->setEncodingOptions(JSON_NUMERIC_CHECK);
+
+            $data = compact('confirm_id');
+            $code = 200;
+            $msg  = 'reservation.confirm_id';
+            return $this->apiResponse($data, $code, $msg);
         }
 
-        //handle get
+        //Handle get
         $outlets = Outlet::all();
 
         return view('reservations.booking-form', compact('outlets'));

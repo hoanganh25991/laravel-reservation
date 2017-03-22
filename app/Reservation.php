@@ -149,20 +149,26 @@ class Reservation extends HoiModel {
              * Auto compute send_confirmation_by_timestamp
              * Base on current config
              */
-            $reservation->attributes['send_confirmation_by_timestamp'] = $reservation->send_confirmation_by_timestamp;
+            $reservation->send_confirmation_by_timestamp = $reservation->send_confirmation_by_timestamp;
 
             /**
              * Auto compuate send_sms_confirmation
              * Base on current config
              */
-            $reservation->attributes['send_sms_confirmation'] = $reservation->send_sms_confirmation;
+            $reservation->send_sms_confirmation = $reservation->send_sms_confirmation;
             
             /**
              * Default with no status explicit bind
              * Reservation consider as RESERVERD
              */
             if(!isset($reservation->attributes['status'])){
-                $reservation->attributes['status'] = Reservation::RESERVED;
+                $status = Reservation::RESERVED;
+                
+                if($reservation->requiredDeposit()){
+                    $status = Reservation::REQUIRED_DEPOSIT;
+                }
+                
+                $reservation->status = $status;
             }
         });
 
@@ -188,7 +194,7 @@ class Reservation extends HoiModel {
         return $query->where([
             ['reservation_timestamp', '>=', $date_range[0]->format('Y-m-d H:i:s')],
             ['reservation_timestamp', '<=', $date_range[1]->format('Y-m-d H:i:s')],
-            ['status', '>=', Reservation::CONFIRMED]
+            ['status', '>=', Reservation::RESERVED]
         ]);
     }
     

@@ -835,7 +835,7 @@ class BookingForm {
 				step: 'form-step-3'
 			});
 
-			console.log(data);
+			//console.log(data);
 		}
 
 		$.ajax({
@@ -844,28 +844,52 @@ class BookingForm {
 			data,
 			success(res) {
 				console.log(res);
+				/**
+				 * Need update confirm_id
+				 * Only not for searching available_time
+				 */
+				//noinspection JSValidateTypes
+				if(res.statusMsg != 'available_time'){
+					let data = res.data;
+					let {confirm_id} = data;
+					store.dispatch({
+						type: CHANGE_RESERVATION_CONFIRM_ID,
+						confirm_id,
+					});
+				}
+				//noinspection JSValidateTypes
+				if(res.statusMsg == 'reservation.no_longer_available'){
+					let data = res.data;
+					console.log('SORRY, Someone has book before you. Rerservation no longer available', res.data);
+					return;
+				}
 
 				//noinspection JSValidateTypes
 				if(res.statusMsg == 'reservation.confirm_id'){
-					store.dispatch({
-						type: CHANGE_RESERVATION_CONFIRM_ID,
-						confirm_id: res.data
-					});
-
 					return;
 				}
 
 				//noinspection JSValidateTypes
 				if(res.statusMsg == 'reservation.required_deposit'){
 					console.log('REQUIRED DEPOSIT, payment amount: ', res.data);
-
 					return;
 				}
 
-				store.dispatch({
-					type: CHANGE_AVAILABLE_TIME,
-					available_time: res
-				});
+				/**
+				 * Default case, search for avaialble time
+				 * When call ajax
+				 */
+				//noinspection JSValidateTypes
+				if(res.statusMsg == 'available_time'){
+					let data = res.data;
+
+					store.dispatch({
+						type: CHANGE_AVAILABLE_TIME,
+						available_time: data
+					});
+
+					return;
+				}
 			},
 			complete(){
 				store.dispatch( {
