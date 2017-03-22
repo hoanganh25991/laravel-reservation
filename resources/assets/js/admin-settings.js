@@ -18,6 +18,25 @@ class AdminSettings {
 		this.view();
 
 		this.initView();
+
+		let a = document.querySelector('#xxx');
+
+		a.addEventListener('click', function(e){
+			if(store.getState().admin_step != '#weekly_sessions'){
+				e.preventDefault();
+
+				a.dispatchEvent(new CustomEvent('xxx'));
+			}
+		});
+
+		a.addEventListener('xxx', function(){
+			store.dispatch({
+				type: CHANGE_ADMIN_STEP,
+				step: '#weekly_sessions'
+			});
+
+			a.click();
+		});
 	}
 
 	buildRedux(){
@@ -64,7 +83,8 @@ class AdminSettings {
 		let default_state  = window.state || {};
 		let frontend_state = {
 			init_view : false,
-			admin_step: '#weekly_sessions',
+			// admin_step: '#weekly_sessions',
+			admin_step: '#weekly_sessions_view',
 		};
 
 		return Object.assign(frontend_state, default_state);

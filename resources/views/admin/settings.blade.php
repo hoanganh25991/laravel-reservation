@@ -17,6 +17,7 @@
                         <li><a destination="#buffer" class="btn go">Buffer</a></li>
                         <li><a destination="#notification" class="btn go">Notification</a></li>
                         <li><a destination="#settings" class="btn go">Settings</a></li>
+                        <li><a id="xxx" href="#test-footer">Test foolter</a></li>
                     </ul>
                 </div>
             </div>
@@ -146,6 +147,7 @@
                 <div id="weekly_sessions" class="modal-content admin-step">
                     <div class="modal-header">
                         <h1>Weekly Sessions</h1>
+                        <a href="#test-footer">go</a>
                     </div>
                     <div class="modal-body">
                         <h2>Striped Rows</h2>
@@ -344,6 +346,37 @@
                     </div>
                     <hr>
                     <div class="modal-footer">
+                    </div>
+                    <div class="modal-footer">
+                    </div> <div class="modal-footer">
+                    </div> <div class="modal-footer">
+                    </div> <div class="modal-footer">
+                    </div> <div class="modal-footer">
+                    </div> <div class="modal-footer">
+                    </div> <div class="modal-footer">
+                    </div> <div class="modal-footer">
+                    </div> <div class="modal-footer">
+                    </div> <div class="modal-footer">
+                    </div> <div class="modal-footer">
+                    </div> <div class="modal-footer">
+                    </div> <div class="modal-footer">
+                    </div> <div class="modal-footer">
+                    </div> <div class="modal-footer">
+                    </div> <div class="modal-footer">
+                    </div> <div class="modal-footer">
+                    </div> <div class="modal-footer">
+                    </div> <div class="modal-footer">
+                    </div> <div class="modal-footer">
+                    </div> <div class="modal-footer">
+                    </div> <div class="modal-footer">
+                    </div> <div class="modal-footer">
+                    </div> <div class="modal-footer">
+                    </div> <div class="modal-footer">
+                    </div> <div class="modal-footer">
+                    </div> <div class="modal-footer">
+                    </div> <div class="modal-footer">
+                    </div> <div class="modal-footer">
+                    </div> <div class="modal-footer" id="test-footer">
                     </div>
                 </div>
                 <div id="special_sessions" class="modal-content admin-step">
