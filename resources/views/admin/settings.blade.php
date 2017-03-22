@@ -41,7 +41,102 @@
                     <div class="modal-footer">
                     </div>
                 </div>
+                <div id="special_sessions" class="modal-content admin-step">
+                    <div class="modal-header">
+                        <h1>Special Sessions</h1>
+                    </div>
+                    <div class="modal-body">
+                        @include('admin.settings.sessions_special_view_mode')
+                    </div>
+                    <hr>
+                    <div class="modal-footer">
+                        <button class="btn btn-success">Save</button>
+                    </div>
+                </div>
+                <div id="buffer" class="modal-content admin-step">
+                    <div class="modal-header">
+                        <h1>Buffer</h1>
+                    </div>
+                    <div class="modal-body">
+                        @verbatim
+                        <div class="form-group row">
+                            <label for="1" class="col-md-3">Max number of days in advance</label>
+                            <div class="col-md-4">
+                                <input class="form-control" type="number" :value="buffer.MAX_DAYS_IN_ADVANCE" id="1">
+                            </div>
+                        </div>
 
+                        <div class="form-group row">
+                            <label for="2" class="col-md-3">Min hours in advance prior to a reservation time</label>
+                            <div class="col-md-4">
+                                <input class="form-control" type="number" :value="buffer.MIN_HOURS_IN_ADVANCE_SLOT_TIME"
+                                       id="2">
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="3" class="col-md-3">Min hours in advance prior to a session</label>
+                            <div class="col-md-4">
+                                <input class="form-control" type="number"
+                                       :value="buffer.MIN_HOURS_IN_ADVANCE_SESSION_TIME" id="3">
+                            </div>
+                        </div>
+
+                        <div class="bg-info">
+                            <p class="text-muted">Max number of days in advance – The maximum number of days in
+                                advance a customer may make a reservation. Min hours in advance prior to a
+                                reservation time – The minimum number of hours buffer before a reservation timing is
+                                no longer available for booking.</p>
+                            <p class="text-muted">Min hours in advance prior to a session – The minimum number of
+                                hours buffer before a reservation session is no longer available for booking.</p>
+                            <p class="text-muted">The session’s start timing is defined as the earliest time within
+                                that session.</p>
+                        </div>
+                        @endverbatim
+                    </div>
+                    <hr>
+                    <div class="modal-footer">
+                        <button class="btn btn-success btn_save">Save</button>
+                    </div>
+                </div>
+                <div id="notification" class="modal-content admin-step">
+                    <div class="modal-header">
+                        <h1>Notification</h1>
+                    </div>
+                    <div class="modal-body">
+                        @verbatim
+                        <div class="form-group row">
+                            <label for="4" class="col-md-3">Send SMS on booking</label>
+                            <!-- Rounded switch -->
+                            <label class="switch">
+                                <input type="checkbox" id="4">
+                                <div class="slider round"></div>
+                            </label>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="5" class="col-md-3">Send SMS to confirm reservation</label>
+                            <!-- Rounded switch -->
+                            <label class="switch">
+                                <input type="checkbox" id="5">
+                                <div class="slider round"></div>
+                            </label>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="6" class="col-md-3">Hours before reservation time to send confirmation
+                                SMS</label>
+                            <div class="col-md-4">
+                                <input class="form-control" type="number" value="2" id="6">
+                            </div>
+                        </div>
+                        @endverbatim
+                    </div>
+                    <hr>
+                    <div class="modal-footer">
+                        <button class="btn btn-success">Save</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
