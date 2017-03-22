@@ -21,6 +21,7 @@ Route::post('reservations/{confirm_id}', 'ReservationController@getConfirmPage')
 Route::get('admin', 'AdminController@getDashboard');
 Route::get('admin/settings', 'AdminController@getSettingsDashboard');
 
+
 Route::get('test', function(App\Http\Controllers\BookingController $c){
 
     //return \App\Timing::hasNewUpdate()->get()->count();
@@ -69,6 +70,10 @@ Route::get('test', function(App\Http\Controllers\BookingController $c){
 //    dd($t);
     //return view('layouts.app');
 
-    dd($c->availableTime());
+    //dd($c->availableTime());
+
+    $r = App\Reservation::first();
+    //dd($r);
+    return $c->apiResponse($r->toArray());
 });
 

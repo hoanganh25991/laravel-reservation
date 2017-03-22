@@ -90,6 +90,22 @@ class Reservation extends HoiModel {
 
     protected $guarded = ['id'];
 
+    protected $dates = [
+        'reservation_timestamp',
+        'payment_timestamp',
+    ];
+
+    /**
+     * Bring these computed field when serialize to JSON
+     * @var array
+     */
+    protected $appends = [
+        'full_phone_number',
+        'confirm_id'
+    ];
+
+    protected $casts = [];
+
     protected $fillable = [
         'outlet_id',
         'customer_id',
@@ -223,12 +239,14 @@ class Reservation extends HoiModel {
     }
 
     /**
+     * Get out reservation timestamp as Carbon Obj
+     * Make easier to handle datetime
      * @param $date_tring
      * @return Carbon
      */
-    public function getReservationTimestampAttribute($date_tring){
-        return Carbon::createFromFormat('Y-m-d H:i:s', $date_tring, Setting::timezone());
-    }
+//    public function getReservationTimestampAttribute($date_tring){
+//        return Carbon::createFromFormat('Y-m-d H:i:s', $date_tring, Setting::timezone());
+//    }
 
     /**
      * Hash reservaion id to generate confirm id
@@ -259,7 +277,14 @@ class Reservation extends HoiModel {
             return Carbon::now(Setting::timezone())->addMinutes(1);
         }
 
-        return $this->date->subHours($hours_before_reservation_timing_send_sms);
+        if(is_null($this->date)){
+            return null;
+        }
+
+        /**
+         * Should clone befor do any thing with Carbon datetime obj
+         */
+        return $this->date->copy()->subHours($hours_before_reservation_timing_send_sms);
     }
 
     /**
@@ -414,5 +439,21 @@ class Reservation extends HoiModel {
         $msg .= "Confirm you are coming: $this->confirm_coming_url";
 
         return $msg;
+    }
+
+    /**
+     * Override on serializtion
+     * @return array
+     */
+    public function attributesToArray() {
+        $attributes = parent::attributesToArray();
+
+        /**
+         * Return as datetime string to consistent with DB
+         */
+        $attributes['send_confirmation_by_timestamp']
+            = $this->send_confirmation_by_timestamp->format('Y-m-d H:i:s');
+
+        return $attributes;
     }
 }
