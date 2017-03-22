@@ -94,7 +94,10 @@ class AdminSettings {
 		let state = this.getVueState();
 		this.vue = new Vue({
 			el: '#app',
-			data: state
+			data: state,
+			mounted(){
+				document.dispatchEvent(new CustomEvent('vue-mounted'));
+			}
 		});
 	}
 
@@ -117,7 +120,20 @@ class AdminSettings {
 		 * Bring compute weekly_view to client
 		 */
 		window.vue_state.weekly_view = {};
-		
+
+		/**
+		 * Create new weekly session
+		 */
+		window.vue_state.new_weekly_sessions = [];
+
+		/**
+		 * Notification with toast
+		 */
+		window.vue_state.toast = {
+			title: 'Title',
+			content: 'Content'
+		};
+
 		return window.vue_state;
 	}
 

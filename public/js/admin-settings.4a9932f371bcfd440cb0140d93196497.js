@@ -109,7 +109,10 @@ var AdminSettings = function () {
 			var state = this.getVueState();
 			this.vue = new Vue({
 				el: '#app',
-				data: state
+				data: state,
+				mounted: function mounted() {
+					document.dispatchEvent(new CustomEvent('vue-mounted'));
+				}
 			});
 		}
 	}, {
@@ -133,6 +136,19 @@ var AdminSettings = function () {
     * Bring compute weekly_view to client
     */
 			window.vue_state.weekly_view = {};
+
+			/**
+    * Create new weekly session
+    */
+			window.vue_state.new_weekly_sessions = [];
+
+			/**
+    * Notification with toast
+    */
+			window.vue_state.toast = {
+				title: 'Title',
+				content: 'Content'
+			};
 
 			return window.vue_state;
 		}
