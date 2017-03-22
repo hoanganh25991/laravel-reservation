@@ -129,14 +129,27 @@ var AdminSettings = function () {
 
 				methods: {
 					_addTimingToSession: function _addTimingToSession(e) {
-						//console.log(e);
 						console.log('see add timing');
 
 						var btn = e.target;
-						var session_id = btn.getAttribute('session-id');
-						var session = this.weekly_sessions[session_id];
+						var session_index = btn.getAttribute('session-index');
+						var session = this.weekly_sessions[session_index];
 
 						session.timings.push(self._dumpTiming());
+					},
+					_deleteTiming: function _deleteTiming(e) {
+						console.log('see delete timing');
+
+						var i = e.target;
+						if (i.tagName != 'I') {
+							console.log('Only handle when click on <i>');
+							return;
+						}
+						var session_index = i.getAttribute('session-index');
+						var timing_index = i.getAttribute('timing-index');
+						var session = this.weekly_sessions[session_index];
+
+						session.timings.splice(timing_index, 1);
 					}
 				}
 

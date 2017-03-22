@@ -112,14 +112,28 @@ class AdminSettings {
 			},
 			methods: {
 				_addTimingToSession(e){
-					//console.log(e);
 					console.log('see add timing');
 
-					let btn        = e.target;
-					let session_id = btn.getAttribute('session-id');
-					let session    = this.weekly_sessions[session_id];
+					let btn           = e.target;
+					let session_index = btn.getAttribute('session-index');
+					let session       = this.weekly_sessions[session_index];
 
 					session.timings.push(self._dumpTiming());
+				},
+
+				_deleteTiming(e){
+					console.log('see delete timing');
+
+					let i           = e.target;
+					if(i.tagName != 'I'){
+						console.log('Only handle when click on <i>');
+						return;
+					}
+					let session_index = i.getAttribute('session-index');
+					let timing_index  = i.getAttribute('timing-index');
+					let session       = this.weekly_sessions[session_index];
+
+					session.timings.splice(timing_index, 1);
 				}
 			}
 
