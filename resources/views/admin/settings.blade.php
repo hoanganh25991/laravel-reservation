@@ -118,7 +118,7 @@
                                                         </label>
                                                     </td>
                                                     <td>{{ timing.timing_name }}</td>
-                                                    <td>{{ timing.firt_arrival_time }}</td>
+                                                    <td>{{ timing.first_arrival_time }}</td>
                                                     <td>{{ timing.last_arrival_time }}</td>
                                                     <td>{{ timing.interval_minutes }}</td>
                                                     <td>{{ timing.capacity_1 }}</td>

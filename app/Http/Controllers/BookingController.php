@@ -35,8 +35,50 @@ class BookingController extends HoiController {
     public $reservation_pax_size;
 
     /** @var  bool $recalculate */
-    public $recalculate;
+    public $recalculate = false;
 
+    /** @var array booking_condition */
+    public $booking_condition = [
+        'outlet_id'  => 1,
+        'adult_pax' => 1,
+        'children_pax' => 0,
+    ];
+
+    /**
+     * Store customer booking condition in property
+     * Easy to access through filter availableTime
+     * @param array $condition
+     * @see BookingController::availableTime
+     */
+    public function setUpBookingConditions($condition = []){
+        $condition =
+            array_merge([
+                'outlet_id'  => 1,
+                'adult_pax' => 1,
+                'children_pax' => 0,
+            ], $condition);
+
+        /**
+         * Store Outlet in session for reuse as global query scope
+         */
+        $outlet_id = $condition['outlet_id'];
+        session(compact('outlet_id'));
+
+        $this->booking_condition = $condition;
+    }
+
+    public function bookingPaxSize(){
+        return $this->booking_condition['adult_pax'] + $this->booking_condition['children_pax'];
+    }
+
+    public function bookingHasChildren(){
+        return $this->booking_condition['children_pax'] > 0;
+    }
+
+    /**
+     * Finding available time from customer booking conditions
+     * @return mixed
+     */
     public function availableTime(){
         $date_with_available_time = $this->loadDatesWithAvailableTimeFromCache() ?: $this->buildDatesWithAvailableTime();
 
@@ -51,7 +93,7 @@ class BookingController extends HoiController {
                     $time = $chunk->time;
                     foreach(Timing::CAPACITY_X as $capacity){
                         $group_name = Reservation::groupNameByDateTimeCapacity($date, $time, $capacity);
-    
+
                         try{
                             $reserved_cap     = $this->valid_reservations[$group_name];
                             $chunk->$capacity = $chunk->$capacity - $reserved_cap;
@@ -67,13 +109,16 @@ class BookingController extends HoiController {
         $dates_with_available_time_capacity =
             $date_with_available_time
                 ->map->filter(function($chunk){
-                    $reservation_pax_size = $this->reservation_pax_size ?: Setting::RESERVATION_PAX_SIZE;
+                    $reservation_pax_size = $this->bookingPaxSize();
                     $chunk->max_pax       = $chunk->max_pax ?: Setting::TIMING_MAX_PAX;
                     $cap_name             = Timing::getCapacityName($reservation_pax_size);
 
-                    $is_cap_available = ($chunk->$cap_name > 0) && ($chunk->max_pax >= $reservation_pax_size);
+                    $is_cap_available   = ($chunk->$cap_name > 0) && ($chunk->max_pax >= $reservation_pax_size);
+                    $is_chilren_allowed = $chunk->children_allowed || !$this->bookingHasChildren();
 
-                    return $is_cap_available;
+                    $available          = $is_cap_available && $is_chilren_allowed;
+
+                    return $available;
                 })
                 ->map->values();
 
@@ -286,8 +331,9 @@ class BookingController extends HoiController {
      * Should recalculate
      */
     public function shouldUseCache(){
-        if(env('APP_ENV') != 'production')
+        if(env('APP_ENV') != 'production'){
             return false;
+        }
 
         $filename  = static::cacheFileName(static::SHOULD_UPDATE_DATES_WITH_AVAILABLE_TIME);
         $shouldUpdateCache = Cache::pull($filename, false);
@@ -346,12 +392,9 @@ class BookingController extends HoiController {
             }
 
             /**
-             * Outlet id as reuse over & over through query builder
-             * Store in session for this request
-             * Any further call, consider the same outlet_id
+             * Inject customer booking condition into booking controller
              */
-            $outlet_id = $req->get('outlet_id');
-            session(compact('outlet_id'));
+            $this->setUpBookingConditions($req->all());
 
             /**
              * Compute pax size as query condition

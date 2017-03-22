@@ -219,7 +219,8 @@ class Session extends HoiModel{
         /**
          * No timings
          */
-        if($this->timings->count() == 0){
+        $is_no_timings = $this->timings->count() == 0;
+        if($is_no_timings){
             return false;
         }
 
@@ -234,6 +235,7 @@ class Session extends HoiModel{
         if($diff_less_than_a_day){
             //dd($this->timings->first());
             $earliest_timing = $this->timings->first();
+            // $is_no_timings guardrantee $earliest_timing not NULL
             $session_start_timing_str = $earliest_timing->first_arrival_time;
             $minutes = $this->getMinutes($session_start_timing_str);
             $time_hour = (int)round($minutes / 60);

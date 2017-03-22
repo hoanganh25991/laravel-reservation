@@ -25,6 +25,9 @@ use Illuminate\Database\Eloquent\Builder;
  * 
  * @property mixed $disabled
  * @see Timing::getDisabledAttribute
+ * 
+ * @property mixed $children_allowed
+ * @see Timing::getChildrenAllowedAttribute
  */
 class Timing extends HoiModel {
     
@@ -52,6 +55,11 @@ class Timing extends HoiModel {
         'capacity_5_6',
         'capacity_7_x'
     ];
+    
+    /** 
+     * Children Allowed
+     */
+    const CHILDREN_ALLOWED = 1;
 
     /**
      * Timing disabled
@@ -64,6 +72,9 @@ class Timing extends HoiModel {
      */
     const NO_DEPOSIT  = 0;
     const HAS_DEPOSIT = 1;
+    
+    
+    
 
     protected $table = 'timing';
 
@@ -122,7 +133,7 @@ class Timing extends HoiModel {
                 'capacity_5_6'       => $this->capacity_5_6,
                 'capacity_7_x'       => $this->capacity_7_x,
                 'max_pax'            => $this->max_pax,
-                'min_pax_for_booking_deposit' => $this->min_pax_for_booking_deposit,
+                'children_allowed'   => $this->children_allowed,
             ];
 
             $chunks->push($chunk);
@@ -189,9 +200,15 @@ class Timing extends HoiModel {
 
     /**
      * Base on current config, timing store min pax for deposit rule
+     * @param $val
+     * @return bool
      */
-    public function getMinPaxForBookingDepositAttribute(){
-                
+    public function getChildrenAllowedAttribute($val){
+        if(is_null($val)){
+            return true;
+        }
+        
+        return $val == Timing::CHILDREN_ALLOWED;
     }
 
 }
