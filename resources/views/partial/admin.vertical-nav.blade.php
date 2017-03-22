@@ -1,1 +1,0 @@
-<li><a href="#reservations" data-toggle="tab">Home</a></li>
