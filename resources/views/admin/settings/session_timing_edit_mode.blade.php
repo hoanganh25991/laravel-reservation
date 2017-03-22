@@ -1,4 +1,8 @@
-@verbatim
+@php
+    $session_group = isset($session_group) ? $session_group : 'weekly_sessions';
+    $v_for = "(item, index) in $session_group";
+@endphp
+
 <table class="table table-striped">
     <thead>
     <tr>
@@ -13,9 +17,8 @@
     </tr>
     </thead>
     <tbody>
-    @php
-    @endphp
-    <template v-for="(item, index) in weekly_sessions">
+    <template v-for="{{ $v_for }}">
+        @verbatim
         <tr>
             <td>{{ item.session_name }}</td>
             <td>
