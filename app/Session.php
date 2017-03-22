@@ -72,7 +72,7 @@ class Session extends HoiModel{
      */
     protected $appends = [
         'first_arrival_time',
-        'last_arrival_time'
+        'last_arrival_time',
     ];
     
     protected $casts = [];
@@ -175,6 +175,8 @@ class Session extends HoiModel{
     public function availableOnDay($session_day){
         return $this->$session_day == Session::DAY_AVAILABLE;
     }
+
+
 
     /**
      * Assign date to session
@@ -312,5 +314,29 @@ class Session extends HoiModel{
         }
 
         return $timings->last()->last_arrival_time;
+    }
+
+
+    /**
+     * Override on serializtion
+     * @return array
+     */
+    public function attributesToArray() {
+        $attributes = parent::attributesToArray();
+
+
+        /**
+         * Session when normal, session date is trivail
+         * BCS Session as available for day of week
+         *
+         * After run assign date for specific date_range, session has date
+         * if has bring them to serialize
+         * @see App\Session::assignDate
+         */
+        if(!is_null($this->date)){
+            $attributes['date'] = $this->date->format('Y-m-d H:i:s');
+        }
+        
+        return $attributes;
     }
 }
