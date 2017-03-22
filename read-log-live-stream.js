@@ -5,7 +5,8 @@ const log_path      = path.join(__dirname + '/storage/logs');
 const watched_files = [];
 
 fs.watch(log_path, (eventType, filename) => {
-    let is_err_log = filename.includes('error');
+    // let is_err_log = filename.includes('error');
+    let is_err_log = true;
     let watched    = watched_files.includes(filename);
 
     let should_watch = is_err_log && !watched
