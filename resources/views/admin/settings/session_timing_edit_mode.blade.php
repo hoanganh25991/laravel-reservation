@@ -111,7 +111,8 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <template v-for="(timing, t_index) in session.timings">
+                    <template v-for="(timing, timing_index) in session.timings">
+
                         <tr>
                             <td>
                                 <label class="switch">
@@ -192,12 +193,21 @@
                                        :for="'timing_' + timing.id + 'children_allowed'">
                                 </label>
                             </td>
+                            <td>
+                                <button class="btn btn-sm">
+                                    <i class="fa fa-trash" aria-hidden="true"
+                                       :timing-index="timing_index"
+                                       :session-index="session_index"
+                                       v-on:click="_deleteTiming"
+                                    ></i>
+                                </button>
+                            </td>
                         </tr>
                     </template>
                         <tr>
-                            <td colspan="12" style="background-color: white">
-                                <button :session-id="session_index"
-                                        class="btn bg-info btn-sm pull-right"
+                            <td colspan="13" style="background-color: white">
+                                <button class="btn bg-info btn-sm pull-right"
+                                        :session-index="session_index"
                                         v-on:click="_addTimingToSession"
                                 >add timing</button>
                             </td>
