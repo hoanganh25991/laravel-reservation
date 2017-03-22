@@ -6,6 +6,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var INIT_VIEW = 'INIT_VIEW';
 var CHANGE_ADMIN_STEP = 'CHANGE_ADMIN_STEP';
+var CHANGE_WEEKLY_SESSIONS = 'CHANGE_WEEKLY_SESSIONS';
 
 var AdminSettings = function () {
 	/**
@@ -107,6 +108,12 @@ var AdminSettings = function () {
     */
 			window.vue_state = Object.assign({}, store.getState());
 
+			/**
+    * Vue handle weekly_view
+    * Bring compute weekly_view to client
+    */
+			window.vue_state.weekly_view = {};
+
 			return window.vue_state;
 		}
 	}, {
@@ -179,6 +186,7 @@ var AdminSettings = function () {
 			}
 
 			store.subscribe(function () {
+				var action = store.getLastAction();
 				var state = store.getState();
 				var prestate = store.getPrestate();
 
@@ -194,9 +202,21 @@ var AdminSettings = function () {
 
 				var first_view = prestate.init_view == false && state.init_view == true;
 				var change_step = prestate.admin_step != state.admin_step;
+
 				var run_admin_step = first_view || change_step;
 				if (run_admin_step) {
 					self.pointToAdminStep();
+				}
+
+				/**
+     * Self build weekly_view from weekly_sessions
+     */
+				var weekly_sessions_change = action == CHANGE_WEEKLY_SESSIONS;
+
+				var should_compute_weekly_view_for_vue = first_view || weekly_sessions_change;
+				if (should_compute_weekly_view_for_vue) {
+					var weekly_view = self.computeWeeklyView();
+					Object.assign(vue_state, { weekly_view: weekly_view });
 				}
 			});
 		}
@@ -213,6 +233,55 @@ var AdminSettings = function () {
 				}
 				step.style.transform = transform;
 			});
+		}
+	}, {
+		key: 'computeWeeklyView',
+		value: function computeWeeklyView() {
+			var store = window.store;
+			var state = store.getState();
+
+			var weekly_sessions = state.weekly_sessions;
+
+			var today = moment();
+			var monday = today.clone().startOf('isoWeek');
+			var sunday = today.clone().endOf('isoWeek');
+
+			var weekly_sessions_with_date = [];
+
+			weekly_sessions.forEach(function (session) {
+				var current = monday.clone();
+
+				while (current.isBefore(sunday)) {
+					var day_of_week = current.format('dddd').toLocaleLowerCase();
+					var session_day = 'on_' + day_of_week + 's';
+
+					if (session[session_day] == 1) {
+						//clone current session
+						//which reuse for many day
+						var s = Object.assign({}, session);
+
+						//assign moment date for session
+						s.date = current.clone();
+						weekly_sessions_with_date.push(s);
+					}
+
+					current.add(1, 'days');
+				}
+			});
+
+			var weekly_view = weekly_sessions_with_date.reduce(function (carry, session) {
+				var group_name = session.date.format('dddd');
+
+				if (typeof carry[group_name] == 'undefined') {
+					carry[group_name] = [];
+				}
+
+				carry[group_name].push(session);
+
+				return carry;
+			}, {});
+
+			return weekly_view;
 		}
 	}]);
 

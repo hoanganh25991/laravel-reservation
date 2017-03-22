@@ -107,10 +107,10 @@
                                                         <template v-for="timing in item.timings">
                                                             <tr>
                                                                 <td>
-                                                                    <label class="switch">
+                                                                    <label class="switch">{{ timing.disabled }}
                                                                         <input type="checkbox"
                                                                                disabled
-                                                                               :checked="(timing.disabled == 0) ? 'checked' : false">
+                                                                               :checked="timing['disabled']">
                                                                         <div class="slider round"></div>
                                                                     </label>
                                                                 </td>
@@ -256,9 +256,8 @@
                                                     <td>
                                                         <label class="switch">
                                                             <input type="checkbox"
-                                                                   :checked="(timing.disabled == 0) ? 'checked' : false"
-                                                                   :id="'timing_' + timing.id + 'disabled'"
-                                                                   v-model="timing['disabled']">
+                                                                   v-model="timing['disabled']"
+                                                                   :checked="timing['disabled']">
                                                             <div class="slider round"></div>
                                                         </label>
                                                     </td>

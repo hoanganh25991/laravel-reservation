@@ -1,5 +1,7 @@
 const INIT_VIEW = 'INIT_VIEW';
 const CHANGE_ADMIN_STEP = 'CHANGE_ADMIN_STEP';
+const CHANGE_WEEKLY_SESSIONS = 'CHANGE_WEEKLY_SESSIONS';
+
 
 class AdminSettings {
 	/**
@@ -90,6 +92,12 @@ class AdminSettings {
 		 */
 		window.vue_state = Object.assign({}, store.getState());
 
+		/**
+		 * Vue handle weekly_view
+		 * Bring compute weekly_view to client
+		 */
+		window.vue_state.weekly_view = {};
+		
 		return window.vue_state;
 	}
 
@@ -156,7 +164,8 @@ class AdminSettings {
 		}
 
 		store.subscribe(()=>{
-			let state = store.getState();
+			let action   = store.getLastAction();
+			let state    = store.getState();
 			let prestate = store.getPrestate();
 
 			/**
@@ -171,9 +180,21 @@ class AdminSettings {
 
 			let first_view  = prestate.init_view == false && state.init_view == true;
 			let change_step = prestate.admin_step != state.admin_step;
+			
 			let run_admin_step = first_view || change_step;
 			if(run_admin_step){
 				self.pointToAdminStep();
+			}
+
+			/**
+			 * Self build weekly_view from weekly_sessions
+			 */
+			let weekly_sessions_change = (action == CHANGE_WEEKLY_SESSIONS);
+			
+			let should_compute_weekly_view_for_vue = first_view || weekly_sessions_change;
+			if(should_compute_weekly_view_for_vue){
+				let weekly_view = self.computeWeeklyView();
+				Object.assign(vue_state, {weekly_view});
 			}
 		});
 	}
@@ -190,6 +211,57 @@ class AdminSettings {
 				}
 				step.style.transform = transform;
 			});
+	}
+
+	computeWeeklyView(){
+		let store = window.store;
+		let state = store.getState();
+
+		let weekly_sessions = state.weekly_sessions;
+
+		let today  = moment();
+		let monday = today.clone().startOf('isoWeek');
+		let sunday = today.clone().endOf('isoWeek');
+
+		let weekly_sessions_with_date = [];
+
+		weekly_sessions
+			.forEach(session => {
+				let current = monday.clone();
+
+				while(current.isBefore(sunday)){
+					let day_of_week = current.format('dddd').toLocaleLowerCase();
+					let session_day         = `on_${day_of_week}s`;
+
+					if(session[session_day] == 1){
+						//clone current session
+						//which reuse for many day
+						let s  = Object.assign({}, session);
+
+						//assign moment date for session
+						s.date = current.clone();
+						weekly_sessions_with_date.push(s);
+					}
+
+					current.add(1, 'days');
+				}
+			});
+
+
+		let weekly_view =
+			weekly_sessions_with_date.reduce((carry, session)=>{
+				let group_name = session.date.format('dddd');
+				
+				if(typeof carry[group_name] == 'undefined'){
+					carry[group_name] = [];
+				}
+
+				carry[group_name].push(session);
+				
+				return carry;
+			}, {});
+
+		return weekly_view;
 	}
 }
 

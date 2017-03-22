@@ -11,6 +11,8 @@ use Carbon\Carbon;
 class AdminController extends HoiController {
 
     use ApiResponse;
+    
+    const ASSIGN_DATE_TO_SESSION = 'ASSIGN_DATE_TO_SESSION';
 
     public function getDashboard(){
         return view('admin.index');
@@ -54,20 +56,27 @@ class AdminController extends HoiController {
          * Rebuild weekly session view for weekly session
          * User need to see session in single day of week
          */
-        $weekly_sessions_view = $this->_buildWeeklySessionsView($weekly_sessions);
+//        $weekly_sessions_view = $this->_buildWeeklySessionsView($weekly_sessions);
 
         //dd($weekly_sessions_view);
 
         $state = [
-            'weekly_view'         => $weekly_sessions_view,
-            'weekly_sessions'     => $weekly_sessions,
-            'special_sessions'    => $special_sesssions,
-            'buffer'              => Setting::buildKeyValueOfConfig($buffer_config, $buffer_keys),
-            'notifcation'         => Setting::buildKeyValueOfConfig($notification_config, $notification_keys),
-            'settings'            => Setting::buildKeyValueOfConfig($settings_config, $settings_keys),
+//            'weekly_view'         => $weekly_sessions_view,
+            'weekly_sessions'  => $weekly_sessions,
+            'special_sessions' => $special_sesssions,
+            'buffer'           => Setting::buildKeyValueOfConfig($buffer_config, $buffer_keys),
+            'notifcation'      => Setting::buildKeyValueOfConfig($notification_config, $notification_keys),
+            'settings'         => Setting::buildKeyValueOfConfig($settings_config, $settings_keys),
         ];
 
         return view('admin.settings')->with(compact('state'));
+    }
+    
+    public function fetchSettingData(ApiRequest $req){
+        switch($req->get('action')){
+            case AdminController::ASSIGN_DATE_TO_SESSION:
+//                $weekly
+        }
     }
 
     /**
@@ -89,7 +98,7 @@ class AdminController extends HoiController {
         $weekly_sessions_view =
             $weekly_sessions
                 ->map->assignDate($date_range)->collapse()
-                ->groupBy(function($session){return $session->date->format('l');})
+//                ->groupBy(function($session){return $session->date->format('l');})
 //                ->sortBy(function($group, $group_name){
 //                    switch($group_name){
 //                        case 'Monday':
@@ -111,7 +120,7 @@ class AdminController extends HoiController {
 //                    }
 //                })
                 ;
-        
+
         return $weekly_sessions_view;
     }
 }
