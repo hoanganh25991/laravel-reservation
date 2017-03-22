@@ -569,6 +569,7 @@
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
     @include('debug.redux-state')
+    @include('partial.toast')
 @endsection
 
 @push('script')
