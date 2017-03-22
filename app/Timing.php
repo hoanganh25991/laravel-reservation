@@ -179,15 +179,6 @@ class Timing extends HoiModel {
     }
     
     /**
-     * When disabled state not set, default as available
-     * @param $value
-     * @return int
-     */
-    public function getDisabledAttribute($value){
-        return is_null($value) ? Timing::AVAILABLE : $value;
-    }
-
-    /**
      * Reuse Filter condition
      * Where clause on Builder to call into DATABASE   >>> FILTER
      * Has a collection than filter to find what match >>> FILTER
@@ -219,6 +210,33 @@ class Timing extends HoiModel {
         }
         
         return $val == Timing::CHILDREN_ALLOWED;
+    }
+
+    /**
+     * Set/get on disabled attribute
+     * Make sense when call as boolean
+     */
+
+    /**
+     * When disabled state not set, default as available
+     * @param $value
+     * @return int
+     */
+    public function getDisabledAttribute($value){
+        $value = is_null($value) ? Timing::AVAILABLE : $value;
+
+        return $value == Timing::AVAILABLE;
+    }
+
+    public function setDisabledAttribute($value){
+        switch($value){
+            case true:
+                return Timing::DISABLED;
+            case false:
+                return Timing::AVAILABLE;
+            default:
+                return Timing::AVAILABLE;
+        }
     }
 
 }
