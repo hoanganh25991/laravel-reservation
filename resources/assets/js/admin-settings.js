@@ -122,32 +122,45 @@ class AdminSettings {
 				},
 
 				_deleteTiming(e){
-					console.log(e.target);
+					// console.log(e.target);
 					console.log('see delete timing');
-
-					let i           = e.target;
-					if(i.tagName != 'I'){
-						console.log('Please click on <i>');
-						if(i.tagName != 'BUTTON'){
-							return;
-						}
-
-						console.log('Try to find <i>');
-						if(i.tagName == 'BUTTON'){
-							let real_i = i.querySelector('i');
-
-							if(real_i.tagName == 'I'){
-								i = real_i;
-							}else{
-								return;
-							}
-						}
+					try{
+						let i = this._findIElement(e);
+						let session_index = i.getAttribute('session-index');
+						let timing_index  = i.getAttribute('timing-index');
+						let session = this.weekly_sessions[session_index];
+						session.timings.splice(timing_index, 1);
+					}catch(e){
+						return;
 					}
-					let session_index = i.getAttribute('session-index');
-					let timing_index  = i.getAttribute('timing-index');
-					let session       = this.weekly_sessions[session_index];
+				},
 
-					session.timings.splice(timing_index, 1);
+				_deleteSession(e){
+					// console.log(e.target);
+					console.log('see delete session');
+					try{
+						let i = this._findIElement(e);
+						let session_index = i.getAttribute('session-index');
+						let session = this.weekly_sessions[session_index];
+						this.weekly_sessions.splice(session_index, 1);
+					}catch(e){
+						return;
+					}
+				},
+
+				_findIElement(e){
+					let i = e.target;
+
+					if(i.tagName == 'I'){
+						return i;
+					}
+
+					if(i.tagName == 'BUTTON'){
+						let real_i = i.querySelector('i');
+						return real_i;
+					}
+
+					return null;
 				}
 			}
 

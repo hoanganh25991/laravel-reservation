@@ -138,32 +138,43 @@ var AdminSettings = function () {
 						session.timings.push(self._dumpTiming());
 					},
 					_deleteTiming: function _deleteTiming(e) {
-						console.log(e.target);
+						// console.log(e.target);
 						console.log('see delete timing');
-
-						var i = e.target;
-						if (i.tagName != 'I') {
-							console.log('Please click on <i>');
-							if (i.tagName != 'BUTTON') {
-								return;
-							}
-
-							console.log('Try to find <i>');
-							if (i.tagName == 'BUTTON') {
-								var real_i = i.querySelector('i');
-
-								if (real_i.tagName == 'I') {
-									i = real_i;
-								} else {
-									return;
-								}
-							}
+						try {
+							var i = this._findIElement(e);
+							var session_index = i.getAttribute('session-index');
+							var timing_index = i.getAttribute('timing-index');
+							var session = this.weekly_sessions[session_index];
+							session.timings.splice(timing_index, 1);
+						} catch (e) {
+							return;
 						}
-						var session_index = i.getAttribute('session-index');
-						var timing_index = i.getAttribute('timing-index');
-						var session = this.weekly_sessions[session_index];
+					},
+					_deleteSession: function _deleteSession(e) {
+						// console.log(e.target);
+						console.log('see delete session');
+						try {
+							var i = this._findIElement(e);
+							var session_index = i.getAttribute('session-index');
+							var session = this.weekly_sessions[session_index];
+							this.weekly_sessions.splice(session_index, 1);
+						} catch (e) {
+							return;
+						}
+					},
+					_findIElement: function _findIElement(e) {
+						var i = e.target;
 
-						session.timings.splice(timing_index, 1);
+						if (i.tagName == 'I') {
+							return i;
+						}
+
+						if (i.tagName == 'BUTTON') {
+							var real_i = i.querySelector('i');
+							return real_i;
+						}
+
+						return null;
 					}
 				}
 

@@ -16,6 +16,15 @@
             <th>Fridays</th>
             <th>Saturdays</th>
             <th>Sundays</th>
+            <th>
+                <button class="pull-right"
+                        v-on:click="_deleteSession"
+                >
+                    <i class="fa fa-trash"
+                       :session-index="session_index"
+                    ></i>
+                </button>
+            </th>
         </tr>
         </thead>
         <tbody>
@@ -90,9 +99,12 @@
                        :for="'session_' + session.id + 'on_sundays'">
                 </label>
             </td>
+            <td>
+
+            </td>
         </tr>
         <tr>
-            <td colspan="8" style="padding-left: 50px">
+            <td colspan="9" style="padding-left: 50px">
                 <table class="table table-striped sub-level">
                     <thead>
                     <tr>
@@ -194,10 +206,10 @@
                                 </label>
                             </td>
                             <td>
-                                <button class="bg-danger"
+                                <button class=""
                                         v-on:click="_deleteTiming"
                                 >
-                                    <i class="fa fa-trash" aria-hidden="true"
+                                    <i class="fa fa-trash"
                                        :timing-index="timing_index"
                                        :session-index="session_index"
                                     ></i>
@@ -207,7 +219,7 @@
                     </template>
                     <tr>
                         <td colspan="13" style="background-color: white">
-                            <button class="btn bg-info btn-sm pull-right"
+                            <button class="btn bg-info pull-right"
                                     :session-index="session_index"
                                     v-on:click="_addTimingToSession"
                             >add timing
