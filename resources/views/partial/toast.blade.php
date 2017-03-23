@@ -2,30 +2,43 @@
 <style>
     #toast {
         transition: all 0.8s ease-in-out;
-        transform: translateX(315px) scale(0, 1);
+        transform: translateX(415px) scale(0, 1);
         position: fixed;
         top: 20px;
         right: 10px;
-        width: 300px;
+        width: 400px;
         height: 80px;
         box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
         background-color: white;
         border-radius: 3px;
+        padding: 5px 15px;
+        box-sizing: border-box;
+        padding: 0px;
+    }
+
+    #toast_logo {
+
+    }
+
+    #toast_content {
+        display: inline-block;
+        width: 300px;
+        height: 80px;
+        box-sizing: border-box;
+        position: absolute;
     }
 </style>
 @endpush
 <div id='toast'>
-    <div class="row">
-        <div class="col-xs-4">
-            <img src="{{ url('images/cube.svg') }}" class="img-responsive" alt="Cinque Terre">
-        </div>
-        @verbatim
-        <div class="col-xs-8" style="padding: 0">
-            <h4>{{ toast.title }}</h4>
-            <p><span>{{ toast.content }}</span></p>
-        </div>
-        @endverbatim
+    <div style="display: inline-block">
+        <img id="toast_logo" src="{{ url('images/cube.svg') }}">
     </div>
+    @verbatim
+    <div id="toast_content">
+        <h4>{{ toast.title }}</h4>
+        <p>{{ toast.content }}</p>
+    </div>
+    @endverbatim
 </div>
 @push('script')
 <script>
@@ -57,11 +70,11 @@
                     this.auto_hide = setTimeout(function(){
                         self.hide();
                         clearTimeout(self.auto_hide);
-                    }, 3000);
+                    }, 7000);
                 }
 
                 hide(){
-                    this.toast.style.transform = 'translateX(315px) scale(0,1)';
+                    this.toast.style.transform = 'translateX(415px) scale(0,1)';
                 }
             }
             window.Toast = new Toast();
