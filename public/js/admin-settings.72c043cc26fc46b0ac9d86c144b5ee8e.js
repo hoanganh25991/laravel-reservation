@@ -17,7 +17,7 @@ var SYNC_WEEKLY_SESSIONS = 'SYNC_WEEKLY_SESSIONS';
 var DELETE_TIMING = 'DELETE_TIMING';
 var DELETE_SESSION = 'DELETE_SESSION';
 var DELETE_SPECIAL_SESSION = 'DELETE_SPECIAL_SESSION';
-
+var UPDATE_SPECIAL_SESSIONS = 'UPDATE_SPECIAL_SESSIONS';
 var SAVE_EDIT_IN_VUE_TO_STORE = 'SAVE_EDIT_IN_VUE_TO_STORE';
 
 var TOAST_SHOW = 'TOAST_SHOW';
@@ -26,6 +26,7 @@ var TOAST_SHOW = 'TOAST_SHOW';
 var AJAX_ADD_WEEKLY_SESSIONS = 'AJAX_ADD_WEEKLY_SESSIONS';
 var AJAX_UPDATE_WEEKLY_SESSIONS = 'AJAX_UPDATE_WEEKLY_SESSIONS';
 var AJAX_DELETE_WEEKLY_SESSIONS = 'AJAX_DELETE_WEEKLY_SESSIONS';
+var AJAX_UPDATE_SESSIONS = 'AJAX_UPDATE_SESSIONS';
 
 //AJAX MSG
 var AJAX_UNKNOWN_CASE = 'AJAX_UNKNOWN_CASE';
@@ -131,6 +132,14 @@ var AdminSettings = function () {
 						{
 							return Object.assign({}, state, {
 								weekly_sessions: self.vue.weekly_sessions,
+								deleted_sessions: self.vue.deleted_sessions,
+								deleted_timings: self.vue.deleted_timings
+							});
+						}
+					case UPDATE_SPECIAL_SESSIONS:
+						{
+							return Object.assign({}, state, {
+								special_sessions: self.vue.weekly_sessions,
 								deleted_sessions: self.vue.deleted_sessions,
 								deleted_timings: self.vue.deleted_timings
 							});
@@ -298,6 +307,11 @@ var AdminSettings = function () {
 					_updateWeeklySessions: function _updateWeeklySessions() {
 						store.dispatch({
 							type: UPDATE_WEEKLY_SESSIONS
+						});
+					},
+					_updateSpecialSession: function _updateSpecialSession() {
+						store.dispatch({
+							type: UPDATE_SPECIAL_SESSIONS
 						});
 					}
 				}
@@ -689,16 +703,26 @@ var AdminSettings = function () {
 				var state = store.getState();
 				var prestate = store.getPrestate();
 
-				var is_change_weekly_sessions = action == UPDATE_WEEKLY_SESSIONS;
-				if (is_change_weekly_sessions) {
+				if (action == UPDATE_WEEKLY_SESSIONS) {
 					var _action = {
-						type: AJAX_UPDATE_WEEKLY_SESSIONS,
-						weekly_sessions: state.weekly_sessions,
+						type: AJAX_UPDATE_SESSIONS,
+						sessions: state.weekly_sessions,
 						deleted_sessions: state.deleted_sessions,
 						deleted_timings: state.deleted_timings
 					};
 
 					self.ajax_call(_action);
+				}
+
+				if (action == UPDATE_SPECIAL_SESSIONS) {
+					var _action2 = {
+						type: AJAX_UPDATE_SESSIONS,
+						sessions: state.special_sessions,
+						deleted_sessions: state.deleted_sessions,
+						deleted_timings: state.deleted_timings
+					};
+
+					self.ajax_call(_action2);
 				}
 			});
 		}
@@ -795,14 +819,14 @@ var AdminSettings = function () {
 			this.hack_ajax();
 
 			switch (action.type) {
-				case AJAX_UPDATE_WEEKLY_SESSIONS:
+				case AJAX_UPDATE_SESSIONS:
 					var url = self.url('sessions');
 					// let data = JSON.stringify(action);
 					var data = action;
 					$.ajax({ url: url, data: data });
 					break;
 				default:
-					console.log('ajax call not recognize the current acttion', action);
+					console.log('client side. ajax call not recognize the current acttion', action);
 					break;
 			}
 
@@ -863,7 +887,7 @@ var AdminSettings = function () {
 					{
 						var toast = {
 							title: 'Update weekly sessions',
-							content: 'Synching success'
+							content: 'success'
 						};
 
 						store.dispatch({

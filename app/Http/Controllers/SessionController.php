@@ -18,8 +18,8 @@ class SessionController extends HoiController{
         $action_type = $data['type'];
 
         switch($action_type){
-            case Call::AJAX_UPDATE_WEEKLY_SESSIONS:
-                $weekly_sessions = $data['weekly_sessions'];
+            case Call::AJAX_UPDATE_SESSIONS:
+                $sessions = $data['sessions'];
 
                 $deleted_sessions = $data['deleted_sessions'];
                 
@@ -29,7 +29,7 @@ class SessionController extends HoiController{
                     /**
                      * Update
                      */
-                    foreach($weekly_sessions as $session_data){
+                    foreach($sessions as $session_data){
                         $timings_data = $session_data['timings'];
                         unset($session_data['timings']);
 
@@ -94,8 +94,6 @@ class SessionController extends HoiController{
                     $msg = Call::AJAX_UPDATE_WEEKLY_SESSIONS_ERROR;
                 }
                 break;
-            case Call::AJAX_DELETE_WEEKLY_SESSIONS:
-                
             default:
                 $data = $req->all();
                 $code = 200;

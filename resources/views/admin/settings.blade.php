@@ -70,7 +70,8 @@
                             @include('admin.settings.sessions_special_edit_mode')
                         </div>
                         <div class="modal-footer" style="border-top: 1px solid #e5e5e5;">
-                            <button class="btn bg-info">Save</button>
+                            <button v-on:click="_updateSpecialSession"
+                                    class="btn bg-info">Save</button>
                         </div>
                     </div>
                     <div id="buffer" class="modal-content admin-step">
