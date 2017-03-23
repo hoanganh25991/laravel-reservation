@@ -82,7 +82,7 @@
         </td>
         <td>
             <button class=""
-                    v-on:click="_deleteTiming"
+                    v-on:click="_deleteTimingInSpecialSession"
             >
                 <i class="fa fa-trash"
                    :timing-index="timing_index"

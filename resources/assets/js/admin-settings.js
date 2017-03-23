@@ -3,6 +3,7 @@ const INIT_VIEW = 'INIT_VIEW';
 const CHANGE_ADMIN_STEP = 'CHANGE_ADMIN_STEP';
 
 const ADD_WEEKLY_SESSION     = 'ADD_WEEKLY_SESSION';
+const ADD_SPECIAL_SESSION    = 'ADD_SPECIAL_SESSION';
 const CHANGE_WEEKLY_SESSIONS = 'CHANGE_WEEKLY_SESSIONS';
 const SYNC_WEEKLY_SESSIONS   = 'SYNC_WEEKLY_SESSIONS';
 const DELETE_TIMING          = 'DELETE_TIMING';
@@ -83,21 +84,22 @@ class AdminSettings {
 					return Object.assign({}, state, {
 						weekly_sessions: self.weeklySessionsReducer(state.weekly_sessions, action)
 					});
-				case DELETE_TIMING: {
+				case DELETE_TIMING:
 					return Object.assign({}, state, {
 						deleted_timings: self.deleteTimingReducer(state.deleted_timings, action)
 					});
-				}
-				case DELETE_SESSION: {
+				case DELETE_SESSION:
 					return Object.assign({}, state, {
 						deleted_sessions: self.deleteSessionReducer(state.deleted_sessions, action)
 					});
-				}
-				case TOAST_SHOW:{
+				case TOAST_SHOW:
 					return Object.assign({}, state, {
 						toast: self.toastReducer(state.toast, action)
 					});
-				}
+                case ADD_SPECIAL_SESSION:
+					return Object.assign({}, state, {
+						special_sessions: self.specialSessionsReducer(state.special_sessions, action)
+					});
 				default:
 					return state;
 			}
@@ -197,6 +199,18 @@ class AdminSettings {
 					}catch(e){
 						return;
 					}
+				},
+
+				_addTimingToSpecialSession(e){
+
+				},
+
+				_deleteSpecialSession(e){
+
+				},
+
+				_deleteTimingInSpecialSession(e){
+
 				},
 
 				_findIElement(e){
@@ -343,7 +357,7 @@ class AdminSettings {
 			"id": this._randomId(),
 			"session_id": 2,
 			"timing_name": "12-16",
-			"disabled": false,
+			"disabled": true,
 			"first_arrival_time": "05:00:00",
 			"last_arrival_time": "08:00:00",
 			"interval_minutes": 30,
@@ -397,6 +411,47 @@ class AdminSettings {
 		}
 	}
 
+	specialSessionsReducer(state, action){
+		switch(action.type){
+			case ADD_SPECIAL_SESSION:
+				let new_special_session = this._dumpSpecialSession();
+				return [
+					...state,
+					new_special_session
+				];
+			default:
+				return state;
+		}
+	}
+
+	_dumpSpecialSession(){
+		let today = moment();
+		let date_str = today.format('YYYY-MM-DD');
+		let dump_special_session = {
+			"id": this._randomId(),
+			"outlet_id": 1,
+			"session_name": "Special session",
+			"on_mondays": null,
+			"on_tuesdays": null,
+			"on_wednesdays": null,
+			"on_thursdays": null,
+			"on_fridays": null,
+			"on_saturdays": null,
+			"on_sundays": null,
+			"created_timestamp": "2017-03-03 21:39:39",
+			"modified_timestamp": "2017-03-06 21:39:33",
+			"one_off": 1,
+			"one_off_date": date_str,
+			"first_arrival_time": "05:00:00",
+			"last_arrival_time": "12:00:00",
+			"timings": [
+				this._dumpTiming()
+			]
+		};
+
+		return dump_special_session;
+	}
+
 	findView(){
 		/**
 		 * Only run one time
@@ -411,6 +466,9 @@ class AdminSettings {
 
 		this.add_session_btn  = document.querySelector('#add_session_btn');
 		this.save_session_btn = document.querySelector('#save_session_btn');
+
+		this.add_special_session_btn = document.querySelector('#add_special_session_btn');
+
 	}
 
 	event(){
@@ -440,6 +498,13 @@ class AdminSettings {
 				store.dispatch({
 					type: CHANGE_ADMIN_STEP,
 					step: 'weekly_sessions_view'
+				});
+			});
+
+		this.add_special_session_btn
+			.addEventListener('click', function(){
+				store.dispatch({
+					type: ADD_SPECIAL_SESSION
 				});
 			});
 	}

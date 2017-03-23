@@ -2,7 +2,7 @@
 @push('css')
 <style>
     .table>thead>tr>th, .table>tbody>tr>th, .table>tfoot>tr>th, .table>thead>tr>td, .table>tbody>tr>td, .table>tfoot>tr>td {
-        padding: 3px;
+        padding: 2px;
     }
 </style>
 @endpush
@@ -44,8 +44,7 @@
                         <div class="modal-body">
                             @include('admin.settings.sessions_edit_mode')
                         </div>
-                        <hr>
-                        <div class="modal-footer">
+                        <div class="modal-footer" style="border-top: 1px solid #e5e5e5;">
                             <button id="save_session_btn" class="btn bg-info">Save</button>
                         </div>
                     </div>
@@ -57,10 +56,6 @@
                         <div class="modal-body">
                             @include('admin.settings.sessions_special_view_mode')
                         </div>
-                        <hr>
-                        <div class="modal-footer">
-                            <button class="btn bg-info">Save</button>
-                        </div>
                     </div>
                     <div id="special_sessions" class="modal-content admin-step">
                         <div class="modal-header">
@@ -70,8 +65,7 @@
                         <div class="modal-body">
                             @include('admin.settings.sessions_special_edit_mode')
                         </div>
-                        <hr>
-                        <div class="modal-footer">
+                        <div class="modal-footer" style="border-top: 1px solid #e5e5e5;">
                             <button class="btn bg-info">Save</button>
                         </div>
                     </div>

@@ -20,7 +20,7 @@
                     <th>Session Name</th>
                     <th>
                         <button class="pull-right"
-                                v-on:click="_deleteSession"
+                                v-on:click="_deleteSpecialSession"
                         >
                             <i class="fa fa-trash"
                                :session-index="session_index"
@@ -66,7 +66,7 @@
                                 <td colspan="13" style="background-color: white">
                                     <button class="btn bg-info pull-right"
                                             :session-index="session_index"
-                                            v-on:click="_addTimingToSession"
+                                            v-on:click="_addTimingToSpecialSession"
                                     >add timing
                                     </button>
                                 </td>

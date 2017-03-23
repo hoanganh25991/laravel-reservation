@@ -11,6 +11,7 @@ var INIT_VIEW = 'INIT_VIEW';
 var CHANGE_ADMIN_STEP = 'CHANGE_ADMIN_STEP';
 
 var ADD_WEEKLY_SESSION = 'ADD_WEEKLY_SESSION';
+var ADD_SPECIAL_SESSION = 'ADD_SPECIAL_SESSION';
 var CHANGE_WEEKLY_SESSIONS = 'CHANGE_WEEKLY_SESSIONS';
 var SYNC_WEEKLY_SESSIONS = 'SYNC_WEEKLY_SESSIONS';
 var DELETE_TIMING = 'DELETE_TIMING';
@@ -99,23 +100,21 @@ var AdminSettings = function () {
 							weekly_sessions: self.weeklySessionsReducer(state.weekly_sessions, action)
 						});
 					case DELETE_TIMING:
-						{
-							return Object.assign({}, state, {
-								deleted_timings: self.deleteTimingReducer(state.deleted_timings, action)
-							});
-						}
+						return Object.assign({}, state, {
+							deleted_timings: self.deleteTimingReducer(state.deleted_timings, action)
+						});
 					case DELETE_SESSION:
-						{
-							return Object.assign({}, state, {
-								deleted_sessions: self.deleteSessionReducer(state.deleted_sessions, action)
-							});
-						}
+						return Object.assign({}, state, {
+							deleted_sessions: self.deleteSessionReducer(state.deleted_sessions, action)
+						});
 					case TOAST_SHOW:
-						{
-							return Object.assign({}, state, {
-								toast: self.toastReducer(state.toast, action)
-							});
-						}
+						return Object.assign({}, state, {
+							toast: self.toastReducer(state.toast, action)
+						});
+					case ADD_SPECIAL_SESSION:
+						return Object.assign({}, state, {
+							special_sessions: self.specialSessionsReducer(state.special_sessions, action)
+						});
 					default:
 						return state;
 				}
@@ -217,6 +216,9 @@ var AdminSettings = function () {
 							return;
 						}
 					},
+					_addTimingToSpecialSession: function _addTimingToSpecialSession(e) {},
+					_deleteSpecialSession: function _deleteSpecialSession(e) {},
+					_deleteTimingInSpecialSession: function _deleteTimingInSpecialSession(e) {},
 					_findIElement: function _findIElement(e) {
 						var i = e.target;
 
@@ -372,7 +374,7 @@ var AdminSettings = function () {
 				"id": this._randomId(),
 				"session_id": 2,
 				"timing_name": "12-16",
-				"disabled": false,
+				"disabled": true,
 				"first_arrival_time": "05:00:00",
 				"last_arrival_time": "08:00:00",
 				"interval_minutes": 30,
@@ -423,6 +425,44 @@ var AdminSettings = function () {
 			}
 		}
 	}, {
+		key: 'specialSessionsReducer',
+		value: function specialSessionsReducer(state, action) {
+			switch (action.type) {
+				case ADD_SPECIAL_SESSION:
+					var new_special_session = this._dumpSpecialSession();
+					return [].concat(_toConsumableArray(state), [new_special_session]);
+				default:
+					return state;
+			}
+		}
+	}, {
+		key: '_dumpSpecialSession',
+		value: function _dumpSpecialSession() {
+			var today = moment();
+			var date_str = today.format('YYYY-MM-DD');
+			var dump_special_session = {
+				"id": this._randomId(),
+				"outlet_id": 1,
+				"session_name": "Special session",
+				"on_mondays": null,
+				"on_tuesdays": null,
+				"on_wednesdays": null,
+				"on_thursdays": null,
+				"on_fridays": null,
+				"on_saturdays": null,
+				"on_sundays": null,
+				"created_timestamp": "2017-03-03 21:39:39",
+				"modified_timestamp": "2017-03-06 21:39:33",
+				"one_off": 1,
+				"one_off_date": date_str,
+				"first_arrival_time": "05:00:00",
+				"last_arrival_time": "12:00:00",
+				"timings": [this._dumpTiming()]
+			};
+
+			return dump_special_session;
+		}
+	}, {
 		key: 'findView',
 		value: function findView() {
 			/**
@@ -438,6 +478,8 @@ var AdminSettings = function () {
 
 			this.add_session_btn = document.querySelector('#add_session_btn');
 			this.save_session_btn = document.querySelector('#save_session_btn');
+
+			this.add_special_session_btn = document.querySelector('#add_special_session_btn');
 		}
 	}, {
 		key: 'event',
@@ -465,6 +507,12 @@ var AdminSettings = function () {
 				store.dispatch({
 					type: CHANGE_ADMIN_STEP,
 					step: 'weekly_sessions_view'
+				});
+			});
+
+			this.add_special_session_btn.addEventListener('click', function () {
+				store.dispatch({
+					type: ADD_SPECIAL_SESSION
 				});
 			});
 		}
