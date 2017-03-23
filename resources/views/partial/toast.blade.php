@@ -70,7 +70,7 @@
                     this.auto_hide = setTimeout(function(){
                         self.hide();
                         clearTimeout(self.auto_hide);
-                    }, 5000);
+                    }, 2000);
                 }
 
                 hide(){

@@ -94,10 +94,10 @@ class HoiModel extends Model {
          * Sanity by limit column access
          */
         foreach($model->getArrayableAppends() as $append){
-            if(isset($model_data[$append])){
-                unset($model_data[$append]);
-            }
+            unset($model_data[$append]);
         }
+
+        //unset($model_data['id']);
 
         return $model_data;
     }

@@ -39,8 +39,8 @@ class SessionController extends HoiController{
 
                         foreach($timings_data as $timing_data){
                             $timing = Timing::findOrNew($timing_data['id']);
-                            $timing->session_id = $s->id;
                             $timing->fill(Timing::sanityData($timing_data));
+                            $timing->session_id = $s->id;
                             $timing->save();
                         }
                     }
@@ -75,7 +75,7 @@ class SessionController extends HoiController{
                     }
 
 
-                    $data = [];
+                    $data = $this->fetchUpdatedWeeklySessions();
                     $code = 200;
                     $msg = Call::AJAX_UPDATE_WEEKLY_SESSIONS_SUCCESS;
                 }catch(\Exception $e){
@@ -95,5 +95,11 @@ class SessionController extends HoiController{
 
 
         return $this->apiResponse($data, $code, $msg);
+    }
+
+    public function fetchUpdatedWeeklySessions(){
+        $weekly_sessions = Session::normalSession()->with('timings')->get();
+
+        return $weekly_sessions;
     }
 }

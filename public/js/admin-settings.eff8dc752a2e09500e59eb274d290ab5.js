@@ -12,6 +12,7 @@ var CHANGE_ADMIN_STEP = 'CHANGE_ADMIN_STEP';
 
 var ADD_WEEKLY_SESSION = 'ADD_WEEKLY_SESSION';
 var CHANGE_WEEKLY_SESSIONS = 'CHANGE_WEEKLY_SESSIONS';
+var SYNC_WEEKLY_SESSIONS = 'SYNC_WEEKLY_SESSIONS';
 var DELETE_TIMING = 'DELETE_TIMING';
 var DELETE_SESSION = 'DELETE_SESSION';
 
@@ -93,6 +94,7 @@ var AdminSettings = function () {
 						});
 					case ADD_WEEKLY_SESSION:
 					case CHANGE_WEEKLY_SESSIONS:
+					case SYNC_WEEKLY_SESSIONS:
 						return Object.assign({}, state, {
 							weekly_sessions: self.weeklySessionsReducer(state.weekly_sessions, action)
 						});
@@ -320,6 +322,10 @@ var AdminSettings = function () {
 
 						return _weekly_sessions;
 					}
+				case SYNC_WEEKLY_SESSIONS:
+					{
+						return action.weekly_sessions;
+					}
 				default:
 					return state;
 			}
@@ -506,9 +512,9 @@ var AdminSettings = function () {
 				/**
      * Self build weekly_view from weekly_sessions
      */
-				var weekly_sessions_change = action == CHANGE_WEEKLY_SESSIONS;
+				var weekly_sessions_sync = action == SYNC_WEEKLY_SESSIONS;
 
-				var should_compute_weekly_view_for_vue = first_view || weekly_sessions_change;
+				var should_compute_weekly_view_for_vue = first_view || weekly_sessions_sync;
 				if (should_compute_weekly_view_for_vue) {
 					var weekly_view = self.computeWeeklyView();
 					Object.assign(vue_state, { weekly_view: weekly_view });
@@ -614,6 +620,14 @@ var AdminSettings = function () {
 			}
 			var self = this;
 
+			store.dispatch({
+				type: TOAST_SHOW,
+				toast: {
+					title: 'Calling ajax',
+					content: '...'
+				}
+			});
+
 			this.hack_ajax();
 
 			switch (action.type) {
@@ -691,6 +705,11 @@ var AdminSettings = function () {
 						store.dispatch({
 							type: TOAST_SHOW,
 							toast: toast
+						});
+
+						store.dispatch({
+							type: SYNC_WEEKLY_SESSIONS,
+							weekly_sessions: res.data
 						});
 
 						break;

@@ -4,6 +4,7 @@ const CHANGE_ADMIN_STEP = 'CHANGE_ADMIN_STEP';
 
 const ADD_WEEKLY_SESSION     = 'ADD_WEEKLY_SESSION';
 const CHANGE_WEEKLY_SESSIONS = 'CHANGE_WEEKLY_SESSIONS';
+const SYNC_WEEKLY_SESSIONS   = 'SYNC_WEEKLY_SESSIONS';
 const DELETE_TIMING          = 'DELETE_TIMING';
 const DELETE_SESSION         = 'DELETE_SESSION';
 
@@ -78,6 +79,7 @@ class AdminSettings {
 					});
 				case ADD_WEEKLY_SESSION:
 				case CHANGE_WEEKLY_SESSIONS:
+				case SYNC_WEEKLY_SESSIONS :
 					return Object.assign({}, state, {
 						weekly_sessions: self.weeklySessionsReducer(state.weekly_sessions, action)
 					});
@@ -295,6 +297,9 @@ class AdminSettings {
 
 				return weekly_sessions;
 			}
+			case SYNC_WEEKLY_SESSIONS: {
+				return action.weekly_sessions;
+			}
 			default:
 				return state;
 		}
@@ -481,9 +486,9 @@ class AdminSettings {
 			/**
 			 * Self build weekly_view from weekly_sessions
 			 */
-			let weekly_sessions_change = (action == CHANGE_WEEKLY_SESSIONS);
+			let weekly_sessions_sync = (action == SYNC_WEEKLY_SESSIONS);
 
-			let should_compute_weekly_view_for_vue = first_view || weekly_sessions_change;
+			let should_compute_weekly_view_for_vue = first_view || weekly_sessions_sync;
 			if(should_compute_weekly_view_for_vue){
 				let weekly_view = self.computeWeeklyView();
 				Object.assign(vue_state, {weekly_view});
@@ -587,6 +592,14 @@ class AdminSettings {
 		if(typeof action.type != 'undefined'){console.log('ajax call', action.type);}
 		let self = this;
 
+		store.dispatch({
+			type: TOAST_SHOW,
+			toast: {
+				title:  'Calling ajax',
+				content: '...'
+			}
+		});
+
 		this.hack_ajax();
 
 		switch(action.type){
@@ -661,6 +674,11 @@ class AdminSettings {
 				store.dispatch({
 					type: TOAST_SHOW,
 					toast
+				});
+
+				store.dispatch({
+					type: SYNC_WEEKLY_SESSIONS,
+					weekly_sessions: res.data
 				});
 
 				break;
