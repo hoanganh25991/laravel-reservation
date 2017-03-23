@@ -81,27 +81,32 @@
                         <div class="modal-body">
                             @verbatim
                             <div class="form-group row">
-                                <label for="1" class="col-md-3">Max number of days in advance</label>
+                                <label for="buffer_MAX_DAYS_IN_ADVANCE" class="col-md-3">Max number of days in advance</label>
                                 <div class="col-md-4">
-                                    <input class="form-control" type="number" :value="buffer.MAX_DAYS_IN_ADVANCE"
-                                           id="1">
+                                    <input class="form-control" type="number"
+                                           v-model="buffer.MAX_DAYS_IN_ADVANCE"
+                                           :value="buffer.MAX_DAYS_IN_ADVANCE"
+                                           id="buffer_MAX_DAYS_IN_ADVANCE">
                                 </div>
                             </div>
 
                             <div class="form-group row">
-                                <label for="2" class="col-md-3">Min hours in advance prior to a reservation time</label>
+                                <label for="buffer_MIN_HOURS_IN_ADVANCE_SLOT_TIME" class="col-md-3">Min hours in advance prior to a reservation time</label>
                                 <div class="col-md-4">
                                     <input class="form-control" type="number"
+                                           v-model="buffer.MIN_HOURS_IN_ADVANCE_SLOT_TIME"
                                            :value="buffer.MIN_HOURS_IN_ADVANCE_SLOT_TIME"
-                                           id="2">
+                                           id="buffer_MIN_HOURS_IN_ADVANCE_SLOT_TIME">
                                 </div>
                             </div>
 
                             <div class="form-group row">
-                                <label for="3" class="col-md-3">Min hours in advance prior to a session</label>
+                                <label for="buffer.MIN_HOURS_IN_ADVANCE_SESSION_TIME" class="col-md-3">Min hours in advance prior to a session</label>
                                 <div class="col-md-4">
                                     <input class="form-control" type="number"
-                                           :value="buffer.MIN_HOURS_IN_ADVANCE_SESSION_TIME" id="3">
+                                           v-model="buffer.MIN_HOURS_IN_ADVANCE_SESSION_TIME"
+                                           :value="buffer.MIN_HOURS_IN_ADVANCE_SESSION_TIME"
+                                           id="buffer.MIN_HOURS_IN_ADVANCE_SESSION_TIME">
                                 </div>
                             </div>
 
@@ -119,7 +124,8 @@
                         </div>
                         <hr>
                         <div class="modal-footer">
-                            <button class="btn btn-success btn_save">Save</button>
+                            <button v-on:click="_updateBuffer"
+                                    class="btn btn-success btn_save">Save</button>
                         </div>
                     </div>
                     <div id="notification" class="modal-content admin-step">

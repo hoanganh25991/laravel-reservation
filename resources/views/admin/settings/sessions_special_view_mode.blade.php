@@ -12,13 +12,6 @@
                 <tr>
                     <th>Session Name</th>
                     <th>
-                        <button class="pull-right"
-                                v-on:click="_deleteSession"
-                        >
-                            <i class="fa fa-trash"
-                               :session-index="session_index"
-                            ></i>
-                        </button>
                     </th>
                 </tr>
                 </thead>

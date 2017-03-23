@@ -85,13 +85,16 @@ class SessionController extends HoiController{
                     }
 
 
-                    $data = $this->fetchUpdatedWeeklySessions();
+                    $data = [
+                        'weekly_sessions' => $this->fetchUpdatedWeeklySessions(),
+                        'special_sessions'=> $this->fetchUpdatedSpecialSessions()
+                    ];
                     $code = 200;
-                    $msg = Call::AJAX_UPDATE_WEEKLY_SESSIONS_SUCCESS;
+                    $msg = Call::AJAX_SUCCESS;
                 }catch(\Exception $e){
                     $data = $e->getMessage();
                     $code = 200;
-                    $msg = Call::AJAX_UPDATE_WEEKLY_SESSIONS_ERROR;
+                    $msg = Call::AJAX_ERROR;
                 }
                 break;
             default:
@@ -109,5 +112,11 @@ class SessionController extends HoiController{
         $weekly_sessions = Session::normalSession()->with('timings')->get();
 
         return $weekly_sessions;
+    }
+    
+    public function fetchUpdatedSpecialSessions(){
+        $special_sesssions = Session::allSpecialSession()->with('timings')->get();
+        
+        return $special_sesssions;
     }
 }

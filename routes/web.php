@@ -25,7 +25,7 @@ Route::get('admin/settings', 'AdminController@getSettingsDashboard');
  * Handle control on Session
  */
 Route::post('sessions', 'SessionController@update');
-Route::get( 'sessions', 'SessionController@update');
+Route::post('outlet-reservation-settings', 'OutletReservationSettingController@update');
 
 
 Route::get('test', function(App\Http\Controllers\BookingController $c, App\Http\Controllers\AdminController $a, App\Http\Controllers\SessionController $s){

@@ -101,6 +101,8 @@ class OutletReservationSetting extends HoiModel{
 
     protected $table = 'outlet_reservation_setting';
 
+    protected $guarded = ['id'];
+
     public static $all_config = null;
 
     protected static function boot(){

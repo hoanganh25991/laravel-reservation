@@ -13,12 +13,15 @@ var CHANGE_ADMIN_STEP = 'CHANGE_ADMIN_STEP';
 var ADD_WEEKLY_SESSION = 'ADD_WEEKLY_SESSION';
 var ADD_SPECIAL_SESSION = 'ADD_SPECIAL_SESSION';
 var UPDATE_WEEKLY_SESSIONS = 'UPDATE_WEEKLY_SESSIONS';
-var SYNC_WEEKLY_SESSIONS = 'SYNC_WEEKLY_SESSIONS';
+var SYNC_DATA = 'SYNC_DATA';
 var DELETE_TIMING = 'DELETE_TIMING';
 var DELETE_SESSION = 'DELETE_SESSION';
 var DELETE_SPECIAL_SESSION = 'DELETE_SPECIAL_SESSION';
 var UPDATE_SPECIAL_SESSIONS = 'UPDATE_SPECIAL_SESSIONS';
 var SAVE_EDIT_IN_VUE_TO_STORE = 'SAVE_EDIT_IN_VUE_TO_STORE';
+var UPDATE_BUFFER = 'UPDATE_BUFFER';
+
+// const SYNC_DATA = 'SYNC_DATA';
 
 var TOAST_SHOW = 'TOAST_SHOW';
 
@@ -27,11 +30,14 @@ var AJAX_ADD_WEEKLY_SESSIONS = 'AJAX_ADD_WEEKLY_SESSIONS';
 var AJAX_UPDATE_WEEKLY_SESSIONS = 'AJAX_UPDATE_WEEKLY_SESSIONS';
 var AJAX_DELETE_WEEKLY_SESSIONS = 'AJAX_DELETE_WEEKLY_SESSIONS';
 var AJAX_UPDATE_SESSIONS = 'AJAX_UPDATE_SESSIONS';
+var AJAX_UPDATE_BUFFER = 'AJAX_UPDATE_BUFFER';
 
 //AJAX MSG
 var AJAX_UNKNOWN_CASE = 'AJAX_UNKNOWN_CASE';
-var AJAX_UPDATE_WEEKLY_SESSIONS_SUCCESS = 'AJAX_UPDATE_WEEKLY_SESSIONS_SUCCESS';
-var AJAX_UPDATE_WEEKLY_SESSIONS_ERROR = 'AJAX_UPDATE_WEEKLY_SESSIONS_ERROR';
+var AJAX_UPDATE_SESSIONS_SUCCESS = 'AJAX_UPDATE_SESSIONS_SUCCESS';
+
+var AJAX_SUCCESS = 'AJAX_SUCCESS';
+var AJAX_ERROR = 'AJAX_ERROR';
 
 var AdminSettings = function () {
 	/**
@@ -98,10 +104,6 @@ var AdminSettings = function () {
 							admin_step: self.adminStepReducer(state.admin_step, action)
 						});
 					case ADD_WEEKLY_SESSION:
-					case SYNC_WEEKLY_SESSIONS:
-						return Object.assign({}, state, {
-							weekly_sessions: self.weeklySessionsReducer(state.weekly_sessions, action)
-						});
 					case DELETE_TIMING:
 						return Object.assign({}, state, {
 							deleted_timings: self.deleteTimingReducer(state.deleted_timings, action)
@@ -139,10 +141,19 @@ var AdminSettings = function () {
 					case UPDATE_SPECIAL_SESSIONS:
 						{
 							return Object.assign({}, state, {
-								special_sessions: self.vue.weekly_sessions,
+								special_sessions: self.vue.special_sessions,
 								deleted_sessions: self.vue.deleted_sessions,
 								deleted_timings: self.vue.deleted_timings
 							});
+						}
+					case UPDATE_BUFFER:
+						return Object.assign({}, state, {
+							buffer: self.bufferReducer(state.buffer, action)
+						});
+					case SYNC_DATA:
+						{
+							var data = action.data;
+							return Object.assign({}, state, data);
 						}
 					default:
 						return state;
@@ -313,6 +324,11 @@ var AdminSettings = function () {
 						store.dispatch({
 							type: UPDATE_SPECIAL_SESSIONS
 						});
+					},
+					_updateBuffer: function _updateBuffer() {
+						store.dispatch({
+							type: UPDATE_BUFFER
+						});
 					}
 				}
 
@@ -393,7 +409,7 @@ var AdminSettings = function () {
 
 						return weekly_sessions;
 					}
-				case SYNC_WEEKLY_SESSIONS:
+				case SYNC_DATA:
 					{
 						return action.weekly_sessions;
 					}
@@ -530,12 +546,23 @@ var AdminSettings = function () {
 				"modified_timestamp": "2017-03-06 21:39:33",
 				"one_off": 1,
 				"one_off_date": date_str,
-				"first_arrival_time": "05:00:00",
-				"last_arrival_time": "12:00:00",
 				"timings": [this._dumpTiming()]
 			};
 
 			return dump_special_session;
+		}
+	}, {
+		key: 'bufferReducer',
+		value: function bufferReducer(state, action) {
+			var self = this;
+			switch (action.type) {
+				case UPDATE_BUFFER:
+					{
+						return self.vue.buffer;
+					}
+				default:
+					return state;
+			}
 		}
 	}, {
 		key: 'findView',
@@ -642,9 +669,12 @@ var AdminSettings = function () {
 				/**
      * Self build weekly_view from weekly_sessions
      */
-				var weekly_sessions_sync = action == SYNC_WEEKLY_SESSIONS;
+				// let sync_data = (action == SYNC_DATA);
+				var sync_on_weekly = prestate.weekly_sessions != state.weekly_sessions;
 
-				var should_compute_weekly_view_for_vue = first_view || weekly_sessions_sync;
+				var should_compute_weekly_view_for_vue = first_view
+				// || sync_data;
+				|| sync_on_weekly;
 
 				if (should_compute_weekly_view_for_vue) {
 					var weekly_view = self.computeWeeklyView();
@@ -723,6 +753,15 @@ var AdminSettings = function () {
 					};
 
 					self.ajax_call(_action2);
+				}
+
+				if (action == UPDATE_BUFFER) {
+					var _action3 = {
+						type: AJAX_UPDATE_BUFFER,
+						buffer: state.buffer
+					};
+
+					self.ajax_call(_action3);
 				}
 			});
 		}
@@ -820,11 +859,21 @@ var AdminSettings = function () {
 
 			switch (action.type) {
 				case AJAX_UPDATE_SESSIONS:
-					var url = self.url('sessions');
-					// let data = JSON.stringify(action);
-					var data = action;
-					$.ajax({ url: url, data: data });
-					break;
+					{
+						var url = self.url('sessions');
+						// let data = JSON.stringify(action);
+						var data = action;
+						$.ajax({ url: url, data: data });
+						break;
+					}
+				case AJAX_UPDATE_BUFFER:
+					{
+						var _url = self.url('outlet-reservation-settings');
+						// let data = JSON.stringify(action);
+						var _data = action;
+						$.ajax({ url: _url, data: _data });
+						break;
+					}
 				default:
 					console.log('client side. ajax call not recognize the current acttion', action);
 					break;
@@ -883,11 +932,11 @@ var AdminSettings = function () {
 		value: function ajax_call_success(res) {
 			console.log(res);
 			switch (res.statusMsg) {
-				case AJAX_UPDATE_WEEKLY_SESSIONS_SUCCESS:
+				case AJAX_SUCCESS:
 					{
 						var toast = {
-							title: 'Update weekly sessions',
-							content: 'success'
+							title: 'Update success',
+							content: '＼＿ヘ(ᐖ◞)､ '
 						};
 
 						store.dispatch({
@@ -896,16 +945,16 @@ var AdminSettings = function () {
 						});
 
 						store.dispatch({
-							type: SYNC_WEEKLY_SESSIONS,
-							weekly_sessions: res.data
+							type: SYNC_DATA,
+							data: res.data
 						});
 
 						break;
 					}
-				case AJAX_UPDATE_WEEKLY_SESSIONS_ERROR:
+				case AJAX_ERROR:
 					{
 						var _toast = {
-							title: 'Update weekly sessions fail',
+							title: 'Update fail',
 							content: res.data.substr(0, 50)
 						};
 

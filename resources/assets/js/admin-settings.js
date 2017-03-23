@@ -5,25 +5,34 @@ const CHANGE_ADMIN_STEP = 'CHANGE_ADMIN_STEP';
 const ADD_WEEKLY_SESSION     = 'ADD_WEEKLY_SESSION';
 const ADD_SPECIAL_SESSION    = 'ADD_SPECIAL_SESSION';
 const UPDATE_WEEKLY_SESSIONS = 'UPDATE_WEEKLY_SESSIONS';
-const SYNC_WEEKLY_SESSIONS   = 'SYNC_WEEKLY_SESSIONS';
+const SYNC_DATA              = 'SYNC_DATA';
 const DELETE_TIMING          = 'DELETE_TIMING';
 const DELETE_SESSION         = 'DELETE_SESSION';
 const DELETE_SPECIAL_SESSION = 'DELETE_SPECIAL_SESSION';
 const UPDATE_SPECIAL_SESSIONS = 'UPDATE_SPECIAL_SESSIONS';
 const SAVE_EDIT_IN_VUE_TO_STORE = 'SAVE_EDIT_IN_VUE_TO_STORE';
+const UPDATE_BUFFER          = 'UPDATE_BUFFER';
+
+// const SYNC_DATA = 'SYNC_DATA';
 
 const TOAST_SHOW = 'TOAST_SHOW';
+
+
 
 // AJAX ACTION
 const AJAX_ADD_WEEKLY_SESSIONS    = 'AJAX_ADD_WEEKLY_SESSIONS';
 const AJAX_UPDATE_WEEKLY_SESSIONS = 'AJAX_UPDATE_WEEKLY_SESSIONS';
 const AJAX_DELETE_WEEKLY_SESSIONS = 'AJAX_DELETE_WEEKLY_SESSIONS';
 const AJAX_UPDATE_SESSIONS        = 'AJAX_UPDATE_SESSIONS';
+const AJAX_UPDATE_BUFFER          = 'AJAX_UPDATE_BUFFER';
+
 
 //AJAX MSG
 const AJAX_UNKNOWN_CASE                   = 'AJAX_UNKNOWN_CASE';
-const AJAX_UPDATE_WEEKLY_SESSIONS_SUCCESS = 'AJAX_UPDATE_WEEKLY_SESSIONS_SUCCESS';
-const AJAX_UPDATE_WEEKLY_SESSIONS_ERROR   = 'AJAX_UPDATE_WEEKLY_SESSIONS_ERROR';
+const AJAX_UPDATE_SESSIONS_SUCCESS   = 'AJAX_UPDATE_SESSIONS_SUCCESS';
+
+const AJAX_SUCCESS  = 'AJAX_SUCCESS';
+const AJAX_ERROR    = 'AJAX_ERROR';
 
 
 
@@ -85,10 +94,6 @@ class AdminSettings {
 						admin_step: self.adminStepReducer(state.admin_step, action)
 					});
 				case ADD_WEEKLY_SESSION:
-				case SYNC_WEEKLY_SESSIONS :
-					return Object.assign({}, state, {
-						weekly_sessions: self.weeklySessionsReducer(state.weekly_sessions, action)
-					});
 				case DELETE_TIMING:
 					return Object.assign({}, state, {
 						deleted_timings: self.deleteTimingReducer(state.deleted_timings, action)
@@ -123,10 +128,18 @@ class AdminSettings {
 				}
 				case UPDATE_SPECIAL_SESSIONS: {
 					return Object.assign({}, state, {
-						special_sessions : self.vue.weekly_sessions,
+						special_sessions : self.vue.special_sessions,
 						deleted_sessions : self.vue.deleted_sessions,
 						deleted_timings  : self.vue.deleted_timings
 					});
+				}
+				case UPDATE_BUFFER:
+					return Object.assign({}, state, {
+						buffer: self.bufferReducer(state.buffer, action)
+					});
+				case SYNC_DATA : {
+					let data = action.data;
+					return Object.assign({}, state, data);
 				}
 				default:
 					return state;
@@ -308,6 +321,12 @@ class AdminSettings {
 					store.dispatch({
 						type: UPDATE_SPECIAL_SESSIONS
 					});
+				},
+
+				_updateBuffer(){
+					store.dispatch({
+						type: UPDATE_BUFFER
+					});
 				}
 			}
 
@@ -384,7 +403,7 @@ class AdminSettings {
 
 				return weekly_sessions;
 			}
-			case SYNC_WEEKLY_SESSIONS: {
+			case SYNC_DATA: {
 				return action.weekly_sessions;
 			}
 			default:
@@ -522,14 +541,24 @@ class AdminSettings {
 			"modified_timestamp": "2017-03-06 21:39:33",
 			"one_off": 1,
 			"one_off_date": date_str,
-			"first_arrival_time": "05:00:00",
-			"last_arrival_time": "12:00:00",
 			"timings": [
 				this._dumpTiming()
 			]
 		};
 
 		return dump_special_session;
+	}
+
+
+	bufferReducer(state, action){
+		let self = this;
+		switch(action.type){
+			case UPDATE_BUFFER: {
+				return self.vue.buffer
+			}
+			default:
+				return state;
+		}
 	}
 
 	findView(){
@@ -640,11 +669,13 @@ class AdminSettings {
 			/**
 			 * Self build weekly_view from weekly_sessions
 			 */
-			let weekly_sessions_sync = (action == SYNC_WEEKLY_SESSIONS);
+			// let sync_data = (action == SYNC_DATA);
+			let sync_on_weekly = prestate.weekly_sessions != state.weekly_sessions;
 
 			let should_compute_weekly_view_for_vue =
 				   first_view
-				|| weekly_sessions_sync;
+				// || sync_data;
+				|| sync_on_weekly;
 
 			if(should_compute_weekly_view_for_vue){
 				let weekly_view = self.computeWeeklyView();
@@ -735,6 +766,15 @@ class AdminSettings {
 					deleted_sessions : state.deleted_sessions,
 					deleted_timings  : state.deleted_timings
 				};
+
+				self.ajax_call(action);
+			}
+
+			if(action == UPDATE_BUFFER){
+				let action = {
+					type : AJAX_UPDATE_BUFFER,
+					buffer : state.buffer
+				}
 
 				self.ajax_call(action);
 			}
@@ -832,12 +872,20 @@ class AdminSettings {
 		this.hack_ajax();
 
 		switch(action.type){
-			case AJAX_UPDATE_SESSIONS:
+			case AJAX_UPDATE_SESSIONS: {
 				let url  = self.url('sessions');
 				// let data = JSON.stringify(action);
 				let data = action;
 				$.ajax({url, data});
 				break;
+			}
+			case AJAX_UPDATE_BUFFER: {
+				let url  = self.url('outlet-reservation-settings');
+				// let data = JSON.stringify(action);
+				let data = action;
+				$.ajax({url, data});
+				break;
+			}
 			default:
 				console.log('client side. ajax call not recognize the current acttion', action);
 				break;
@@ -894,27 +942,27 @@ class AdminSettings {
 	ajax_call_success(res){
 		console.log(res);
 		switch(res.statusMsg){
-			case AJAX_UPDATE_WEEKLY_SESSIONS_SUCCESS: {
+			case AJAX_SUCCESS: {
 				let toast = {
-					title:'Update weekly sessions',
-					content: 'success'
+					title:'Update success',
+					content: '＼＿ヘ(ᐖ◞)､ '
 				}
 
 				store.dispatch({
 					type: TOAST_SHOW,
 					toast
 				});
-
+				
 				store.dispatch({
-					type: SYNC_WEEKLY_SESSIONS,
-					weekly_sessions: res.data
+					type: SYNC_DATA,
+					data: res.data
 				});
 
 				break;
 			}
-			case AJAX_UPDATE_WEEKLY_SESSIONS_ERROR: {
+			case AJAX_ERROR: {
 				let toast = {
-					title:'Update weekly sessions fail',
+					title:'Update fail',
 					content: res.data.substr(0, 50)
 				}
 
