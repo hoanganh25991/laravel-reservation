@@ -4,7 +4,7 @@ const CHANGE_ADMIN_STEP = 'CHANGE_ADMIN_STEP';
 
 const ADD_WEEKLY_SESSION     = 'ADD_WEEKLY_SESSION';
 const ADD_SPECIAL_SESSION    = 'ADD_SPECIAL_SESSION';
-const CHANGE_WEEKLY_SESSIONS = 'CHANGE_WEEKLY_SESSIONS';
+const UPDATE_WEEKLY_SESSIONS = 'UPDATE_WEEKLY_SESSIONS';
 const SYNC_WEEKLY_SESSIONS   = 'SYNC_WEEKLY_SESSIONS';
 const DELETE_TIMING          = 'DELETE_TIMING';
 const DELETE_SESSION         = 'DELETE_SESSION';
@@ -82,7 +82,6 @@ class AdminSettings {
 						admin_step: self.adminStepReducer(state.admin_step, action)
 					});
 				case ADD_WEEKLY_SESSION:
-				case CHANGE_WEEKLY_SESSIONS:
 				case SYNC_WEEKLY_SESSIONS :
 					return Object.assign({}, state, {
 						weekly_sessions: self.weeklySessionsReducer(state.weekly_sessions, action)
@@ -111,6 +110,13 @@ class AdminSettings {
 					modified[branch] = value;
 
 					return Object.assign({}, state, modified);
+				}
+				case UPDATE_WEEKLY_SESSIONS: {
+					return Object.assign({}, state, {
+						weekly_sessions  : self.vue.weekly_sessions,
+						deleted_sessions : self.vue.deleted_sessions,
+						deleted_timings  : self.vue.deleted_timings
+					});
 				}
 				default:
 					return state;
@@ -193,10 +199,7 @@ class AdminSettings {
 						let timing = session.timings[timing_index];
 						session.timings.splice(timing_index, 1);
 
-						store.dispatch({
-							type: DELETE_TIMING,
-							timing
-						});
+						this.deleted_timings.push(timing);
 					}catch(e){
 						return;
 					}
@@ -212,10 +215,7 @@ class AdminSettings {
 						let session = this.weekly_sessions[session_index];
 						this.weekly_sessions.splice(session_index, 1);
 
-						store.dispatch({
-							type: DELETE_SESSION,
-							session
-						});
+						this.deleted_sessions.push(session);
 					}catch(e){
 						return;
 					}
@@ -249,10 +249,7 @@ class AdminSettings {
 						let session = this.special_sessions[session_index];
 						this.special_sessions.splice(session_index, 1);
 
-						store.dispatch({
-							type: DELETE_SPECIAL_SESSION,
-							session
-						});
+						this.deleted_sessions.push(session);
 					}catch(e){
 						return;
 					}
@@ -268,12 +265,9 @@ class AdminSettings {
 						let session = this.special_sessions[session_index];
 
 						let timing = session.timings[timing_index];
-						session.timings.splice(timing_index, 1);
+						session = session.timings.splice(timing_index, 1);
 
-						store.dispatch({
-							type: DELETE_TIMING,
-							timing
-						});
+						this.deleted_timings.push(timing);
 					}catch(e){
 						return;
 					}
@@ -292,6 +286,12 @@ class AdminSettings {
 					}
 
 					return null;
+				},
+
+				_updateWeeklySessions(){
+					store.dispatch({
+						type: UPDATE_WEEKLY_SESSIONS
+					});
 				}
 			}
 
@@ -365,15 +365,6 @@ class AdminSettings {
 					...state,
 					new_session
 				];
-
-				return weekly_sessions;
-			}
-			case CHANGE_WEEKLY_SESSIONS: {
-				/**
-				 * Vue as watch div manager
-				 * Store what he see as new data for weekly_sessions
-				 */
-				let weekly_sessions = this.vue.weekly_sessions.map(session => session);
 
 				return weekly_sessions;
 			}
@@ -565,17 +556,17 @@ class AdminSettings {
 		// 		});
 		// 	});
 
-		this.save_session_btn
-			.addEventListener('click', function(){
-				store.dispatch({
-					type: CHANGE_WEEKLY_SESSIONS
-				});
-
-				store.dispatch({
-					type: CHANGE_ADMIN_STEP,
-					step: 'weekly_sessions_view'
-				});
-			});
+		// this.save_session_btn
+		// 	.addEventListener('click', function(){
+		// 		store.dispatch({
+		// 			type: UPDATE_WEEKLY_SESSIONS
+		// 		});
+		//
+		// 		store.dispatch({
+		// 			type: CHANGE_ADMIN_STEP,
+		// 			step: 'weekly_sessions_view'
+		// 		});
+		// 	});
 
 		/**
 		 * Move inside VUE
@@ -682,13 +673,12 @@ class AdminSettings {
 				});
 			}
 
-
 			/**
 			 * Update state for vue
 			 * @type {boolean}
 			 */
 			let is_reuse_vue_state =
-				action == CHANGE_WEEKLY_SESSIONS
+				action == UPDATE_WEEKLY_SESSIONS
 				|| action == ADD_WEEKLY_SESSION
 				|| action == ADD_SPECIAL_SESSION
 				|| action == DELETE_SESSION
@@ -711,12 +701,11 @@ class AdminSettings {
 			let state    = store.getState();
 			let prestate = store.getPrestate();
 
-			let is_change_weekly_sessions = (action == CHANGE_WEEKLY_SESSIONS);
+			let is_change_weekly_sessions = (action == UPDATE_WEEKLY_SESSIONS);
 			if(is_change_weekly_sessions){
 				let action = {
 					type             : AJAX_UPDATE_WEEKLY_SESSIONS,
 					weekly_sessions  : state.weekly_sessions,
-					special_sessions : state.special_sessions,
 					deleted_sessions : state.deleted_sessions,
 					deleted_timings  : state.deleted_timings
 				};

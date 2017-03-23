@@ -23,7 +23,7 @@ class SessionController extends HoiController{
 
                 $deleted_sessions = $data['deleted_sessions'];
                 
-                
+                $deleted_timings  = $data['deleted_timings'];
 
                 try{
                     /**
@@ -72,6 +72,16 @@ class SessionController extends HoiController{
                             $timing->delete();
                         }
 
+                    }
+
+                    foreach($deleted_timings as $timing_data){
+                        $timing = Timing::find($timing_data['id']);
+
+                        if(is_null($timing)){
+                            continue;
+                        }
+
+                        $timing->delete();
                     }
 
 

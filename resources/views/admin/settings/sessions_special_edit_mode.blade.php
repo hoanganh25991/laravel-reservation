@@ -61,7 +61,7 @@
                             </thead>
                             <tbody>
                             @endverbatim
-                            @include('admin.settings.timing_edit_mode')
+                            @include('admin.settings.timing_edit_mode',  ['btn_action' => '_deleteTimingInSpecialSession'])
                             <tr>
                                 <td colspan="13" style="background-color: white">
                                     <button class="btn bg-info pull-right"

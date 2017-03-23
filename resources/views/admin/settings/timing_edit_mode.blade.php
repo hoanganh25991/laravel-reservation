@@ -81,9 +81,14 @@
             </label>
         </td>
         <td>
+            @endverbatim
+            @php
+                $btn_action = isset($btn_action) ? $btn_action : '_deleteTiming';
+            @endphp
             <button class=""
-                    v-on:click="_deleteTimingInSpecialSession"
+                    v-on:click="{{ $btn_action }}"
             >
+                @verbatim
                 <i class="fa fa-trash"
                    :timing-index="timing_index"
                    :session-index="session_index"

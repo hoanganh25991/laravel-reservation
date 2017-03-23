@@ -12,7 +12,7 @@ var CHANGE_ADMIN_STEP = 'CHANGE_ADMIN_STEP';
 
 var ADD_WEEKLY_SESSION = 'ADD_WEEKLY_SESSION';
 var ADD_SPECIAL_SESSION = 'ADD_SPECIAL_SESSION';
-var CHANGE_WEEKLY_SESSIONS = 'CHANGE_WEEKLY_SESSIONS';
+var UPDATE_WEEKLY_SESSIONS = 'UPDATE_WEEKLY_SESSIONS';
 var SYNC_WEEKLY_SESSIONS = 'SYNC_WEEKLY_SESSIONS';
 var DELETE_TIMING = 'DELETE_TIMING';
 var DELETE_SESSION = 'DELETE_SESSION';
@@ -97,7 +97,6 @@ var AdminSettings = function () {
 							admin_step: self.adminStepReducer(state.admin_step, action)
 						});
 					case ADD_WEEKLY_SESSION:
-					case CHANGE_WEEKLY_SESSIONS:
 					case SYNC_WEEKLY_SESSIONS:
 						return Object.assign({}, state, {
 							weekly_sessions: self.weeklySessionsReducer(state.weekly_sessions, action)
@@ -127,6 +126,14 @@ var AdminSettings = function () {
 							modified[branch] = value;
 
 							return Object.assign({}, state, modified);
+						}
+					case UPDATE_WEEKLY_SESSIONS:
+						{
+							return Object.assign({}, state, {
+								weekly_sessions: self.vue.weekly_sessions,
+								deleted_sessions: self.vue.deleted_sessions,
+								deleted_timings: self.vue.deleted_timings
+							});
 						}
 					default:
 						return state;
@@ -208,10 +215,7 @@ var AdminSettings = function () {
 							var timing = session.timings[timing_index];
 							session.timings.splice(timing_index, 1);
 
-							store.dispatch({
-								type: DELETE_TIMING,
-								timing: timing
-							});
+							this.deleted_timings.push(timing);
 						} catch (e) {
 							return;
 						}
@@ -226,10 +230,7 @@ var AdminSettings = function () {
 							var session = this.weekly_sessions[session_index];
 							this.weekly_sessions.splice(session_index, 1);
 
-							store.dispatch({
-								type: DELETE_SESSION,
-								session: session
-							});
+							this.deleted_sessions.push(session);
 						} catch (e) {
 							return;
 						}
@@ -258,10 +259,7 @@ var AdminSettings = function () {
 							var session = this.special_sessions[session_index];
 							this.special_sessions.splice(session_index, 1);
 
-							store.dispatch({
-								type: DELETE_SPECIAL_SESSION,
-								session: session
-							});
+							this.deleted_sessions.push(session);
 						} catch (e) {
 							return;
 						}
@@ -276,12 +274,9 @@ var AdminSettings = function () {
 							var session = this.special_sessions[session_index];
 
 							var timing = session.timings[timing_index];
-							session.timings.splice(timing_index, 1);
+							session = session.timings.splice(timing_index, 1);
 
-							store.dispatch({
-								type: DELETE_TIMING,
-								timing: timing
-							});
+							this.deleted_timings.push(timing);
 						} catch (e) {
 							return;
 						}
@@ -299,6 +294,11 @@ var AdminSettings = function () {
 						}
 
 						return null;
+					},
+					_updateWeeklySessions: function _updateWeeklySessions() {
+						store.dispatch({
+							type: UPDATE_WEEKLY_SESSIONS
+						});
 					}
 				}
 
@@ -378,18 +378,6 @@ var AdminSettings = function () {
 						var weekly_sessions = [].concat(_toConsumableArray(state), [new_session]);
 
 						return weekly_sessions;
-					}
-				case CHANGE_WEEKLY_SESSIONS:
-					{
-						/**
-       * Vue as watch div manager
-       * Store what he see as new data for weekly_sessions
-       */
-						var _weekly_sessions = this.vue.weekly_sessions.map(function (session) {
-							return session;
-						});
-
-						return _weekly_sessions;
 					}
 				case SYNC_WEEKLY_SESSIONS:
 					{
@@ -576,16 +564,17 @@ var AdminSettings = function () {
 			// 		});
 			// 	});
 
-			this.save_session_btn.addEventListener('click', function () {
-				store.dispatch({
-					type: CHANGE_WEEKLY_SESSIONS
-				});
-
-				store.dispatch({
-					type: CHANGE_ADMIN_STEP,
-					step: 'weekly_sessions_view'
-				});
-			});
+			// this.save_session_btn
+			// 	.addEventListener('click', function(){
+			// 		store.dispatch({
+			// 			type: UPDATE_WEEKLY_SESSIONS
+			// 		});
+			//
+			// 		store.dispatch({
+			// 			type: CHANGE_ADMIN_STEP,
+			// 			step: 'weekly_sessions_view'
+			// 		});
+			// 	});
 
 			/**
     * Move inside VUE
@@ -681,7 +670,7 @@ var AdminSettings = function () {
      * Update state for vue
      * @type {boolean}
      */
-				var is_reuse_vue_state = action == CHANGE_WEEKLY_SESSIONS || action == ADD_WEEKLY_SESSION || action == ADD_SPECIAL_SESSION || action == DELETE_SESSION || action == DELETE_SPECIAL_SESSION || action == DELETE_TIMING;
+				var is_reuse_vue_state = action == UPDATE_WEEKLY_SESSIONS || action == ADD_WEEKLY_SESSION || action == ADD_SPECIAL_SESSION || action == DELETE_SESSION || action == DELETE_SPECIAL_SESSION || action == DELETE_TIMING;
 
 				if (!is_reuse_vue_state) {
 					var _vue_state = self.getVueState();
@@ -700,12 +689,11 @@ var AdminSettings = function () {
 				var state = store.getState();
 				var prestate = store.getPrestate();
 
-				var is_change_weekly_sessions = action == CHANGE_WEEKLY_SESSIONS;
+				var is_change_weekly_sessions = action == UPDATE_WEEKLY_SESSIONS;
 				if (is_change_weekly_sessions) {
 					var _action = {
 						type: AJAX_UPDATE_WEEKLY_SESSIONS,
 						weekly_sessions: state.weekly_sessions,
-						special_sessions: state.special_sessions,
 						deleted_sessions: state.deleted_sessions,
 						deleted_timings: state.deleted_timings
 					};

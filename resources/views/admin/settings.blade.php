@@ -47,7 +47,8 @@
                             @include('admin.settings.sessions_edit_mode')
                         </div>
                         <div class="modal-footer" style="border-top: 1px solid #e5e5e5;">
-                            <button id="save_session_btn" class="btn bg-info">Save</button>
+                            <button v-on:click="_updateWeeklySessions"
+                                    class="btn bg-info">Save</button>
                         </div>
                     </div>
                     <div id="special_sessions_view" class="modal-content admin-step">
