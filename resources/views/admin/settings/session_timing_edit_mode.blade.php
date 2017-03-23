@@ -84,10 +84,10 @@
             <td>
                 <input type="checkbox"
                        :checked="(session.on_satdays == 1) ? 'checked' : false"
-                       :id="'session_' + session.id + 'on_satdays'"
-                       v-model="session['on_satdays']"/>
+                       :id="'session_' + session.id + 'on_saturdays'"
+                       v-model="session['on_saturdays']"/>
                 <label style="width: 12px"
-                       :for="'session_' + session.id + 'on_satdays'">
+                       :for="'session_' + session.id + 'on_saturdays'">
                 </label>
             </td>
             <td>

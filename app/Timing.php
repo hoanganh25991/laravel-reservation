@@ -89,7 +89,7 @@ class Timing extends HoiModel {
         static::orderByFirstArrival();
 
         static::creating(function(Timing $timing){
-            
+
         });
     }
     
@@ -214,13 +214,20 @@ class Timing extends HoiModel {
 
     public function setChildrenAllowedAttribute($val){
         switch($val){
+            case true:
             case "true":
-                return Timing::CHILDREN_ALLOWED;
+                $sanity_val = Timing::CHILDREN_ALLOWED;
+                break;
+            case false:
             case "false":
-                return Timing::CHILDREN_NOT_ALLOWED;
+                $sanity_val = Timing::CHILDREN_NOT_ALLOWED;
+                break;
             default:
-                return Timing::CHILDREN_ALLOWED;
+                $sanity_val = Timing::CHILDREN_ALLOWED;
+                break;
         }
+        
+        $this->attributes['children_allowed'] = $sanity_val;
     }
 
     /**
@@ -248,15 +255,19 @@ class Timing extends HoiModel {
      */
     public function setDisabledAttribute($value){
         switch($value){
+            case true:
             case "true":
-                return Timing::DISABLED;
+                $sanity_val = Timing::AVAILABLE;
+                break;
+            case false:
             case "false":
-                return Timing::AVAILABLE;
+                $sanity_val = Timing::DISABLED;
+                break;
             default:
-                return Timing::AVAILABLE;
+                $sanity_val = Timing::AVAILABLE;
+                break;
         }
+        
+        $this->attributes['disabled'] = $sanity_val;
     }
-    
-    
-
 }

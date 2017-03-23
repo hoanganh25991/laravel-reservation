@@ -585,7 +585,18 @@ class AdminSettings {
 				return carry;
 			}, {});
 
-		return weekly_view;
+		let weekly_view_in_order = Object.assign({
+			'Monday'   : null,
+			'Tuesday'  : null,
+			'Wednesday': null,
+			'Thursday' : null,
+			'Friday'   : null,
+			'Saturday' : null,
+			'Sunday'   : null,
+		}, weekly_view);
+
+		// return weekly_view;
+		return weekly_view_in_order;
 	}
 
 	ajax_call(action){

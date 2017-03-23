@@ -82,13 +82,13 @@ class HoiModel extends Model {
         /**
          * Sanity through mutator
          */
-        $mutators = $model->getMutatedAttributes();
-
-        foreach($mutators as $mutator){
-            if(isset($model_data[$mutator])){
-                $model_data[$mutator] = $model->setAttribute($mutator, $model_data[$mutator]);
-            }
-        }
+//        $mutators = $model->getMutatedAttributes();
+//
+//        foreach($mutators as $mutator){
+//            if(isset($model_data[$mutator])){
+//                $model_data[$mutator] = $model->setAttribute($mutator, $model_data[$mutator]);
+//            }
+//        }
 
         /**
          * Sanity by limit column access

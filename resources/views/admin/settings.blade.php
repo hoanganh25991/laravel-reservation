@@ -11,7 +11,7 @@
         <!-- Static navbar -->
         @include('admin.navigator')
          <!-- Main component for a primary marketing message or call to action -->
-        <div style="position: relative; height: calc(100vh - 100px); overflow-y: scroll; overflow-x: hidden;">
+        <div >
             <div id="settings_content" class="row">
                 <div id="reservations_content" class="col-md-2">
                     <div class="navbar navbar-default">
@@ -26,7 +26,7 @@
                         </ul>
                     </div>
                 </div>
-                <div class="col-md-10" id="admin-step-container">
+                <div class="col-md-10" id="admin-step-container" style="position: relative; height: calc(100vh - 100px); overflow-y: scroll; overflow-x: hidden;">
                     <div id="weekly_sessions_view" class="modal-content admin-step">
                         <div class="modal-header">
                             <span class="h1">Weekly Sessions View</span>
