@@ -68,4 +68,36 @@ class HoiModel extends Model {
             $buidler->where('brand_id', $brand_id);
         });
     }
+
+
+    /**
+     * Rebuild model from array data (decode on JSON)
+     * Need sanity data before run mutiple update
+     * Which faster than parse into model & save
+     * @param $timing_arr
+     * @return mixed
+     */
+    public function sanityData($timing_arr){
+        /**
+         * Sanity through mutator
+         */
+        $mutators = $this->getMutatedAttributes();
+
+        foreach($mutators as $mutator){
+            if(isset($timing_arr[$mutator])){
+                $timing_arr[$mutator] = $this->setAttribute($mutator, $timing_arr[$mutator]);
+            }
+        }
+
+        /**
+         * Sanity by limit column access
+         */
+        foreach($this->getArrayableAppends() as $append){
+            if(isset($timing_arr[$append])){
+                unset($timing_arr[$append]);
+            }
+        }
+
+        return $timing_arr;
+    }
 }

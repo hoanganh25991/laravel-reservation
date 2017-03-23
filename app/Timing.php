@@ -62,6 +62,7 @@ class Timing extends HoiModel {
      * Children Allowed
      */
     const CHILDREN_ALLOWED = 1;
+    const CHILDREN_NOT_ALLOWED = 0;
 
     /**
      * Timing disabled
@@ -79,6 +80,8 @@ class Timing extends HoiModel {
     
 
     protected $table = 'timing';
+    
+    protected $guarded = ['id'];
 
     protected static function boot(){
         parent::boot();
@@ -212,6 +215,17 @@ class Timing extends HoiModel {
         return $val == Timing::CHILDREN_ALLOWED;
     }
 
+    public function setChildrenAllowedAttribute($val){
+        switch($val){
+            case "true":
+                return Timing::CHILDREN_ALLOWED;
+            case "false":
+                return Timing::CHILDREN_NOT_ALLOWED;
+            default:
+                return Timing::CHILDREN_ALLOWED;
+        }
+    }
+
     /**
      * Set/get on disabled attribute
      * Make sense when call as boolean
@@ -228,15 +242,24 @@ class Timing extends HoiModel {
         return $value == Timing::AVAILABLE;
     }
 
+    /**
+     * Convert boolean type in JSON
+     * Client send Timing through JSON
+     * When josn_decode, boolean as "true" | "false"
+     * @param $value
+     * @return int
+     */
     public function setDisabledAttribute($value){
         switch($value){
-            case true:
+            case "true":
                 return Timing::DISABLED;
-            case false:
+            case "false":
                 return Timing::AVAILABLE;
             default:
                 return Timing::AVAILABLE;
         }
     }
+    
+    
 
 }
