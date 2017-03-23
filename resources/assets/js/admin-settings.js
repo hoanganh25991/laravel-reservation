@@ -8,6 +8,9 @@ const CHANGE_WEEKLY_SESSIONS = 'CHANGE_WEEKLY_SESSIONS';
 const SYNC_WEEKLY_SESSIONS   = 'SYNC_WEEKLY_SESSIONS';
 const DELETE_TIMING          = 'DELETE_TIMING';
 const DELETE_SESSION         = 'DELETE_SESSION';
+const DELETE_SPECIAL_SESSION = 'DELETE_SPECIAL_SESSION';
+
+const SAVE_EDIT_IN_VUE_TO_STORE = 'SAVE_EDIT_IN_VUE_TO_STORE';
 
 const TOAST_SHOW = 'TOAST_SHOW';
 
@@ -97,9 +100,18 @@ class AdminSettings {
 						toast: self.toastReducer(state.toast, action)
 					});
                 case ADD_SPECIAL_SESSION:
+				case DELETE_SPECIAL_SESSION:
 					return Object.assign({}, state, {
 						special_sessions: self.specialSessionsReducer(state.special_sessions, action)
 					});
+				case SAVE_EDIT_IN_VUE_TO_STORE: {
+					let branch = action.branch;
+					let modified = {};
+					let value    = self.vue[branch];
+					modified[branch] = value;
+
+					return Object.assign({}, state, modified);
+				}
 				default:
 					return state;
 			}
@@ -151,6 +163,14 @@ class AdminSettings {
 				self.listener();
 			},
 			methods: {
+				_addWeeklySession(){
+					let new_session = self._dumpWeeklySession();
+					let current = this.weekly_sessions;
+					this.weekly_sessions = [
+						...current,
+						new_session
+					];
+				},
 				_addTimingToSession(e){
 					console.log('see add timing');
 
@@ -200,17 +220,63 @@ class AdminSettings {
 						return;
 					}
 				},
+				_addSpecialSession(){
+					let new_special_session = self._dumpSpecialSession();
+					let current = this.special_sessions;
+					this.special_sessions = [
+						...current,
+						new_special_session
+					];
+				},
 
 				_addTimingToSpecialSession(e){
+					console.log('see add timing');
 
+					let btn           = e.target;
+					let session_index = btn.getAttribute('session-index');
+					let session       = this.special_sessions[session_index];
+
+					session.timings.push(self._dumpTiming());
 				},
 
 				_deleteSpecialSession(e){
+					// console.log(e.target);
+					console.log('see delete session');
+					try{
+						let i = this._findIElement(e);
+						let session_index = i.getAttribute('session-index');
 
+						let session = this.special_sessions[session_index];
+						this.special_sessions.splice(session_index, 1);
+
+						store.dispatch({
+							type: DELETE_SPECIAL_SESSION,
+							session
+						});
+					}catch(e){
+						return;
+					}
 				},
 
 				_deleteTimingInSpecialSession(e){
+					// console.log(e.target);
+					console.log('see delete timing');
+					try{
+						let i = this._findIElement(e);
+						let session_index = i.getAttribute('session-index');
+						let timing_index  = i.getAttribute('timing-index');
+						let session = this.special_sessions[session_index];
 
+						let timing = session.timings[timing_index];
+						session.timings.splice(timing_index, 1);
+
+						store.dispatch({
+							type: DELETE_TIMING,
+							timing
+						});
+					}catch(e){
+						return;
+					}
 				},
 
 				_findIElement(e){
@@ -413,12 +479,19 @@ class AdminSettings {
 
 	specialSessionsReducer(state, action){
 		switch(action.type){
-			case ADD_SPECIAL_SESSION:
+			case ADD_SPECIAL_SESSION: {
 				let new_special_session = this._dumpSpecialSession();
 				return [
 					...state,
 					new_special_session
 				];
+			}
+			case DELETE_SPECIAL_SESSION: {
+				return [
+					...state,
+					action.session
+				];
+			}
 			default:
 				return state;
 		}
@@ -482,12 +555,15 @@ class AdminSettings {
 				});
 			});
 
-		this.add_session_btn
-			.addEventListener('click', function(){
-				store.dispatch({
-					type: ADD_WEEKLY_SESSION
-				});
-			});
+		/**
+		 * Move inside VUE
+		 */
+		// this.add_session_btn
+		// 	.addEventListener('click', function(){
+		// 		store.dispatch({
+		// 			type: ADD_WEEKLY_SESSION
+		// 		});
+		// 	});
 
 		this.save_session_btn
 			.addEventListener('click', function(){
@@ -501,12 +577,15 @@ class AdminSettings {
 				});
 			});
 
-		this.add_special_session_btn
-			.addEventListener('click', function(){
-				store.dispatch({
-					type: ADD_SPECIAL_SESSION
-				});
-			});
+		/**
+		 * Move inside VUE
+		 */
+		// this.add_special_session_btn
+		// 	.addEventListener('click', function(){
+		// 		store.dispatch({
+		// 			type: ADD_SPECIAL_SESSION
+		// 		});
+		// 	});
 	}
 
 	view(){
@@ -524,26 +603,29 @@ class AdminSettings {
 		}
 
 		store.subscribe(()=>{
-			let action   = store.getLastAction();
-			let state    = store.getState();
+			let action = store.getLastAction();
+			let state = store.getState();
 			let prestate = store.getPrestate();
 
 			/**
-			 * Update state for vue
-			 * @type {boolean}
+			 * Debug
 			 */
-			let is_reuse_vue_state = (action == CHANGE_WEEKLY_SESSIONS);
-			if(!is_reuse_vue_state){
-				let vue_state = self.getVueState();
-				Object.assign(vue_state, state);
-			}
-			//debug
 			pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));
 
+
+
+
+			/**
+			 * Change admin step
+			 * @type {boolean}
+			 */
 			let first_view  = prestate.init_view == false && state.init_view == true;
 			let change_step = prestate.admin_step != state.admin_step;
 
-			let run_admin_step = first_view || change_step;
+			let run_admin_step =
+				   first_view
+				|| change_step;
+
 			if(run_admin_step){
 				self.pointToAdminStep();
 			}
@@ -553,15 +635,69 @@ class AdminSettings {
 			 */
 			let weekly_sessions_sync = (action == SYNC_WEEKLY_SESSIONS);
 
-			let should_compute_weekly_view_for_vue = first_view || weekly_sessions_sync;
+			let should_compute_weekly_view_for_vue =
+				   first_view
+				|| weekly_sessions_sync;
+
 			if(should_compute_weekly_view_for_vue){
 				let weekly_view = self.computeWeeklyView();
 				Object.assign(vue_state, {weekly_view});
 			}
 
+			/**
+			 * Show toast
+			 * @type {boolean}
+			 */
 			let show_toast = prestate.toast != state.toast;
+
 			if(show_toast){
 				window.Toast.show();
+			}
+
+			/**
+			 * Jump out of edit mode, save dynamic data in vue BACK TO store
+			 * When user mutate data of session}timing
+			 * Dispatch too much on store >>> CPU halt
+			 *
+			 * Change in vuew_instance should save to store
+			 * Event before use hit SAVE
+			 */
+			let change_admin_step  = prestate.admin_step != state.admin_step;
+			let jump_out_edit_mode =
+				change_admin_step
+				&& (
+						prestate.admin_step == 'weekly_sessions'
+					|| prestate.admin_step == 'special_sessions'
+					|| prestate.admin_step == 'buffer'
+					|| prestate.admin_step == 'notification'
+					|| prestate.admin_step == 'settings'
+				);
+
+
+			if(jump_out_edit_mode){
+				let branch = prestate.admin_step;
+				store.dispatch({
+					type: SAVE_EDIT_IN_VUE_TO_STORE,
+					branch: branch
+				});
+			}
+
+
+			/**
+			 * Update state for vue
+			 * @type {boolean}
+			 */
+			let is_reuse_vue_state =
+				action == CHANGE_WEEKLY_SESSIONS
+				|| action == ADD_WEEKLY_SESSION
+				|| action == ADD_SPECIAL_SESSION
+				|| action == DELETE_SESSION
+				|| action == DELETE_SPECIAL_SESSION
+				|| action == DELETE_TIMING;
+
+			if(!is_reuse_vue_state){
+				let vue_state = self.getVueState();
+				Object.assign(vue_state, state);
 			}
 		});
 	}
@@ -578,9 +714,11 @@ class AdminSettings {
 			let is_change_weekly_sessions = (action == CHANGE_WEEKLY_SESSIONS);
 			if(is_change_weekly_sessions){
 				let action = {
-					type: AJAX_UPDATE_WEEKLY_SESSIONS,
-					weekly_sessions: state.weekly_sessions,
-					deleted_sessions: state.deleted_sessions
+					type             : AJAX_UPDATE_WEEKLY_SESSIONS,
+					weekly_sessions  : state.weekly_sessions,
+					special_sessions : state.special_sessions,
+					deleted_sessions : state.deleted_sessions,
+					deleted_timings  : state.deleted_timings
 				};
 
 				self.ajax_call(action);

@@ -16,6 +16,9 @@ var CHANGE_WEEKLY_SESSIONS = 'CHANGE_WEEKLY_SESSIONS';
 var SYNC_WEEKLY_SESSIONS = 'SYNC_WEEKLY_SESSIONS';
 var DELETE_TIMING = 'DELETE_TIMING';
 var DELETE_SESSION = 'DELETE_SESSION';
+var DELETE_SPECIAL_SESSION = 'DELETE_SPECIAL_SESSION';
+
+var SAVE_EDIT_IN_VUE_TO_STORE = 'SAVE_EDIT_IN_VUE_TO_STORE';
 
 var TOAST_SHOW = 'TOAST_SHOW';
 
@@ -112,9 +115,19 @@ var AdminSettings = function () {
 							toast: self.toastReducer(state.toast, action)
 						});
 					case ADD_SPECIAL_SESSION:
+					case DELETE_SPECIAL_SESSION:
 						return Object.assign({}, state, {
 							special_sessions: self.specialSessionsReducer(state.special_sessions, action)
 						});
+					case SAVE_EDIT_IN_VUE_TO_STORE:
+						{
+							var branch = action.branch;
+							var modified = {};
+							var value = self.vue[branch];
+							modified[branch] = value;
+
+							return Object.assign({}, state, modified);
+						}
 					default:
 						return state;
 				}
@@ -169,6 +182,11 @@ var AdminSettings = function () {
 				},
 
 				methods: {
+					_addWeeklySession: function _addWeeklySession() {
+						var new_session = self._dumpWeeklySession();
+						var current = this.weekly_sessions;
+						this.weekly_sessions = [].concat(_toConsumableArray(current), [new_session]);
+					},
 					_addTimingToSession: function _addTimingToSession(e) {
 						console.log('see add timing');
 
@@ -216,9 +234,58 @@ var AdminSettings = function () {
 							return;
 						}
 					},
-					_addTimingToSpecialSession: function _addTimingToSpecialSession(e) {},
-					_deleteSpecialSession: function _deleteSpecialSession(e) {},
-					_deleteTimingInSpecialSession: function _deleteTimingInSpecialSession(e) {},
+					_addSpecialSession: function _addSpecialSession() {
+						var new_special_session = self._dumpSpecialSession();
+						var current = this.special_sessions;
+						this.special_sessions = [].concat(_toConsumableArray(current), [new_special_session]);
+					},
+					_addTimingToSpecialSession: function _addTimingToSpecialSession(e) {
+						console.log('see add timing');
+
+						var btn = e.target;
+						var session_index = btn.getAttribute('session-index');
+						var session = this.special_sessions[session_index];
+
+						session.timings.push(self._dumpTiming());
+					},
+					_deleteSpecialSession: function _deleteSpecialSession(e) {
+						// console.log(e.target);
+						console.log('see delete session');
+						try {
+							var i = this._findIElement(e);
+							var session_index = i.getAttribute('session-index');
+
+							var session = this.special_sessions[session_index];
+							this.special_sessions.splice(session_index, 1);
+
+							store.dispatch({
+								type: DELETE_SPECIAL_SESSION,
+								session: session
+							});
+						} catch (e) {
+							return;
+						}
+					},
+					_deleteTimingInSpecialSession: function _deleteTimingInSpecialSession(e) {
+						// console.log(e.target);
+						console.log('see delete timing');
+						try {
+							var i = this._findIElement(e);
+							var session_index = i.getAttribute('session-index');
+							var timing_index = i.getAttribute('timing-index');
+							var session = this.special_sessions[session_index];
+
+							var timing = session.timings[timing_index];
+							session.timings.splice(timing_index, 1);
+
+							store.dispatch({
+								type: DELETE_TIMING,
+								timing: timing
+							});
+						} catch (e) {
+							return;
+						}
+					},
 					_findIElement: function _findIElement(e) {
 						var i = e.target;
 
@@ -429,8 +496,14 @@ var AdminSettings = function () {
 		value: function specialSessionsReducer(state, action) {
 			switch (action.type) {
 				case ADD_SPECIAL_SESSION:
-					var new_special_session = this._dumpSpecialSession();
-					return [].concat(_toConsumableArray(state), [new_special_session]);
+					{
+						var new_special_session = this._dumpSpecialSession();
+						return [].concat(_toConsumableArray(state), [new_special_session]);
+					}
+				case DELETE_SPECIAL_SESSION:
+					{
+						return [].concat(_toConsumableArray(state), [action.session]);
+					}
 				default:
 					return state;
 			}
@@ -493,11 +566,15 @@ var AdminSettings = function () {
 				});
 			});
 
-			this.add_session_btn.addEventListener('click', function () {
-				store.dispatch({
-					type: ADD_WEEKLY_SESSION
-				});
-			});
+			/**
+    * Move inside VUE
+    */
+			// this.add_session_btn
+			// 	.addEventListener('click', function(){
+			// 		store.dispatch({
+			// 			type: ADD_WEEKLY_SESSION
+			// 		});
+			// 	});
 
 			this.save_session_btn.addEventListener('click', function () {
 				store.dispatch({
@@ -510,11 +587,15 @@ var AdminSettings = function () {
 				});
 			});
 
-			this.add_special_session_btn.addEventListener('click', function () {
-				store.dispatch({
-					type: ADD_SPECIAL_SESSION
-				});
-			});
+			/**
+    * Move inside VUE
+    */
+			// this.add_special_session_btn
+			// 	.addEventListener('click', function(){
+			// 		store.dispatch({
+			// 			type: ADD_SPECIAL_SESSION
+			// 		});
+			// 	});
 		}
 	}, {
 		key: 'view',
@@ -538,21 +619,19 @@ var AdminSettings = function () {
 				var prestate = store.getPrestate();
 
 				/**
-     * Update state for vue
-     * @type {boolean}
+     * Debug
      */
-				var is_reuse_vue_state = action == CHANGE_WEEKLY_SESSIONS;
-				if (!is_reuse_vue_state) {
-					var _vue_state = self.getVueState();
-					Object.assign(_vue_state, state);
-				}
-				//debug
 				pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));
 
+				/**
+     * Change admin step
+     * @type {boolean}
+     */
 				var first_view = prestate.init_view == false && state.init_view == true;
 				var change_step = prestate.admin_step != state.admin_step;
 
 				var run_admin_step = first_view || change_step;
+
 				if (run_admin_step) {
 					self.pointToAdminStep();
 				}
@@ -563,14 +642,50 @@ var AdminSettings = function () {
 				var weekly_sessions_sync = action == SYNC_WEEKLY_SESSIONS;
 
 				var should_compute_weekly_view_for_vue = first_view || weekly_sessions_sync;
+
 				if (should_compute_weekly_view_for_vue) {
 					var weekly_view = self.computeWeeklyView();
 					Object.assign(vue_state, { weekly_view: weekly_view });
 				}
 
+				/**
+     * Show toast
+     * @type {boolean}
+     */
 				var show_toast = prestate.toast != state.toast;
+
 				if (show_toast) {
 					window.Toast.show();
+				}
+
+				/**
+     * Jump out of edit mode, save dynamic data in vue BACK TO store
+     * When user mutate data of session}timing
+     * Dispatch too much on store >>> CPU halt
+     *
+     * Change in vuew_instance should save to store
+     * Event before use hit SAVE
+     */
+				var change_admin_step = prestate.admin_step != state.admin_step;
+				var jump_out_edit_mode = change_admin_step && (prestate.admin_step == 'weekly_sessions' || prestate.admin_step == 'special_sessions' || prestate.admin_step == 'buffer' || prestate.admin_step == 'notification' || prestate.admin_step == 'settings');
+
+				if (jump_out_edit_mode) {
+					var branch = prestate.admin_step;
+					store.dispatch({
+						type: SAVE_EDIT_IN_VUE_TO_STORE,
+						branch: branch
+					});
+				}
+
+				/**
+     * Update state for vue
+     * @type {boolean}
+     */
+				var is_reuse_vue_state = action == CHANGE_WEEKLY_SESSIONS || action == ADD_WEEKLY_SESSION || action == ADD_SPECIAL_SESSION || action == DELETE_SESSION || action == DELETE_SPECIAL_SESSION || action == DELETE_TIMING;
+
+				if (!is_reuse_vue_state) {
+					var _vue_state = self.getVueState();
+					Object.assign(_vue_state, state);
 				}
 			});
 		}
@@ -590,7 +705,9 @@ var AdminSettings = function () {
 					var _action = {
 						type: AJAX_UPDATE_WEEKLY_SESSIONS,
 						weekly_sessions: state.weekly_sessions,
-						deleted_sessions: state.deleted_sessions
+						special_sessions: state.special_sessions,
+						deleted_sessions: state.deleted_sessions,
+						deleted_timings: state.deleted_timings
 					};
 
 					self.ajax_call(_action);

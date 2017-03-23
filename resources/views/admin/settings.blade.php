@@ -39,7 +39,9 @@
                     <div id="weekly_sessions" class="modal-content admin-step">
                         <div class="modal-header">
                             <span class="h1">Weekly Sessions</span>
-                            <button id="add_session_btn" class="btn bg-info pull-right" style="border-radius: 20px">Add Session</button>
+                            <button v-on:click="_addWeeklySession"
+                                    class="btn bg-info pull-right"
+                                    style="border-radius: 20px">Add Session</button>
                         </div>
                         <div class="modal-body">
                             @include('admin.settings.sessions_edit_mode')
@@ -60,7 +62,8 @@
                     <div id="special_sessions" class="modal-content admin-step">
                         <div class="modal-header">
                             <span class="h1">Special Sessions</span>
-                            <button id="add_special_session_btn" class="btn bg-info pull-right" style="border-radius: 20px">Add Session</button>
+                            <button v-on:click="_addSpecialSession"
+                                    class="btn bg-info pull-right" style="border-radius: 20px">Add Session</button>
                         </div>
                         <div class="modal-body">
                             @include('admin.settings.sessions_special_edit_mode')
