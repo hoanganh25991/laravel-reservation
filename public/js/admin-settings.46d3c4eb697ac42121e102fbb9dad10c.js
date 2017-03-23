@@ -109,7 +109,7 @@ var AdminSettings = function () {
 			var default_state = window.state || {};
 			var frontend_state = {
 				init_view: false,
-				admin_step: '#weekly_sessions'
+				admin_step: 'weekly_sessions'
 			};
 
 			return Object.assign(frontend_state, default_state);
@@ -359,6 +359,11 @@ var AdminSettings = function () {
 				store.dispatch({
 					type: CHANGE_WEEKLY_SESSIONS
 				});
+
+				store.dispatch({
+					type: CHANGE_ADMIN_STEP,
+					step: 'weekly_sessions_view'
+				});
 			});
 		}
 	}, {
@@ -422,7 +427,7 @@ var AdminSettings = function () {
 			this.admin_step.forEach(function (step) {
 				var admin_step = step.getAttribute('id');
 				var transform = 'scale(0,0)';
-				if ('#' + admin_step == state.admin_step) {
+				if (admin_step == state.admin_step) {
 					transform = 'scale(1,1)';
 				}
 				step.style.transform = transform;

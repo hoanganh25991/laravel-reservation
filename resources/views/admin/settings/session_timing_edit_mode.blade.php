@@ -2,23 +2,23 @@
     $session_group = isset($session_group) ? $session_group : 'weekly_sessions';
     $v_for = "(session, session_index) in $session_group";
 @endphp
-
-<table class="table table-striped">
-    <thead>
-    <tr>
-        <th>Session Name</th>
-        <th>Mondays</th>
-        <th>Tuesdays</th>
-        <th>Wednesdays</th>
-        <th>Thursdays</th>
-        <th>Fridays</th>
-        <th>Saturdays</th>
-        <th>Sundays</th>
-    </tr>
-    </thead>
-    <tbody>
-    <template v-for="{{ $v_for }}">
-        @verbatim
+<template v-for="{{ $v_for }}">
+    <div style="box-shadow: 0 5px 15px rgba(0,0,0,.5);">
+    @verbatim
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Session Name</th>
+            <th>Mondays</th>
+            <th>Tuesdays</th>
+            <th>Wednesdays</th>
+            <th>Thursdays</th>
+            <th>Fridays</th>
+            <th>Saturdays</th>
+            <th>Sundays</th>
+        </tr>
+        </thead>
+        <tbody>
         <tr>
             <td>
                 <input type="text"
@@ -194,7 +194,7 @@
                                 </label>
                             </td>
                             <td>
-                                <button class="btn btn-sm"
+                                <button class="bg-danger"
                                         v-on:click="_deleteTiming"
                                 >
                                     <i class="fa fa-trash" aria-hidden="true"
@@ -205,19 +205,21 @@
                             </td>
                         </tr>
                     </template>
-                        <tr>
-                            <td colspan="13" style="background-color: white">
-                                <button class="btn bg-info btn-sm pull-right"
-                                        :session-index="session_index"
-                                        v-on:click="_addTimingToSession"
-                                >add timing</button>
-                            </td>
-                        </tr>
+                    <tr>
+                        <td colspan="13" style="background-color: white">
+                            <button class="btn bg-info btn-sm pull-right"
+                                    :session-index="session_index"
+                                    v-on:click="_addTimingToSession"
+                            >add timing
+                            </button>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
             </td>
         </tr>
-    </template>
-    </tbody>
-</table>
+        </tbody>
+    </table>
+    </div>
+</template>
 @endverbatim

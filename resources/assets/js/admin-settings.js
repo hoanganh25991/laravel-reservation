@@ -93,8 +93,8 @@ class AdminSettings {
 		let default_state  = window.state || {};
 		let frontend_state = {
 			init_view : false,
-			admin_step: '#weekly_sessions',
-			// admin_step: '#weekly_sessions_view',
+			admin_step: 'weekly_sessions',
+			// admin_step: 'weekly_sessions_view',
 		};
 
 		return Object.assign(frontend_state, default_state);
@@ -334,6 +334,11 @@ class AdminSettings {
 				store.dispatch({
 					type: CHANGE_WEEKLY_SESSIONS
 				});
+
+				store.dispatch({
+					type: CHANGE_ADMIN_STEP,
+					step: 'weekly_sessions_view'
+				});
 			});
 	}
 
@@ -396,7 +401,7 @@ class AdminSettings {
 			.forEach((step)=>{
 				let admin_step = step.getAttribute('id');
 				let transform = 'scale(0,0)';
-				if('#' + admin_step == state.admin_step){
+				if(admin_step == state.admin_step){
 					transform = 'scale(1,1)';
 				}
 				step.style.transform = transform;
