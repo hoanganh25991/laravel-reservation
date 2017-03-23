@@ -5,7 +5,14 @@
 <template v-for="{{ $v_for }}">
     @verbatim
     <div style="box-shadow: 0 5px 15px rgba(0,0,0,.5);">
-        <h3 class="bg-info">{{ session.one_off_date }}</h3>
+        <h3 class="bg-info">
+            <input type="date"
+                   style="width: 200px"
+                   class="bg-info"
+                   :id="'session_' + session.id + 'one_off_date'"
+                   v-model="session['one_off_date']"
+            >
+        </h3>
         <div style="margin-left: 30px">
             <table class="table table-striped">
                 <thead>
@@ -24,7 +31,13 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td>{{ session.session_name }} {{ session.first_arrival_time }} : {{ session.last_arrival_time }}</td>
+                    <td>
+                        <input type="text"
+                               style="width: 100px"
+                               :id="'session_' + session.id + 'session_name'"
+                               v-model="session['session_name']"
+                        >
+                    </td>
                     <td></td>
                 </tr>
                 <tr>
@@ -48,7 +61,16 @@
                             </thead>
                             <tbody>
                             @endverbatim
-                            @include('admin.settings.timing_view_mode')
+                            @include('admin.settings.timing_edit_mode')
+                            <tr>
+                                <td colspan="13" style="background-color: white">
+                                    <button class="btn bg-info pull-right"
+                                            :session-index="session_index"
+                                            v-on:click="_addTimingToSession"
+                                    >add timing
+                                    </button>
+                                </td>
+                            </tr>
                             </tbody>
                         </table>
                     </td>

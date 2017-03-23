@@ -18,7 +18,7 @@
                         <ul class="nav navbar-nav" id="go-container">
                             <li><a destination="weekly_sessions_view" class="btn go">Weekly Sessions View</a></li>
                             <li><a destination="weekly_sessions" class="btn go">Weekly Sessions</a></li>
-                            <li><a destination="special_sessions" class="btn go">Special Sessions</a></li>
+                            <li><a destination="special_sessions_view" class="btn go">Special Sessions</a></li>
                             <li><a destination="buffer" class="btn go">Buffer</a></li>
                             <li><a destination="notification" class="btn go">Notification</a></li>
                             <li><a destination="settings" class="btn go">Settings</a></li>
@@ -33,7 +33,7 @@
                             <button destination="weekly_sessions" class="btn bg-info pull-right go">Edit</button>
                         </div>
                         <div class="modal-body">
-                            @include('admin.settings.session_timing_view_mode')
+                            @include('admin.settings.sessions_view_mode')
                         </div>
                     </div>
                     <div id="weekly_sessions" class="modal-content admin-step">
@@ -42,23 +42,37 @@
                             <button id="add_session_btn" class="btn bg-info pull-right" style="border-radius: 20px">Add Session</button>
                         </div>
                         <div class="modal-body">
-                            @include('admin.settings.session_timing_edit_mode')
+                            @include('admin.settings.sessions_edit_mode')
                         </div>
                         <hr>
                         <div class="modal-footer">
                             <button id="save_session_btn" class="btn bg-info">Save</button>
                         </div>
                     </div>
-                    <div id="special_sessions" class="modal-content admin-step">
+                    <div id="special_sessions_view" class="modal-content admin-step">
                         <div class="modal-header">
-                            <h1>Special Sessions</h1>
+                            <span class="h1">Special Sessions View</span>
+                            <button destination="special_sessions" class="btn bg-info pull-right go">Edit</button>
                         </div>
                         <div class="modal-body">
                             @include('admin.settings.sessions_special_view_mode')
                         </div>
                         <hr>
                         <div class="modal-footer">
-                            <button class="btn btn-success">Save</button>
+                            <button class="btn bg-info">Save</button>
+                        </div>
+                    </div>
+                    <div id="special_sessions" class="modal-content admin-step">
+                        <div class="modal-header">
+                            <span class="h1">Special Sessions</span>
+                            <button id="add_special_session_btn" class="btn bg-info pull-right" style="border-radius: 20px">Add Session</button>
+                        </div>
+                        <div class="modal-body">
+                            @include('admin.settings.sessions_special_edit_mode')
+                        </div>
+                        <hr>
+                        <div class="modal-footer">
+                            <button class="btn bg-info">Save</button>
                         </div>
                     </div>
                     <div id="buffer" class="modal-content admin-step">
