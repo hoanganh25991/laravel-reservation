@@ -74,30 +74,40 @@ class HoiModel extends Model {
      * Rebuild model from array data (decode on JSON)
      * Need sanity data before run mutiple update
      * Which faster than parse into model & save
-     * @param $timing_arr
+     * @param $model_data
      * @return mixed
      */
-    public function sanityData($timing_arr){
+    public static function sanityData($model_data){
+        $model = new static;
         /**
          * Sanity through mutator
          */
-        $mutators = $this->getMutatedAttributes();
+        $mutators = $model->getMutatedAttributes();
 
         foreach($mutators as $mutator){
-            if(isset($timing_arr[$mutator])){
-                $timing_arr[$mutator] = $this->setAttribute($mutator, $timing_arr[$mutator]);
+            if(isset($model_data[$mutator])){
+                $model_data[$mutator] = $model->setAttribute($mutator, $model_data[$mutator]);
             }
         }
 
         /**
          * Sanity by limit column access
          */
-        foreach($this->getArrayableAppends() as $append){
-            if(isset($timing_arr[$append])){
-                unset($timing_arr[$append]);
+        foreach($model->getArrayableAppends() as $append){
+            if(isset($model_data[$append])){
+                unset($model_data[$append]);
             }
         }
 
-        return $timing_arr;
+        return $model_data;
+    }
+
+    public static function findOrNew($id){
+        $model = static::find($id);
+        if(is_null($model)){
+            $model = new static;
+        }
+        
+        return $model;
     }
 }

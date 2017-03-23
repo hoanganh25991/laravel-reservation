@@ -26,4 +26,6 @@ trait ApiUtils{
         
         return [$today, $max_day];
     }
+
+    public static function sanityJSONEmptyArray(){}
 }

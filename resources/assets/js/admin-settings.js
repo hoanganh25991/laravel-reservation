@@ -484,7 +484,8 @@ class AdminSettings {
 			if(is_change_weekly_sessions){
 				let action = {
 					type: AJAX_UPDATE_WEEKLY_SESSIONS,
-					data: state.weekly_sessions
+					weekly_sessions: state.weekly_sessions,
+					deleted_sessions: state.deleted_sessions
 				};
 
 				self.ajax_call(action);
@@ -566,6 +567,7 @@ class AdminSettings {
 		switch(action.type){
 			case AJAX_UPDATE_WEEKLY_SESSIONS:
 				let url  = self.url('sessions');
+				// let data = JSON.stringify(action);
 				let data = action;
 				$.ajax({url, data});
 				break;
@@ -588,12 +590,17 @@ class AdminSettings {
 
 		let o_ajax = $.ajax;
 		$.ajax = function(options){
+			let data = options.data;
+			let data_json = JSON.stringify(data);
+			console.log(data_json);
 			options = Object.assign(options, {
 				method  : 'POST',
+				data    : data_json,
 				success : self.ajax_call_success,
 				error   : self.ajax_call_error,
 				compelte: self.ajax_call_complete
 			});
+
 
 			return o_ajax(options);
 		}

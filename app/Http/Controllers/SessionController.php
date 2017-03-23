@@ -14,52 +14,87 @@ class SessionController extends HoiController{
     use ApiResponse;
 
     public function update(ApiRequest $req){
-        $action_type = $req->get('type');
+        $data = json_decode($req->getContent(), JSON_NUMERIC_CHECK);
+        $action_type = $data['type'];
 
         switch($action_type){
             case Call::AJAX_UPDATE_WEEKLY_SESSIONS:
-                $weekly_sessions = $req->get('data');
+//                $data = json_decode($req->get('data'));
+                $weekly_sessions = $data['weekly_sessions'];
 
-                /**
-                 * Resue Timing, Session obj to call sanityDate
-                 * On data_arr
-                 */
-                $t = new Timing();
-                $s = new Session();
+                $deleted_sessions = $data['deleted_sessions'];
+                
+                
 
-                foreach($weekly_sessions as $session_arr){
+                try{
                     /**
-                     * Through serialize, timings as empty array lose
-                     * When encode & decode, reassign as default []
+                     * Update
                      */
-                    if(!isset($session_arr['timings'])){
-                        $session_arr['timings'] = [];
+                    foreach($weekly_sessions as $session_data){
+//                        if(!isset($session_data['timings'])){
+//                            $session_data['timings'] = [];
+//                        }
+
+                        $timings_data = $session_data['timings'];
+                        unset($session_data['timings']);
+
+                        $s = Session::findOrNew($session_data['id']);
+                        $s->fill( Session::sanityData($session_data));
+                        $s->save();
+
+                        foreach($timings_data as $timing_data){
+                            $timing = Timing::findOrNew($timing_data['id']);
+                            $timing->session_id = $s->id;
+                            $timing->fill(Timing::sanityData($timing_data));
+                            $timing->save();
+                        }
                     }
 
-                    $timings = $session_arr['timings'];
+                    /**
+                     * Delete
+                     */
+                    foreach($deleted_sessions as $session_data){
+//                        if(!isset($session_data['timings'])){
+//                            $session_data['timings'] = [];
+//                        }
 
-                    foreach($timings as $timing_arr){
-                        //update
-                        $timing_arr = $t->sanityData($timing_arr);
-                        DB::table('timing')->where('id', $timing_arr['id'])->update($timing_arr);
+                        $s = Session::find($session_data['id']);
+
+                        //When this session & it timing not exist before
+                        //ignore them
+                        if(is_null($s)){
+                            continue;
+                        }
+
+
+                        $s->delete();
+
+                        $timings_data = $session_data['timings'];
+
+                        foreach($timings_data as $timing_data){
+                            $timing = Timing::find($timing_data['id']);
+
+                            if(is_null($timing)){
+                                continue;
+                            }
+
+                            $timing->delete();
+                        }
+
                     }
 
-                    /**
-                     * @warn Update in to DB can't understand relation
-                     * sanityData also not check this case
-                     */
-                    unset($session_arr['timings']);
-                    //update
-                    $session_arr = $s->sanityData($session_arr);
-                    DB::table('session')->where('id', $session_arr['id'])->update($session_arr);
+
+                    $data = [];
+                    $code = 200;
+                    $msg = Call::AJAX_UPDATE_WEEKLY_SESSIONS_SUCCESS;
+                }catch(\Exception $e){
+                    $data = $e->getMessage();
+                    $code = 200;
+                    $msg = Call::AJAX_UPDATE_WEEKLY_SESSIONS_ERROR;
                 }
-
-
-                $data = [];
-                $code = 200;
-                $msg = Call::AJAX_UPDATE_WEEKLY_SESSIONS_SUCCESS;
                 break;
-
+            case Call::AJAX_DELETE_WEEKLY_SESSIONS:
+                
             default:
                 $data = $req->all();
                 $code = 200;
