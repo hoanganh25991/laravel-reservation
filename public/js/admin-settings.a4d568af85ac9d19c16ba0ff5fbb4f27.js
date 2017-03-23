@@ -15,11 +15,17 @@ var CHANGE_WEEKLY_SESSIONS = 'CHANGE_WEEKLY_SESSIONS';
 var DELETE_TIMING = 'DELETE_TIMING';
 var DELETE_SESSION = 'DELETE_SESSION';
 
-/**
- * AJAX ACTION
- */
+var TOAST_SHOW = 'TOAST_SHOW';
+
+// AJAX ACTION
+var AJAX_ADD_WEEKLY_SESSIONS = 'AJAX_ADD_WEEKLY_SESSIONS';
 var AJAX_UPDATE_WEEKLY_SESSIONS = 'AJAX_UPDATE_WEEKLY_SESSIONS';
 var AJAX_DELETE_WEEKLY_SESSIONS = 'AJAX_DELETE_WEEKLY_SESSIONS';
+
+//AJAX MSG
+var AJAX_UNKNOWN_CASE = 'AJAX_UNKNOWN_CASE';
+var AJAX_UPDATE_WEEKLY_SESSIONS_SUCCESS = 'AJAX_UPDATE_WEEKLY_SESSIONS_SUCCESS';
+var AJAX_UPDATE_WEEKLY_SESSIONS_ERROR = 'AJAX_UPDATE_WEEKLY_SESSIONS_ERROR';
 
 var AdminSettings = function () {
 	/**
@@ -100,6 +106,12 @@ var AdminSettings = function () {
 						{
 							return Object.assign({}, state, {
 								deleted_sessions: self.deleteSessionReducer(state.deleted_sessions, action)
+							});
+						}
+					case TOAST_SHOW:
+						{
+							return Object.assign({}, state, {
+								toast: self.toastReducer(state.toast, action)
 							});
 						}
 					default:
@@ -395,6 +407,16 @@ var AdminSettings = function () {
 			}
 		}
 	}, {
+		key: 'toastReducer',
+		value: function toastReducer(state, action) {
+			switch (action.type) {
+				case TOAST_SHOW:
+					return action.toast;
+				default:
+					return state;
+			}
+		}
+	}, {
 		key: 'findView',
 		value: function findView() {
 			/**
@@ -490,6 +512,11 @@ var AdminSettings = function () {
 				if (should_compute_weekly_view_for_vue) {
 					var weekly_view = self.computeWeeklyView();
 					Object.assign(vue_state, { weekly_view: weekly_view });
+				}
+
+				var show_toast = prestate.toast != state.toast;
+				if (show_toast) {
+					window.Toast.show();
 				}
 			});
 		}
@@ -618,7 +645,7 @@ var AdminSettings = function () {
 			$.ajax = function (options) {
 				var data = options.data;
 				var data_json = JSON.stringify(data);
-				console.log(data_json);
+				//console.log(data_json);
 				options = Object.assign(options, {
 					method: 'POST',
 					data: data_json,
@@ -653,6 +680,37 @@ var AdminSettings = function () {
 		key: 'ajax_call_success',
 		value: function ajax_call_success(res) {
 			console.log(res);
+			switch (res.statusMsg) {
+				case AJAX_UPDATE_WEEKLY_SESSIONS_SUCCESS:
+					{
+						var toast = {
+							title: 'Update weekly sessions',
+							content: 'Synching success'
+						};
+
+						store.dispatch({
+							type: TOAST_SHOW,
+							toast: toast
+						});
+
+						break;
+					}
+				case AJAX_UPDATE_WEEKLY_SESSIONS_ERROR:
+					{
+						var _toast = {
+							title: 'Update weekly sessions fail',
+							content: res.data.substr(0, 50)
+						};
+
+						store.dispatch({
+							type: TOAST_SHOW,
+							toast: _toast
+						});
+					}
+				default:
+					break;
+
+			}
 		}
 	}, {
 		key: 'ajax_call_error',

@@ -19,7 +19,6 @@ class SessionController extends HoiController{
 
         switch($action_type){
             case Call::AJAX_UPDATE_WEEKLY_SESSIONS:
-//                $data = json_decode($req->get('data'));
                 $weekly_sessions = $data['weekly_sessions'];
 
                 $deleted_sessions = $data['deleted_sessions'];
@@ -31,10 +30,6 @@ class SessionController extends HoiController{
                      * Update
                      */
                     foreach($weekly_sessions as $session_data){
-//                        if(!isset($session_data['timings'])){
-//                            $session_data['timings'] = [];
-//                        }
-
                         $timings_data = $session_data['timings'];
                         unset($session_data['timings']);
 
@@ -54,10 +49,6 @@ class SessionController extends HoiController{
                      * Delete
                      */
                     foreach($deleted_sessions as $session_data){
-//                        if(!isset($session_data['timings'])){
-//                            $session_data['timings'] = [];
-//                        }
-
                         $s = Session::find($session_data['id']);
 
                         //When this session & it timing not exist before

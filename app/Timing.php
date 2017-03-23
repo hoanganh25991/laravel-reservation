@@ -89,10 +89,7 @@ class Timing extends HoiModel {
         static::orderByFirstArrival();
 
         static::creating(function(Timing $timing){
-            if(!isset($timing->attributes['min_pax_for_booking_deposit'])){
-                $deposit_config = Setting::depositConfig();
-                $timing->attributes['min_pax_for_booking_deposit'] = $deposit_config(Setting::DEPOSIT_THRESHOLD_PAX);
-            }
+            
         });
     }
     
