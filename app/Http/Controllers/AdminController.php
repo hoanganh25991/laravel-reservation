@@ -61,6 +61,7 @@ class AdminController extends HoiController {
         //dd($weekly_sessions_view);
 
         $state = [
+            'base_url'         => url(''),
 //            'weekly_view'         => $weekly_sessions_view,
             'weekly_sessions'  => $weekly_sessions,
             'special_sessions' => $special_sesssions,

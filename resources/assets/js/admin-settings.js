@@ -4,11 +4,20 @@ const CHANGE_ADMIN_STEP = 'CHANGE_ADMIN_STEP';
 
 const ADD_WEEKLY_SESSION     = 'ADD_WEEKLY_SESSION';
 const CHANGE_WEEKLY_SESSIONS = 'CHANGE_WEEKLY_SESSIONS';
+const DELETE_TIMING          = 'DELETE_TIMING';
+const DELETE_SESSION         = 'DELETE_SESSION';
+
+/**
+ * AJAX ACTION
+ */
+const AJAX_UPDATE_WEEKLY_SESSIONS = 'AJAX_UPDATE_WEEKLY_SESSIONS';
+const AJAX_DELETE_WEEKLY_SESSIONS = 'AJAX_DELETE_WEEKLY_SESSIONS';
 
 class AdminSettings {
 	/**
 	 * @namespace Redux
 	 * @namespace moment
+	 * @namespace $
 	 */
 	constructor(){
 		this.buildRedux();
@@ -20,10 +29,13 @@ class AdminSettings {
 		 * Bind inside vue-mounted
 		 */
 		//this.event();
+		//this.listener();
 
 		this.view();
 
 		this.initView();
+
+		// this.hack_ajax();
 
 		let a = document.querySelector('#xxx');
 
@@ -63,6 +75,16 @@ class AdminSettings {
 					return Object.assign({}, state, {
 						weekly_sessions: self.weeklySessionsReducer(state.weekly_sessions, action)
 					});
+				case DELETE_TIMING: {
+					return Object.assign({}, state, {
+						deleted_timings: self.deleteTimingReducer(state.deleted_timings, action)
+					});
+				}
+				case DELETE_SESSION: {
+					return Object.assign({}, state, {
+						deleted_sessions: self.deleteSessionReducer(state.deleted_sessions, action)
+					});
+				}
 				default:
 					return state;
 			}
@@ -95,6 +117,8 @@ class AdminSettings {
 			init_view : false,
 			admin_step: 'weekly_sessions',
 			// admin_step: 'weekly_sessions_view',
+			deleted_sessions: [],
+			deleted_timings: [],
 		};
 
 		return Object.assign(frontend_state, default_state);
@@ -109,6 +133,7 @@ class AdminSettings {
 			mounted(){
 				document.dispatchEvent(new CustomEvent('vue-mounted'));
 				self.event();
+				self.listener();
 			},
 			methods: {
 				_addTimingToSession(e){
@@ -129,7 +154,14 @@ class AdminSettings {
 						let session_index = i.getAttribute('session-index');
 						let timing_index  = i.getAttribute('timing-index');
 						let session = this.weekly_sessions[session_index];
+
+						let timing = session.timings[timing_index];
 						session.timings.splice(timing_index, 1);
+
+						store.dispatch({
+							type: DELETE_TIMING,
+							timing
+						});
 					}catch(e){
 						return;
 					}
@@ -141,8 +173,14 @@ class AdminSettings {
 					try{
 						let i = this._findIElement(e);
 						let session_index = i.getAttribute('session-index');
+
 						let session = this.weekly_sessions[session_index];
 						this.weekly_sessions.splice(session_index, 1);
+
+						store.dispatch({
+							type: DELETE_SESSION,
+							session
+						});
 					}catch(e){
 						return;
 					}
@@ -308,6 +346,32 @@ class AdminSettings {
 		return dump_timing;
 	}
 
+	deleteTimingReducer(state, action){
+		switch(action.type){
+			case DELETE_TIMING:
+				let deleted_timings = [
+					...state,
+					action.timing
+				];
+				return deleted_timings;
+			default:
+				return state;
+		}
+	}
+
+	deleteSessionReducer(state, action){
+		switch(action.type){
+			case DELETE_SESSION:
+				let deleted_sessions = [
+					...state,
+					action.session
+				];
+				return deleted_sessions;
+			default:
+				return state;
+		}
+	}
+
 	findView(){
 		/**
 		 * Only run one time
@@ -407,6 +471,27 @@ class AdminSettings {
 		});
 	}
 
+	listener(){
+		let store = window.store;
+		let self = this;
+
+		store.subscribe(()=>{
+			let action   = store.getLastAction();
+			let state    = store.getState();
+			let prestate = store.getPrestate();
+
+			let is_change_weekly_sessions = (action == CHANGE_WEEKLY_SESSIONS);
+			if(is_change_weekly_sessions){
+				let action = {
+					type: AJAX_UPDATE_WEEKLY_SESSIONS,
+					data: state.weekly_sessions
+				};
+
+				self.ajax_call(action);
+			}
+		});
+	}
+
 	pointToAdminStep(){
 		let state = store.getState();
 
@@ -470,6 +555,78 @@ class AdminSettings {
 			}, {});
 
 		return weekly_view;
+	}
+
+	ajax_call(action){
+		if(typeof action.type != 'undefined'){console.log('ajax call', action.type);}
+		let self = this;
+
+		this.hack_ajax();
+
+		switch(action.type){
+			case AJAX_UPDATE_WEEKLY_SESSIONS:
+				let url  = self.url('sessions');
+				let data = action;
+				$.ajax({url, data});
+				break;
+			default:
+				console.log('ajax call not recognize the current acttion', action);
+				break;
+		}
+
+		// console.log('????')
+	}
+
+	hack_ajax(){
+		//check if not init
+		if(typeof this._has_hack_ajax != 'undefined'){
+			return;
+		}
+		this._has_hack_ajax = true;
+
+		let self = this;
+
+		let o_ajax = $.ajax;
+		$.ajax = function(options){
+			options = Object.assign(options, {
+				method  : 'POST',
+				success : self.ajax_call_success,
+				error   : self.ajax_call_error,
+				compelte: self.ajax_call_complete
+			});
+
+			return o_ajax(options);
+		}
+	}
+	
+	url(path){
+		let store = window.store;
+		let state = store.getState();
+		
+		//noinspection JSUnresolvedVariable
+		let base_url = state.base_url || '';
+		
+		if(base_url.endsWith('/')){
+			base_url = path.substr(1);
+		}
+		
+		if(path.startsWith('/')){
+			path = path.substr(1);
+		}
+		
+		return `${base_url}/${path}`;
+	}
+
+	ajax_call_success(res){
+		console.log(res);
+	}
+
+	ajax_call_error(res){
+		console.log(res);
+	}
+	
+	ajax_call_complete(){
+		
 	}
 }
 

@@ -12,11 +12,20 @@ var CHANGE_ADMIN_STEP = 'CHANGE_ADMIN_STEP';
 
 var ADD_WEEKLY_SESSION = 'ADD_WEEKLY_SESSION';
 var CHANGE_WEEKLY_SESSIONS = 'CHANGE_WEEKLY_SESSIONS';
+var DELETE_TIMING = 'DELETE_TIMING';
+var DELETE_SESSION = 'DELETE_SESSION';
+
+/**
+ * AJAX ACTION
+ */
+var AJAX_UPDATE_WEEKLY_SESSIONS = 'AJAX_UPDATE_WEEKLY_SESSIONS';
+var AJAX_DELETE_WEEKLY_SESSIONS = 'AJAX_DELETE_WEEKLY_SESSIONS';
 
 var AdminSettings = function () {
 	/**
   * @namespace Redux
   * @namespace moment
+  * @namespace $
   */
 	function AdminSettings() {
 		_classCallCheck(this, AdminSettings);
@@ -30,10 +39,13 @@ var AdminSettings = function () {
    * Bind inside vue-mounted
    */
 		//this.event();
+		//this.listener();
 
 		this.view();
 
 		this.initView();
+
+		// this.hack_ajax();
 
 		var a = document.querySelector('#xxx');
 
@@ -78,6 +90,18 @@ var AdminSettings = function () {
 						return Object.assign({}, state, {
 							weekly_sessions: self.weeklySessionsReducer(state.weekly_sessions, action)
 						});
+					case DELETE_TIMING:
+						{
+							return Object.assign({}, state, {
+								deleted_timings: self.deleteTimingReducer(state.deleted_timings, action)
+							});
+						}
+					case DELETE_SESSION:
+						{
+							return Object.assign({}, state, {
+								deleted_sessions: self.deleteSessionReducer(state.deleted_sessions, action)
+							});
+						}
 					default:
 						return state;
 				}
@@ -109,7 +133,10 @@ var AdminSettings = function () {
 			var default_state = window.state || {};
 			var frontend_state = {
 				init_view: false,
-				admin_step: 'weekly_sessions'
+				admin_step: 'weekly_sessions',
+				// admin_step: 'weekly_sessions_view',
+				deleted_sessions: [],
+				deleted_timings: []
 			};
 
 			return Object.assign(frontend_state, default_state);
@@ -125,6 +152,7 @@ var AdminSettings = function () {
 				mounted: function mounted() {
 					document.dispatchEvent(new CustomEvent('vue-mounted'));
 					self.event();
+					self.listener();
 				},
 
 				methods: {
@@ -145,7 +173,14 @@ var AdminSettings = function () {
 							var session_index = i.getAttribute('session-index');
 							var timing_index = i.getAttribute('timing-index');
 							var session = this.weekly_sessions[session_index];
+
+							var timing = session.timings[timing_index];
 							session.timings.splice(timing_index, 1);
+
+							store.dispatch({
+								type: DELETE_TIMING,
+								timing: timing
+							});
 						} catch (e) {
 							return;
 						}
@@ -156,8 +191,14 @@ var AdminSettings = function () {
 						try {
 							var i = this._findIElement(e);
 							var session_index = i.getAttribute('session-index');
+
 							var session = this.weekly_sessions[session_index];
 							this.weekly_sessions.splice(session_index, 1);
+
+							store.dispatch({
+								type: DELETE_SESSION,
+								session: session
+							});
 						} catch (e) {
 							return;
 						}
@@ -332,6 +373,28 @@ var AdminSettings = function () {
 			return dump_timing;
 		}
 	}, {
+		key: 'deleteTimingReducer',
+		value: function deleteTimingReducer(state, action) {
+			switch (action.type) {
+				case DELETE_TIMING:
+					var deleted_timings = [].concat(_toConsumableArray(state), [action.timing]);
+					return deleted_timings;
+				default:
+					return state;
+			}
+		}
+	}, {
+		key: 'deleteSessionReducer',
+		value: function deleteSessionReducer(state, action) {
+			switch (action.type) {
+				case DELETE_SESSION:
+					var deleted_sessions = [].concat(_toConsumableArray(state), [action.session]);
+					return deleted_sessions;
+				default:
+					return state;
+			}
+		}
+	}, {
 		key: 'findView',
 		value: function findView() {
 			/**
@@ -431,6 +494,28 @@ var AdminSettings = function () {
 			});
 		}
 	}, {
+		key: 'listener',
+		value: function listener() {
+			var store = window.store;
+			var self = this;
+
+			store.subscribe(function () {
+				var action = store.getLastAction();
+				var state = store.getState();
+				var prestate = store.getPrestate();
+
+				var is_change_weekly_sessions = action == CHANGE_WEEKLY_SESSIONS;
+				if (is_change_weekly_sessions) {
+					var _action = {
+						type: AJAX_UPDATE_WEEKLY_SESSIONS,
+						data: state.weekly_sessions
+					};
+
+					self.ajax_call(_action);
+				}
+			});
+		}
+	}, {
 		key: 'pointToAdminStep',
 		value: function pointToAdminStep() {
 			var state = store.getState();
@@ -493,6 +578,84 @@ var AdminSettings = function () {
 
 			return weekly_view;
 		}
+	}, {
+		key: 'ajax_call',
+		value: function ajax_call(action) {
+			if (typeof action.type != 'undefined') {
+				console.log('ajax call', action.type);
+			}
+			var self = this;
+
+			this.hack_ajax();
+
+			switch (action.type) {
+				case AJAX_UPDATE_WEEKLY_SESSIONS:
+					var url = self.url('sessions');
+					var data = action;
+					$.ajax({ url: url, data: data });
+					break;
+				default:
+					console.log('ajax call not recognize the current acttion', action);
+					break;
+			}
+
+			// console.log('????')
+		}
+	}, {
+		key: 'hack_ajax',
+		value: function hack_ajax() {
+			//check if not init
+			if (typeof this._has_hack_ajax != 'undefined') {
+				return;
+			}
+			this._has_hack_ajax = true;
+
+			var self = this;
+
+			var o_ajax = $.ajax;
+			$.ajax = function (options) {
+				options = Object.assign(options, {
+					method: 'POST',
+					success: self.ajax_call_success,
+					error: self.ajax_call_error,
+					compelte: self.ajax_call_complete
+				});
+
+				return o_ajax(options);
+			};
+		}
+	}, {
+		key: 'url',
+		value: function url(path) {
+			var store = window.store;
+			var state = store.getState();
+
+			//noinspection JSUnresolvedVariable
+			var base_url = state.base_url || '';
+
+			if (base_url.endsWith('/')) {
+				base_url = path.substr(1);
+			}
+
+			if (path.startsWith('/')) {
+				path = path.substr(1);
+			}
+
+			return base_url + '/' + path;
+		}
+	}, {
+		key: 'ajax_call_success',
+		value: function ajax_call_success(res) {
+			console.log(res);
+		}
+	}, {
+		key: 'ajax_call_error',
+		value: function ajax_call_error(res) {
+			console.log(res);
+		}
+	}, {
+		key: 'ajax_call_complete',
+		value: function ajax_call_complete() {}
 	}]);
 
 	return AdminSettings;

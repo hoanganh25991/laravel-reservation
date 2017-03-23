@@ -21,8 +21,14 @@ Route::post('reservations/{confirm_id}', 'ReservationController@getConfirmPage')
 Route::get('admin', 'AdminController@getDashboard');
 Route::get('admin/settings', 'AdminController@getSettingsDashboard');
 
+/**
+ * Handle control on Session
+ */
+Route::post('sessions', 'SessionController@update');
+Route::get( 'sessions', 'SessionController@update');
 
-Route::get('test', function(App\Http\Controllers\BookingController $c, App\Http\Controllers\AdminController $a){
+
+Route::get('test', function(App\Http\Controllers\BookingController $c, App\Http\Controllers\AdminController $a, App\Http\Controllers\SessionController $s){
 
     //return \App\Timing::hasNewUpdate()->get()->count();
 
@@ -75,7 +81,10 @@ Route::get('test', function(App\Http\Controllers\BookingController $c, App\Http\
 //    $r = App\Reservation::first();
 //    //dd($r);
 //    return $c->apiResponse($r->toArray());
-    $req =  new \App\Http\Requests\ApiRequest();
-    dd($a->getSettingsDashboard($req));
+//    $req =  new \App\Http\Requests\ApiRequest();
+//    dd($a->getSettingsDashboard($req));
+//    return (string)url('/');
+
+    return $s->update();
 });
 
