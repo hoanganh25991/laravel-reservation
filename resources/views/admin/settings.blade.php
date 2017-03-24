@@ -16,12 +16,12 @@
                 <div id="reservations_content" class="col-md-2">
                     <div class="navbar navbar-default">
                         <ul class="nav navbar-nav" id="go-container">
-                            <li><a destination="weekly_sessions_view" class="btn go">Weekly Sessions</a></li>
-                            {{--<li><a destination="weekly_sessions" class="btn go">Weekly Sessions</a></li>--}}
+                            <li><a destination="weekly_sessions_view"  class="btn go">Weekly Sessions</a></li>
                             <li><a destination="special_sessions_view" class="btn go">Special Sessions</a></li>
-                            <li><a destination="buffer" class="btn go">Buffer</a></li>
-                            <li><a destination="notification" class="btn go">Notification</a></li>
-                            <li><a destination="settings" class="btn go">Settings</a></li>
+                            <li><a destination="buffer"                class="btn go">Buffer</a></li>
+                            <li><a destination="notification"          class="btn go">Notification</a></li>
+                            <li><a destination="settings"              class="btn go">Settings</a></li>
+                            <li><a destination="deposit"               class="btn go">Deposit</a></li>
                             <li><a id="xxx" href="#test-footer">Test foolter</a></li>
                         </ul>
                     </div>
@@ -199,12 +199,11 @@
                                 <div class="col-md-7">
                                     <div class="form-group row">
                                         <label for="settings_SMS_SENDER_NAME" class="col-md-4">SMS sender name</label>
-                                        <!-- Rounded switch -->
-                                        <input type="text" class="form-control" style="width: 200px;display: inline-block;"
-                                               spellcheck="false"
-                                               v-model="settings.SMS_SENDER_NAME"
-                                               :value="settings.SMS_SENDER_NAME"
-                                               id="settings_SMS_SENDER_NAME">
+                                            <input type="text" class="form-control" style="width: 200px;display: inline-block;"
+                                                   spellcheck="false"
+                                                   v-model="settings.SMS_SENDER_NAME"
+                                                   :value="settings.SMS_SENDER_NAME"
+                                                   id="settings_SMS_SENDER_NAME">
                                         </label>
                                     </div>
                                 </div>
@@ -212,6 +211,64 @@
                         </div>
                         <div class="modal-footer" style="border-top: 1px solid #e5e5e5;">
                             <button v-on:click="_updateSettings"
+                                    class="btn bg-info">Save</button>
+                        </div>
+                        @endverbatim
+                    </div>
+                    <div id="deposit" class="modal-content admin-step">
+                        @verbatim
+                        <div class="modal-header">
+                            <h1>Deposit</h1>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div style="padding: 0 15px">
+                                    <label class="switch" style="transform: translateY(5px)">
+                                        <input type="checkbox"
+                                               v-model="deposit.REQUIRE_DEPOSIT"
+                                               :value="deposit.REQUIRE_DEPOSIT"
+                                               id="deposit_REQUIRE_DEPOSIT"
+                                        >
+                                        <div class="slider round"></div>
+                                    </label>
+                                    <span style="margin: 0 15px">Require deposit for reservation when reservation above</span>
+                                    <input type="number" class="form-control" style="width: 60px; display: inline-block;"
+                                           v-model="deposit.DEPOSIT_THRESHOLD_PAX"
+                                           :value="deposit.DEPOSIT_THRESHOLD_PAX"
+                                           id="deposit_DEPOSIT_THRESHOLD_PAX">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-7">
+                                    <!-- div style="padding: 0 15px" -->
+                                    <div>
+                                        <h4>Deposit Calculation</h4>
+                                        <input type="number" class="form-control" style="width: 60px;display: inline-block;"
+                                               placeholder="$5"
+                                               v-model="deposit.DEPOSIT_VALUE"
+                                               :value="deposit.DEPOSIT_VALUE"
+                                               id="deposit_DEPOSIT_VALUE">
+                                        <select v-model="deposit.DEPOSIT_TYPE" style="display: inline-block">
+                                            <option disabled>Please deposit type</option>
+                                            <option value="0">Fixed Sum</option>
+                                            <option value="1">Per Pax</option>
+                                        </select>
+                                    </div>
+                                    <p></p>
+                                    <!-- div style="padding: 0 15px" -->
+                                    <div>
+                                        <div style="padding: 1px 15px; box-sizing: border-box;" class="bg-info">
+                                            <h4>Example</h4>
+                                            <p>For a booking of 20 pax, at $5 per pax, a total payment authorization of $100 will be obtained.
+                                                If "fixed sum" is selected, then a payment authorization of $5 will be obtained.</p>
+                                        </div>
+                                    </div>
+                                    <p></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer" style="border-top: 1px solid #e5e5e5;">
+                            <button v-on:click="_updateDeposit"
                                     class="btn bg-info">Save</button>
                         </div>
                         @endverbatim

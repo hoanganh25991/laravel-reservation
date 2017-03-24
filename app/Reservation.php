@@ -376,10 +376,12 @@ class Reservation extends HoiModel {
             $val = 0;
             switch($deposit_type){
                 case Setting::FIXED_SUM:
-                    $val = $deposit_config(Setting::FIXED_SUM_VALUE);
+//                    $val = $deposit_config(Setting::FIXED_SUM_VALUE);
+                    $val = $deposit_config(Setting::DEPOSIT_VALUE);
                     break;
                 case Setting::PER_PAX:
-                    $per_pax_value = $deposit_config(Setting::PER_PAX_VALUE);
+//                    $per_pax_value = $deposit_config(Setting::PER_PAX_VALUE);
+                    $per_pax_value = $deposit_config(Setting::DEPOSIT_VALUE);
                     $val = $this->pax_size *  $per_pax_value;
                     break;
             }

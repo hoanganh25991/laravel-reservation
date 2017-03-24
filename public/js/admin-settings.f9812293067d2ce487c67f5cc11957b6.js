@@ -22,6 +22,7 @@ var SAVE_EDIT_IN_VUE_TO_STORE = 'SAVE_EDIT_IN_VUE_TO_STORE';
 var UPDATE_BUFFER = 'UPDATE_BUFFER';
 var UPDATE_NOTIFICATION = 'UPDATE_NOTIFICATION';
 var UPDATE_SETTINGS = 'UPDATE_SETTINGS';
+var UPDATE_DEPOSIT = 'UPDATE_DEPOSIT';
 
 // const SYNC_DATA = 'SYNC_DATA';
 
@@ -35,6 +36,7 @@ var AJAX_UPDATE_SESSIONS = 'AJAX_UPDATE_SESSIONS';
 var AJAX_UPDATE_BUFFER = 'AJAX_UPDATE_BUFFER';
 var AJAX_UPDATE_NOTIFICATION = 'AJAX_UPDATE_NOTIFICATION';
 var AJAX_UPDATE_SETTINGS = 'AJAX_UPDATE_SETTINGS';
+var AJAX_UPDATE_DEPOSIT = 'AJAX_UPDATE_DEPOSIT';
 
 //AJAX MSG
 var AJAX_UNKNOWN_CASE = 'AJAX_UNKNOWN_CASE';
@@ -166,6 +168,10 @@ var AdminSettings = function () {
 					case UPDATE_SETTINGS:
 						return Object.assign({}, state, {
 							settings: self.settingsReducer(state.settings, action)
+						});
+					case UPDATE_DEPOSIT:
+						return Object.assign({}, state, {
+							deposit: self.depositReducer(state.deposit, action)
 						});
 					default:
 						return state;
@@ -372,6 +378,11 @@ var AdminSettings = function () {
 						store.dispatch({
 							type: UPDATE_SETTINGS
 						});
+					},
+					_updateDeposit: function _updateDeposit() {
+						store.dispatch({
+							type: UPDATE_DEPOSIT
+						});
 					}
 				}
 
@@ -406,6 +417,11 @@ var AdminSettings = function () {
 				title: 'Title',
 				content: 'Content'
 			};
+
+			//debug
+			// window.vue_state.deposit = {
+			// 	type: '1'
+			// }
 
 			return window.vue_state;
 		}
@@ -609,7 +625,6 @@ var AdminSettings = function () {
 			switch (action.type) {
 				case UPDATE_NOTIFICATION:
 					{
-						//noinspection JSUnresolvedVariable
 						return self.vue.notification;
 					}
 				default:
@@ -623,8 +638,20 @@ var AdminSettings = function () {
 			switch (action.type) {
 				case UPDATE_SETTINGS:
 					{
-						//noinspection JSUnresolvedVariable
 						return self.vue.settings;
+					}
+				default:
+					return state;
+			}
+		}
+	}, {
+		key: 'depositReducer',
+		value: function depositReducer(state, action) {
+			var self = this;
+			switch (action.type) {
+				case UPDATE_DEPOSIT:
+					{
+						return self.vue.deposit;
 					}
 				default:
 					return state;
@@ -847,6 +874,15 @@ var AdminSettings = function () {
 
 					self.ajax_call(_action5);
 				}
+
+				if (action == UPDATE_DEPOSIT) {
+					var _action6 = {
+						type: AJAX_UPDATE_DEPOSIT,
+						deposit: state.deposit
+					};
+
+					self.ajax_call(_action6);
+				}
 			});
 		}
 	}, {
@@ -953,6 +989,7 @@ var AdminSettings = function () {
 				case AJAX_UPDATE_BUFFER:
 				case AJAX_UPDATE_NOTIFICATION:
 				case AJAX_UPDATE_SETTINGS:
+				case AJAX_UPDATE_DEPOSIT:
 					{
 						var _url = self.url('outlet-reservation-settings');
 						var _data = action;

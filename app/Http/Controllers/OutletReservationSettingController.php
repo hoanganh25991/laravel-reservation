@@ -102,6 +102,36 @@ class OutletReservationSettingController extends Controller {
                 $code = 200;
                 $msg  = Call::AJAX_SUCCESS;
                 break;
+            case Call::AJAX_UPDATE_DEPOSIT:
+                $settings = $data['deposit'];
+
+                foreach($settings as $key => $value){
+                    $config = Setting::where([
+                        ['setting_group', Setting::DEPOSIT_GROUP],
+                        ['setting_key', $key]
+                    ])->first();
+
+                    if(is_null($config)){
+                        $config = new Setting([
+                            'setting_group' => Setting::DEPOSIT_GROUP,
+                            'setting_key'   => $key
+                        ]);
+                    }
+
+                    /**
+                     * @warn quick sanity data
+                     * Need global handle transform
+                     */
+                    $value = $value === true  ? 1 : $value;
+                    $value = $value === false ? 0 : $value;
+                    $config->setting_value = $value;
+                    $config->save();
+                }
+
+                $data = ['deposit' => $this->fetchUpdateDeposit()];
+                $code = 200;
+                $msg  = Call::AJAX_SUCCESS;
+                break;
             default:
                 $data = $req->all();
                 $code = 200;
@@ -147,5 +177,17 @@ class OutletReservationSettingController extends Controller {
         ];
 
         return Setting::buildKeyValueOfConfig($settings_config, $settings_keys);
+    }
+
+    public function fetchUpdateDeposit(){
+        $deposit_config = Setting::depositConfig();
+        $deposit_keys = [
+            Setting::REQUIRE_DEPOSIT,
+            Setting::DEPOSIT_THRESHOLD_PAX,
+            Setting::DEPOSIT_TYPE,
+            Setting::DEPOSIT_VALUE
+        ];
+
+        return Setting::buildKeyValueOfConfig($deposit_config, $deposit_keys);
     }
 }

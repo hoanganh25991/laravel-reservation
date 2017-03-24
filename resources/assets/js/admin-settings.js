@@ -14,6 +14,7 @@ const SAVE_EDIT_IN_VUE_TO_STORE = 'SAVE_EDIT_IN_VUE_TO_STORE';
 const UPDATE_BUFFER          = 'UPDATE_BUFFER';
 const UPDATE_NOTIFICATION    = 'UPDATE_NOTIFICATION';
 const UPDATE_SETTINGS        = 'UPDATE_SETTINGS';
+const UPDATE_DEPOSIT         = 'UPDATE_DEPOSIT';
 
 // const SYNC_DATA = 'SYNC_DATA';
 
@@ -29,6 +30,8 @@ const AJAX_UPDATE_SESSIONS        = 'AJAX_UPDATE_SESSIONS';
 const AJAX_UPDATE_BUFFER          = 'AJAX_UPDATE_BUFFER';
 const AJAX_UPDATE_NOTIFICATION    = 'AJAX_UPDATE_NOTIFICATION';
 const AJAX_UPDATE_SETTINGS        = 'AJAX_UPDATE_SETTINGS';
+const AJAX_UPDATE_DEPOSIT         = 'AJAX_UPDATE_DEPOSIT';
+
 
 //AJAX MSG
 const AJAX_UNKNOWN_CASE                   = 'AJAX_UNKNOWN_CASE';
@@ -151,6 +154,10 @@ class AdminSettings {
 				case UPDATE_SETTINGS:
 					return Object.assign({}, state, {
 						settings: self.settingsReducer(state.settings, action)
+					});
+				case UPDATE_DEPOSIT:
+					return Object.assign({}, state, {
+						deposit: self.depositReducer(state.deposit, action)
 					});
 				default:
 					return state;
@@ -372,6 +379,12 @@ class AdminSettings {
 					store.dispatch({
 						type: UPDATE_SETTINGS
 					});
+				},
+
+				_updateDeposit(){
+					store.dispatch({
+						type: UPDATE_DEPOSIT
+					});
 				}
 			}
 
@@ -405,6 +418,11 @@ class AdminSettings {
 			title: 'Title',
 			content: 'Content'
 		};
+
+		//debug
+		// window.vue_state.deposit = {
+		// 	type: '1'
+		// }
 
 		return window.vue_state;
 	}
@@ -605,7 +623,6 @@ class AdminSettings {
 		let self = this;
 		switch(action.type){
 			case UPDATE_NOTIFICATION: {
-				//noinspection JSUnresolvedVariable
 				return self.vue.notification;
 			}
 			default:
@@ -617,8 +634,18 @@ class AdminSettings {
 		let self = this;
 		switch(action.type){
 			case UPDATE_SETTINGS: {
-				//noinspection JSUnresolvedVariable
 				return self.vue.settings;
+			}
+			default:
+				return state;
+		}
+	}
+
+	depositReducer(state, action){
+		let self = this;
+		switch(action.type){
+			case UPDATE_DEPOSIT: {
+				return self.vue.deposit;
 			}
 			default:
 				return state;
@@ -860,6 +887,15 @@ class AdminSettings {
 
 				self.ajax_call(action);
 			}
+
+			if(action == UPDATE_DEPOSIT){
+				let action = {
+					type : AJAX_UPDATE_DEPOSIT,
+					deposit : state.deposit
+				}
+
+				self.ajax_call(action);
+			}
 		});
 	}
 
@@ -963,12 +999,13 @@ class AdminSettings {
 			}
 			case AJAX_UPDATE_BUFFER: 
 			case AJAX_UPDATE_NOTIFICATION: 
-			case AJAX_UPDATE_SETTINGS: {
+			case AJAX_UPDATE_SETTINGS:
+			case AJAX_UPDATE_DEPOSIT: {
 				let url = self.url('outlet-reservation-settings');
 				let data = action;
 				$.ajax({url, data});
 				break;
-		}
+			}
 			default:
 				console.log('client side. ajax call not recognize the current acttion', action);
 				break;

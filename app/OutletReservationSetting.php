@@ -71,11 +71,17 @@ class OutletReservationSetting extends HoiModel{
     const FIXED_SUM = 0;
     const PER_PAX   = 1;
 
-    const FIXED_SUM_VALUE = 'FIXED_SUM_VALUE';
-    const DEFAULT_FIXED_SUM_VALUE = 5;
-
-    const PER_PAX_VALUE = 'PER_PAX_VALUE';
-    const DEFAULT_PER_PAX_VALUE = 5;
+    /**
+     * Use deposit value both for fixed & per pax
+     */
+    const DEPOSIT_VALUE = 'DEPOSIT_VALUE';
+    const DEFAULT_DEPOSIT_VALUE = 5; //$5
+    
+//    const FIXED_SUM_VALUE = 'FIXED_SUM_VALUE';
+//    const DEFAULT_FIXED_SUM_VALUE = 5;
+//
+//    const PER_PAX_VALUE = 'PER_PAX_VALUE';
+//    const DEFAULT_PER_PAX_VALUE = 5;
 
     /**
      * Cast value by type
@@ -189,12 +195,11 @@ class OutletReservationSetting extends HoiModel{
     }
 
     /**
-     * Alias of
+     * Alias of allConfigByGroup for specific group
      * @see OutletReservationSetting::getConfigGroup
      * convenience call
      * @return \Closure
      */
-
     public static function bufferConfig(){
         return (new Setting)->getConfigGroup(Setting::BUFFER_GROUP);
     }

@@ -36,24 +36,16 @@ class AdminController extends HoiController {
         $buffer       = $setting_controller->fetchUpdateBuffer();
         $notification = $setting_controller->fetchUpdateNotification();
         $settings     = $setting_controller->fetchUpdateSettings();
-        
-
-        /**
-         * Rebuild weekly session view for weekly session
-         * User need to see session in single day of week
-         */
-//        $weekly_sessions_view = $this->_buildWeeklySessionsView($weekly_sessions);
-
-        //dd($weekly_sessions_view);
-
+        $deposit      = $setting_controller->fetchUpdateDeposit();
+    
         $state = [
             'base_url'         => url(''),
-//            'weekly_view'         => $weekly_sessions_view,
             'weekly_sessions'  => $weekly_sessions,
             'special_sessions' => $special_sesssions,
             'buffer'           => $buffer,
             'notification'     => $notification,
             'settings'         => $settings,
+            'deposit'          => $deposit,
         ];
 
         return view('admin.settings')->with(compact('state'));
