@@ -1,6 +1,7 @@
 const INIT_VIEW = 'INIT_VIEW';
 
 const CHANGE_RESERVATION_DIALOG_CONTENT = 'CHANGE_RESERVATION_DIALOG_CONTENT';
+const UPDATE_SINGLE_RESERVATION         = 'UPDATE_SINGLE_RESERVATION';
 
 const ADD_WEEKLY_SESSION     = 'ADD_WEEKLY_SESSION';
 const ADD_SPECIAL_SESSION    = 'ADD_SPECIAL_SESSION';
@@ -75,6 +76,7 @@ class AdminReservations {
 						init_view: self.initViewReducer(state.init_view, action)
 					});
 				case CHANGE_RESERVATION_DIALOG_CONTENT:
+				case UPDATE_SINGLE_RESERVATION:
 					return Object.assign({}, state, {
 						reservation_dialog_content: self.reservationDialogContentReducer(state.reservation_dialog_content, action)
 					});
@@ -126,13 +128,13 @@ class AdminReservations {
 				self.listener();
 
 				//debug
-				let reservation = Object.assign({}, this.reservations[1]);
-				store.dispatch({
-					type: CHANGE_RESERVATION_DIALOG_CONTENT,
-					reservation_dialog_content: reservation
-				});
-
-				$('#reservation-dialog').modal('show');
+				// let reservation = Object.assign({}, this.reservations[1]);
+				// store.dispatch({
+				// 	type: CHANGE_RESERVATION_DIALOG_CONTENT,
+				// 	reservation_dialog_content: reservation
+				// });
+				//
+				// $('#reservation-dialog').modal('show');
 			},
 			updated(){
 			},
@@ -173,6 +175,12 @@ class AdminReservations {
 
 					return null;
 				},
+
+				_updateReservationDialog(){
+					// store.dispatch({
+					// 	type: UPDATE_SINGLE_RESERVATION
+					// });
+				}
 
 			}
 
@@ -226,16 +234,28 @@ class AdminReservations {
 	reservationDialogContentReducer(state, action){
 		switch(action.type){
 			case CHANGE_RESERVATION_DIALOG_CONTENT:{
-				let reservation = action.reservation_dialog_content;
+				let r = action.reservation_dialog_content;
 				/**
 				 * Modify custom on datetime
 				 * @type {*|moment.Moment}
 				 */
-				let date = moment(reservation.reservation_timestamp, 'Y-M-D H:m:s');
-				reservation.date_str = date.format('YYYY-MM-DD');
-				reservation.time_str = date.format('HH:mm');
+				let date = moment(r.reservation_timestamp, 'Y-M-D H:m:s');
+				r.date_str = date.format('YYYY-MM-DD');
+				r.time_str = date.format('HH:mm');
 				
-				return reservation;
+				return r;
+			}
+			case UPDATE_SINGLE_RESERVATION: {
+				let r = action.reservation_dialog_content;
+
+				r.reservation_timestamp = `${r.date_str} ${r.time_str}`;
+
+				let action = {
+					type: UPDATE_SINGLE_RESERVATION,
+					reservation: r
+				};
+
+
 			}
 			default:
 				return state;
@@ -250,6 +270,8 @@ class AdminReservations {
 			return;
 		}
 		this._hasFindView = true;
+
+		this.reservation_dialog = $('#reservation-dialog');
 	}
 
 	event(){
@@ -279,6 +301,15 @@ class AdminReservations {
 			 * Debug
 			 */
 			pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));
+
+			/**
+			 * Show dialog for edit reservation detail
+			 * @type {boolean}
+			 */
+			let show_reservation_dialog = action == CHANGE_RESERVATION_DIALOG_CONTENT;
+			if(show_reservation_dialog){
+				self.reservation_dialog.modal('show');
+			}
 
 			if(true){
 				let vue_state = self.getVueState();

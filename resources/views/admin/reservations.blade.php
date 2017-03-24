@@ -95,7 +95,10 @@
                         @verbatim
                     </div>
                     <div class="modal-footer" style="border-top: 1px solid #e5e5e5;">
-                        <button class="btn bg-info">Save</button>
+                        <button
+                                class="btn bg-info"
+                                v-on:click="_updateReservationDialog"
+                        >Save</button>
                     </div>
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
