@@ -68,7 +68,7 @@ class OutletReservationSettingController extends Controller {
                     $config->save();
                 }
 
-                $data = ['notification' => $this->fetchUpdateNotification()];
+                $data = ['notification' => $this->fetchUpdateNotifications()];
                 $code = 200;
                 $msg  = Call::AJAX_SUCCESS;
                 break;
@@ -153,7 +153,7 @@ class OutletReservationSettingController extends Controller {
         return Setting::buildKeyValueOfConfig($buffer_config, $buffer_keys);
     }
 
-    public function fetchUpdateNotification(){
+    public function fetchUpdateNotifications(){
         $notification_config = Setting::notificationConfig();
         $notification_keys = [
             Setting::SEND_SMS_ON_BOOKING,

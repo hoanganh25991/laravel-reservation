@@ -66,6 +66,10 @@ class ReservationController extends HoiController{
         
         return $state;
     }
+
+    public function fetchUpdateReservations(){
+        
+    }
     
     
 }

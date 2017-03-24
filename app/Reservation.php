@@ -464,4 +464,20 @@ class Reservation extends HoiModel {
 
         return $attributes;
     }
+
+    /**
+     * Reservation newer than $start time 30 days
+     * @param $query
+     * @param Carbon $start
+     * @return
+     */
+    public function scopeLast30Days($query, Carbon $start = null){
+        $start = $start ?: Carbon::now(Setting::timezone());
+
+        $last_30_days = $start->copy()->subDays(30);
+
+        $last_30_days_str = $last_30_days->format('Y-m-d H:i:s');
+
+        return $query->where('reservation_timestamp', '>=', $last_30_days_str);
+    }
 }

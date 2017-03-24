@@ -34,7 +34,7 @@ class AdminController extends HoiController {
          */
         $setting_controller=new SettingController;
         $buffer       = $setting_controller->fetchUpdateBuffer();
-        $notification = $setting_controller->fetchUpdateNotification();
+        $notification = $setting_controller->fetchUpdateNotifications();
         $settings     = $setting_controller->fetchUpdateSettings();
         $deposit      = $setting_controller->fetchUpdateDeposit();
     
