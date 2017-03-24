@@ -182,8 +182,8 @@ class AdminSettings {
 		let default_state  = window.state || {};
 		let frontend_state = {
 			init_view : false,
-			admin_step: 'weekly_sessions',
-			// admin_step: 'weekly_sessions_view',
+			// admin_step: 'weekly_sessions',
+			admin_step: 'weekly_sessions_view',
 			deleted_sessions: [],
 			deleted_timings: [],
 		};
@@ -201,6 +201,28 @@ class AdminSettings {
 				document.dispatchEvent(new CustomEvent('vue-mounted'));
 				self.event();
 				self.listener();
+			},
+			updated(){
+				let store  = window.store;
+				let action = store.getLastAction();
+
+				if(action == SYNC_DATA){
+					/**
+					 * Guest next admin step
+					 */
+					let next_admin_step = this.admin_step + '_view';
+					/**
+					 * Check if guest is right
+					 */
+					let element = document.querySelector('#' + next_admin_step);
+					if(element){
+						store.dispatch({
+							type: CHANGE_ADMIN_STEP,
+							step: next_admin_step
+						});
+					}
+
+				}
 			},
 			methods: {
 				_addWeeklySession(){
@@ -746,7 +768,7 @@ class AdminSettings {
 			let jump_out_edit_mode =
 				change_admin_step
 				&& (
-						prestate.admin_step == 'weekly_sessions'
+					   prestate.admin_step == 'weekly_sessions'
 					|| prestate.admin_step == 'special_sessions'
 					|| prestate.admin_step == 'buffer'
 					|| prestate.admin_step == 'notification'

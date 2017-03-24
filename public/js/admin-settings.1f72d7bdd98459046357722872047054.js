@@ -198,8 +198,8 @@ var AdminSettings = function () {
 			var default_state = window.state || {};
 			var frontend_state = {
 				init_view: false,
-				admin_step: 'weekly_sessions',
-				// admin_step: 'weekly_sessions_view',
+				// admin_step: 'weekly_sessions',
+				admin_step: 'weekly_sessions_view',
 				deleted_sessions: [],
 				deleted_timings: []
 			};
@@ -218,6 +218,27 @@ var AdminSettings = function () {
 					document.dispatchEvent(new CustomEvent('vue-mounted'));
 					self.event();
 					self.listener();
+				},
+				updated: function updated() {
+					var store = window.store;
+					var action = store.getLastAction();
+
+					if (action == SYNC_DATA) {
+						/**
+       * Guest next admin step
+       */
+						var next_admin_step = this.admin_step + '_view';
+						/**
+       * Check if guest is right
+       */
+						var element = document.querySelector('#' + next_admin_step);
+						if (element) {
+							store.dispatch({
+								type: CHANGE_ADMIN_STEP,
+								step: next_admin_step
+							});
+						}
+					}
 				},
 
 				methods: {

@@ -16,8 +16,8 @@
                 <div id="reservations_content" class="col-md-2">
                     <div class="navbar navbar-default">
                         <ul class="nav navbar-nav" id="go-container">
-                            <li><a destination="weekly_sessions_view" class="btn go">Weekly Sessions View</a></li>
-                            <li><a destination="weekly_sessions" class="btn go">Weekly Sessions</a></li>
+                            <li><a destination="weekly_sessions_view" class="btn go">Weekly Sessions</a></li>
+                            {{--<li><a destination="weekly_sessions" class="btn go">Weekly Sessions</a></li>--}}
                             <li><a destination="special_sessions_view" class="btn go">Special Sessions</a></li>
                             <li><a destination="buffer" class="btn go">Buffer</a></li>
                             <li><a destination="notification" class="btn go">Notification</a></li>
