@@ -1,10 +1,10 @@
 {
   "/mix.js": "/mix.d41d8cd98f00b204e980.js",
+  "/css/reservation.css": "/css/reservation.40c4d311fed94d07b13cf341a734fca4.css",
   "/js/calendar.js": "/js/calendar.f1b13ecf842f68e4a0fa9cead40675a0.js",
   "/js/booking-form.js": "/js/booking-form.91220b3fd8363f9fbfd34798dd22a602.js",
   "/js/syntax-highlight.js": "/js/syntax-highlight.e5f86eb1fd381abada02e5f0dd561e40.js",
   "/js/reservation-confirm.js": "/js/reservation-confirm.25c2e1153236259c508b89af5932c870.js",
   "/js/admin-settings.js": "/js/admin-settings.c6284732c208c6b7804672805108a4df.js",
-  "/css/admin.css": "/css/admin.920a8dc0de0638078c108f0709cb9717.css",
-  "/css/reservation.css": "/css/reservation.8700dce92d285a2e9663e2e70db8e6f3.css"
+  "/js/admin-reservations.js": "/js/admin-reservations.4242d1fd480dbafdc89be27535a95de6.js"
 }

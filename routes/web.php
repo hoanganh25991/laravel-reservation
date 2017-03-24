@@ -14,18 +14,20 @@ Auth::routes();
 Route::get( '', 'BookingController@getBookingForm');
 Route::post('', 'BookingController@getBookingForm');
 
-Route::get( 'reservations/thank-you', 'ReservationController@getThankYouPage')->name('reservation_thank_you');
+Route::get( 'reservations/thank-you',    'ReservationController@getThankYouPage')->name('reservation_thank_you');
 Route::get( 'reservations/{confirm_id}', 'ReservationController@getConfirmPage')->name('reservation_confirm');
 Route::post('reservations/{confirm_id}', 'ReservationController@getConfirmPage');
 
-Route::get('admin', 'AdminController@getDashboard');
-Route::get('admin/settings', 'AdminController@getSettingsDashboard');
-
+Route::get('admin',              'AdminController@getDashboard');
+Route::get('admin/settings',     'AdminController@getSettingsDashboard');
+Route::get('admin/reservations', 'AdminController@getReservationDashboard');
 /**
  * Handle control on Session
  */
 Route::post('sessions', 'SessionController@update');
 Route::post('outlet-reservation-settings', 'OutletReservationSettingController@update');
+
+
 
 
 Route::get('test', function(App\Http\Controllers\BookingController $c, App\Http\Controllers\AdminController $a, App\Http\Controllers\SessionController $s){

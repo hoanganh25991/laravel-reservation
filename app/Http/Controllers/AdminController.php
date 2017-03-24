@@ -95,4 +95,22 @@ class AdminController extends HoiController {
 
         return $weekly_sessions_view;
     }
+
+    /**
+     * @param ApiRequest $req
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function getReservationDashboard(ApiRequest $req){
+        /**
+         * Reservations
+         */
+        $reservation_controller = new ReservationController;
+        $reservations = $reservation_controller->fetchUpdateReservations();
+        
+        $state = [
+            'reservations' => $reservations
+        ];
+        
+        return view('admin.reservations')->with(compact('state'));
+    }
 }

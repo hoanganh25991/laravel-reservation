@@ -10,13 +10,9 @@
             <div class="col-md-10">
                 <div id="navbar" class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
-                        {{--<li><a destination="#reservations_content" class="go-group">Reservations</a></li>--}}
-                        {{--<li><a destination="#customers_content"    class="go-group">Customers</a></li>--}}
-                        {{--<li><a destination="#settings_content"     class="go-group">Settings</a></li>--}}
-
-                        <li><a href="#reservations_content">Reservations</a></li>
-                        <li><a href="#customers_content"   >Customers</a></li>
-                        <li><a href="{{ url('admin/settings') }}"    >Settings</a></li>
+                        <li><a href="{{ url('admin/reservations') }}">Reservations</a></li>
+                        {{--<li><a href="#customers_content"         >Customers</a></li>--}}
+                        <li><a href="{{ url('admin/settings') }}">Settings</a></li>
                     </ul>
                 </div><!--/.nav-collapse -->
             </div>

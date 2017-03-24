@@ -68,7 +68,9 @@ class ReservationController extends HoiController{
     }
 
     public function fetchUpdateReservations(){
+        $reservations = Reservation::last30Days()->where('status', '>=', Reservation::RESERVED)->get();
         
+        return $reservations;
     }
     
     

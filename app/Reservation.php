@@ -466,7 +466,7 @@ class Reservation extends HoiModel {
     }
 
     /**
-     * Reservation newer than $start time 30 days
+     * Reservation newer than last 30 days from $start
      * @param $query
      * @param Carbon $start
      * @return
