@@ -125,46 +125,72 @@
                         <hr>
                         <div class="modal-footer">
                             <button v-on:click="_updateBuffer"
-                                    class="btn btn-success btn_save">Save</button>
+                                    class="btn bg-info">Save</button>
                         </div>
                     </div>
                     <div id="notification" class="modal-content admin-step">
+                        @verbatim
                         <div class="modal-header">
                             <h1>Notification</h1>
                         </div>
                         <div class="modal-body">
-                            @verbatim
-                            <div class="form-group row">
-                                <label for="4" class="col-md-3">Send SMS on booking</label>
-                                <!-- Rounded switch -->
-                                <label class="switch">
-                                    <input type="checkbox" id="4">
-                                    <div class="slider round"></div>
-                                </label>
-                            </div>
+                            <div class="row">
+                                <div class="col-md-7">
+                                    <div class="form-group row">
+                                        <label for="4" class="col-md-3">Send SMS on booking</label>
+                                        <!-- Rounded switch -->
+                                        <label class="switch">
+                                            <input type="checkbox"
+                                                   v-model="notification.SEND_SMS_ON_BOOKING"
+                                                   :value="notification.SEND_SMS_ON_BOOKING"
+                                                   id="notification_SEND_SMS_ON_BOOKING">
+                                            <div class="slider round"></div>
+                                        </label>
+                                    </div>
 
-                            <div class="form-group row">
-                                <label for="5" class="col-md-3">Send SMS to confirm reservation</label>
-                                <!-- Rounded switch -->
-                                <label class="switch">
-                                    <input type="checkbox" id="5">
-                                    <div class="slider round"></div>
-                                </label>
-                            </div>
+                                    <div class="form-group row">
+                                        <label for="5" class="col-md-3">Send SMS to confirm reservation</label>
+                                        <!-- Rounded switch -->
+                                        <label class="switch">
+                                            <input type="checkbox"
+                                                   v-model="notification.SEND_SMS_CONFIRMATION"
+                                                   :value="notification.SEND_SMS_CONFIRMATION"
+                                                   id="notification_SEND_SMS_CONFIRMATION"
+                                            >
+                                            <div class="slider round"></div>
+                                        </label>
+                                    </div>
 
-                            <div class="form-group row">
-                                <label for="6" class="col-md-3">Hours before reservation time to send confirmation
-                                    SMS</label>
-                                <div class="col-md-4">
-                                    <input class="form-control" type="number" value="2" id="6">
+                                    <div class="form-group row">
+                                        <label for="6" class="col-md-3">Hours before reservation time to send confirmation
+                                            SMS</label>
+                                        <div class="col-md-4">
+                                            <input class="form-control" type="number"
+                                                   v-model="notification.HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM"
+                                                   :value="notification.HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM"
+                                                   id="notification_HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <div style="border: 1px solid #e5e5e5; border-radius: 3px; padding: 20px">
+                                        <div class="row">
+                                            <p><span class="h3 pull-left" style="margin: 0">SMSes</span> <span class="h4 pull-right" style="margin: 0"><span>{{ notification.sms_credit_balance }}</span> credits remaining</span></p>
+                                        </div>
+                                        <div class="row">
+                                            <p></p>
+                                            <p class="bg-warning">You are running on low SMS credits, please recharge ASAP to prevent service interruption!</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            @endverbatim
                         </div>
                         <hr>
                         <div class="modal-footer">
-                            <button class="btn btn-success">Save</button>
+                            <button v-on:click="_updateNotification"
+                                    class="btn bg-info">Save</button>
                         </div>
+                        @endverbatim
                     </div>
                 </div>
             </div>

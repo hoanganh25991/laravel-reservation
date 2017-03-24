@@ -20,6 +20,7 @@ var DELETE_SPECIAL_SESSION = 'DELETE_SPECIAL_SESSION';
 var UPDATE_SPECIAL_SESSIONS = 'UPDATE_SPECIAL_SESSIONS';
 var SAVE_EDIT_IN_VUE_TO_STORE = 'SAVE_EDIT_IN_VUE_TO_STORE';
 var UPDATE_BUFFER = 'UPDATE_BUFFER';
+var UPDATE_NOTIFICATION = 'UPDATE_NOTIFICATION';
 
 // const SYNC_DATA = 'SYNC_DATA';
 
@@ -31,6 +32,7 @@ var AJAX_UPDATE_WEEKLY_SESSIONS = 'AJAX_UPDATE_WEEKLY_SESSIONS';
 var AJAX_DELETE_WEEKLY_SESSIONS = 'AJAX_DELETE_WEEKLY_SESSIONS';
 var AJAX_UPDATE_SESSIONS = 'AJAX_UPDATE_SESSIONS';
 var AJAX_UPDATE_BUFFER = 'AJAX_UPDATE_BUFFER';
+var AJAX_UPDATE_NOTIFICATION = 'AJAX_UPDATE_NOTIFICATION';
 
 //AJAX MSG
 var AJAX_UNKNOWN_CASE = 'AJAX_UNKNOWN_CASE';
@@ -155,6 +157,10 @@ var AdminSettings = function () {
 							var data = action.data;
 							return Object.assign({}, state, data);
 						}
+					case UPDATE_NOTIFICATION:
+						return Object.assign({}, state, {
+							buffer: self.notificationReducer(state.buffer, action)
+						});
 					default:
 						return state;
 				}
@@ -329,6 +335,11 @@ var AdminSettings = function () {
 						store.dispatch({
 							type: UPDATE_BUFFER
 						});
+					},
+					_updateNotification: function _updateNotification() {
+						store.dispatch({
+							type: UPDATE_NOTIFICATION
+						});
 					}
 				}
 
@@ -355,11 +366,6 @@ var AdminSettings = function () {
     * Bring compute weekly_view to client
     */
 			window.vue_state.weekly_view = {};
-
-			/**
-    * Create new weekly session
-    */
-			window.vue_state.new_weekly_sessions = [];
 
 			/**
     * Notification with toast
@@ -565,6 +571,20 @@ var AdminSettings = function () {
 			}
 		}
 	}, {
+		key: 'notificationReducer',
+		value: function notificationReducer(state, action) {
+			var self = this;
+			switch (action.type) {
+				case UPDATE_NOTIFICATION:
+					{
+						//noinspection JSUnresolvedVariable
+						return self.vue.notification;
+					}
+				default:
+					return state;
+			}
+		}
+	}, {
 		key: 'findView',
 		value: function findView() {
 			/**
@@ -763,6 +783,15 @@ var AdminSettings = function () {
 
 					self.ajax_call(_action3);
 				}
+
+				if (action == UPDATE_NOTIFICATION) {
+					var _action4 = {
+						type: AJAX_UPDATE_NOTIFICATION,
+						notification: state.notification
+					};
+
+					self.ajax_call(_action4);
+				}
 			});
 		}
 	}, {
@@ -874,6 +903,13 @@ var AdminSettings = function () {
 						$.ajax({ url: _url, data: _data });
 						break;
 					}
+				case AJAX_UPDATE_NOTIFICATION:
+					{
+						var _url2 = self.url('outlet-reservation-settings');
+						var _data2 = action;
+						$.ajax({ url: _url2, data: _data2 });
+						break;
+					}
 				default:
 					console.log('client side. ajax call not recognize the current acttion', action);
 					break;
@@ -972,6 +1008,15 @@ var AdminSettings = function () {
 		key: 'ajax_call_error',
 		value: function ajax_call_error(res) {
 			console.log(res);
+			var toast = {
+				title: 'Server error',
+				content: '(⊙.☉)7'
+			};
+
+			store.dispatch({
+				type: TOAST_SHOW,
+				toast: toast
+			});
 		}
 	}, {
 		key: 'ajax_call_complete',

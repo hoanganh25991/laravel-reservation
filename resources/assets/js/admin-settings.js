@@ -12,6 +12,7 @@ const DELETE_SPECIAL_SESSION = 'DELETE_SPECIAL_SESSION';
 const UPDATE_SPECIAL_SESSIONS = 'UPDATE_SPECIAL_SESSIONS';
 const SAVE_EDIT_IN_VUE_TO_STORE = 'SAVE_EDIT_IN_VUE_TO_STORE';
 const UPDATE_BUFFER          = 'UPDATE_BUFFER';
+const UPDATE_NOTIFICATION    = 'UPDATE_NOTIFICATION';
 
 // const SYNC_DATA = 'SYNC_DATA';
 
@@ -25,7 +26,7 @@ const AJAX_UPDATE_WEEKLY_SESSIONS = 'AJAX_UPDATE_WEEKLY_SESSIONS';
 const AJAX_DELETE_WEEKLY_SESSIONS = 'AJAX_DELETE_WEEKLY_SESSIONS';
 const AJAX_UPDATE_SESSIONS        = 'AJAX_UPDATE_SESSIONS';
 const AJAX_UPDATE_BUFFER          = 'AJAX_UPDATE_BUFFER';
-
+const AJAX_UPDATE_NOTIFICATION    = 'AJAX_UPDATE_NOTIFICATION';
 
 //AJAX MSG
 const AJAX_UNKNOWN_CASE                   = 'AJAX_UNKNOWN_CASE';
@@ -141,6 +142,10 @@ class AdminSettings {
 					let data = action.data;
 					return Object.assign({}, state, data);
 				}
+				case UPDATE_NOTIFICATION:
+					return Object.assign({}, state, {
+						buffer: self.notificationReducer(state.buffer, action)
+					});
 				default:
 					return state;
 			}
@@ -327,6 +332,12 @@ class AdminSettings {
 					store.dispatch({
 						type: UPDATE_BUFFER
 					});
+				},
+
+				_updateNotification(){
+					store.dispatch({
+						type: UPDATE_NOTIFICATION
+					});
 				}
 			}
 
@@ -352,11 +363,6 @@ class AdminSettings {
 		 * Bring compute weekly_view to client
 		 */
 		window.vue_state.weekly_view = {};
-
-		/**
-		 * Create new weekly session
-		 */
-		window.vue_state.new_weekly_sessions = [];
 
 		/**
 		 * Notification with toast
@@ -555,6 +561,18 @@ class AdminSettings {
 		switch(action.type){
 			case UPDATE_BUFFER: {
 				return self.vue.buffer
+			}
+			default:
+				return state;
+		}
+	}
+
+	notificationReducer(state, action){
+		let self = this;
+		switch(action.type){
+			case UPDATE_NOTIFICATION: {
+				//noinspection JSUnresolvedVariable
+				return self.vue.notification;
 			}
 			default:
 				return state;
@@ -778,6 +796,15 @@ class AdminSettings {
 
 				self.ajax_call(action);
 			}
+
+			if(action == UPDATE_NOTIFICATION){
+				let action = {
+					type : AJAX_UPDATE_NOTIFICATION,
+					notification : state.notification
+				}
+
+				self.ajax_call(action);
+			}
 		});
 	}
 
@@ -886,6 +913,12 @@ class AdminSettings {
 				$.ajax({url, data});
 				break;
 			}
+			case AJAX_UPDATE_NOTIFICATION: {
+				let url = self.url('outlet-reservation-settings');
+				let data = action;
+				$.ajax({url, data});
+				break;
+			}
 			default:
 				console.log('client side. ajax call not recognize the current acttion', action);
 				break;
@@ -979,6 +1012,15 @@ class AdminSettings {
 
 	ajax_call_error(res){
 		console.log(res);
+		let toast = {
+			title:'Server error',
+			content: '(⊙.☉)7'
+		};
+
+		store.dispatch({
+			type: TOAST_SHOW,
+			toast
+		});
 	}
 	
 	ajax_call_complete(){

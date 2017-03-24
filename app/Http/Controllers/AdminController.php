@@ -2,18 +2,17 @@
 
 namespace App\Http\Controllers;
 
+//use App\Session;
+use Carbon\Carbon;
+use App\Traits\ApiResponse;
 use App\Http\Requests\ApiRequest;
 use App\OutletReservationSetting as Setting;
-use App\Session;
-use App\Traits\ApiResponse;
-use Carbon\Carbon;
+use App\Http\Controllers\OutletReservationSettingController as SettingController;
 
 class AdminController extends HoiController {
 
     use ApiResponse;
     
-    const ASSIGN_DATE_TO_SESSION = 'ASSIGN_DATE_TO_SESSION';
-
     public function getDashboard(){
         return view('admin.index');
     }
@@ -26,26 +25,16 @@ class AdminController extends HoiController {
         /**
          * Sessions data
          */
-        $weekly_sessions   = Session::normalSession()->with('timings')->get();
-        $special_sesssions = Session::allSpecialSession()->with('timings')->get();
+        $session_controller= new SessionController;
+        $weekly_sessions   = $session_controller->fetchUpdatedWeeklySessions();
+        $special_sesssions = $session_controller->fetchUpdatedSpecialSessions();
 
         /**
          * Config data
          */
-        $buffer_config = Setting::bufferConfig();
-        $buffer_keys   = [
-            Setting::MAX_DAYS_IN_ADVANCE,
-            Setting::MIN_HOURS_IN_ADVANCE_SLOT_TIME,
-            Setting::MIN_HOURS_IN_ADVANCE_SESSION_TIME
-        ];
-
-        $notification_config = Setting::notificationConfig();
-        $notification_keys = [
-            Setting::SEND_SMS_ON_BOOKING,
-            Setting::SEND_SMS_CONFIRMATION,
-            Setting::HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM
-        ];
-
+        $setting_controller=new SettingController;
+        $buffer       = $setting_controller->fetchUpdateBuffer();
+        $notification = $setting_controller->fetchUpdateNotification();
         $settings_config = Setting::settingsConfig();
         $settings_keys = [
             Setting::BRAND_ID,
@@ -65,21 +54,14 @@ class AdminController extends HoiController {
 //            'weekly_view'         => $weekly_sessions_view,
             'weekly_sessions'  => $weekly_sessions,
             'special_sessions' => $special_sesssions,
-            'buffer'           => Setting::buildKeyValueOfConfig($buffer_config, $buffer_keys),
-            'notifcation'      => Setting::buildKeyValueOfConfig($notification_config, $notification_keys),
+            'buffer'           => $buffer,
+            'notification'     => $notification,
             'settings'         => Setting::buildKeyValueOfConfig($settings_config, $settings_keys),
         ];
 
         return view('admin.settings')->with(compact('state'));
     }
     
-    public function fetchSettingData(ApiRequest $req){
-        switch($req->get('action')){
-            case AdminController::ASSIGN_DATE_TO_SESSION:
-//                $weekly
-        }
-    }
-
     /**
      * Session for view group by date
      * Session for edit should relfect what store in DB

@@ -13,8 +13,6 @@ class BrandCredit extends HoiModel {
 
     const GOD_MODE = 1;
 
-
-
     protected $table = 'brand_credit';
 
     protected $guarded = ['id'];

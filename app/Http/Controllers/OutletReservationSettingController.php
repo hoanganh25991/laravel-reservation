@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\BrandCredit;
 use App\Traits\ApiResponse;
 use App\Http\Requests\ApiRequest;
 use Illuminate\Support\Facades\DB;
@@ -41,13 +42,42 @@ class OutletReservationSettingController extends Controller {
                 $code = 200;
                 $msg  = Call::AJAX_SUCCESS;
                 break;
+            case Call::AJAX_UPDATE_NOTIFICATION:
+                $notification = $data['notification'];
+
+                foreach($notification as $key => $value){
+                    $config = Setting::where([
+                        ['setting_group', Setting::NOTIFICATION_GROUP],
+                        ['setting_key', $key]
+                    ])->first();
+
+                    if(is_null($config)){
+                        $config = new Setting([
+                            'setting_group' => Setting::NOTIFICATION_GROUP,
+                            'setting_key'   => $key
+                        ]);
+                    }
+
+                    /**
+                     * @warn quick sanity data
+                     * Need global handle transform
+                     */
+                    $value = $value === true  ? 1 : $value;
+                    $value = $value === false ? 0 : $value;
+                    $config->setting_value = $value;
+                    $config->save();
+                }
+
+                $data = ['notification' => $this->fetchUpdateNotification()];
+                $code = 200;
+                $msg  = Call::AJAX_SUCCESS;
+                break;
             default:
                 $data = $req->all();
                 $code = 200;
                 $msg = Call::AJAX_UNKNOWN_CASE;
                 break;
         }
-
 
         return $this->apiResponse($data, $code, $msg);
     }
@@ -61,5 +91,21 @@ class OutletReservationSettingController extends Controller {
         ];
         
         return Setting::buildKeyValueOfConfig($buffer_config, $buffer_keys);
+    }
+
+    public function fetchUpdateNotification(){
+        $notification_config = Setting::notificationConfig();
+        $notification_keys = [
+            Setting::SEND_SMS_ON_BOOKING,
+            Setting::SEND_SMS_CONFIRMATION,
+            Setting::HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM
+        ];
+
+        $notification = Setting::buildKeyValueOfConfig($notification_config, $notification_keys);
+
+        $sms_credit_balance = BrandCredit::first()->sms_credit_balance;
+        $notification['sms_credit_balance'] = $sms_credit_balance;
+
+        return $notification;
     }
 }
