@@ -13,6 +13,7 @@ const UPDATE_SPECIAL_SESSIONS = 'UPDATE_SPECIAL_SESSIONS';
 const SAVE_EDIT_IN_VUE_TO_STORE = 'SAVE_EDIT_IN_VUE_TO_STORE';
 const UPDATE_BUFFER          = 'UPDATE_BUFFER';
 const UPDATE_NOTIFICATION    = 'UPDATE_NOTIFICATION';
+const UPDATE_SETTINGS        = 'UPDATE_SETTINGS';
 
 // const SYNC_DATA = 'SYNC_DATA';
 
@@ -27,6 +28,7 @@ const AJAX_DELETE_WEEKLY_SESSIONS = 'AJAX_DELETE_WEEKLY_SESSIONS';
 const AJAX_UPDATE_SESSIONS        = 'AJAX_UPDATE_SESSIONS';
 const AJAX_UPDATE_BUFFER          = 'AJAX_UPDATE_BUFFER';
 const AJAX_UPDATE_NOTIFICATION    = 'AJAX_UPDATE_NOTIFICATION';
+const AJAX_UPDATE_SETTINGS        = 'AJAX_UPDATE_SETTINGS';
 
 //AJAX MSG
 const AJAX_UNKNOWN_CASE                   = 'AJAX_UNKNOWN_CASE';
@@ -144,7 +146,11 @@ class AdminSettings {
 				}
 				case UPDATE_NOTIFICATION:
 					return Object.assign({}, state, {
-						buffer: self.notificationReducer(state.buffer, action)
+						notification: self.notificationReducer(state.notification, action)
+					});
+				case UPDATE_SETTINGS:
+					return Object.assign({}, state, {
+						settings: self.settingsReducer(state.settings, action)
 					});
 				default:
 					return state;
@@ -337,6 +343,12 @@ class AdminSettings {
 				_updateNotification(){
 					store.dispatch({
 						type: UPDATE_NOTIFICATION
+					});
+				},
+
+				_updateSettings(){
+					store.dispatch({
+						type: UPDATE_SETTINGS
 					});
 				}
 			}
@@ -579,6 +591,18 @@ class AdminSettings {
 		}
 	}
 
+	settingsReducer(state, action){
+		let self = this;
+		switch(action.type){
+			case UPDATE_SETTINGS: {
+				//noinspection JSUnresolvedVariable
+				return self.vue.settings;
+			}
+			default:
+				return state;
+		}
+	}
+
 	findView(){
 		/**
 		 * Only run one time
@@ -805,6 +829,15 @@ class AdminSettings {
 
 				self.ajax_call(action);
 			}
+			
+			if(action == UPDATE_SETTINGS){
+				let action = {
+					type : AJAX_UPDATE_SETTINGS,
+					settings : state.settings
+				}
+
+				self.ajax_call(action);
+			}
 		});
 	}
 
@@ -906,19 +939,14 @@ class AdminSettings {
 				$.ajax({url, data});
 				break;
 			}
-			case AJAX_UPDATE_BUFFER: {
-				let url  = self.url('outlet-reservation-settings');
-				// let data = JSON.stringify(action);
-				let data = action;
-				$.ajax({url, data});
-				break;
-			}
-			case AJAX_UPDATE_NOTIFICATION: {
+			case AJAX_UPDATE_BUFFER: 
+			case AJAX_UPDATE_NOTIFICATION: 
+			case AJAX_UPDATE_SETTINGS: {
 				let url = self.url('outlet-reservation-settings');
 				let data = action;
 				$.ajax({url, data});
 				break;
-			}
+		}
 			default:
 				console.log('client side. ajax call not recognize the current acttion', action);
 				break;

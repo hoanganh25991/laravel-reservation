@@ -21,6 +21,7 @@ var UPDATE_SPECIAL_SESSIONS = 'UPDATE_SPECIAL_SESSIONS';
 var SAVE_EDIT_IN_VUE_TO_STORE = 'SAVE_EDIT_IN_VUE_TO_STORE';
 var UPDATE_BUFFER = 'UPDATE_BUFFER';
 var UPDATE_NOTIFICATION = 'UPDATE_NOTIFICATION';
+var UPDATE_SETTINGS = 'UPDATE_SETTINGS';
 
 // const SYNC_DATA = 'SYNC_DATA';
 
@@ -33,6 +34,7 @@ var AJAX_DELETE_WEEKLY_SESSIONS = 'AJAX_DELETE_WEEKLY_SESSIONS';
 var AJAX_UPDATE_SESSIONS = 'AJAX_UPDATE_SESSIONS';
 var AJAX_UPDATE_BUFFER = 'AJAX_UPDATE_BUFFER';
 var AJAX_UPDATE_NOTIFICATION = 'AJAX_UPDATE_NOTIFICATION';
+var AJAX_UPDATE_SETTINGS = 'AJAX_UPDATE_SETTINGS';
 
 //AJAX MSG
 var AJAX_UNKNOWN_CASE = 'AJAX_UNKNOWN_CASE';
@@ -159,7 +161,11 @@ var AdminSettings = function () {
 						}
 					case UPDATE_NOTIFICATION:
 						return Object.assign({}, state, {
-							buffer: self.notificationReducer(state.buffer, action)
+							notification: self.notificationReducer(state.notification, action)
+						});
+					case UPDATE_SETTINGS:
+						return Object.assign({}, state, {
+							settings: self.settingsReducer(state.settings, action)
 						});
 					default:
 						return state;
@@ -339,6 +345,11 @@ var AdminSettings = function () {
 					_updateNotification: function _updateNotification() {
 						store.dispatch({
 							type: UPDATE_NOTIFICATION
+						});
+					},
+					_updateSettings: function _updateSettings() {
+						store.dispatch({
+							type: UPDATE_SETTINGS
 						});
 					}
 				}
@@ -585,6 +596,20 @@ var AdminSettings = function () {
 			}
 		}
 	}, {
+		key: 'settingsReducer',
+		value: function settingsReducer(state, action) {
+			var self = this;
+			switch (action.type) {
+				case UPDATE_SETTINGS:
+					{
+						//noinspection JSUnresolvedVariable
+						return self.vue.settings;
+					}
+				default:
+					return state;
+			}
+		}
+	}, {
 		key: 'findView',
 		value: function findView() {
 			/**
@@ -792,6 +817,15 @@ var AdminSettings = function () {
 
 					self.ajax_call(_action4);
 				}
+
+				if (action == UPDATE_SETTINGS) {
+					var _action5 = {
+						type: AJAX_UPDATE_SETTINGS,
+						settings: state.settings
+					};
+
+					self.ajax_call(_action5);
+				}
 			});
 		}
 	}, {
@@ -896,18 +930,12 @@ var AdminSettings = function () {
 						break;
 					}
 				case AJAX_UPDATE_BUFFER:
+				case AJAX_UPDATE_NOTIFICATION:
+				case AJAX_UPDATE_SETTINGS:
 					{
 						var _url = self.url('outlet-reservation-settings');
-						// let data = JSON.stringify(action);
 						var _data = action;
 						$.ajax({ url: _url, data: _data });
-						break;
-					}
-				case AJAX_UPDATE_NOTIFICATION:
-					{
-						var _url2 = self.url('outlet-reservation-settings');
-						var _data2 = action;
-						$.ajax({ url: _url2, data: _data2 });
 						break;
 					}
 				default:

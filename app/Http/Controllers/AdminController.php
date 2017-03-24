@@ -35,11 +35,8 @@ class AdminController extends HoiController {
         $setting_controller=new SettingController;
         $buffer       = $setting_controller->fetchUpdateBuffer();
         $notification = $setting_controller->fetchUpdateNotification();
-        $settings_config = Setting::settingsConfig();
-        $settings_keys = [
-            Setting::BRAND_ID,
-            Setting::SMS_SENDER_NAME
-        ];
+        $settings     = $setting_controller->fetchUpdateSettings();
+        
 
         /**
          * Rebuild weekly session view for weekly session
@@ -56,7 +53,7 @@ class AdminController extends HoiController {
             'special_sessions' => $special_sesssions,
             'buffer'           => $buffer,
             'notification'     => $notification,
-            'settings'         => Setting::buildKeyValueOfConfig($settings_config, $settings_keys),
+            'settings'         => $settings,
         ];
 
         return view('admin.settings')->with(compact('state'));

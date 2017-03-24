@@ -72,6 +72,36 @@ class OutletReservationSettingController extends Controller {
                 $code = 200;
                 $msg  = Call::AJAX_SUCCESS;
                 break;
+            case Call::AJAX_UPDATE_SETTINGS:
+                $settings = $data['settings'];
+
+                foreach($settings as $key => $value){
+                    $config = Setting::where([
+                        ['setting_group', Setting::SETTINGS_GROUP],
+                        ['setting_key', $key]
+                    ])->first();
+
+                    if(is_null($config)){
+                        $config = new Setting([
+                            'setting_group' => Setting::SETTINGS_GROUP,
+                            'setting_key'   => $key
+                        ]);
+                    }
+
+                    /**
+                     * @warn quick sanity data
+                     * Need global handle transform
+                     */
+                    $value = $value === true  ? 1 : $value;
+                    $value = $value === false ? 0 : $value;
+                    $config->setting_value = $value;
+                    $config->save();
+                }
+
+                $data = ['settings' => $this->fetchUpdateSettings()];
+                $code = 200;
+                $msg  = Call::AJAX_SUCCESS;
+                break;
             default:
                 $data = $req->all();
                 $code = 200;
@@ -107,5 +137,15 @@ class OutletReservationSettingController extends Controller {
         $notification['sms_credit_balance'] = $sms_credit_balance;
 
         return $notification;
+    }
+
+    public function fetchUpdateSettings(){
+        $settings_config = Setting::settingsConfig();
+        $settings_keys = [
+            Setting::BRAND_ID,
+            Setting::SMS_SENDER_NAME
+        ];
+
+        return Setting::buildKeyValueOfConfig($settings_config, $settings_keys);
     }
 }

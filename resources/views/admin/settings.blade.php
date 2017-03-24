@@ -137,7 +137,7 @@
                             <div class="row">
                                 <div class="col-md-7">
                                     <div class="form-group row">
-                                        <label for="4" class="col-md-3">Send SMS on booking</label>
+                                        <label for="notification_SEND_SMS_ON_BOOKING" class="col-md-4">Send SMS on booking</label>
                                         <!-- Rounded switch -->
                                         <label class="switch">
                                             <input type="checkbox"
@@ -149,7 +149,7 @@
                                     </div>
 
                                     <div class="form-group row">
-                                        <label for="5" class="col-md-3">Send SMS to confirm reservation</label>
+                                        <label for="notification_SEND_SMS_CONFIRMATION" class="col-md-4">Send SMS to confirm reservation</label>
                                         <!-- Rounded switch -->
                                         <label class="switch">
                                             <input type="checkbox"
@@ -162,17 +162,15 @@
                                     </div>
 
                                     <div class="form-group row">
-                                        <label for="6" class="col-md-3">Hours before reservation time to send confirmation
+                                        <label for="notification_HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM" class="col-md-4">Hours before reservation time to send confirmation
                                             SMS</label>
-                                        <div class="col-md-4">
-                                            <input class="form-control" type="number"
-                                                   v-model="notification.HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM"
-                                                   :value="notification.HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM"
-                                                   id="notification_HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM">
-                                        </div>
+                                        <input type="number" class="form-control" style="width: 80px;display: inline-block;"
+                                               v-model="notification.HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM"
+                                               :value="notification.HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM"
+                                               id="notification_HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM">
                                     </div>
                                 </div>
-                                <div class="col-md-5">
+                                <div class="col-md-4">
                                     <div style="border: 1px solid #e5e5e5; border-radius: 3px; padding: 20px">
                                         <div class="row">
                                             <p><span class="h3 pull-left" style="margin: 0">SMSes</span> <span class="h4 pull-right" style="margin: 0"><span>{{ notification.sms_credit_balance }}</span> credits remaining</span></p>
@@ -185,9 +183,35 @@
                                 </div>
                             </div>
                         </div>
-                        <hr>
-                        <div class="modal-footer">
+                        <div class="modal-footer" style="border-top: 1px solid #e5e5e5;">
                             <button v-on:click="_updateNotification"
+                                    class="btn bg-info">Save</button>
+                        </div>
+                        @endverbatim
+                    </div>
+                    <div id="settings" class="modal-content admin-step">
+                        @verbatim
+                        <div class="modal-header">
+                            <h1>Settings</h1>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-7">
+                                    <div class="form-group row">
+                                        <label for="settings_SMS_SENDER_NAME" class="col-md-4">SMS sender name</label>
+                                        <!-- Rounded switch -->
+                                        <input type="text" class="form-control" style="width: 200px;display: inline-block;"
+                                               spellcheck="false"
+                                               v-model="settings.SMS_SENDER_NAME"
+                                               :value="settings.SMS_SENDER_NAME"
+                                               id="settings_SMS_SENDER_NAME">
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer" style="border-top: 1px solid #e5e5e5;">
+                            <button v-on:click="_updateSettings"
                                     class="btn bg-info">Save</button>
                         </div>
                         @endverbatim

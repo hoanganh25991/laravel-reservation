@@ -9,6 +9,8 @@ class HoiAjaxCall {
     const AJAX_UPDATE_SESSIONS        = 'AJAX_UPDATE_SESSIONS';
     const AJAX_UPDATE_BUFFER          = 'AJAX_UPDATE_BUFFER';
     const AJAX_UPDATE_NOTIFICATION    = 'AJAX_UPDATE_NOTIFICATION';
+    const AJAX_UPDATE_SETTINGS        = 'AJAX_UPDATE_SETTINGS';
+
 
 //AJAX MSG
     const AJAX_UNKNOWN_CASE                   = 'AJAX_UNKNOWN_CASE';
