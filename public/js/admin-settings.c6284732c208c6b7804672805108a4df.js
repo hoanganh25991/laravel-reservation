@@ -68,27 +68,6 @@ var AdminSettings = function () {
 		this.view();
 
 		this.initView();
-
-		// this.hack_ajax();
-
-		var a = document.querySelector('#xxx');
-
-		a.addEventListener('click', function (e) {
-			if (store.getState().admin_step != '#weekly_sessions') {
-				e.preventDefault();
-
-				a.dispatchEvent(new CustomEvent('xxx'));
-			}
-		});
-
-		a.addEventListener('xxx', function () {
-			store.dispatch({
-				type: CHANGE_ADMIN_STEP,
-				step: '#weekly_sessions'
-			});
-
-			a.click();
-		});
 	}
 
 	_createClass(AdminSettings, [{
@@ -670,11 +649,7 @@ var AdminSettings = function () {
 
 			this.admin_step_go = document.querySelectorAll('.go');
 			this.admin_step = document.querySelectorAll('#admin-step-container .admin-step');
-
-			this.add_session_btn = document.querySelector('#add_session_btn');
-			this.save_session_btn = document.querySelector('#save_session_btn');
-
-			this.add_special_session_btn = document.querySelector('#add_special_session_btn');
+			this.admin_step_container = document.querySelector('#admin-step-container');
 		}
 	}, {
 		key: 'event',
@@ -889,15 +864,21 @@ var AdminSettings = function () {
 		key: 'pointToAdminStep',
 		value: function pointToAdminStep() {
 			var state = store.getState();
+			var prestate = store.getPrestate();
 
-			this.admin_step.forEach(function (step) {
-				var admin_step = step.getAttribute('id');
-				var transform = 'scale(0,0)';
-				if (admin_step == state.admin_step) {
-					transform = 'scale(1,1)';
-				}
-				step.style.transform = transform;
-			});
+			/**
+    * Improve performance by ONLY toggle 2 step
+    */
+
+			var pre_step = this.admin_step_container.querySelector('#' + prestate.admin_step);
+			var current_step = this.admin_step_container.querySelector('#' + state.admin_step);
+			if (pre_step) {
+				pre_step.style.transform = 'scale(0,0)';
+			}
+
+			if (current_step) {
+				current_step.style.transform = 'scale(1,1)';
+			}
 		}
 	}, {
 		key: 'computeWeeklyView',

@@ -22,7 +22,6 @@
                             <li><a destination="notification"          class="btn go">Notification</a></li>
                             <li><a destination="settings"              class="btn go">Settings</a></li>
                             <li><a destination="deposit"               class="btn go">Deposit</a></li>
-                            <li><a id="xxx" href="#test-footer">Test foolter</a></li>
                         </ul>
                     </div>
                 </div>
