@@ -8,6 +8,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <span class="h1">Reservations</span>
+                        <button class="btn bg-info pull-right">Save</button>
                     </div>
                     <div class="modal-body">
                         <div style="box-shadow: rgba(0, 0, 0, 0.5) 0px 5px 15px;">
@@ -79,67 +80,22 @@
                             </table>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button>Save</button>
-                    </div>
                 </div>
             </div>
         </div>
         <div class="modal fade" id="reservation-dialog">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4 class="modal-title">Reservation {{ reservation_dialog_content.confirm_id }}</h4>
                     </div>
                     <div class="modal-body">
-                        <tr :class="reservation_dialog_content.staff_read_state ? '' : 'active'"
-                            :id="'reservation_dialog_content_' + reservation_dialog_content.id"
-                        >
-                            <td>
-                                <p style="margin: 0">{{ reservation_dialog_content.salutation }} {{ reservation_dialog_content.first_name }} {{ reservation_dialog_content.last_name }}</p>
-                                <p style="margin: 0">{{ reservation_dialog_content.full_phone_number }}</p>
-                                <p style="margin: 0">{{ reservation_dialog_content.email }}</p>
-                            </td>
-                            <td style="width: 150px">{{ reservation_dialog_content.reservation_dialog_content_timestamp }}</td>
-                            <td style="width: 100px">{{ reservation_dialog_content.adult_pax }}
-                                +{{ reservation_dialog_content.children_pax }}</td>
-                            <td>
-                                <input
-                                        type="text" style="width: 100px"
-                                        v-model="reservation_dialog_content.table_name"
-                                        :value="reservation_dialog_content.table_name"
-                                >
-                            </td>
-                            <td>
-                                <textarea
-                                        rows="2" col="20" style="height: 50px"
-                                        v-model="reservation_dialog_content.customer_remarks"
-                                        :value="reservation_dialog_content.customer_remarks"
-                                        placeholder="Customer Remarks"
-                                ></textarea>
-                            </td>
-                            <td>
-                                <textarea
-                                        rows="2" col="20" style="height: 50px"
-                                        v-model="reservation_dialog_content.staff_remarks"
-                                        :value="reservation_dialog_content.staff_remarks"
-                                        placeholder="Staff Remarks"
-                                ></textarea>
-                            </td>
-                            <td>
-                                <select v-model="reservation_dialog_content.status">
-                                    <option value="300" class="bg-success">Confirmation</option>
-                                    <option value="200" class="bg-info">Reminder Sent</option>
-                                    <option value="100" class="bg-info">Reserved</option>
-                                    <option value="-100" class="bg-info">User cancelled</option>
-                                    <option value="-200" class="bg-warning">Staff cancelled</option>
-                                    <option value="-300" class="bg-danger">No show</option>
-                                </select>
-                            </td>
-                        </tr>
+                        @endverbatim
+                        @include('admin.reservations.detail-dialog')
+                        @verbatim
                     </div>
-                    <div class="modal-footer">
-                        <button>Save</button>
+                    <div class="modal-footer" style="border-top: 1px solid #e5e5e5;">
+                        <button class="btn bg-info">Save</button>
                     </div>
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->

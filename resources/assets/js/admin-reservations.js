@@ -124,6 +124,15 @@ class AdminReservations {
 				document.dispatchEvent(new CustomEvent('vue-mounted'));
 				self.event();
 				self.listener();
+
+				//debug
+				let reservation = Object.assign({}, this.reservations[1]);
+				store.dispatch({
+					type: CHANGE_RESERVATION_DIALOG_CONTENT,
+					reservation_dialog_content: reservation
+				});
+
+				$('#reservation-dialog').modal('show');
 			},
 			updated(){
 			},
@@ -217,7 +226,16 @@ class AdminReservations {
 	reservationDialogContentReducer(state, action){
 		switch(action.type){
 			case CHANGE_RESERVATION_DIALOG_CONTENT:{
-				return action.reservation_dialog_content;
+				let reservation = action.reservation_dialog_content;
+				/**
+				 * Modify custom on datetime
+				 * @type {*|moment.Moment}
+				 */
+				let date = moment(reservation.reservation_timestamp, 'Y-M-D H:m:s');
+				reservation.date_str = date.format('YYYY-MM-DD');
+				reservation.time_str = date.format('HH:mm');
+				
+				return reservation;
 			}
 			default:
 				return state;
