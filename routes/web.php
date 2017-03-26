@@ -18,15 +18,19 @@ Route::get( 'reservations/thank-you',    'ReservationController@getThankYouPage'
 Route::get( 'reservations/{confirm_id}', 'ReservationController@getConfirmPage')->name('reservation_confirm');
 Route::post('reservations/{confirm_id}', 'ReservationController@getConfirmPage');
 
+/**
+ * Route to admin page
+ */
 Route::get('admin',              'AdminController@getDashboard');
 Route::get('admin/settings',     'AdminController@getSettingsDashboard');
 Route::get('admin/reservations', 'AdminController@getReservationDashboard');
-/**
- * Handle control on Session
- */
-Route::post('sessions', 'SessionController@update');
-Route::post('outlet-reservation-settings', 'OutletReservationSettingController@update');
 
+/**
+ * Handle update post from admin page
+ */
+Route::post('sessions',                    'SessionController@update');
+Route::post('outlet-reservation-settings', 'OutletReservationSettingController@update');
+Route::post('reservations',                'ReservationController@update');
 
 
 

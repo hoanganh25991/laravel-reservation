@@ -102,6 +102,12 @@ class HoiModel extends Model {
         return $model_data;
     }
 
+    /**
+     * Find out one by Id or create new on fail
+     * Convenience way to insert/update bundle
+     * @param $id
+     * @return static
+     */
     public static function findOrNew($id){
         $model = static::find($id);
         if(is_null($model)){
@@ -109,5 +115,19 @@ class HoiModel extends Model {
         }
         
         return $model;
+    }
+
+    /**
+     * Client submit JSON boolean
+     * Transform into what data store as int
+     * @param $val
+     * @return int
+     */
+    public function getJsonBoolean($val){
+        if(is_bool($val)){
+            $val = $val ? 1 : 0;
+        }
+
+        return $val;
     }
 }

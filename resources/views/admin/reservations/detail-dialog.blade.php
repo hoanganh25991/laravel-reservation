@@ -17,7 +17,7 @@
             >
             <input
                     type="text" style="display: inline-block; max-width: 200px"
-                    v-model="reservation_dialog_content.lasst_name"
+                    v-model="reservation_dialog_content.last_name"
             >
         </div>
 

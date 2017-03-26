@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use App\Traits\ApiUtils;
 use App\Events\ReservationReserved;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Builder;
 use App\OutletReservationSetting as Setting;
 
 /**
@@ -100,8 +101,14 @@ class Reservation extends HoiModel {
      * @var array
      */
     protected $appends = [
-        'full_phone_number',
+//        'full_phone_number',
         'confirm_id'
+    ];
+
+    protected $hidden = [
+        'customer_id',
+        'outlet_id',
+        'payment_id',
     ];
 
     protected $casts = [];
@@ -184,7 +191,14 @@ class Reservation extends HoiModel {
             }
         });
 
+        static::orderByRerservationTimestamp();
         static::byOutletId();
+    }
+
+    public static function orderByRerservationTimestamp(){
+        static::addGlobalScope('order_by_reservation_timestamp', function(Builder $builder){
+            $builder->orderBy('reservation_timestamp', 'dec');
+        });
     }
 
     public function scopeValidInDateRange($query){
@@ -480,4 +494,13 @@ class Reservation extends HoiModel {
 
         return $query->where('reservation_timestamp', '>=', $last_30_days_str);
     }
+
+    public static function sanityData($model_data){
+        $data = parent::sanityData($model_data);
+        
+        
+        
+        
+    }
+
 }

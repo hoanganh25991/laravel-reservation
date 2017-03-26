@@ -66,7 +66,7 @@ class Session extends HoiModel{
 
     protected $table = 'session';
 
-    protected $guarded = ['id'];
+    protected $guarded = ['id', 'timings'];
 
     /**
      * Bring these computed field when serialize to JSON

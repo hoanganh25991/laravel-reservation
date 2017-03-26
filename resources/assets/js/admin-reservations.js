@@ -24,7 +24,8 @@ const TOAST_SHOW = 'TOAST_SHOW';
 
 
 // AJAX ACTION
-const AJAX_ADD_WEEKLY_SESSIONS    = 'AJAX_ADD_WEEKLY_SESSIONS';
+const AJAX_UPDATE_RESERVATIONS    = 'AJAX_UPDATE_RESERVATIONS';
+
 const AJAX_UPDATE_WEEKLY_SESSIONS = 'AJAX_UPDATE_WEEKLY_SESSIONS';
 const AJAX_DELETE_WEEKLY_SESSIONS = 'AJAX_DELETE_WEEKLY_SESSIONS';
 const AJAX_UPDATE_SESSIONS        = 'AJAX_UPDATE_SESSIONS';
@@ -76,9 +77,16 @@ class AdminReservations {
 						init_view: self.initViewReducer(state.init_view, action)
 					});
 				case CHANGE_RESERVATION_DIALOG_CONTENT:
-				case UPDATE_SINGLE_RESERVATION:
 					return Object.assign({}, state, {
 						reservation_dialog_content: self.reservationDialogContentReducer(state.reservation_dialog_content, action)
+					});
+				case UPDATE_SINGLE_RESERVATION:
+					return Object.assign({}, state, {
+						reservations: self.reservationsReducer(state.reservations, action)
+					});
+				case TOAST_SHOW:
+					return Object.assign({}, state, {
+						toast: action.toast
 					});
 				default:
 					return state;
@@ -86,6 +94,13 @@ class AdminReservations {
 		}
 
 		window.store = Redux.createStore(rootReducer);
+
+		this.hack_store();
+
+	}
+
+	hack_store(){
+		let store = window.store;
 		/**
 		 * Helper function
 		 */
@@ -127,21 +142,14 @@ class AdminReservations {
 				self.event();
 				self.listener();
 
-				//debug
-				// let reservation = Object.assign({}, this.reservations[1]);
-				// store.dispatch({
-				// 	type: CHANGE_RESERVATION_DIALOG_CONTENT,
-				// 	reservation_dialog_content: reservation
-				// });
-				//
-				// $('#reservation-dialog').modal('show');
+
 			},
 			updated(){
 			},
 			methods: {
 				_reservationDetailDialog(e){
 					console.log('see tr click');
-					//console.log(e);
+					console.log(e);
 					try{
 						let tr = this._findIElement(e);
 						let reservation_index = tr.getAttribute('reservation-index');
@@ -159,27 +167,40 @@ class AdminReservations {
 				_findIElement(e){
 					let tr = e.target;
 
-					if(tr.tagName == 'TR'){
-						return tr;
-					}
+					let path = [tr].concat(e.path);
 
-					try{
-						let tr = e.path[1];
+					let i = 0;
+					while(i < path.length){
+						let tr = path[i];
+
+						/**
+						 * Click on input / select to edit info
+						 */
+						let is_click_on_edit_form =
+							tr.tagName == 'INPUT'
+							|| tr.tagName == 'TEXTAREA'
+							|| tr.tagName == 'SELECT';
+
+						if(is_click_on_edit_form){
+							return null;
+						}
 
 						if(tr.tagName == 'TR'){
 							return tr;
 						}
-					}catch(e){
-						return null;
+
+						i++;
 					}
 
 					return null;
 				},
 
 				_updateReservationDialog(){
-					// store.dispatch({
-					// 	type: UPDATE_SINGLE_RESERVATION
-					// });
+					let state = store.getState();
+					store.dispatch({
+						type: UPDATE_SINGLE_RESERVATION,
+						reservation_dialog_content: state.reservation_dialog_content
+					});
 				}
 
 			}
@@ -245,17 +266,36 @@ class AdminReservations {
 				
 				return r;
 			}
+			default:
+				return state;
+		}
+	}
+
+	reservationsReducer(state, action){
+		switch(action.type){
 			case UPDATE_SINGLE_RESERVATION: {
 				let r = action.reservation_dialog_content;
 
 				r.reservation_timestamp = `${r.date_str} ${r.time_str}`;
 
-				let action = {
-					type: UPDATE_SINGLE_RESERVATION,
-					reservation: r
-				};
+				let i = 0, index = 0;
+				while(i < state.length){
+					if(state[i].id == r.id){
+						index = i;
+					}
 
+					i++;
+				}
 
+				let need_update_reservation = state[index];
+
+				Object
+					.keys(need_update_reservation)
+					.forEach(key => {
+						need_update_reservation[key] = r[key];
+					});
+
+				return state;
 			}
 			default:
 				return state;
@@ -311,6 +351,25 @@ class AdminReservations {
 				self.reservation_dialog.modal('show');
 			}
 
+			let success_update_single_reservation = action == UPDATE_SINGLE_RESERVATION;
+			if(success_update_single_reservation){
+				self.reservation_dialog.modal('hide');
+				
+				let action = {
+					type: AJAX_UPDATE_RESERVATIONS,
+					reservations: state.reservations
+				}
+				
+				self.ajax_call(action);
+			}
+
+			/**
+			 * Show toast
+			 */
+			if(action == TOAST_SHOW){
+				window.Toast.show();
+			}
+
 			if(true){
 				let vue_state = self.getVueState();
 				Object.assign(vue_state, state);
@@ -355,18 +414,8 @@ class AdminReservations {
 		this.hack_ajax();
 
 		switch(action.type){
-			case AJAX_UPDATE_SESSIONS: {
-				let url  = self.url('sessions');
-				// let data = JSON.stringify(action);
-				let data = action;
-				$.ajax({url, data});
-				break;
-			}
-			case AJAX_UPDATE_BUFFER: 
-			case AJAX_UPDATE_NOTIFICATION: 
-			case AJAX_UPDATE_SETTINGS:
-			case AJAX_UPDATE_DEPOSIT: {
-				let url = self.url('outlet-reservation-settings');
+			case AJAX_UPDATE_RESERVATIONS: {
+				let url  = self.url('reservations');
 				let data = action;
 				$.ajax({url, data});
 				break;
@@ -425,7 +474,7 @@ class AdminReservations {
 	}
 
 	ajax_call_success(res){
-		console.log(res);
+		// console.log(res);
 		switch(res.statusMsg){
 			case AJAX_SUCCESS: {
 				let toast = {

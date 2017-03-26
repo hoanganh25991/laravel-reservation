@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Reservation;
 use App\Traits\ApiResponse;
 use App\Http\Requests\ApiRequest;
+use App\Libraries\HoiAjaxCall as Call;
 
 class ReservationController extends HoiController{
     
@@ -65,6 +66,36 @@ class ReservationController extends HoiController{
         ];
         
         return $state;
+    }
+
+    public function update(ApiRequest $req){
+        $data = json_decode($req->getContent(), JSON_NUMERIC_CHECK);
+
+        $action_type = $data['type'];
+
+        switch($action_type){
+            case Call::AJAX_UPDATE_RESERVATIONS:
+                $reservations = $data['reservations'];
+
+                foreach($reservations as $reservation_data){
+                    $sanity_data = Reservation::sanityData($reservation_data);
+                    $sanity_data['reservation_timestamp'] = $sanity_data['reservation_timestamp'].":00";
+                    $reservation = new Reservation($sanity_data);
+                    $reservation->save();
+                }
+
+                $data = $this->fetchUpdateReservations();
+                $code = 200;
+                $msg  = Call::AJAX_SUCCESS;
+                break;
+            default:
+                $data = $req->all();
+                $code = 200;
+                $msg  = Call::AJAX_UNKNOWN_CASE;
+                break;
+        }
+
+        return $this->apiResponse($data, $code, $msg);
     }
 
     public function fetchUpdateReservations(){
