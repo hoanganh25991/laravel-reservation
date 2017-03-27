@@ -85,13 +85,13 @@ class ReservationController extends HoiController{
                 foreach($reservations as $reservation_data){
                     $validator = Reservation::validateOnCRUD($reservation_data);
 
-//                    if($validator->fails()){
-//                        break;
-//                    }
-//                    $sanity_data = Reservation::sanityData($reservation_data);
-//                    $sanity_data['reservation_timestamp'] = $sanity_data['reservation_timestamp'].":00";
-//                    $reservation = new Reservation($sanity_data);
-//                    $reservation->save();
+                    if($validator->fails()){
+                        break;
+                    }
+
+                    $reservation = Reservation::findOrNew($reservation_data['id']);
+                    $reservation->fill($reservation_data);
+                    $reservation->save();
                 }
 
                 if($validator->fails()){

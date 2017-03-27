@@ -7,7 +7,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var INIT_VIEW = 'INIT_VIEW';
 
 var CHANGE_RESERVATION_DIALOG_CONTENT = 'CHANGE_RESERVATION_DIALOG_CONTENT';
-var UPDATE_SINGLE_RESERVATION = 'UPDATE_SINGLE_RESERVATION';
+var UPDATE_SINGLE_RESERVATIONS = 'UPDATE_SINGLE_RESERVATIONS';
+var UPDATE_RESERVATIONS = 'UPDATE_RESERVATIONS';
 
 var ADD_WEEKLY_SESSION = 'ADD_WEEKLY_SESSION';
 var ADD_SPECIAL_SESSION = 'ADD_SPECIAL_SESSION';
@@ -56,18 +57,13 @@ var AdminReservations = function () {
 		_classCallCheck(this, AdminReservations);
 
 		this.buildRedux();
-
 		this.buildVue();
-
 		/**
    * Unsafe to bind event when vue not sure init
    * Bind inside vue-mounted
    */
 		//this.event();
 		//this.listener();
-
-		this.view();
-
 		this.initView();
 	}
 
@@ -89,7 +85,8 @@ var AdminReservations = function () {
 						return Object.assign({}, state, {
 							reservation_dialog_content: self.reservationDialogContentReducer(state.reservation_dialog_content, action)
 						});
-					case UPDATE_SINGLE_RESERVATION:
+					case UPDATE_SINGLE_RESERVATIONS:
+					case UPDATE_RESERVATIONS:
 						return Object.assign({}, state, {
 							reservations: self.reservationsReducer(state.reservations, action)
 						});
@@ -151,6 +148,7 @@ var AdminReservations = function () {
 				mounted: function mounted() {
 					document.dispatchEvent(new CustomEvent('vue-mounted'));
 					self.event();
+					self.view();
 					self.listener();
 				},
 				updated: function updated() {},
@@ -202,7 +200,14 @@ var AdminReservations = function () {
 					_updateReservationDialog: function _updateReservationDialog() {
 						var state = store.getState();
 						store.dispatch({
-							type: UPDATE_SINGLE_RESERVATION,
+							type: UPDATE_SINGLE_RESERVATIONS,
+							reservation_dialog_content: state.reservation_dialog_content
+						});
+					},
+					_updateReservations: function _updateReservations() {
+						var state = store.getState();
+						store.dispatch({
+							type: UPDATE_RESERVATIONS,
 							reservation_dialog_content: state.reservation_dialog_content
 						});
 					}
@@ -283,29 +288,48 @@ var AdminReservations = function () {
 		key: 'reservationsReducer',
 		value: function reservationsReducer(state, action) {
 			switch (action.type) {
-				case UPDATE_SINGLE_RESERVATION:
+				case UPDATE_SINGLE_RESERVATIONS:
 					{
-						var r = action.reservation_dialog_content;
+						var reservation_dialog_content = action.reservation_dialog_content;
 
-						r.reservation_timestamp = r.date_str + ' ' + r.time_str;
+						reservation_dialog_content.reservation_timestamp = reservation_dialog_content.date_str + ' ' + reservation_dialog_content.time_str + ':00';
 
+						/**
+       * Find which reservation need update info
+       * Base on reservation dialog content
+       * @type {number}
+       */
 						var i = 0,
 						    index = 0;
 						while (i < state.length) {
-							if (state[i].id == r.id) {
+							if (state[i].id == reservation_dialog_content.id) {
 								index = i;
 							}
 
 							i++;
 						}
 
+						/**
+       * Get him out
+       */
 						var need_update_reservation = state[index];
 
+						/**
+       * Only assign on reservation key
+       * Not all what come from reservation_dialog_content
+       */
 						Object.keys(need_update_reservation).forEach(function (key) {
-							need_update_reservation[key] = r[key];
+							need_update_reservation[key] = reservation_dialog_content[key];
 						});
 
 						return state;
+					}
+				case UPDATE_RESERVATIONS:
+					{
+						var vue_state = window.vue_state;
+						var reservations = Object.assign({}, vue_state.reservations);
+
+						return reservations;
 					}
 				default:
 					return state;
@@ -364,18 +388,10 @@ var AdminReservations = function () {
 					self.reservation_dialog.modal('show');
 				}
 
-				var success_update_single_reservation = action == UPDATE_SINGLE_RESERVATION;
+				var success_update_single_reservation = action == UPDATE_SINGLE_RESERVATIONS;
 				if (success_update_single_reservation) {
 					self.reservation_dialog.modal('hide');
-
-					var _action = {
-						type: AJAX_UPDATE_RESERVATIONS,
-						reservations: state.reservations
-					};
-
-					self.ajax_call(_action);
-				}
-
+				};
 				/**
      * Show toast
      */
@@ -400,12 +416,21 @@ var AdminReservations = function () {
 				var state = store.getState();
 				var prestate = store.getPrestate();
 
-				if (action == UPDATE_WEEKLY_SESSIONS) {
+				var update_single_reservation = action == UPDATE_SINGLE_RESERVATIONS;
+				if (update_single_reservation) {
+					var _action = {
+						type: AJAX_UPDATE_RESERVATIONS,
+						reservations: state.reservations
+					};
+
+					self.ajax_call(_action);
+				}
+
+				var update_reservations = action == UPDATE_RESERVATIONS;
+				if (update_reservations) {
 					var _action2 = {
-						type: AJAX_UPDATE_SESSIONS,
-						sessions: state.weekly_sessions,
-						deleted_sessions: state.deleted_sessions,
-						deleted_timings: state.deleted_timings
+						type: AJAX_UPDATE_RESERVATIONS,
+						reservations: state.reservations
 					};
 
 					self.ajax_call(_action2);

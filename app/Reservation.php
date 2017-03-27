@@ -536,8 +536,8 @@ class Reservation extends HoiModel {
         /**
          * Return as datetime string to consistent with DB
          */
-//        $attributes['send_confirmation_by_timestamp']
-//            = $this->send_confirmation_by_timestamp->format('Y-m-d H:i:s');
+        $attributes['send_confirmation_by_timestamp']
+            = $this->getSendSMSConfirmationAttribute($attributes['send_confirmation_by_timestamp'])->format('Y-m-d H:i:s');
 
         return $attributes;
     }

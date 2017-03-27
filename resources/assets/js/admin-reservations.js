@@ -1,7 +1,8 @@
 const INIT_VIEW = 'INIT_VIEW';
 
 const CHANGE_RESERVATION_DIALOG_CONTENT = 'CHANGE_RESERVATION_DIALOG_CONTENT';
-const UPDATE_SINGLE_RESERVATION         = 'UPDATE_SINGLE_RESERVATION';
+const UPDATE_SINGLE_RESERVATIONS         = 'UPDATE_SINGLE_RESERVATIONS';
+const UPDATE_RESERVATIONS = 'UPDATE_RESERVATIONS';
 
 const ADD_WEEKLY_SESSION     = 'ADD_WEEKLY_SESSION';
 const ADD_SPECIAL_SESSION    = 'ADD_SPECIAL_SESSION';
@@ -53,18 +54,13 @@ class AdminReservations {
 	 */
 	constructor(){
 		this.buildRedux();
-
 		this.buildVue();
-
 		/**
 		 * Unsafe to bind event when vue not sure init
 		 * Bind inside vue-mounted
 		 */
 		//this.event();
 		//this.listener();
-
-		this.view();
-
 		this.initView();
 	}
 
@@ -81,7 +77,8 @@ class AdminReservations {
 					return Object.assign({}, state, {
 						reservation_dialog_content: self.reservationDialogContentReducer(state.reservation_dialog_content, action)
 					});
-				case UPDATE_SINGLE_RESERVATION:
+				case UPDATE_SINGLE_RESERVATIONS:
+				case UPDATE_RESERVATIONS:
 					return Object.assign({}, state, {
 						reservations: self.reservationsReducer(state.reservations, action)
 					});
@@ -141,6 +138,7 @@ class AdminReservations {
 			mounted(){
 				document.dispatchEvent(new CustomEvent('vue-mounted'));
 				self.event();
+				self.view();
 				self.listener();
 
 
@@ -199,7 +197,15 @@ class AdminReservations {
 				_updateReservationDialog(){
 					let state = store.getState();
 					store.dispatch({
-						type: UPDATE_SINGLE_RESERVATION,
+						type: UPDATE_SINGLE_RESERVATIONS,
+						reservation_dialog_content: state.reservation_dialog_content
+					});
+				},
+
+				_updateReservations(){
+					let state = store.getState();
+					store.dispatch({
+						type: UPDATE_RESERVATIONS,
 						reservation_dialog_content: state.reservation_dialog_content
 					});
 				}
@@ -274,29 +280,47 @@ class AdminReservations {
 
 	reservationsReducer(state, action){
 		switch(action.type){
-			case UPDATE_SINGLE_RESERVATION: {
-				let r = action.reservation_dialog_content;
+			case UPDATE_SINGLE_RESERVATIONS: {
+				let reservation_dialog_content = action.reservation_dialog_content;
 
-				r.reservation_timestamp = `${r.date_str} ${r.time_str}`;
+				reservation_dialog_content.reservation_timestamp = `${reservation_dialog_content.date_str} ${reservation_dialog_content.time_str}:00`;
 
+				/**
+				 * Find which reservation need update info
+				 * Base on reservation dialog content
+				 * @type {number}
+				 */
 				let i = 0, index = 0;
 				while(i < state.length){
-					if(state[i].id == r.id){
+					if(state[i].id == reservation_dialog_content.id){
 						index = i;
 					}
 
 					i++;
 				}
 
+				/**
+				 * Get him out
+				 */
 				let need_update_reservation = state[index];
 
+				/**
+				 * Only assign on reservation key
+				 * Not all what come from reservation_dialog_content
+				 */
 				Object
 					.keys(need_update_reservation)
 					.forEach(key => {
-						need_update_reservation[key] = r[key];
+						need_update_reservation[key] = reservation_dialog_content[key];
 					});
 
 				return state;
+			}
+			case UPDATE_RESERVATIONS: {
+				let vue_state = window.vue_state;
+				let reservations = Object.assign({}, vue_state.reservations);
+
+				return reservations;
 			}
 			default:
 				return state;
@@ -352,18 +376,10 @@ class AdminReservations {
 				self.reservation_dialog.modal('show');
 			}
 
-			let success_update_single_reservation = action == UPDATE_SINGLE_RESERVATION;
+			let success_update_single_reservation = action == UPDATE_SINGLE_RESERVATIONS;
 			if(success_update_single_reservation){
 				self.reservation_dialog.modal('hide');
-				
-				let action = {
-					type: AJAX_UPDATE_RESERVATIONS,
-					reservations: state.reservations
-				}
-				
-				self.ajax_call(action);
-			}
-
+			};
 			/**
 			 * Show toast
 			 */
@@ -387,13 +403,22 @@ class AdminReservations {
 			let state    = store.getState();
 			let prestate = store.getPrestate();
 
-			if(action == UPDATE_WEEKLY_SESSIONS){
+			let update_single_reservation = action == UPDATE_SINGLE_RESERVATIONS;
+			if(update_single_reservation){
 				let action = {
-					type             : AJAX_UPDATE_SESSIONS,
-					sessions         : state.weekly_sessions,
-					deleted_sessions : state.deleted_sessions,
-					deleted_timings  : state.deleted_timings
-				};
+					type: AJAX_UPDATE_RESERVATIONS,
+					reservations: state.reservations
+				}
+
+				self.ajax_call(action);
+			}
+
+			let update_reservations = action == UPDATE_RESERVATIONS;
+			if(update_reservations){
+				let action = {
+					type: AJAX_UPDATE_RESERVATIONS,
+					reservations: state.reservations
+				}
 
 				self.ajax_call(action);
 			}

@@ -8,7 +8,9 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <span class="h1">Reservations</span>
-                        <button class="btn bg-info pull-right">Save</button>
+                        <button class="btn bg-info pull-right"
+                            v-on:click="_updateReservations"
+                        >Save</button>
                     </div>
                     <div class="modal-body">
                         <div style="box-shadow: rgba(0, 0, 0, 0.5) 0px 5px 15px;">
