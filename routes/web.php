@@ -25,20 +25,29 @@ Route::post('reservations/{confirm_id}', 'ReservationController@getConfirmPage')
 /**
  * Route to admin page
  */
-Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function(){
+Route::group(['middleware' => 'staff', 'prefix' => 'admin'], function(){
     Route::get('',             'AdminController@getDashboard')->name('admin');
     Route::post('',            'AdminController@setUpOuletId');
-    Route::get('settings',     'AdminController@getSettingsDashboard');
+
     Route::get('reservations', 'AdminController@getReservationDashboard');
+
+    Route::group(['middleware' => 'administrator'], function(){
+        Route::get('settings',     'AdminController@getSettingsDashboard');
+    });
 });
 
 
 /**
  * Handle update post from admin page
  */
-Route::post('sessions',                    'SessionController@update');
-Route::post('outlet-reservation-settings', 'OutletReservationSettingController@update');
-Route::post('reservations',                'ReservationController@update');
+Route::group(['middleware' => 'administrator'], function(){
+    Route::post('sessions',                    'SessionController@update');
+    Route::post('outlet-reservation-settings', 'OutletReservationSettingController@update');
+});
+
+Route::group(['middleware' => 'staff'], function(){
+    Route::post('reservations',                'ReservationController@update');
+});
 
 
 

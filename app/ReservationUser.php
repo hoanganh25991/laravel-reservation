@@ -7,6 +7,7 @@ use Illuminate\Notifications\Notifiable;
 /**
  * @property string password_hash
  * @property mixed outlet_ids
+ * @property mixed permission_level
  */
 class ReservationUser extends User {
     
@@ -39,6 +40,33 @@ class ReservationUser extends User {
 
     public function getAuthPassword() {
         return $this->password_hash;
+    }
+
+    /**
+     * @return bool
+     */
+    public function canAccessAdminPage(){
+        return !is_null($this->permission_level);
+    }
+
+    /**
+     * Any one can go to register page
+     * To regis as an user
+     * BUT only staff with permission can go
+     * 
+     * At this point
+     * Consider staff as RESERVATIONS level
+     */
+    public function isReservations(){
+//        return $this->permission_level == ReservationUser::RESERVATIONS;
+        return $this->canAccessAdminPage();
+    }
+
+    /**
+     * Only administrator can change config
+     */
+    public function isAdministrator(){
+        return $this->permission_level == ReservationUser::ADMINISTRATOR;
     }
 
     /**
