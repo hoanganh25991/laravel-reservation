@@ -3,18 +3,55 @@
 namespace App\Http\Controllers;
 
 //use App\Session;
+use App\Outlet;
+use App\ReservationUser;
 use Carbon\Carbon;
 use App\Traits\ApiResponse;
 use App\Http\Requests\ApiRequest;
+use Illuminate\Support\Facades\Auth;
+use App\Libraries\HoiAjaxCall as Call;
 use App\OutletReservationSetting as Setting;
 use App\Http\Controllers\OutletReservationSettingController as SettingController;
 
 class AdminController extends HoiController {
 
     use ApiResponse;
-    
+
+    /**
+     * @return $this
+     */
     public function getDashboard(){
-        return view('admin.index');
+        /** @var ReservationUser $user */
+        $user = Auth::user();
+        $outlet_ids = $user->allowedOutletIds();
+        $outlets    = Outlet::whereIn('id', $outlet_ids)->get();
+
+        $state = [
+            'outlets'         => $outlets,
+            'selected_outlet' => null,
+            'base_url'        => url('')
+        ];
+
+        return view('admin.index')->with(compact('state'));
+    }
+
+    /**
+     * Outlet id used through session to limit query to DB
+     * @param ApiRequest $req
+     * @return $this
+     */
+    public function setUpOuletId(ApiRequest $req){
+        $data = json_decode($req->getContent(), true);
+        
+        $outlet_id = $data['outlet_id'];
+        
+        session(compact('outlet_id'));
+        
+        $data = [];
+        $code = 200;
+        $msg  = Call::AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS;
+        
+        return $this->apiResponse($data, $code, $msg);
     }
 
     /**
@@ -51,51 +88,6 @@ class AdminController extends HoiController {
         return view('admin.settings')->with(compact('state'));
     }
     
-    /**
-     * Session for view group by date
-     * Session for edit should relfect what store in DB
-     * @param Collection $weekly_sessions
-     */
-    public function _buildWeeklySessionsView($weekly_sessions = null){
-        if(is_null($weekly_sessions)){
-            $weekly_sessions = collect([]);
-        }
-
-        $today = Carbon::now(Setting::timezone());
-        $monday = $today->copy()->startOfWeek();
-        $sunday = $today->copy()->endOfWeek();
-
-        $date_range = [$monday, $sunday];
-
-        $weekly_sessions_view =
-            $weekly_sessions
-                ->map->assignDate($date_range)->collapse()
-//                ->groupBy(function($session){return $session->date->format('l');})
-//                ->sortBy(function($group, $group_name){
-//                    switch($group_name){
-//                        case 'Monday':
-//                            return Carbon::MONDAY;
-//                        case 'Tuesday':
-//                            return Carbon::TUESDAY;
-//                        case 'Wednesday':
-//                            return Carbon::WEDNESDAY;
-//                        case 'Thursday':
-//                            return Carbon::THURSDAY;
-//                        case 'Friday':
-//                            return Carbon::FRIDAY;
-//                        case 'Saturday':
-//                            return Carbon::SATURDAY;
-//                        case 'Sunday':
-//                            return 7 + Carbon::SUNDAY;
-//                        default:
-//                            return 0;
-//                    }
-//                })
-                ;
-
-        return $weekly_sessions_view;
-    }
-
     /**
      * @param ApiRequest $req
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View

@@ -53,13 +53,13 @@ class RegisterController extends Controller
     protected function create(array $data) {
         return ReservationUser::create([
             'user_name'     => $data['user_name'],
-            'password_hash' => sha1($data['password']),
+            'password_hash' => bcrypt($data['password']),
             'email'         => $data['email'],
             'display_name'  => $data['display_name'],
         ]);
     }
 
     public function redirectTo(){
-        return 'admin/settings';
+        return route('admin');
     }
 }

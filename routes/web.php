@@ -11,6 +11,10 @@
 |
 */
 Auth::routes();
+Route::get('logout', function(){
+    Auth::logout();
+    return redirect('');
+});
 Route::get( '', 'BookingController@getBookingForm');
 Route::post('', 'BookingController@getBookingForm');
 
@@ -21,9 +25,13 @@ Route::post('reservations/{confirm_id}', 'ReservationController@getConfirmPage')
 /**
  * Route to admin page
  */
-Route::get('admin',              'AdminController@getDashboard');
-Route::get('admin/settings',     'AdminController@getSettingsDashboard');
-Route::get('admin/reservations', 'AdminController@getReservationDashboard');
+Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function(){
+    Route::get('',             'AdminController@getDashboard')->name('admin');
+    Route::post('',            'AdminController@setUpOuletId');
+    Route::get('settings',     'AdminController@getSettingsDashboard');
+    Route::get('reservations', 'AdminController@getReservationDashboard');
+});
+
 
 /**
  * Handle update post from admin page

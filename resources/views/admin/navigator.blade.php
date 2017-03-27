@@ -3,7 +3,7 @@
         <div class="row">
             <div class="col-md-2">
                 <div class="navbar-header">
-                    <a class="navbar-brand" href="#">Admin Page</a>
+                    <a class="navbar-brand" href="{{ url('admin') }}">Admin Page</a>
                 </div>
             </div>
 

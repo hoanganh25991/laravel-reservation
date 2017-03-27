@@ -15,7 +15,7 @@ return [
 
     'defaults' => [
         'guard' => 'web',
-        'passwords' => 'users',
+        'passwords' => 'outlet_reservation_user',
     ],
 
     /*
@@ -96,6 +96,12 @@ return [
         'users' => [
             'provider' => 'users',
             'table' => 'password_resets',
+            'expire' => 60,
+        ],
+
+        'outlet_reservation_user' => [
+            'provider' => 'outlet_reservation_user',
+            'table' => 'outlet_reservation_user_reset_password',
             'expire' => 60,
         ],
     ],
