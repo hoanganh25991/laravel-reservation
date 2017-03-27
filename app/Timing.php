@@ -47,7 +47,7 @@ class Timing extends HoiModel {
     /**
      * First arrival time & last arrival time pick rule
      */
-    const ARRIVAL_STEPS  = [0, 30];
+    const ARRIVAL_STEPS  = [30];
 
     /**
      * Capcaity prefix
@@ -123,7 +123,19 @@ class Timing extends HoiModel {
         $time = Carbon::createFromFormat('H:i:s', $value, Setting::timezone());
         $minute = $time->minute;
 
-        return in_array($minute, Timing::ARRIVAL_STEPS);
+        $count = 0;
+        $respect_step = false;
+        while($count < count(Timing::ARRIVAL_STEPS) && !$respect_step){
+            $step = Timing::ARRIVAL_STEPS[$count];
+
+            if($minute % $step == 0){
+                $respect_step = true;
+            }
+
+            $count++;
+        }
+
+        return $respect_step;
     }
 
     /**

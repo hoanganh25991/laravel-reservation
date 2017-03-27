@@ -472,7 +472,7 @@ class Reservation extends HoiModel {
      * @param $val
      * @return int
      */
-    public function getSendSMSConfirmationAttribute($val){
+    public function getSendSMSConfirmationAttribute($val = null){
         if(!is_null($val)){
             return $val;
         }
