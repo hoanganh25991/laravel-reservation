@@ -44,6 +44,7 @@ var AJAX_UPDATE_SESSIONS_SUCCESS = 'AJAX_UPDATE_SESSIONS_SUCCESS';
 
 var AJAX_SUCCESS = 'AJAX_SUCCESS';
 var AJAX_ERROR = 'AJAX_ERROR';
+var AJAX_VALIDATE_FAIL = 'AJAX_VALIDATE_FAIL';
 
 var AdminReservations = function () {
 	/**
@@ -497,14 +498,14 @@ var AdminReservations = function () {
 			switch (res.statusMsg) {
 				case AJAX_SUCCESS:
 					{
-						var toast = {
+						var _toast = {
 							title: 'Update success',
 							content: '＼＿ヘ(ᐖ◞)､ '
 						};
 
 						store.dispatch({
 							type: TOAST_SHOW,
-							toast: toast
+							toast: _toast
 						});
 
 						store.dispatch({
@@ -516,16 +517,26 @@ var AdminReservations = function () {
 					}
 				case AJAX_ERROR:
 					{
-						var _toast = {
+						var _toast2 = {
 							title: 'Update fail',
 							content: res.data.substr(0, 50)
 						};
 
 						store.dispatch({
 							type: TOAST_SHOW,
-							toast: _toast
+							toast: _toast2
 						});
 					}
+				case AJAX_VALIDATE_FAIL:
+					var toast = {
+						title: 'Validate Fail',
+						content: JSON.stringify(res.data)
+					};
+
+					store.dispatch({
+						type: TOAST_SHOW,
+						toast: toast
+					});
 				default:
 					break;
 

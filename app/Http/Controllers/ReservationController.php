@@ -77,16 +77,32 @@ class ReservationController extends HoiController{
             case Call::AJAX_UPDATE_RESERVATIONS:
                 $reservations = $data['reservations'];
 
+                $validator = null;
+
+
+
+
                 foreach($reservations as $reservation_data){
-                    $sanity_data = Reservation::sanityData($reservation_data);
-                    $sanity_data['reservation_timestamp'] = $sanity_data['reservation_timestamp'].":00";
-                    $reservation = new Reservation($sanity_data);
-                    $reservation->save();
+                    $validator = Reservation::validateOnCRUD($reservation_data);
+
+//                    if($validator->fails()){
+//                        break;
+//                    }
+//                    $sanity_data = Reservation::sanityData($reservation_data);
+//                    $sanity_data['reservation_timestamp'] = $sanity_data['reservation_timestamp'].":00";
+//                    $reservation = new Reservation($sanity_data);
+//                    $reservation->save();
                 }
 
-                $data = $this->fetchUpdateReservations();
-                $code = 200;
-                $msg  = Call::AJAX_SUCCESS;
+                if($validator->fails()){
+                    $data = $validator->getMessageBag()->toArray();
+                    $code = 200;
+                    $msg  = Call::AJAX_VALIDATE_FAIL;
+                }else{
+                    $data = $this->fetchUpdateReservations();
+                    $code = 200;
+                    $msg  = Call::AJAX_SUCCESS;
+                }
                 break;
             default:
                 $data = $req->all();

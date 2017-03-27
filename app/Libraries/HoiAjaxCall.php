@@ -22,5 +22,6 @@ class HoiAjaxCall {
 
     const AJAX_SUCCESS  = 'AJAX_SUCCESS';
     const AJAX_ERROR    = 'AJAX_ERROR';
+    const AJAX_VALIDATE_FAIL = 'AJAX_VALIDATE_FAIL';
 
 }

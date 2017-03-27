@@ -7,7 +7,7 @@ use Carbon\Carbon;
 use App\Traits\ApiUtils;
 use App\Events\ReservationReserved;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Validator;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\Eloquent\Builder;
 use App\OutletReservationSetting as Setting;
 
@@ -108,7 +108,7 @@ class Reservation extends HoiModel {
 
     protected $hidden = [
         'customer_id',
-        'outlet_id',
+//        'outlet_id',
         'payment_id',
     ];
 
@@ -209,7 +209,7 @@ class Reservation extends HoiModel {
      * @param $reservation_data
      */
     public static function validateOnCRUD($reservation_data){
-        $validator = Validator::make([
+        $validator = Validator::make($reservation_data, [
             'outlet_id'    => 'required',
             'salutation'   => 'required',
             'first_name'   => 'required',
@@ -217,10 +217,10 @@ class Reservation extends HoiModel {
             'email'        => 'required|email',
             'phone_country_code' => 'required|regex:/^\+*(\d{2})/',
             'phone'        => 'required|regex:/\d+$/',
-            'adult_pax'    => 'requireds',
+            'adult_pax'    => 'required',
             'children_pax' => 'required',
             'reservation_timestamp' => 'required|date_format:Y-m-d H:i:s',
-        ], $reservation_data);
+        ]);
 
         return $validator;
     }

@@ -41,6 +41,7 @@ const AJAX_UPDATE_SESSIONS_SUCCESS   = 'AJAX_UPDATE_SESSIONS_SUCCESS';
 
 const AJAX_SUCCESS  = 'AJAX_SUCCESS';
 const AJAX_ERROR    = 'AJAX_ERROR';
+const AJAX_VALIDATE_FAIL = 'AJAX_VALIDATE_FAIL';
 
 
 
@@ -505,6 +506,16 @@ class AdminReservations {
 					toast
 				});
 			}
+			case AJAX_VALIDATE_FAIL:
+				let toast = {
+					title: 'Validate Fail',
+					content: JSON.stringify(res.data)
+				}
+
+				store.dispatch({
+					type: TOAST_SHOW,
+					toast
+				});
 			default:
 				break;
 
