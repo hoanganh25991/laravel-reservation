@@ -7,6 +7,7 @@ use App\Reservation;
 use App\Traits\SendSMS;
 use Illuminate\Bus\Queueable;
 use App\Events\SentReminderSMS;
+use App\Exceptions\SMSException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -22,7 +23,6 @@ class HoiJobs implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @return void
      */
     public function __construct(){}
 
@@ -62,6 +62,7 @@ class HoiJobs implements ShouldQueue
         $reservations =
             Reservation::where([
                 ['status', '=', Reservation::RESERVED],
+                ['send_sms_confirmation', '=', Setting::SEND_SMS_CONFIRMATION],
                 ['send_confirmation_by_timestamp', '<=', $today_str]
             ])
             ->get();
