@@ -10,9 +10,6 @@ var CHANGE_RESERVATION_DIALOG_CONTENT = 'CHANGE_RESERVATION_DIALOG_CONTENT';
 var UPDATE_SINGLE_RESERVATIONS = 'UPDATE_SINGLE_RESERVATIONS';
 var UPDATE_RESERVATIONS = 'UPDATE_RESERVATIONS';
 
-var ADD_WEEKLY_SESSION = 'ADD_WEEKLY_SESSION';
-var ADD_SPECIAL_SESSION = 'ADD_SPECIAL_SESSION';
-var UPDATE_WEEKLY_SESSIONS = 'UPDATE_WEEKLY_SESSIONS';
 var SYNC_DATA = 'SYNC_DATA';
 var DELETE_TIMING = 'DELETE_TIMING';
 var DELETE_SESSION = 'DELETE_SESSION';
@@ -94,6 +91,11 @@ var AdminReservations = function () {
 						return Object.assign({}, state, {
 							toast: action.toast
 						});
+					case SYNC_DATA:
+						{
+							console.log('still not handle SYNC DATA case');
+							return state;
+						}
 					default:
 						return state;
 				}
@@ -151,15 +153,42 @@ var AdminReservations = function () {
 					self.view();
 					self.listener();
 				},
-				updated: function updated() {},
+				beforeUpdate: function beforeUpdate() {},
+				updated: function updated() {
+					// let store  = window.store;
+					// let action = store.getLastAction();
+					//
+					// /**
+					//  * Calling out dialog for reservation detail
+					//  * To bundle change, wait for SAVE clicked
+					//  * @type {boolean}
+					//  */
+					// let should_auto_update = action != CHANGE_RESERVATION_DIALOG_CONTENT;
+					// if(should_auto_update){
+					// 	store.dispatch({
+					// 		type: UPDATE_RESERVATIONS
+					// 	});
+					// }
+				},
 
 				methods: {
 					_reservationDetailDialog: function _reservationDetailDialog(e) {
-						console.log('see tr click');
-						console.log(e);
+						// console.log('see tr click');
+						// console.log(e);
 						try {
 							var tr = this._findIElement(e);
 							var reservation_index = tr.getAttribute('reservation-index');
+
+							/**
+        * Update to mark as staff read
+        * @warn modify in this way VERY DANGEROUS
+        * Many thing may make a reservation maked as READ
+        * Type on something,...
+        * Change on something,...
+        * @type {boolean}
+        */
+							this.reservations[reservation_index].status = true;
+
 							var reservation = Object.assign({}, this.reservations[reservation_index]);
 
 							store.dispatch({
@@ -167,6 +196,7 @@ var AdminReservations = function () {
 								reservation_dialog_content: reservation
 							});
 						} catch (e) {
+							// console.log('click on other element, which more important than tr')
 							return;
 						}
 					},
@@ -198,17 +228,13 @@ var AdminReservations = function () {
 						return null;
 					},
 					_updateReservationDialog: function _updateReservationDialog() {
-						var state = store.getState();
 						store.dispatch({
-							type: UPDATE_SINGLE_RESERVATIONS,
-							reservation_dialog_content: state.reservation_dialog_content
+							type: UPDATE_SINGLE_RESERVATIONS
 						});
 					},
 					_updateReservations: function _updateReservations() {
-						var state = store.getState();
 						store.dispatch({
-							type: UPDATE_RESERVATIONS,
-							reservation_dialog_content: state.reservation_dialog_content
+							type: UPDATE_RESERVATIONS
 						});
 					}
 				}

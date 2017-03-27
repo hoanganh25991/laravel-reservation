@@ -4,9 +4,6 @@ const CHANGE_RESERVATION_DIALOG_CONTENT = 'CHANGE_RESERVATION_DIALOG_CONTENT';
 const UPDATE_SINGLE_RESERVATIONS         = 'UPDATE_SINGLE_RESERVATIONS';
 const UPDATE_RESERVATIONS = 'UPDATE_RESERVATIONS';
 
-const ADD_WEEKLY_SESSION     = 'ADD_WEEKLY_SESSION';
-const ADD_SPECIAL_SESSION    = 'ADD_SPECIAL_SESSION';
-const UPDATE_WEEKLY_SESSIONS = 'UPDATE_WEEKLY_SESSIONS';
 const SYNC_DATA              = 'SYNC_DATA';
 const DELETE_TIMING          = 'DELETE_TIMING';
 const DELETE_SESSION         = 'DELETE_SESSION';
@@ -86,6 +83,10 @@ class AdminReservations {
 					return Object.assign({}, state, {
 						toast: action.toast
 					});
+				case SYNC_DATA:{
+					console.log('still not handle SYNC DATA case');
+					return state;
+				}
 				default:
 					return state;
 			}
@@ -143,15 +144,44 @@ class AdminReservations {
 
 
 			},
+			beforeUpdate(){
+
+
+			},
 			updated(){
+				// let store  = window.store;
+				// let action = store.getLastAction();
+				//
+				// /**
+				//  * Calling out dialog for reservation detail
+				//  * To bundle change, wait for SAVE clicked
+				//  * @type {boolean}
+				//  */
+				// let should_auto_update = action != CHANGE_RESERVATION_DIALOG_CONTENT;
+				// if(should_auto_update){
+				// 	store.dispatch({
+				// 		type: UPDATE_RESERVATIONS
+				// 	});
+				// }
 			},
 			methods: {
 				_reservationDetailDialog(e){
-					console.log('see tr click');
-					console.log(e);
+					// console.log('see tr click');
+					// console.log(e);
 					try{
 						let tr = this._findIElement(e);
 						let reservation_index = tr.getAttribute('reservation-index');
+
+						/**
+						 * Update to mark as staff read
+						 * @warn modify in this way VERY DANGEROUS
+						 * Many thing may make a reservation maked as READ
+						 * Type on something,...
+						 * Change on something,...
+						 * @type {boolean}
+						 */
+						this.reservations[reservation_index].status = true;
+
 						let reservation = Object.assign({}, this.reservations[reservation_index]);
 
 						store.dispatch({
@@ -159,6 +189,7 @@ class AdminReservations {
 							reservation_dialog_content: reservation
 						});
 					}catch(e){
+						// console.log('click on other element, which more important than tr')
 						return;
 					}
 				},
@@ -195,18 +226,14 @@ class AdminReservations {
 				},
 
 				_updateReservationDialog(){
-					let state = store.getState();
 					store.dispatch({
-						type: UPDATE_SINGLE_RESERVATIONS,
-						reservation_dialog_content: state.reservation_dialog_content
+						type: UPDATE_SINGLE_RESERVATIONS
 					});
 				},
 
 				_updateReservations(){
-					let state = store.getState();
 					store.dispatch({
-						type: UPDATE_RESERVATIONS,
-						reservation_dialog_content: state.reservation_dialog_content
+						type: UPDATE_RESERVATIONS
 					});
 				}
 

@@ -18,6 +18,7 @@
                                 <thead>
                                 <tr class="bg-info">
                                     <th></th>
+                                    <th>Read</th>
                                     <th>Customer Info</th>
                                     <th>Time</th>
                                     <th>Pax Size</th>
@@ -35,6 +36,12 @@
                                         v-on:click="_reservationDetailDialog"
                                     >
                                         <td>{{ reservation_index + 1 }}</td>
+                                        <td>
+                                            <input type="checkbox"
+                                                   v-model="reservation.staff_read_state"
+                                                   style="position: relative; width: 20px; left: 0px;"
+                                            >
+                                        </td>
                                         <td style="width: 200px">
                                             <p style="margin: 0">{{ reservation.salutation }} {{ reservation.first_name }} {{ reservation.last_name }}</p>
                                             <p style="margin: 0">{{ reservation.phone_country_code }}{{ reservation.phone }}</p>
