@@ -91,6 +91,17 @@ Route::get('test', function(App\Http\Controllers\BookingController $c, App\Http\
 //    dd($a->getSettingsDashboard($req));
 //    return (string)url('/');
 
-    return $s->update();
+//    return $s->update();
+
+
+//    $r = new App\Reservation();
+//    $r->reservation_timestamp = "2017-03-05 00:00:00";
+//
+//    $r->save();
+//
+//    $b = $r->send_confirmation_by_timestamp;
+//
+//    dd($r, $b);
+    
 });
 

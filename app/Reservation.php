@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use App\Traits\ApiUtils;
 use App\Events\ReservationReserved;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Validator;
 use Illuminate\Database\Eloquent\Builder;
 use App\OutletReservationSetting as Setting;
 
@@ -111,7 +112,10 @@ class Reservation extends HoiModel {
         'payment_id',
     ];
 
-    protected $casts = [];
+    protected $casts = [
+        'send_sms_confirmation' => 'boolean',
+        'staff_read_state'        => 'boolean'
+    ];
 
     protected $fillable = [
         'outlet_id',
@@ -135,7 +139,6 @@ class Reservation extends HoiModel {
         'send_sms_confirmation',
         'send_email_confirmation',
         'session_name',
-        'reservation_code',
         'staff_read_state',
         'payment_id',
         'payment_timestamp',
@@ -156,14 +159,18 @@ class Reservation extends HoiModel {
              * Auto compute send_confirmation_by_timestamp
              * Base on current config
              */
-            $reservation->send_confirmation_by_timestamp = $reservation->send_confirmation_by_timestamp;
+            if(!isset($reservation->attributes['send_confirmation_by_timestamp'])){
+                $reservation->send_confirmation_by_timestamp = $reservation->getSendConfirmationByTimestampAttribute();
+            }
 
             /**
              * Auto compuate send_sms_confirmation
              * Base on current config
              */
-            $reservation->send_sms_confirmation = $reservation->send_sms_confirmation;
-            
+            if(!isset($reservation->attributes['send_sms_confirmation'])){
+                $reservation->send_sms_confirmation = $reservation->getSendSMSConfirmationAttribute();
+            }
+
             /**
              * Default with no status explicit bind
              * Reservation consider as RESERVERD
@@ -174,7 +181,7 @@ class Reservation extends HoiModel {
                 if($reservation->requiredDeposit()){
                     $status = Reservation::REQUIRED_DEPOSIT;
                 }
-                
+
                 $reservation->status = $status;
             }
         });
@@ -186,35 +193,75 @@ class Reservation extends HoiModel {
         });
 
         self::updated(function(Reservation $reservation){
-            if($reservation->status == Reservation::RESERVED){
-                event(new ReservationReserved($reservation));
-            }
+            /**
+             * @warn may improve in future
+             * For checking it should resent SMS
+             * When reservation updated info
+             */
         });
 
         static::orderByRerservationTimestamp();
         static::byOutletId();
     }
 
+    /**
+     * Validate when create/add/update... on Model
+     * @param $reservation_data
+     */
+    public static function validateOnCRUD($reservation_data){
+        $validator = Validator::make([
+            'outlet_id'    => 'required',
+            'salutation'   => 'required',
+            'first_name'   => 'required',
+            'last_name'    => 'required',
+            'email'        => 'required|email',
+            'phone_country_code' => 'required|regex:/^\+*(\d{2})/',
+            'phone'        => 'required|regex:/\d+$/',
+            'adult_pax'    => 'requireds',
+            'children_pax' => 'required',
+            'reservation_timestamp' => 'required|date_format:Y-m-d H:i:s',
+        ], $reservation_data);
+
+        return $validator;
+    }
+
+    /**
+     * Global scope when get Reservation
+     * It should in timeline order
+     */
     public static function orderByRerservationTimestamp(){
         static::addGlobalScope('order_by_reservation_timestamp', function(Builder $builder){
             $builder->orderBy('reservation_timestamp', 'dec');
         });
     }
 
-    public function scopeValidInDateRange($query){
-        $date_range = $this->availableOnDay();
+    /**
+     * Get Reservation reserved
+     * @param $query
+     * @return mixed
+     */
+    public function scopeReservedInDateRange($query){
+        $date_range = Setting::dateRange();
 
-        //consider status > CONFIRMED as booked
+        //consider status > RESERVED as booked
         return $query->where([
             ['reservation_timestamp', '>=', $date_range[0]->format('Y-m-d H:i:s')],
             ['reservation_timestamp', '<=', $date_range[1]->format('Y-m-d H:i:s')],
             ['status', '>=', Reservation::RESERVED]
         ]);
     }
-    
+
+    /**
+     * Reservation group by date time & capacity
+     * Like query into database, concat on different condition
+     * >>> can count easily on each group
+     *
+     * Need count how many reservation at specific datetime & at specific capicity
+     * @return mixed
+     */
     public static function reservedGroupByDateTimeCapacity(){
         $self = (new Reservation);
-        $valid_reservations   = $self->scopeValidInDateRange($self->query())->get();
+        $valid_reservations   = $self->scopeReservedInDateRange($self->query())->get();
 
         $capacity_counted_reservations =
             $valid_reservations
@@ -287,9 +334,14 @@ class Reservation extends HoiModel {
     /**
      * Base on notification config: HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM
      * determine when should send
-     * @return Carbon
+     * @param string|null $date
+     * @return Carbon|null
      */
-    public function getSendConfirmationByTimestampAttribute(){
+    public function getSendConfirmationByTimestampAttribute($date = null){
+        if(!is_null($date) && $date !== ''){
+            return Carbon::createFromFormat('Y-m-d H:i:s', $date, Setting::timezone());
+        }
+
         $notification_config = Setting::notificationConfig();
         $hours_before_reservation_timing_send_sms = $notification_config(Setting::HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM);
 
@@ -297,6 +349,11 @@ class Reservation extends HoiModel {
             return Carbon::now(Setting::timezone())->addMinutes(1);
         }
 
+        /**
+         * When default set up send confirmation by timestamp
+         * Without reservation_timestamp CAN NOT determine when
+         * Ignore
+         */
         if(is_null($this->date)){
             return null;
         }
@@ -313,10 +370,11 @@ class Reservation extends HoiModel {
      * @return bool
      */
     public function shouldSendConfirmSMS(){
-        $notification_config = Setting::notificationConfig();
-        $should_send_sms_to_confirm_reservation = $notification_config(Setting::SEND_SMS_CONFIRMATION) == Setting::SHOULD_SEND;
-
-        return $should_send_sms_to_confirm_reservation;
+//        $notification_config = Setting::notificationConfig();
+//        $should_send_sms_to_confirm_reservation = $notification_config(Setting::SEND_SMS_CONFIRMATION) == Setting::SHOULD_SEND;
+//
+//        return $should_send_sms_to_confirm_reservation;
+        return $this->send_sms_confirmation;
     }
 
     public function getConfirmSMSDateAttribute(){
@@ -411,9 +469,14 @@ class Reservation extends HoiModel {
      * Base on current config
      */
     /**
+     * @param $val
      * @return int
      */
-    public function getSendSMSConfirmationAttribute(){
+    public function getSendSMSConfirmationAttribute($val){
+        if(!is_null($val)){
+            return $val;
+        }
+
         $notification_config = Setting::notificationConfig();
 
         return $notification_config(Setting::SEND_SMS_CONFIRMATION);
@@ -473,8 +536,8 @@ class Reservation extends HoiModel {
         /**
          * Return as datetime string to consistent with DB
          */
-        $attributes['send_confirmation_by_timestamp']
-            = $this->send_confirmation_by_timestamp->format('Y-m-d H:i:s');
+//        $attributes['send_confirmation_by_timestamp']
+//            = $this->send_confirmation_by_timestamp->format('Y-m-d H:i:s');
 
         return $attributes;
     }
@@ -493,14 +556,6 @@ class Reservation extends HoiModel {
         $last_30_days_str = $last_30_days->format('Y-m-d H:i:s');
 
         return $query->where('reservation_timestamp', '>=', $last_30_days_str);
-    }
-
-    public static function sanityData($model_data){
-        $data = parent::sanityData($model_data);
-        
-        
-        
-        
     }
 
 }
