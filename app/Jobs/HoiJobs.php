@@ -72,7 +72,7 @@ class HoiJobs implements ShouldQueue
             $message     = $reservation->confirmation_sms_message;
             $sender_name = Setting::smsSenderName();
 
-            $success_sent = $this->sendOverHoiio($telephone, $message, $sender_name);
+            $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);
 
             if($success_sent){
                 Log::info('Success send sms to reminder');

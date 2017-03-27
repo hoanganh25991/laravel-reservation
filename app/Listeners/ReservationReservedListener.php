@@ -41,7 +41,7 @@ class ReservationReservedListener{
             $telephone    = $reservation->full_phone_number;
             $message      = $reservation->sms_message_on_reserved;
             $sender_name  = Setting::smsSenderName();
-            $success_sent = $this->sendOverHoiio($telephone, $message, $sender_name);
+            $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);
 
             if($success_sent){
                 Log::info('Success send sms on reserved');

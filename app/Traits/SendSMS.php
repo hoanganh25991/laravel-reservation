@@ -2,20 +2,10 @@
 namespace App\Traits;
 
 use App\BrandCredit;
+use App\Exceptions\SMSException;
 use Illuminate\Support\Facades\Log;
 
 trait SendSMS{
-    private function _padTelephone($telephone){
-        if(substr($telephone, 0, 3) != "+65"){
-            if(substr($telephone, 0, 2) != "65"){
-                $telephone = "+65" . $telephone;
-            }else{
-                $telephone = "+" . $telephone;
-            }
-        }
-        return $telephone;
-    }
-
     /**
      * Send SMS through Hoiio
      * @param $telephone
@@ -23,8 +13,8 @@ trait SendSMS{
      * @param $sender_name
      * @return bool
      */
-    public function sendOverHoiio($telephone, $message, $sender_name){
-        $success_sent = $this->_sendOverHoiio($telephone, $message, $sender_name);
+    public function sendOverNexmo($telephone, $message, $sender_name){
+        $success_sent = $this->_sendMessage($telephone, $message, $sender_name);
 
         /**
          * When success sent
@@ -39,65 +29,65 @@ trait SendSMS{
          */
         return $success_sent;
     }
-    public function _sendOverHoiio($telephone, $message, $sender_name){
-        //pad the phone number
-        //$telephone = $this->_padTelephone($telephone);
-        //Log::info('Sending SMS');
-        Log::info($message);
+    public function _sendMessage($telephone, $message, $sender_name){
+        if(is_null(env('NEXMO_KEY')) || is_null(env('NEXMO_SECRET'))){
+            throw new SMSException('NEXMO_KEY or NEXMO_SECRET not set in .env');
+        }
+
         if(env('APP_ENV') != 'production'){
-            //Log::info('SMS on dev environment, fake return true as success sending');
             return true;
         }
 
-        $hoiioAppId = "n0rwoAWlLNvTZpXo";
-        $hoiioAccessToken = "OsiquwPsGPkpXrxV";
-        $sendSmsURL = "https://secure.hoiio.com/open/sms/send";
-        $fields = array(
-            'app_id' => urlencode($hoiioAppId),
-            'access_token' => urlencode($hoiioAccessToken),
-            'dest' => urlencode($telephone),
-            // send SMS to this phone
+        $telephone = $this->removePlusSign($telephone);
 
-            'msg' => urlencode($message),
-            // message content in SMS
-            'sender_name' => $sender_name
-        );
+        $url = 'https://rest.nexmo.com/sms/json?' . http_build_query(
+                [
+                    'api_key'    => env('NEXMO_KEY'),
+                    'api_secret' => env('NEXMO_SECRET'),
+                    'to'         => $telephone,
+                    'from'       => $sender_name,
+                    'text'       => $message
+                ]
+            );
 
-        // form up variables in the correct format for HTTP POST
-        $fields_string = "";
-        foreach($fields as $key => $value){
-            $fields_string .= $key . '=' . $value . '&';
-        }
-
-        $fields_string = rtrim($fields_string, '&');
-
-        /* initialize cURL */
-        $ch = curl_init();
-
-        /* set options for cURL */
-        curl_setopt($ch, CURLOPT_URL, $sendSmsURL);
-        curl_setopt($ch, CURLOPT_POST, true);
+        $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
+        $response = curl_exec($ch);
 
-        /* execute HTTP POST request */
-        $raw_result = curl_exec($ch);
-        $result = json_decode($raw_result);     // parse JSON formatted result
+        //Decode the json object you retrieved when you ran the request.
+        $decoded_response = json_decode($response, true);
 
-        /* close connection */
-        curl_close($ch);
-
-        if($result->status == "success_ok"){
+        /**
+         * This check is fast check for ONE MESSAGE
+         */
+//        foreach ( $decoded_response['messages'] as $message ) {
+//            if ($message['status'] == 0) {
+//                error_log("Success " . $message['message-id']);
+//            } else {
+//                error_log("Error {$message['status']} {$message['error-text']}");
+//            }
+//        }
+        $sent_message = $decoded_response['messages'][0];
+        
+        if($sent_message['status'] == 0){
             return true;
         }else{
             return false;
         }
     }
 
+    public function removePlusSign($telephone){
+        if(substr($telephone, 0, 1) === '+'){
+            return substr($telephone, 1);
+        }
+
+        return $telephone;
+    }
+
     /**
      * Save send sms credit in DB
      */
-    private function callUpdateBrandCredit(){
+    public function callUpdateBrandCredit(){
         (new BrandCredit)->updateSMSCredit();
     }
 }

@@ -45,7 +45,7 @@ class SendConfirmSMS implements ShouldQueue{
         $message      = $this->getMessage($reservation);
         $sender_name  = Setting::smsSenderName();
 
-        $success_sent = $this->sendOverHoiio($telephone, $message, $sender_name);
+        $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);
         if($success_sent){
             Log::info('Success send sms to reminder');
             event(new SentReminderSMS($reservation));
