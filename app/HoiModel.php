@@ -123,11 +123,14 @@ class HoiModel extends Model {
      * @param $val
      * @return int
      */
-    public function getJsonBoolean($val){
-        if(is_bool($val)){
-            $val = $val ? 1 : 0;
-        }
-
-        return $val;
-    }
+    /**
+     * Default in MYSQL cast true/false > int
+     */
+//    public function getJsonBoolean($val){
+//        if(is_bool($val)){
+//            $val = $val ? 1 : 0;
+//        }
+//
+//        return $val;
+//    }
 }
