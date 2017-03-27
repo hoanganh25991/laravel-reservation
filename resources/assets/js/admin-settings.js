@@ -145,6 +145,8 @@ class AdminSettings {
 					});
 				case SYNC_DATA : {
 					let data = action.data;
+					data.deleted_sessions = [];
+					data.deleted_timings  = [];
 					return Object.assign({}, state, data);
 				}
 				case UPDATE_NOTIFICATION:

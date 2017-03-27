@@ -159,6 +159,8 @@ var AdminSettings = function () {
 					case SYNC_DATA:
 						{
 							var data = action.data;
+							data.deleted_sessions = [];
+							data.deleted_timings = [];
 							return Object.assign({}, state, data);
 						}
 					case UPDATE_NOTIFICATION:
