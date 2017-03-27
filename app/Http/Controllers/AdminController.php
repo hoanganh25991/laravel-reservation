@@ -108,6 +108,7 @@ class AdminController extends HoiController {
         $reservations = $reservation_controller->fetchUpdateReservations();
         
         $state = [
+            'base_url'     => url(''),
             'reservations' => $reservations
         ];
         

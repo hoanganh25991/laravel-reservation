@@ -8,6 +8,10 @@ use App\Libraries\HoiHash;
 use App\OutletReservationSetting as Setting;
 use Illuminate\Database\Eloquent\Collection;
 
+/**
+ * @property mixed outlet_id
+ * @see App\OutletReservationSetting::outletId
+ */
 class OutletReservationSetting extends HoiModel{
 
     use ApiUtils;
@@ -113,6 +117,12 @@ class OutletReservationSetting extends HoiModel{
 
     protected static function boot(){
         parent::boot();
+
+        static::creating(function(Setting $setting){
+            if(!isset($setting->attributes['outlet_id'])){
+                $setting->outlet_id = Setting::outletId();
+            }
+        });
 
         static::byOutletId();
     }
