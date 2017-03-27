@@ -11,11 +11,11 @@ class ReservationUser extends User {
     
     use Notifiable;
 
-    
-    
-    protected $fillable = [
-        'user_name', 'password_hash', 'email', 'display_name'
-    ];
+    protected $guarded = ['id'];
+
+//    protected $fillable = [
+//        'user_name', 'password_hash', 'email', 'display_name'
+//    ];
 
     protected $hidden = [
         'password_hash', 'remember_token',

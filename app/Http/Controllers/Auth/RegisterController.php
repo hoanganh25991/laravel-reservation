@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\User;
+use App\ReservationUser;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
@@ -21,20 +21,11 @@ class RegisterController extends Controller
     */
 
     use RegistersUsers;
-
-    /**
-     * Where to redirect users after registration.
-     *
-     * @var string
-     */
-    public $redirectTo = 'fuck';
-
     /**
      * Create a new controller instance.
      *
      */
-    public function __construct()
-    {
+    public function __construct() {
         $this->middleware('guest');
     }
 
@@ -44,12 +35,11 @@ class RegisterController extends Controller
      * @param  array  $data
      * @return \Illuminate\Contracts\Validation\Validator
      */
-    protected function validator(array $data)
-    {
+    protected function validator(array $data) {
         return Validator::make($data, [
-            'user_name' => 'required|max:255',
-            'email' => 'required|email|max:255|unique:users',
-            'password' => 'required|min:6|confirmed',
+            'user_name'    => 'required|max:255|unique:outlet_reservation_user',
+            'email'        => 'required|email|max:255',
+            'password'     => 'required|min:6|confirmed',
             'display_name' => 'required',
         ]);
     }
@@ -60,13 +50,16 @@ class RegisterController extends Controller
      * @param  array  $data
      * @return User
      */
-    protected function create(array $data)
-    {
-        return User::create([
-            'user_name' => $data['user_name'],
-            'password' => bcrypt($data['password']),
-            'email' => $data['email'],
-            'display_name' => $data['display_name'],
+    protected function create(array $data) {
+        return ReservationUser::create([
+            'user_name'     => $data['user_name'],
+            'password_hash' => sha1($data['password']),
+            'email'         => $data['email'],
+            'display_name'  => $data['display_name'],
         ]);
+    }
+
+    public function redirectTo(){
+        return 'admin/settings';
     }
 }

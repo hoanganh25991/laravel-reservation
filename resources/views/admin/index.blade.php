@@ -1,11 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    {{--current id = 5--}}
-    <!-- Static navbar -->
-    <div id="admin-step-container">
-        @include('admin.navigator')
-    </div>
+    @include('auth.register')
 @endsection
 
 @push('script')
