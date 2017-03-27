@@ -35,14 +35,13 @@
                                         v-on:click="_reservationDetailDialog"
                                     >
                                         <td>{{ reservation_index + 1 }}</td>
-                                        <td>
+                                        <td style="width: 200px">
                                             <p style="margin: 0">{{ reservation.salutation }} {{ reservation.first_name }} {{ reservation.last_name }}</p>
-                                            <p style="margin: 0">{{ reservation.full_phone_number }}</p>
+                                            <p style="margin: 0">{{ reservation.phone_country_code }}{{ reservation.phone }}</p>
                                             <p style="margin: 0">{{ reservation.email }}</p>
                                         </td>
                                         <td style="width: 150px">{{ reservation.reservation_timestamp }}</td>
-                                        <td style="width: 100px">{{ reservation.adult_pax }}
-                                            +{{ reservation.children_pax }}</td>
+                                        <td style="width: 100px">{{ reservation.adult_pax }}+{{ reservation.children_pax }}</td>
                                         <td>
                                             <input
                                                     type="text" style="width: 100px"
