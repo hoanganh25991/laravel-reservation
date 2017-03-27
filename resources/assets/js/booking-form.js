@@ -559,7 +559,7 @@ class BookingForm {
 	updateSelectView(available_time) {
 		let state = store.getState();
 		let reservation_date = state.reservation.date;
-	    let selected_day_str = reservation_date.format('Y-MM-DD');
+	    let selected_day_str = reservation_date.format('YYYY-MM-DD');
 
 	    let available_time_on_selected_day = available_time[selected_day_str];
 	    if (typeof available_time_on_selected_day == 'undefined'){
@@ -686,7 +686,7 @@ class BookingForm {
 		});
 
 		document.addEventListener('user-select-day', function(e){
-			let date = moment(e.detail.day, 'Y-M-D');
+			let date = moment(e.detail.day, 'YYYY-MM-DD');
 
 			store.dispatch({
 				type: CHANGE_RESERVATION_DATE,
@@ -819,7 +819,7 @@ class BookingForm {
 
 		if(state.form_step == 'form-step-3'){
 			let {date, time} = state.reservation;
-			let reservation_timestamp = `${date.format('Y-M-D')} ${time}:00`;
+			let reservation_timestamp = `${date.format('YYYY-MM-DD')} ${time}:00`;
 			let {salutation, first_name, last_name, email, phone_country_code, phone, remarks} = state.customer;
 			data = Object.assign(data, {
 				// reservation_date: date.format('Y-M-D'),
@@ -835,7 +835,7 @@ class BookingForm {
 				step: 'form-step-3'
 			});
 
-			//console.log(data);
+			console.log(data);
 		}
 
 		$.ajax({
@@ -860,7 +860,10 @@ class BookingForm {
 				//noinspection JSValidateTypes
 				if(res.statusMsg == 'reservation.no_longer_available'){
 					let data = res.data;
-					console.log('SORRY, Someone has book before you. Rerservation no longer available', res.data);
+					let msg  = 'SORRY, Someone has book before you. Rerservation no longer available';
+
+					console.log(msg, res.data);
+					window.alert(msg);
 					return;
 				}
 
@@ -871,7 +874,10 @@ class BookingForm {
 
 				//noinspection JSValidateTypes
 				if(res.statusMsg == 'reservation.required_deposit'){
-					console.log('REQUIRED DEPOSIT, payment amount: ', res.data);
+					let msg = 'REQUIRED DEPOSIT, payment amount: ';
+
+					console.log(msg, res.data);
+					window.alert(msg);
 					return;
 				}
 

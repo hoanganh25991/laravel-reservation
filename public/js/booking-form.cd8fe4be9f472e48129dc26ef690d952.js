@@ -556,7 +556,7 @@ var BookingForm = function () {
 		value: function updateSelectView(available_time) {
 			var state = store.getState();
 			var reservation_date = state.reservation.date;
-			var selected_day_str = reservation_date.format('Y-MM-DD');
+			var selected_day_str = reservation_date.format('YYYY-MM-DD');
 
 			var available_time_on_selected_day = available_time[selected_day_str];
 			if (typeof available_time_on_selected_day == 'undefined') {
@@ -682,7 +682,7 @@ var BookingForm = function () {
 			});
 
 			document.addEventListener('user-select-day', function (e) {
-				var date = moment(e.detail.day, 'Y-M-D');
+				var date = moment(e.detail.day, 'YYYY-MM-DD');
 
 				store.dispatch({
 					type: CHANGE_RESERVATION_DATE,
@@ -806,7 +806,7 @@ var BookingForm = function () {
 				    date = _state$reservation.date,
 				    time = _state$reservation.time;
 
-				var reservation_timestamp = date.format('Y-M-D') + ' ' + time + ':00';
+				var reservation_timestamp = date.format('YYYY-MM-DD') + ' ' + time + ':00';
 				var _state$customer = state.customer,
 				    salutation = _state$customer.salutation,
 				    first_name = _state$customer.first_name,
@@ -830,7 +830,7 @@ var BookingForm = function () {
 					step: 'form-step-3'
 				});
 
-				//console.log(data);
+				console.log(data);
 			}
 
 			$.ajax({
@@ -856,7 +856,10 @@ var BookingForm = function () {
 					//noinspection JSValidateTypes
 					if (res.statusMsg == 'reservation.no_longer_available') {
 						var _data2 = res.data;
-						console.log('SORRY, Someone has book before you. Rerservation no longer available', res.data);
+						var msg = 'SORRY, Someone has book before you. Rerservation no longer available';
+
+						console.log(msg, res.data);
+						window.alert(msg);
 						return;
 					}
 
@@ -867,7 +870,10 @@ var BookingForm = function () {
 
 					//noinspection JSValidateTypes
 					if (res.statusMsg == 'reservation.required_deposit') {
-						console.log('REQUIRED DEPOSIT, payment amount: ', res.data);
+						var _msg = 'REQUIRED DEPOSIT, payment amount: ';
+
+						console.log(_msg, res.data);
+						window.alert(_msg);
 						return;
 					}
 

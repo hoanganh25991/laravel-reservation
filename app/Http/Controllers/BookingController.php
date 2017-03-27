@@ -14,6 +14,7 @@ use App\Http\Requests\ApiRequest;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
+use App\Libraries\HoiAjaxCall as Call;
 use Illuminate\Support\Facades\Response;
 use App\OutletReservationSetting as Setting;
 
@@ -441,22 +442,13 @@ class BookingController extends HoiController {
          * to create reservation
          */
         if($req->method() == 'POST' && $req->get('step') == 'form-step-3'){
-            $validator = Validator::make($req->all(), [
-                'outlet_id'        => 'required',
-                'adult_pax'        => 'required',
-                'children_pax'     => 'required',
-                'reservation_timestamp' => 'required',
-                'salutation'       => 'required',
-                'first_name'       => 'required',
-                'last_name'        => 'required',
-                'email'            => 'required',
-                'phone_country_code' => 'required',
-                'phone'            => 'required',
-//                'customer_remarks' => 'required'
-            ]);
+            $validator = Reservation::validateOnCRUD($req->all());
 
             if($validator->fails()){
-                return $this->apiResponse($req->all(), 422, $validator->getMessageBag()->toArray());
+                $data = $validator->getMessageBag()->toArray();
+                $code = 200;
+                $msg  = Call::AJAX_VALIDATE_FAIL;
+                return $this->apiResponse($data, $code, $msg);
             }
 
             /**
@@ -468,7 +460,7 @@ class BookingController extends HoiController {
             if(!$this->bookingStillAvailable($req)){
                 $data = [];
                 $code = 200;
-                $msg  = 'resesrvation.no_longer_available';
+                $msg  = 'reservation.no_longer_available';
                 return $this->apiResponse($data, $code, $msg);
             }
 
