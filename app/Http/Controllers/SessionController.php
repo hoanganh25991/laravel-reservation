@@ -30,16 +30,14 @@ class SessionController extends HoiController{
                      * Update
                      */
                     foreach($sessions as $session_data){
-                        $timings_data = $session_data['timings'];
-                        unset($session_data['timings']);
-
                         $s = Session::findOrNew($session_data['id']);
-                        $s->fill( Session::sanityData($session_data));
+                        $s->fill($session_data);
                         $s->save();
 
+                        $timings_data = $session_data['timings'];
                         foreach($timings_data as $timing_data){
                             $timing = Timing::findOrNew($timing_data['id']);
-                            $timing->fill(Timing::sanityData($timing_data));
+                            $timing->fill($timing_data);
                             $timing->session_id = $s->id;
                             $timing->save();
                         }

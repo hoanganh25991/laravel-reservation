@@ -12,6 +12,7 @@ use App\OutletReservationSetting as Setting;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 
 /**
+ * @property mixed $session_id
  * @property mixed $first_arrival_time
  * @property mixed $interval_minutes
  * @property mixed $capacity_1
@@ -24,7 +25,8 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
  * @property mixed $capacity_7_x
  * @property mixed $max_pax
  * @property mixed $min_pax_for_booking_deposit
- * 
+ * @property mixed children_allowed
+ *
  * @property mixed $disabled
  * @see Timing::getDisabledAttribute
  * 
@@ -76,12 +78,31 @@ class Timing extends HoiModel {
     const NO_DEPOSIT  = 0;
     const HAS_DEPOSIT = 1;
     
-    
-    
-
     protected $table = 'timing';
     
     protected $guarded = ['id'];
+
+    protected $fillable = [
+        'session_id',
+        'timing_name',
+        'disabled',
+        'first_arrival_time',
+        'last_arrival_time',
+        'interval_minutes',
+        'capacity_1',
+        'capacity_2',
+        'capacity_3_4',
+        'capacity_5_6',
+        'capacity_7_x',
+        'max_pax',
+        'children_allowed',
+        'is_outdoor',
+    ];
+
+    protected $casts = [
+//        'disabled' => 'boolean',
+//        'children_allowed' => 'boolean'
+    ];
 
     protected static function boot(){
         parent::boot();
@@ -206,7 +227,7 @@ class Timing extends HoiModel {
      */
     public function getChildrenAllowedAttribute($val){
         if(is_null($val)){
-            return true;
+            return  Timing::CHILDREN_ALLOWED;
         }
         
         return $val == Timing::CHILDREN_ALLOWED;
@@ -226,7 +247,7 @@ class Timing extends HoiModel {
                 $sanity_val = Timing::CHILDREN_ALLOWED;
                 break;
         }
-        
+
         $this->attributes['children_allowed'] = $sanity_val;
     }
 
@@ -267,7 +288,7 @@ class Timing extends HoiModel {
                 $sanity_val = Timing::AVAILABLE;
                 break;
         }
-        
+
         $this->attributes['disabled'] = $sanity_val;
     }
 }

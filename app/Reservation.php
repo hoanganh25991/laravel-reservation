@@ -114,7 +114,7 @@ class Reservation extends HoiModel {
 
     protected $casts = [
         'send_sms_confirmation' => 'boolean',
-        'staff_read_state'        => 'boolean'
+        'staff_read_state'      => 'boolean'
     ];
 
     protected $fillable = [
@@ -210,15 +210,15 @@ class Reservation extends HoiModel {
      */
     public static function validateOnCRUD($reservation_data){
         $validator = Validator::make($reservation_data, [
-            'outlet_id'    => 'required',
+            'outlet_id'    => 'required|numeric',
             'salutation'   => 'required',
             'first_name'   => 'required',
             'last_name'    => 'required',
             'email'        => 'required|email',
             'phone_country_code' => 'required|regex:/^\+*(\d{2})/',
             'phone'        => 'required|regex:/\d+$/',
-            'adult_pax'    => 'required',
-            'children_pax' => 'required',
+            'adult_pax'    => 'required|numeric',
+            'children_pax' => 'required|numeric',
             'reservation_timestamp' => 'required|date_format:Y-m-d H:i:s',
         ]);
 

@@ -79,9 +79,6 @@ class ReservationController extends HoiController{
 
                 $validator = null;
 
-
-
-
                 foreach($reservations as $reservation_data){
                     $validator = Reservation::validateOnCRUD($reservation_data);
 

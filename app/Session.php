@@ -68,6 +68,20 @@ class Session extends HoiModel{
 
     protected $guarded = ['id', 'timings'];
 
+    protected $fillable = [
+        'outlet_id',
+        'session_name',
+        'on_mondays',
+        'on_tuesdays',
+        'on_wednesdays',
+        'on_thursdays',
+        'on_fridays',
+        'on_saturdays',
+        'on_sundays',
+        'one_off',
+        'one_off_date'
+    ];
+
     /**
      * Bring these computed field when serialize to JSON
      * @var array
