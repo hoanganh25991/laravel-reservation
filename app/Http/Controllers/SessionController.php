@@ -25,17 +25,32 @@ class SessionController extends HoiController{
                 
                 $deleted_timings  = $data['deleted_timings'];
 
+                $validator = null;
+
                 try{
                     /**
                      * Update
                      */
                     foreach($sessions as $session_data){
+                        $validator = Session::validateOnCRUD($session_data);
+                        
+                        if($validator->fails()){
+                            throw new \Exception(Call::AJAX_VALIDATE_FAIL);
+                        }
+                        
                         $s = Session::findOrNew($session_data['id']);
                         $s->fill($session_data);
                         $s->save();
 
                         $timings_data = $session_data['timings'];
                         foreach($timings_data as $timing_data){
+
+                            $validator = Timing::validateOnCRUD($timing_data);
+
+                            if($validator->fails()){
+                                throw new \Exception(Call::AJAX_VALIDATE_FAIL);
+                            }
+
                             $timing = Timing::findOrNew($timing_data['id']);
                             $timing->fill($timing_data);
                             $timing->session_id = $s->id;
@@ -90,9 +105,15 @@ class SessionController extends HoiController{
                     $code = 200;
                     $msg = Call::AJAX_SUCCESS;
                 }catch(\Exception $e){
-                    $data = $e->getMessage();
-                    $code = 200;
-                    $msg = Call::AJAX_ERROR;
+                   if($e->getMessage() == Call::AJAX_VALIDATE_FAIL){
+                       $data = $validator->getMessageBag()->toArray();
+                       $code = 200;
+                       $msg  = Call::AJAX_VALIDATE_FAIL;
+                   }else{
+                       $data = $e->getMessage();
+                       $code = 200;
+                       $msg = Call::AJAX_ERROR;
+                   }
                 }
                 break;
             default:

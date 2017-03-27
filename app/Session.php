@@ -8,6 +8,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use App\OutletReservationSetting as Setting;
+use Illuminate\Support\Facades\Validator;
 
 /**
  * @property mixed one_off
@@ -98,6 +99,15 @@ class Session extends HoiModel{
         parent::boot();
 
         static::byOutletId();
+    }
+
+    public static function validateOnCRUD($session_data){
+        $validator = Validator::make($session_data, [
+            "outlet_id"    => 'required|numeric',
+            "session_name" => 'required'
+        ]);
+
+        return $validator;
     }
 
     public function isSpecial(){

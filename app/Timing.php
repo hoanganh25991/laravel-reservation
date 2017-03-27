@@ -5,10 +5,12 @@ namespace App;
 use Carbon\Carbon;
 use App\Libraries\GCD;
 use App\Traits\ApiUtils;
-use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\Eloquent\Builder;
 use App\OutletReservationSetting as Setting;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 
 /**
@@ -25,7 +27,6 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
  * @property mixed $capacity_7_x
  * @property mixed $max_pax
  * @property mixed $min_pax_for_booking_deposit
- * @property mixed children_allowed
  *
  * @property mixed $disabled
  * @see Timing::getDisabledAttribute
@@ -41,12 +42,12 @@ class Timing extends HoiModel {
      * Interval minute for user pick time
      * must follow these value
      */
-    const INTERVAL_MINUTE_STEPS = [15, 20, 30, 60];
+    const INTERVAL_MINUTE_STEPS = [15, 20, 30];
 
     /**
      * First arrival time & last arrival time pick rule
      */
-    const ARRIVAL_STEPS  = [15];
+    const ARRIVAL_STEPS  = [0, 30];
 
     /**
      * Capcaity prefix
@@ -113,7 +114,41 @@ class Timing extends HoiModel {
 
         });
     }
-    
+
+    /**
+     * @param $value
+     * @return bool
+     */
+    public static function validateArrivalTime($value){
+        $time = Carbon::createFromFormat('H:i:s', $value, Setting::timezone());
+        $minute = $time->minute;
+
+        return in_array($minute, Timing::ARRIVAL_STEPS);
+    }
+
+    /**
+     * @param array $timing_data
+     */
+    public static function validateOnCRUD($timing_data){
+        $validator = Validator::make($timing_data, [
+            "session_id"         => 'required|numeric',
+            "timing_name"        => 'required',
+            "disabled"           => 'required|boolean',
+            "first_arrival_time" => 'bail|required|date_format:H:i:s|arrival_time',
+            "last_arrival_time"  => 'bail|required|date_format:H:i:s|arrival_time',
+            "interval_minutes"   => ['required', Rule::in(Timing::INTERVAL_MINUTE_STEPS)],
+            "capacity_1"         => 'required|numeric',
+            "capacity_2"         => 'required|numeric',
+            "capacity_3_4"       => 'required|numeric',
+            "capacity_5_6"       => 'required|numeric',
+            "capacity_7_x"       => 'required|numeric',
+            "max_pax"            => 'required|numeric',
+            "children_allowed"   => 'required|boolean',
+        ]);
+
+        return $validator;
+    }
+
     public static function orderByFirstArrival(){
         static::addGlobalScope('order_by_first_arrival', function(Builder $builder){
             $builder->orderBy('first_arrival_time', 'asc');

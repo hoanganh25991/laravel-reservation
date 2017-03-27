@@ -41,6 +41,7 @@ var AJAX_UPDATE_DEPOSIT = 'AJAX_UPDATE_DEPOSIT';
 //AJAX MSG
 var AJAX_UNKNOWN_CASE = 'AJAX_UNKNOWN_CASE';
 var AJAX_UPDATE_SESSIONS_SUCCESS = 'AJAX_UPDATE_SESSIONS_SUCCESS';
+var AJAX_VALIDATE_FAIL = 'AJAX_VALIDATE_FAIL';
 
 var AJAX_SUCCESS = 'AJAX_SUCCESS';
 var AJAX_ERROR = 'AJAX_ERROR';
@@ -117,18 +118,38 @@ var AdminSettings = function () {
 						}
 					case UPDATE_WEEKLY_SESSIONS:
 						{
+							var weekly_sessions = [].concat(_toConsumableArray(self.vue.weekly_sessions));
+
+							/**
+        * Input time of browser only return value as "H:i"
+        */
+							self.resolveTimingArrivalTime(weekly_sessions);
+							/**
+        * @warn write weekly_sessions
+        * NOT AS ASSIGN from {} is dangerous
+        */
 							return Object.assign({}, state, {
-								weekly_sessions: self.vue.weekly_sessions,
-								deleted_sessions: self.vue.deleted_sessions,
-								deleted_timings: self.vue.deleted_timings
+								weekly_sessions: weekly_sessions,
+								deleted_sessions: [].concat(_toConsumableArray(self.vue.deleted_sessions)),
+								deleted_timings: [].concat(_toConsumableArray(self.vue.deleted_timings))
 							});
 						}
 					case UPDATE_SPECIAL_SESSIONS:
 						{
+							var special_sessions = [].concat(_toConsumableArray(self.vue.special_sessions));
+
+							/**
+        * Input time of browser only return value as "H:i"
+        */
+							self.resolveTimingArrivalTime(special_sessions);
+							/**
+        * @warn write special_sessions
+        * NOT AS ASSIGN from {} is dangerous
+        */
 							return Object.assign({}, state, {
-								special_sessions: self.vue.special_sessions,
-								deleted_sessions: self.vue.deleted_sessions,
-								deleted_timings: self.vue.deleted_timings
+								special_sessions: special_sessions,
+								deleted_sessions: [].concat(_toConsumableArray(self.vue.deleted_sessions)),
+								deleted_timings: [].concat(_toConsumableArray(self.vue.deleted_timings))
 							});
 						}
 					case UPDATE_BUFFER:
@@ -1054,17 +1075,33 @@ var AdminSettings = function () {
 
 						break;
 					}
-				case AJAX_ERROR:
+				case AJAX_VALIDATE_FAIL:
 					{
 						var _toast = {
-							title: 'Update fail',
-							content: res.data.substr(0, 50)
+							title: 'Validate Fail',
+							content: JSON.stringify(res.data)
 						};
 
 						store.dispatch({
 							type: TOAST_SHOW,
 							toast: _toast
 						});
+
+						break;
+					}
+				case AJAX_ERROR:
+					{
+						var _toast2 = {
+							title: 'Update fail',
+							content: res.data.substr(0, 50)
+						};
+
+						store.dispatch({
+							type: TOAST_SHOW,
+							toast: _toast2
+						});
+
+						break;
 					}
 				default:
 					break;
@@ -1088,6 +1125,21 @@ var AdminSettings = function () {
 	}, {
 		key: 'ajax_call_complete',
 		value: function ajax_call_complete() {}
+	}, {
+		key: 'resolveTimingArrivalTime',
+		value: function resolveTimingArrivalTime(sessions) {
+			sessions.forEach(function (session) {
+				session.timings.forEach(function (timing) {
+					if (timing.first_arrival_time.split(':').length == 2) {
+						timing.first_arrival_time = timing.first_arrival_time + ':00';
+					}
+
+					if (timing.last_arrival_time.split(':').length == 2) {
+						timing.last_arrival_time = timing.last_arrival_time + ':00';
+					}
+				});
+			});
+		}
 	}]);
 
 	return AdminSettings;

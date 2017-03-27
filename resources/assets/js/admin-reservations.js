@@ -520,6 +520,19 @@ class AdminReservations {
 
 				break;
 			}
+			case AJAX_VALIDATE_FAIL: {
+				let toast = {
+					title: 'Validate Fail',
+					content: JSON.stringify(res.data)
+				}
+
+				store.dispatch({
+					type: TOAST_SHOW,
+					toast
+				});
+
+				break;
+			}
 			case AJAX_ERROR: {
 				let toast = {
 					title:'Update fail',
@@ -530,17 +543,9 @@ class AdminReservations {
 					type: TOAST_SHOW,
 					toast
 				});
-			}
-			case AJAX_VALIDATE_FAIL:
-				let toast = {
-					title: 'Validate Fail',
-					content: JSON.stringify(res.data)
-				}
 
-				store.dispatch({
-					type: TOAST_SHOW,
-					toast
-				});
+				break;
+			}
 			default:
 				break;
 

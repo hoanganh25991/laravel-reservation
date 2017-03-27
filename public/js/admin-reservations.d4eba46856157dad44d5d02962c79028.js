@@ -523,19 +523,33 @@ var AdminReservations = function () {
 			switch (res.statusMsg) {
 				case AJAX_SUCCESS:
 					{
-						var _toast = {
+						var toast = {
 							title: 'Update success',
 							content: '＼＿ヘ(ᐖ◞)､ '
 						};
 
 						store.dispatch({
 							type: TOAST_SHOW,
-							toast: _toast
+							toast: toast
 						});
 
 						store.dispatch({
 							type: SYNC_DATA,
 							data: res.data
+						});
+
+						break;
+					}
+				case AJAX_VALIDATE_FAIL:
+					{
+						var _toast = {
+							title: 'Validate Fail',
+							content: JSON.stringify(res.data)
+						};
+
+						store.dispatch({
+							type: TOAST_SHOW,
+							toast: _toast
 						});
 
 						break;
@@ -551,17 +565,9 @@ var AdminReservations = function () {
 							type: TOAST_SHOW,
 							toast: _toast2
 						});
-					}
-				case AJAX_VALIDATE_FAIL:
-					var toast = {
-						title: 'Validate Fail',
-						content: JSON.stringify(res.data)
-					};
 
-					store.dispatch({
-						type: TOAST_SHOW,
-						toast: toast
-					});
+						break;
+					}
 				default:
 					break;
 
