@@ -22,5 +22,6 @@
 <script src="{{ url('js/moment.min.js') }}"></script>
 <script src="{{ url('js/redux.min.js') }}"></script>
 @stack('script')
+@stack('before-body')
 </body>
 </html>

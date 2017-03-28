@@ -6,11 +6,11 @@
         <div class="row">
             <div class="col-md-10 col-md-offset-1">
                 <div class="modal-content">
-                    <div class="modal-header bg-info">
-                        <span class="h4 ">Outlet</span>
+                    <div class="modal-header">
+                        <span class="h1">Outlet</span>
                     </div>
                     <div class="modal-body">
-                        <select v-model="selected_outlet" style="margin: auto">
+                        <select v-model="selected_outlet">
                             <option value="null" disabled>Please select an outlet</option>
                             <template v-for="(outlet, outlet_index) in outlets">
                                 <option :value="outlet.id">{{ outlet.outlet_name }}</option>
@@ -21,6 +21,7 @@
             </div>
         </div>
         @endverbatim
+        @include('partial.toast')
     </div>
 @endsection
 

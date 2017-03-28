@@ -15,7 +15,10 @@ const UPDATE_BUFFER          = 'UPDATE_BUFFER';
 const UPDATE_NOTIFICATION    = 'UPDATE_NOTIFICATION';
 const UPDATE_SETTINGS        = 'UPDATE_SETTINGS';
 const UPDATE_DEPOSIT         = 'UPDATE_DEPOSIT';
-
+const REFETCHING_DATA        = 'REFETCHING_DATA';
+const REFETCHING_DATA_SUCCESS= 'REFETCHING_DATA_SUCCESS';
+const SWITCH_OUTLET          = 'SWITCH_OUTLET';
+const AJAX_UPDATE_SCOPE_OUTLET_ID = 'AJAX_UPDATE_SCOPE_OUTLET_ID';
 // const SYNC_DATA = 'SYNC_DATA';
 
 const TOAST_SHOW = 'TOAST_SHOW';
@@ -31,6 +34,7 @@ const AJAX_UPDATE_BUFFER          = 'AJAX_UPDATE_BUFFER';
 const AJAX_UPDATE_NOTIFICATION    = 'AJAX_UPDATE_NOTIFICATION';
 const AJAX_UPDATE_SETTINGS        = 'AJAX_UPDATE_SETTINGS';
 const AJAX_UPDATE_DEPOSIT         = 'AJAX_UPDATE_DEPOSIT';
+const AJAX_REFETCHING_DATA        = 'AJAX_REFETCHING_DATA';
 
 
 //AJAX MSG
@@ -40,6 +44,8 @@ const AJAX_VALIDATE_FAIL = 'AJAX_VALIDATE_FAIL';
 
 const AJAX_SUCCESS  = 'AJAX_SUCCESS';
 const AJAX_ERROR    = 'AJAX_ERROR';
+const AJAX_REFETCHING_DATA_SUCCESS = 'AJAX_REFETCHING_DATA_SUCCESS';
+const AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS = 'AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS';
 
 
 
@@ -61,7 +67,6 @@ class AdminSettings {
 		//this.event();
 		//this.listener();
 
-		this.view();
 
 		this.initView();
 	}
@@ -161,6 +166,15 @@ class AdminSettings {
 					return Object.assign({}, state, {
 						deposit: self.depositReducer(state.deposit, action)
 					});
+				// case SWITCH_OUTLET:
+				// case REFETCHING_DATA:
+					return state;
+				case REFETCHING_DATA_SUCCESS: {
+					let state = action.state;
+
+					// let vue_state = window.vue_state;
+					return state;
+				}
 				default:
 					return state;
 			}
@@ -209,6 +223,7 @@ class AdminSettings {
 			mounted(){
 				document.dispatchEvent(new CustomEvent('vue-mounted'));
 				self.event();
+				self.view();
 				self.listener();
 			},
 			updated(){
@@ -387,6 +402,28 @@ class AdminSettings {
 					store.dispatch({
 						type: UPDATE_DEPOSIT
 					});
+				},
+
+				_switchOutlet(data){
+					store.dispatch({
+						type: TOAST_SHOW,
+						toast: {
+							title: 'Switch Outlet',
+							content: 'Fecthing data'
+						}
+					});
+
+					let action = {
+						type: AJAX_UPDATE_SCOPE_OUTLET_ID,
+						data
+					}
+
+					/**
+					 * Handle action in this way
+					 * Means bypass store & state
+					 * Not respect app-state
+					 */
+					self.ajax_call(action);
 				}
 			}
 
@@ -671,6 +708,8 @@ class AdminSettings {
 	event(){
 		this.findView();
 
+		let self = this;
+
 		this.admin_step_go
 			.forEach((el)=>{
 				el.addEventListener('click', ()=>{
@@ -710,6 +749,13 @@ class AdminSettings {
 		// 			type: ADD_SPECIAL_SESSION
 		// 		});
 		// 	});
+
+		document.addEventListener('switch-outlet', (e) => {
+			// console.log(e);
+			let data = e.detail;
+			// console.log(data);
+			this.vue._switchOutlet(data);
+		});
 	}
 
 	view(){
@@ -759,11 +805,13 @@ class AdminSettings {
 			 */
 			// let sync_data = (action == SYNC_DATA);
 			let sync_on_weekly = prestate.weekly_sessions != state.weekly_sessions;
+			let refectching_data = action == REFETCHING_DATA_SUCCESS;
 
 			let should_compute_weekly_view_for_vue =
 				   first_view
 				// || sync_data;
-				|| sync_on_weekly;
+				|| sync_on_weekly
+				|| refectching_data;
 
 			if(should_compute_weekly_view_for_vue){
 				let weekly_view = self.computeWeeklyView();
@@ -819,8 +867,12 @@ class AdminSettings {
 				|| action == DELETE_SESSION
 				|| action == DELETE_SPECIAL_SESSION
 				|| action == DELETE_TIMING;
+			// let should_sync_vue_state =
+			// 	action == INIT_VIEW
+			// 	|| action == REFETCHING_DATA_SUCCESS;
 
 			if(!is_reuse_vue_state){
+			// if(should_sync_vue_state){
 				let vue_state = self.getVueState();
 				Object.assign(vue_state, state);
 			}
@@ -889,6 +941,20 @@ class AdminSettings {
 				let action = {
 					type : AJAX_UPDATE_DEPOSIT,
 					deposit : state.deposit
+				}
+
+				self.ajax_call(action);
+			}
+			
+			if(action == SWITCH_OUTLET){
+				let action = {
+					type: AJAX_UPDATE_SCOPE_OUTLET_ID
+				};
+			}
+
+			if(action == REFETCHING_DATA){
+				let action = {
+					type : AJAX_REFETCHING_DATA,
 				}
 
 				self.ajax_call(action);
@@ -1008,6 +1074,18 @@ class AdminSettings {
 				$.ajax({url, data});
 				break;
 			}
+			case AJAX_UPDATE_SCOPE_OUTLET_ID:{
+				let url = self.url('admin');
+				let data = action.data;
+				$.ajax({url, data});
+				break;
+			}
+			case AJAX_REFETCHING_DATA: {
+				let url = self.url('admin/settings');
+				let data = action;
+				$.ajax({url, data});
+				break;
+			}
 			default:
 				console.log('client side. ajax call not recognize the current acttion', action);
 				break;
@@ -1043,7 +1121,7 @@ class AdminSettings {
 		}
 	}
 	
-	url(path){
+	url(path = ''){
 		let store = window.store;
 		let state = store.getState();
 		
@@ -1106,6 +1184,30 @@ class AdminSettings {
 					toast
 				});
 				
+				break;
+			}
+			case AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS: {
+				store.dispatch({
+					type: REFETCHING_DATA
+				});
+				break;
+			}
+			case AJAX_REFETCHING_DATA_SUCCESS: {
+				let toast = {
+					title:'Switch Outlet',
+					content: 'Fetched Data'
+				}
+
+				store.dispatch({
+					type: TOAST_SHOW,
+					toast
+				});
+
+				store.dispatch({
+					type: REFETCHING_DATA_SUCCESS,
+					state: res.data
+				});
+
 				break;
 			}
 			default:

@@ -23,7 +23,10 @@ var UPDATE_BUFFER = 'UPDATE_BUFFER';
 var UPDATE_NOTIFICATION = 'UPDATE_NOTIFICATION';
 var UPDATE_SETTINGS = 'UPDATE_SETTINGS';
 var UPDATE_DEPOSIT = 'UPDATE_DEPOSIT';
-
+var REFETCHING_DATA = 'REFETCHING_DATA';
+var REFETCHING_DATA_SUCCESS = 'REFETCHING_DATA_SUCCESS';
+var SWITCH_OUTLET = 'SWITCH_OUTLET';
+var AJAX_UPDATE_SCOPE_OUTLET_ID = 'AJAX_UPDATE_SCOPE_OUTLET_ID';
 // const SYNC_DATA = 'SYNC_DATA';
 
 var TOAST_SHOW = 'TOAST_SHOW';
@@ -37,6 +40,7 @@ var AJAX_UPDATE_BUFFER = 'AJAX_UPDATE_BUFFER';
 var AJAX_UPDATE_NOTIFICATION = 'AJAX_UPDATE_NOTIFICATION';
 var AJAX_UPDATE_SETTINGS = 'AJAX_UPDATE_SETTINGS';
 var AJAX_UPDATE_DEPOSIT = 'AJAX_UPDATE_DEPOSIT';
+var AJAX_REFETCHING_DATA = 'AJAX_REFETCHING_DATA';
 
 //AJAX MSG
 var AJAX_UNKNOWN_CASE = 'AJAX_UNKNOWN_CASE';
@@ -45,6 +49,8 @@ var AJAX_VALIDATE_FAIL = 'AJAX_VALIDATE_FAIL';
 
 var AJAX_SUCCESS = 'AJAX_SUCCESS';
 var AJAX_ERROR = 'AJAX_ERROR';
+var AJAX_REFETCHING_DATA_SUCCESS = 'AJAX_REFETCHING_DATA_SUCCESS';
+var AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS = 'AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS';
 
 var AdminSettings = function () {
 	/**
@@ -66,7 +72,6 @@ var AdminSettings = function () {
 		//this.event();
 		//this.listener();
 
-		this.view();
 
 		this.initView();
 	}
@@ -175,6 +180,16 @@ var AdminSettings = function () {
 						return Object.assign({}, state, {
 							deposit: self.depositReducer(state.deposit, action)
 						});
+						// case SWITCH_OUTLET:
+						// case REFETCHING_DATA:
+						return state;
+					case REFETCHING_DATA_SUCCESS:
+						{
+							var _state = action.state;
+
+							// let vue_state = window.vue_state;
+							return _state;
+						}
 					default:
 						return state;
 				}
@@ -225,6 +240,7 @@ var AdminSettings = function () {
 				mounted: function mounted() {
 					document.dispatchEvent(new CustomEvent('vue-mounted'));
 					self.event();
+					self.view();
 					self.listener();
 				},
 				updated: function updated() {
@@ -385,6 +401,27 @@ var AdminSettings = function () {
 						store.dispatch({
 							type: UPDATE_DEPOSIT
 						});
+					},
+					_switchOutlet: function _switchOutlet(data) {
+						store.dispatch({
+							type: TOAST_SHOW,
+							toast: {
+								title: 'Switch Outlet',
+								content: 'Fecthing data'
+							}
+						});
+
+						var action = {
+							type: AJAX_UPDATE_SCOPE_OUTLET_ID,
+							data: data
+						};
+
+						/**
+       * Handle action in this way
+       * Means bypass store & state
+       * Not respect app-state
+       */
+						self.ajax_call(action);
 					}
 				}
 
@@ -677,7 +714,11 @@ var AdminSettings = function () {
 	}, {
 		key: 'event',
 		value: function event() {
+			var _this = this;
+
 			this.findView();
+
+			var self = this;
 
 			this.admin_step_go.forEach(function (el) {
 				el.addEventListener('click', function () {
@@ -717,6 +758,13 @@ var AdminSettings = function () {
 			// 			type: ADD_SPECIAL_SESSION
 			// 		});
 			// 	});
+
+			document.addEventListener('switch-outlet', function (e) {
+				// console.log(e);
+				var data = e.detail;
+				// console.log(data);
+				_this.vue._switchOutlet(data);
+			});
 		}
 	}, {
 		key: 'view',
@@ -762,10 +810,11 @@ var AdminSettings = function () {
      */
 				// let sync_data = (action == SYNC_DATA);
 				var sync_on_weekly = prestate.weekly_sessions != state.weekly_sessions;
+				var refectching_data = action == REFETCHING_DATA_SUCCESS;
 
 				var should_compute_weekly_view_for_vue = first_view
 				// || sync_data;
-				|| sync_on_weekly;
+				|| sync_on_weekly || refectching_data;
 
 				if (should_compute_weekly_view_for_vue) {
 					var weekly_view = self.computeWeeklyView();
@@ -806,8 +855,12 @@ var AdminSettings = function () {
      * @type {boolean}
      */
 				var is_reuse_vue_state = action == UPDATE_WEEKLY_SESSIONS || action == ADD_WEEKLY_SESSION || action == ADD_SPECIAL_SESSION || action == DELETE_SESSION || action == DELETE_SPECIAL_SESSION || action == DELETE_TIMING;
+				// let should_sync_vue_state =
+				// 	action == INIT_VIEW
+				// 	|| action == REFETCHING_DATA_SUCCESS;
 
 				if (!is_reuse_vue_state) {
+					// if(should_sync_vue_state){
 					var _vue_state = self.getVueState();
 					Object.assign(_vue_state, state);
 				}
@@ -880,6 +933,20 @@ var AdminSettings = function () {
 					};
 
 					self.ajax_call(_action6);
+				}
+
+				if (action == SWITCH_OUTLET) {
+					var _action7 = {
+						type: AJAX_UPDATE_SCOPE_OUTLET_ID
+					};
+				}
+
+				if (action == REFETCHING_DATA) {
+					var _action8 = {
+						type: AJAX_REFETCHING_DATA
+					};
+
+					self.ajax_call(_action8);
 				}
 			});
 		}
@@ -1000,6 +1067,20 @@ var AdminSettings = function () {
 						$.ajax({ url: _url, data: _data });
 						break;
 					}
+				case AJAX_UPDATE_SCOPE_OUTLET_ID:
+					{
+						var _url2 = self.url('admin');
+						var _data2 = action.data;
+						$.ajax({ url: _url2, data: _data2 });
+						break;
+					}
+				case AJAX_REFETCHING_DATA:
+					{
+						var _url3 = self.url('admin/settings');
+						var _data3 = action;
+						$.ajax({ url: _url3, data: _data3 });
+						break;
+					}
 				default:
 					console.log('client side. ajax call not recognize the current acttion', action);
 					break;
@@ -1036,7 +1117,9 @@ var AdminSettings = function () {
 		}
 	}, {
 		key: 'url',
-		value: function url(path) {
+		value: function url() {
+			var path = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+
 			var store = window.store;
 			var state = store.getState();
 
@@ -1101,6 +1184,32 @@ var AdminSettings = function () {
 						store.dispatch({
 							type: TOAST_SHOW,
 							toast: _toast2
+						});
+
+						break;
+					}
+				case AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS:
+					{
+						store.dispatch({
+							type: REFETCHING_DATA
+						});
+						break;
+					}
+				case AJAX_REFETCHING_DATA_SUCCESS:
+					{
+						var _toast3 = {
+							title: 'Switch Outlet',
+							content: 'Fetched Data'
+						};
+
+						store.dispatch({
+							type: TOAST_SHOW,
+							toast: _toast3
+						});
+
+						store.dispatch({
+							type: REFETCHING_DATA_SUCCESS,
+							state: res.data
 						});
 
 						break;

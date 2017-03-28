@@ -32,7 +32,8 @@ Route::group(['middleware' => 'staff', 'prefix' => 'admin'], function(){
     Route::get('reservations', 'AdminController@getReservationDashboard');
 
     Route::group(['middleware' => 'administrator'], function(){
-        Route::get('settings',     'AdminController@getSettingsDashboard');
+        Route::get('settings',  'AdminController@getSettingsDashboard');
+        Route::post('settings', 'AdminController@getSettingsDashboard');
     });
 });
 

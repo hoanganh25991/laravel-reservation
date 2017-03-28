@@ -55,13 +55,9 @@ class AdminController extends HoiController {
         }else{
             $data = [];
             $code = 200;
-            $msg  = Call::AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS;
+            $msg  = Call::AJAX_ERROR;
         }
-        
-        
-        
-        
-        
+
         return $this->apiResponse($data, $code, $msg);
     }
 
@@ -94,7 +90,22 @@ class AdminController extends HoiController {
             'notification'     => $notification,
             'settings'         => $settings,
             'deposit'          => $deposit,
+            'admin_step'       => 'weekly_sessions_view',
+			'deleted_sessions' => [],
+			'deleted_timings'  => [],
         ];
+
+        /**
+         * Quick check, only handle 1 POST case
+         * From ajax 
+         * @see Call::AJAX_REFETCHING_DATA
+         */
+        if($req->method() == 'POST'){
+            $data = $state;
+            $code = 200;
+            $msg  = Call::AJAX_REFETCHING_DATA_SUCCESS;
+            return $this->apiResponse($data, $code, $msg);
+        }
 
         return view('admin.settings')->with(compact('state'));
     }
