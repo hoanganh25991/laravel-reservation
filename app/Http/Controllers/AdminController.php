@@ -29,7 +29,8 @@ class AdminController extends HoiController {
         $state = [
             'outlets'         => $outlets,
             'selected_outlet' => null,
-            'base_url'        => url('')
+            'base_url'        => url(''),
+            'user'            => $user,
         ];
 
         return view('admin.index')->with(compact('state'));

@@ -34,6 +34,10 @@ class ReservationUser extends User {
     protected $hidden = [
         'password_hash', 'remember_token',
     ];
+    
+    protected $appends = [
+        'role'
+    ];
 
     
     protected $table = 'outlet_reservation_user';
@@ -124,5 +128,18 @@ class ReservationUser extends User {
         $ids = preg_split('/\s*,\s*/', trim($ids_str));
 
         return $ids;
+    }
+    
+    public function getRoleAttribute(){
+        switch($this->permission_level){
+            case null:
+                return 'Logined';
+            case ReservationUser::RESERVATIONS:
+                return 'Reservation';
+            case ReservationUser::ADMINISTRATOR:
+                return 'Administrator';
+            default:
+                return 'Logined';
+        }
     }
 }
