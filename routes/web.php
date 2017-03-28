@@ -11,12 +11,12 @@
 |
 */
 Auth::routes();
-Route::get('logout', function(){
-    Auth::logout();
-    return redirect('');
-});
-Route::get( '', 'BookingController@getBookingForm');
-Route::post('', 'BookingController@getBookingForm');
+
+Route::get( '',    'BookingController@getBookingForm');
+Route::post('',    'BookingController@getBookingForm');
+
+Route::get('home',  'BookingController@getBookingForm');
+Route::post('home', 'BookingController@getBookingForm');
 
 Route::get( 'reservations/thank-you',    'ReservationController@getThankYouPage')->name('reservation_thank_you');
 Route::get( 'reservations/{confirm_id}', 'ReservationController@getConfirmPage')->name('reservation_confirm');
@@ -50,8 +50,6 @@ Route::group(['middleware' => 'administrator'], function(){
 Route::group(['middleware' => 'staff'], function(){
     Route::post('reservations',                'ReservationController@update');
 });
-
-
 
 Route::get('test', function(App\Http\Controllers\BookingController $c, App\Http\Controllers\AdminController $a, App\Http\Controllers\SessionController $s){
 

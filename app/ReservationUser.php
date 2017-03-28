@@ -8,6 +8,9 @@ use Illuminate\Notifications\Notifiable;
  * @property string password_hash
  * @property mixed outlet_ids
  * @property mixed permission_level
+ * 
+ * @method notAdministrator
+ * @see ReservationUser::scopeNotAdministrator
  */
 class ReservationUser extends User {
     
@@ -84,5 +87,10 @@ class ReservationUser extends User {
         return $ids;
     }
     
-    
+    public function scopeNotAdministrator($query){
+        return
+            $query
+                ->where('permission_level', '!=', ReservationUser::ADMINISTRATOR)
+                ->orWhereNull('permission_level');
+    }
 }
