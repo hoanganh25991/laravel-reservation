@@ -44,12 +44,23 @@ class AdminController extends HoiController {
         $data = json_decode($req->getContent(), true);
         
         $outlet_id = $data['outlet_id'];
+        /** @var ReservationUser $user */
+        $user = Auth::user();
         
-        session(compact('outlet_id'));
+        if(in_array($outlet_id, $user->allowedOutletIds())){
+            session(compact('outlet_id'));
+            $data = [];
+            $code = 200;
+            $msg  = Call::AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS;
+        }else{
+            $data = [];
+            $code = 200;
+            $msg  = Call::AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS;
+        }
         
-        $data = [];
-        $code = 200;
-        $msg  = Call::AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS;
+        
+        
+        
         
         return $this->apiResponse($data, $code, $msg);
     }

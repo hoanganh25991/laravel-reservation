@@ -3,12 +3,23 @@
 @section('content')
     <div id="app">
         @verbatim
-        <select v-model="selected_outlet">
-            <option value="null" disabled>Please select an outlet</option>
-            <template v-for="(outlet, outlet_index) in outlets">
-                <option :value="outlet.id">{{ outlet.outlet_name }}</option>
-            </template>
-        </select>
+        <div class="row">
+            <div class="col-md-10 col-md-offset-1">
+                <div class="modal-content">
+                    <div class="modal-header bg-info">
+                        <span class="h4 ">Outlet</span>
+                    </div>
+                    <div class="modal-body">
+                        <select v-model="selected_outlet" style="margin: auto">
+                            <option value="null" disabled>Please select an outlet</option>
+                            <template v-for="(outlet, outlet_index) in outlets">
+                                <option :value="outlet.id">{{ outlet.outlet_name }}</option>
+                            </template>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
         @endverbatim
     </div>
 @endsection
@@ -21,6 +32,8 @@
     @endphp</script>
 <script>
     const AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS = 'AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS';
+    const AJAX_UPDATE_SCOPE_OUTLET_ID_ERROR = 'AJAX_UPDATE_SCOPE_OUTLET_ID_ERROR';
+
     new Vue({
         el: '#app',
         data: state,
@@ -43,6 +56,10 @@
                     success(res){
                         if(res.statusMsg == AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS){
                             window.location.href = vue._url('admin/reservations');
+                        }
+
+                        if(res.statusMsg == AJAX_UPDATE_SCOPE_OUTLET_ID_ERROR){
+
                         }
                     },
                     complete(res){

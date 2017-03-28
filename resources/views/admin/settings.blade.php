@@ -2,7 +2,7 @@
 @section('content')
     <div id='app'>
         <!-- Static navbar -->
-        @include('admin.navigator')
+        {{--@include('admin.navigator')--}}
          <!-- Main component for a primary marketing message or call to action -->
         <div>
             <div id="settings_content" class="row">

@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 @section('content')
     <div id='app'>
-        @include('admin.navigator')
+        {{--@include('admin.navigator')--}}
         <div class="row">
             <div class="col-md-10 col-md-offset-1">
                 @verbatim

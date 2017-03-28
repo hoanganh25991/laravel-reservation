@@ -14,6 +14,7 @@
 <body>
 
 <div class="container">
+    @include('admin.navigator')
     @yield('content')
 </div>
 <script src="{{ url('js/jquery.min.js') }}"></script>
