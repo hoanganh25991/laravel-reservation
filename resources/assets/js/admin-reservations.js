@@ -14,12 +14,12 @@ const UPDATE_BUFFER          = 'UPDATE_BUFFER';
 const UPDATE_NOTIFICATION    = 'UPDATE_NOTIFICATION';
 const UPDATE_SETTINGS        = 'UPDATE_SETTINGS';
 const UPDATE_DEPOSIT         = 'UPDATE_DEPOSIT';
-
+const REFETCHING_DATA        = 'REFETCHING_DATA';
 // const SYNC_DATA = 'SYNC_DATA';
 
 const TOAST_SHOW = 'TOAST_SHOW';
 
-
+const REFETCHING_DATA_SUCCESS     = 'REFETCHING_DATA_SUCCESS';
 
 // AJAX ACTION
 const AJAX_UPDATE_RESERVATIONS    = 'AJAX_UPDATE_RESERVATIONS';
@@ -31,15 +31,18 @@ const AJAX_UPDATE_BUFFER          = 'AJAX_UPDATE_BUFFER';
 const AJAX_UPDATE_NOTIFICATION    = 'AJAX_UPDATE_NOTIFICATION';
 const AJAX_UPDATE_SETTINGS        = 'AJAX_UPDATE_SETTINGS';
 const AJAX_UPDATE_DEPOSIT         = 'AJAX_UPDATE_DEPOSIT';
-
+const AJAX_UPDATE_SCOPE_OUTLET_ID = 'AJAX_UPDATE_SCOPE_OUTLET_ID';
+const AJAX_REFETCHING_DATA        = 'AJAX_REFETCHING_DATA';
 
 //AJAX MSG
 const AJAX_UNKNOWN_CASE                   = 'AJAX_UNKNOWN_CASE';
 const AJAX_UPDATE_SESSIONS_SUCCESS   = 'AJAX_UPDATE_SESSIONS_SUCCESS';
+const AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS = 'AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS';
 
 const AJAX_SUCCESS  = 'AJAX_SUCCESS';
 const AJAX_ERROR    = 'AJAX_ERROR';
 const AJAX_VALIDATE_FAIL = 'AJAX_VALIDATE_FAIL';
+const AJAX_REFETCHING_DATA_SUCCESS  = 'AJAX_REFETCHING_DATA_SUCCESS';
 
 
 
@@ -87,6 +90,15 @@ class AdminReservations {
 					console.log('still not handle SYNC DATA case');
 					return state;
 				}
+				case REFETCHING_DATA: {
+					return state;
+				}
+				case REFETCHING_DATA_SUCCESS: {
+					let state = action.state;
+					let frontend_state =  self.getFrontEndState();
+
+					return Object.assign(state, frontend_state);
+				}
 				default:
 					return state;
 			}
@@ -120,14 +132,18 @@ class AdminReservations {
 		}
 	}
 
-	defaultState(){
-		let default_state  = window.state || {};
-		let frontend_state = {
+	getFrontEndState(){
+		return {
 			init_view : false,
 			reservation_dialog_content: {},
 		};
+	}
 
-		return Object.assign(frontend_state, default_state);
+	defaultState(){
+		let default_state  = window.state || {};
+		let frontend_state =  this.getFrontEndState();
+
+		return Object.assign(default_state, frontend_state);
 	}
 
 	buildVue(){
@@ -237,6 +253,27 @@ class AdminReservations {
 					store.dispatch({
 						type: UPDATE_RESERVATIONS
 					});
+				},
+
+				_switchOutlet(data){
+					store.dispatch({
+						type: TOAST_SHOW,
+						toast: {
+							title: 'Switch Outlet',
+							content: 'Fetching Data'
+						}
+					});
+
+					let action = {
+						type: AJAX_UPDATE_SCOPE_OUTLET_ID,
+						data
+					}
+
+					/**
+					 * By pass store
+					 * When handle action in this way
+					 */
+					self.ajax_call(action);
 				}
 
 			}
@@ -370,6 +407,14 @@ class AdminReservations {
 
 	event(){
 		this.findView();
+		
+		let self = this;
+		
+		document.addEventListener('switch-outlet', (e)=>{
+			let data = e.detail;
+			
+			this.vue._switchOutlet(data);
+		});
 	}
 
 	view(){
@@ -451,6 +496,14 @@ class AdminReservations {
 
 				self.ajax_call(action);
 			}
+			
+			if(action == REFETCHING_DATA){
+				let action = {
+					type: AJAX_REFETCHING_DATA
+				}
+
+				self.ajax_call(action);
+			}
 		});
 	}
 
@@ -473,6 +526,17 @@ class AdminReservations {
 				let url  = self.url('reservations');
 				let data = action;
 				$.ajax({url, data});
+				break;
+			}
+			case AJAX_UPDATE_SCOPE_OUTLET_ID: {
+				let url = self.url('admin');
+				let data = action.data;
+				$.ajax({url, data});
+				break;
+			}
+			case AJAX_REFETCHING_DATA: {
+				let url = self.url('admin/reservations');
+				$.ajax({url});
 				break;
 			}
 			default:
@@ -549,6 +613,28 @@ class AdminReservations {
 
 				break;
 			}
+			case AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS: {
+				store.dispatch({
+					type: REFETCHING_DATA
+				});
+				break;
+			}
+			case AJAX_REFETCHING_DATA_SUCCESS:{
+				store.dispatch({
+					type: TOAST_SHOW,
+					toast: {
+						title: 'Switch Outlet',
+						content: 'Fetched Data'
+					}
+				});
+
+				store.dispatch({
+					type: REFETCHING_DATA_SUCCESS,
+					state: res.data
+				});
+
+				break;
+			}
 			case AJAX_VALIDATE_FAIL: {
 				let toast = {
 					title: 'Validate Fail',
@@ -565,7 +651,7 @@ class AdminReservations {
 			case AJAX_ERROR: {
 				let toast = {
 					title:'Update fail',
-					content: res.data.substr(0, 50)
+					content: JSON.stringify(res)
 				}
 
 				store.dispatch({
@@ -594,8 +680,8 @@ class AdminReservations {
 		});
 	}
 	
-	ajax_call_complete(){
-		
+	ajax_call_complete(res){
+		console.log(res);
 	}
 }
 

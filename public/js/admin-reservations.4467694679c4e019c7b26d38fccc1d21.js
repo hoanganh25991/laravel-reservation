@@ -20,10 +20,12 @@ var UPDATE_BUFFER = 'UPDATE_BUFFER';
 var UPDATE_NOTIFICATION = 'UPDATE_NOTIFICATION';
 var UPDATE_SETTINGS = 'UPDATE_SETTINGS';
 var UPDATE_DEPOSIT = 'UPDATE_DEPOSIT';
-
+var REFETCHING_DATA = 'REFETCHING_DATA';
 // const SYNC_DATA = 'SYNC_DATA';
 
 var TOAST_SHOW = 'TOAST_SHOW';
+
+var REFETCHING_DATA_SUCCESS = 'REFETCHING_DATA_SUCCESS';
 
 // AJAX ACTION
 var AJAX_UPDATE_RESERVATIONS = 'AJAX_UPDATE_RESERVATIONS';
@@ -35,14 +37,18 @@ var AJAX_UPDATE_BUFFER = 'AJAX_UPDATE_BUFFER';
 var AJAX_UPDATE_NOTIFICATION = 'AJAX_UPDATE_NOTIFICATION';
 var AJAX_UPDATE_SETTINGS = 'AJAX_UPDATE_SETTINGS';
 var AJAX_UPDATE_DEPOSIT = 'AJAX_UPDATE_DEPOSIT';
+var AJAX_UPDATE_SCOPE_OUTLET_ID = 'AJAX_UPDATE_SCOPE_OUTLET_ID';
+var AJAX_REFETCHING_DATA = 'AJAX_REFETCHING_DATA';
 
 //AJAX MSG
 var AJAX_UNKNOWN_CASE = 'AJAX_UNKNOWN_CASE';
 var AJAX_UPDATE_SESSIONS_SUCCESS = 'AJAX_UPDATE_SESSIONS_SUCCESS';
+var AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS = 'AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS';
 
 var AJAX_SUCCESS = 'AJAX_SUCCESS';
 var AJAX_ERROR = 'AJAX_ERROR';
 var AJAX_VALIDATE_FAIL = 'AJAX_VALIDATE_FAIL';
+var AJAX_REFETCHING_DATA_SUCCESS = 'AJAX_REFETCHING_DATA_SUCCESS';
 
 var AdminReservations = function () {
 	/**
@@ -96,6 +102,17 @@ var AdminReservations = function () {
 							console.log('still not handle SYNC DATA case');
 							return state;
 						}
+					case REFETCHING_DATA:
+						{
+							return state;
+						}
+					case REFETCHING_DATA_SUCCESS:
+						{
+							var _state = action.state;
+							var frontend_state = self.getFrontEndState();
+
+							return Object.assign(_state, frontend_state);
+						}
 					default:
 						return state;
 				}
@@ -129,15 +146,20 @@ var AdminReservations = function () {
 			};
 		}
 	}, {
-		key: 'defaultState',
-		value: function defaultState() {
-			var default_state = window.state || {};
-			var frontend_state = {
+		key: 'getFrontEndState',
+		value: function getFrontEndState() {
+			return {
 				init_view: false,
 				reservation_dialog_content: {}
 			};
+		}
+	}, {
+		key: 'defaultState',
+		value: function defaultState() {
+			var default_state = window.state || {};
+			var frontend_state = this.getFrontEndState();
 
-			return Object.assign(frontend_state, default_state);
+			return Object.assign(default_state, frontend_state);
 		}
 	}, {
 		key: 'buildVue',
@@ -238,6 +260,26 @@ var AdminReservations = function () {
 						store.dispatch({
 							type: UPDATE_RESERVATIONS
 						});
+					},
+					_switchOutlet: function _switchOutlet(data) {
+						store.dispatch({
+							type: TOAST_SHOW,
+							toast: {
+								title: 'Switch Outlet',
+								content: 'Fetching Data'
+							}
+						});
+
+						var action = {
+							type: AJAX_UPDATE_SCOPE_OUTLET_ID,
+							data: data
+						};
+
+						/**
+       * By pass store
+       * When handle action in this way
+       */
+						self.ajax_call(action);
 					}
 				}
 
@@ -379,7 +421,17 @@ var AdminReservations = function () {
 	}, {
 		key: 'event',
 		value: function event() {
+			var _this = this;
+
 			this.findView();
+
+			var self = this;
+
+			document.addEventListener('switch-outlet', function (e) {
+				var data = e.detail;
+
+				_this.vue._switchOutlet(data);
+			});
 		}
 	}, {
 		key: 'view',
@@ -463,6 +515,14 @@ var AdminReservations = function () {
 
 					self.ajax_call(_action2);
 				}
+
+				if (action == REFETCHING_DATA) {
+					var _action3 = {
+						type: AJAX_REFETCHING_DATA
+					};
+
+					self.ajax_call(_action3);
+				}
 			});
 		}
 	}, {
@@ -489,6 +549,19 @@ var AdminReservations = function () {
 						var url = self.url('reservations');
 						var data = action;
 						$.ajax({ url: url, data: data });
+						break;
+					}
+				case AJAX_UPDATE_SCOPE_OUTLET_ID:
+					{
+						var _url = self.url('admin');
+						var _data = action.data;
+						$.ajax({ url: _url, data: _data });
+						break;
+					}
+				case AJAX_REFETCHING_DATA:
+					{
+						var _url2 = self.url('admin/reservations');
+						$.ajax({ url: _url2 });
 						break;
 					}
 				default:
@@ -568,6 +641,30 @@ var AdminReservations = function () {
 
 						break;
 					}
+				case AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS:
+					{
+						store.dispatch({
+							type: REFETCHING_DATA
+						});
+						break;
+					}
+				case AJAX_REFETCHING_DATA_SUCCESS:
+					{
+						store.dispatch({
+							type: TOAST_SHOW,
+							toast: {
+								title: 'Switch Outlet',
+								content: 'Fetched Data'
+							}
+						});
+
+						store.dispatch({
+							type: REFETCHING_DATA_SUCCESS,
+							state: res.data
+						});
+
+						break;
+					}
 				case AJAX_VALIDATE_FAIL:
 					{
 						var _toast = {
@@ -586,7 +683,7 @@ var AdminReservations = function () {
 					{
 						var _toast2 = {
 							title: 'Update fail',
-							content: res.data.substr(0, 50)
+							content: JSON.stringify(res)
 						};
 
 						store.dispatch({
@@ -617,7 +714,9 @@ var AdminReservations = function () {
 		}
 	}, {
 		key: 'ajax_call_complete',
-		value: function ajax_call_complete() {}
+		value: function ajax_call_complete(res) {
+			console.log(res);
+		}
 	}]);
 
 	return AdminReservations;
