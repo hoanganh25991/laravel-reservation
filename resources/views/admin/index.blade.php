@@ -35,20 +35,28 @@
     const AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS = 'AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS';
     const AJAX_UPDATE_SCOPE_OUTLET_ID_ERROR = 'AJAX_UPDATE_SCOPE_OUTLET_ID_ERROR';
 
+    window.vue_state = Object.assign({}, state, {toast: {
+        title: 'Switch Outlet',
+        content: 'Redirecting'
+    }});
     new Vue({
         el: '#app',
-        data: state,
+        data: window.vue_state,
+        mounted(){
+            document.dispatchEvent(new CustomEvent('vue-mounted'));
+        },
         updated(){
             this._goToAdminReservations();
         },
         methods: {
             _goToAdminReservations(){
+                let vue = this;
+                Toast.show();
+
                 let url = this._url('admin');
                 let data = {
                     outlet_id: this.selected_outlet
                 };
-
-                let vue = this;
 
                 $.ajax({
                     url,
@@ -56,11 +64,14 @@
                     data: JSON.stringify(data),
                     success(res){
                         if(res.statusMsg == AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS){
+
                             window.location.href = vue._url('admin/reservations');
+//                            break;
                         }
 
                         if(res.statusMsg == AJAX_UPDATE_SCOPE_OUTLET_ID_ERROR){
-
+                            console.log(res);
+//                            break;
                         }
                     },
                     complete(res){
