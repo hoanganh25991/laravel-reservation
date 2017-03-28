@@ -187,7 +187,7 @@ var AdminReservations = function () {
         * Change on something,...
         * @type {boolean}
         */
-							this.reservations[reservation_index].status = true;
+							this.reservations[reservation_index].staff_read_state = true;
 
 							var reservation = Object.assign({}, this.reservations[reservation_index]);
 
@@ -228,8 +228,10 @@ var AdminReservations = function () {
 						return null;
 					},
 					_updateReservationDialog: function _updateReservationDialog() {
+						var reservation_dialog_content = this.reservation_dialog_content;
 						store.dispatch({
-							type: UPDATE_SINGLE_RESERVATIONS
+							type: UPDATE_SINGLE_RESERVATIONS,
+							reservation_dialog_content: reservation_dialog_content
 						});
 					},
 					_updateReservations: function _updateReservations() {

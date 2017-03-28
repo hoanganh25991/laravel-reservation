@@ -180,7 +180,7 @@ class AdminReservations {
 						 * Change on something,...
 						 * @type {boolean}
 						 */
-						this.reservations[reservation_index].status = true;
+						this.reservations[reservation_index].staff_read_state = true;
 
 						let reservation = Object.assign({}, this.reservations[reservation_index]);
 
@@ -226,8 +226,10 @@ class AdminReservations {
 				},
 
 				_updateReservationDialog(){
+					let reservation_dialog_content = this.reservation_dialog_content
 					store.dispatch({
-						type: UPDATE_SINGLE_RESERVATIONS
+						type: UPDATE_SINGLE_RESERVATIONS,
+						reservation_dialog_content
 					});
 				},
 
