@@ -24,7 +24,7 @@ class Staff
         }
         
         if(!$user->canAccessAdminPage()){
-            return redirect()->back();
+            return redirect('');
         }
         
         return $next($request);

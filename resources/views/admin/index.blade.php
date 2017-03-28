@@ -16,6 +16,12 @@
                                 <option :value="outlet.id">{{ outlet.outlet_name }}</option>
                             </template>
                         </select>
+                        <div v-show="outlets.length == 0"
+                             style="padding: 10px; width: 300px; margin: 20px 0;"
+                             class="bg-warning"
+                        >
+                            <p>Please wait for your administrator assign which outlet you can go</p>
+                        </div>
                     </div>
                 </div>
             </div>

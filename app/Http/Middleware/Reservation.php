@@ -2,11 +2,11 @@
 
 namespace App\Http\Middleware;
 
-use App\ReservationUser;
 use Closure;
+use App\ReservationUser;
 use Illuminate\Support\Facades\Auth;
 
-class Administrator
+class Reservation
 {
     /**
      * Handle an incoming request.
@@ -23,7 +23,7 @@ class Administrator
             return redirect('login');
         }
 
-        if(!$user->isAdministrator()){
+        if(!$user->isReservations()){
             return redirect()->route('admin');
         }
 

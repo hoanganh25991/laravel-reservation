@@ -42,11 +42,10 @@ class AdminController extends HoiController {
      */
     public function setUpOuletId(ApiRequest $req){
         $data = json_decode($req->getContent(), true);
-        
         $outlet_id = $data['outlet_id'];
         /** @var ReservationUser $user */
         $user = Auth::user();
-        
+
         if(in_array($outlet_id, $user->allowedOutletIds())){
             session(compact('outlet_id'));
             $data = [];

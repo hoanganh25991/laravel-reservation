@@ -50,7 +50,8 @@ class ReservationUser extends User {
      * @return bool
      */
     public function canAccessAdminPage(){
-        return !is_null($this->permission_level);
+//        return !is_null($this->permission_level);
+        return true;
     }
 
     /**
@@ -62,14 +63,21 @@ class ReservationUser extends User {
      * Consider staff as RESERVATIONS level
      */
     public function isReservations(){
+        if(is_null($this->permission_level)){
+            return false;
+        }
 //        return $this->permission_level == ReservationUser::RESERVATIONS;
-        return $this->canAccessAdminPage();
+        return $this->permission_level == ReservationUser::RESERVATIONS;
     }
 
     /**
      * Only administrator can change config
      */
     public function isAdministrator(){
+        if(is_null($this->permission_level)){
+            return false;
+        }
+
         return $this->permission_level == ReservationUser::ADMINISTRATOR;
     }
 

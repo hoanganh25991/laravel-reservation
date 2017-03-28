@@ -11,33 +11,39 @@
 |
 */
 Auth::routes();
-Route::get('logout', function(){
+Route::get('logout', function (){
     Auth::logout();
 //    return redirect()->back();
     return redirect('');
 });
-Route::get( '',    'BookingController@getBookingForm');
-Route::post('',    'BookingController@getBookingForm');
+Route::get('', 'BookingController@getBookingForm');
+Route::post('', 'BookingController@getBookingForm');
 
-Route::get('home',  'BookingController@getBookingForm');
+Route::get('home', 'BookingController@getBookingForm');
 Route::post('home', 'BookingController@getBookingForm');
 
-Route::get( 'reservations/thank-you',    'ReservationController@getThankYouPage')->name('reservation_thank_you');
-Route::get( 'reservations/{confirm_id}', 'ReservationController@getConfirmPage')->name('reservation_confirm');
+Route::get('reservations/thank-you', 'ReservationController@getThankYouPage')->name('reservation_thank_you');
+Route::get('reservations/{confirm_id}', 'ReservationController@getConfirmPage')->name('reservation_confirm');
 Route::post('reservations/{confirm_id}', 'ReservationController@getConfirmPage');
 
 /**
  * Route to admin page
  */
-Route::group(['middleware' => 'staff', 'prefix' => 'admin'], function(){
-    Route::get('',             'AdminController@getDashboard')->name('admin');
-    Route::post('',            'AdminController@setUpOuletId');
+Route::group([
+    'middleware' => 'staff',
+    'prefix' => 'admin'
+], function (){
+    //bring admin out of
+    Route::get('', 'AdminController@getDashboard')->name('admin');
+    Route::post('', 'AdminController@setUpOuletId');
 
-    Route::get('reservations',  'AdminController@getReservationDashboard');
-    Route::post('reservations', 'AdminController@getReservationDashboard');
+    Route::group(['middleware' => 'reservation'], function (){
+        Route::get('reservations', 'AdminController@getReservationDashboard');
+        Route::post('reservations', 'AdminController@getReservationDashboard');
+    });
 
-    Route::group(['middleware' => 'administrator'], function(){
-        Route::get('settings',  'AdminController@getSettingsDashboard');
+    Route::group(['middleware' => 'administrator'], function (){
+        Route::get('settings', 'AdminController@getSettingsDashboard');
         Route::post('settings', 'AdminController@getSettingsDashboard');
     });
 });
@@ -46,16 +52,17 @@ Route::group(['middleware' => 'staff', 'prefix' => 'admin'], function(){
 /**
  * Handle update post from admin page
  */
-Route::group(['middleware' => 'administrator'], function(){
-    Route::post('sessions',                    'SessionController@update');
+Route::group(['middleware' => 'administrator'], function (){
+    Route::post('sessions', 'SessionController@update');
     Route::post('outlet-reservation-settings', 'OutletReservationSettingController@update');
 });
 
-Route::group(['middleware' => 'staff'], function(){
-    Route::post('reservations',                'ReservationController@update');
+Route::group(['middleware' => 'staff'], function (){
+    Route::post('reservations', 'ReservationController@update');
 });
 
-Route::get('test', function(App\Http\Controllers\BookingController $c, App\Http\Controllers\AdminController $a, App\Http\Controllers\SessionController $s){
+Route::get('test', function (App\Http\Controllers\BookingController $c, App\Http\Controllers\AdminController $a,
+    App\Http\Controllers\SessionController $s){
 
     //return \App\Timing::hasNewUpdate()->get()->count();
 
@@ -123,6 +130,6 @@ Route::get('test', function(App\Http\Controllers\BookingController $c, App\Http\
 //    $b = $r->send_confirmation_by_timestamp;
 //
 //    dd($r, $b);
-    
+
 });
 
