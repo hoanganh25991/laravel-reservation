@@ -22,11 +22,17 @@ class Reservation
         if(is_null($user)){
             return redirect('login');
         }
+        
+        if($user->isAdministrator()){
+            return $next($request);
+        }
+        
 
-        if(!$user->isReservations()){
-            return redirect()->route('admin');
+        if($user->isReservations()){
+            return $next($request);
         }
 
-        return $next($request);
+        return redirect()->route('admin');
+
     }
 }

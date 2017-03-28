@@ -131,9 +131,11 @@ class ReservationUser extends User {
     }
     
     public function getRoleAttribute(){
+        if(is_null($this->permission_level)){
+            return 'Logined';
+        }
+        
         switch($this->permission_level){
-            case null:
-                return 'Logined';
             case ReservationUser::RESERVATIONS:
                 return 'Reservation';
             case ReservationUser::ADMINISTRATOR:

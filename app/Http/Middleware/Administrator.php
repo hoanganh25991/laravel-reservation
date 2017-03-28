@@ -23,10 +23,10 @@ class Administrator
             return redirect('login');
         }
 
-        if(!$user->isAdministrator()){
-            return redirect()->route('admin');
+        if($user->isAdministrator()){
+            return $next($request);
         }
 
-        return $next($request);
+        return redirect()->route('admin');
     }
 }
