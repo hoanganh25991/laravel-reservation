@@ -11,7 +11,11 @@
 |
 */
 Auth::routes();
-
+Route::get('logout', function(){
+    Auth::logout();
+//    return redirect()->back();
+    return redirect('');
+});
 Route::get( '',    'BookingController@getBookingForm');
 Route::post('',    'BookingController@getBookingForm');
 

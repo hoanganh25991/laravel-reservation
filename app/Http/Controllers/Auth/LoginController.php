@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Illuminate\Auth\AuthenticationException;
+use App\ReservationUser;
+use App\Traits\HoiAuth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 class LoginController extends Controller
@@ -21,6 +24,7 @@ class LoginController extends Controller
     */
 
     use AuthenticatesUsers;
+    use HoiAuth;
 
     /**
      * Create a new controller instance.
@@ -39,7 +43,4 @@ class LoginController extends Controller
         return 'user_name';
     }
     
-    public function redirectTo(){
-        return route('admin');
-    }
 }

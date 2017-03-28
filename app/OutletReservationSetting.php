@@ -127,6 +127,26 @@ class OutletReservationSetting extends HoiModel{
         static::byOutletId();
     }
 
+    public static function allowedChangeSettingKeys(){
+        return [
+            //for buffer
+            Setting::MAX_DAYS_IN_ADVANCE,
+            Setting::MIN_HOURS_IN_ADVANCE_SLOT_TIME,
+            Setting::MIN_HOURS_IN_ADVANCE_SESSION_TIME,
+            //for notification
+            Setting::SEND_SMS_ON_BOOKING,
+            Setting::SEND_SMS_CONFIRMATION,
+            Setting::HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM,
+            Setting::BRAND_ID,
+            Setting::SMS_SENDER_NAME,
+            //for deposit
+            Setting::REQUIRE_DEPOSIT,
+            Setting::DEPOSIT_THRESHOLD_PAX,
+            Setting::DEPOSIT_TYPE,
+            Setting::DEPOSIT_VALUE,
+        ];
+    }
+
     public static function timezone(){
         //return config('app.timezone');
         return env('TIMEZONE', 'Asia/Singapore');

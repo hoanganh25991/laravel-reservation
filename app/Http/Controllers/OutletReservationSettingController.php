@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\BrandCredit;
+use App\ReservationUser;
 use App\Traits\ApiResponse;
 use App\Http\Requests\ApiRequest;
 use Illuminate\Support\Facades\DB;
 use App\Libraries\HoiAjaxCall as Call;
 use App\OutletReservationSetting as Setting;
+use App\Http\Controllers\ReservationUserController as UserController;
 
 class OutletReservationSettingController extends Controller {
     use ApiResponse;
@@ -74,8 +76,16 @@ class OutletReservationSettingController extends Controller {
                 break;
             case Call::AJAX_UPDATE_SETTINGS:
                 $settings = $data['settings'];
+                
+                $allowed_change_settings = Setting::allowedChangeSettingKeys();
 
-                foreach($settings as $key => $value){
+                foreach($allowed_change_settings as $key){
+                    if(!isset($settings[$key])){
+                        continue;
+                    }
+
+                    $value = $settings[$key];
+
                     $config = Setting::where([
                         ['setting_group', Setting::SETTINGS_GROUP],
                         ['setting_key', $key]
@@ -96,6 +106,17 @@ class OutletReservationSettingController extends Controller {
                     $value = $value === false ? 0 : $value;
                     $config->setting_value = $value;
                     $config->save();
+                }
+
+                /**
+                 * Handle users inside Settings
+                 */
+                $users = $settings['users'];
+
+                foreach($users as $user_data){
+                    $user = ReservationUser::findOrNew($user_data['id']);
+                    $user->fill($user_data);
+                    $user->save();
                 }
 
                 $data = ['settings' => $this->fetchUpdateSettings()];
@@ -176,7 +197,14 @@ class OutletReservationSettingController extends Controller {
             Setting::SMS_SENDER_NAME
         ];
 
-        return Setting::buildKeyValueOfConfig($settings_config, $settings_keys);
+        $settings = Setting::buildKeyValueOfConfig($settings_config, $settings_keys);
+
+        $user_controller= new UserController;
+        $users        = $user_controller->fetchUsers();
+        //eassign under setting config
+        $settings['users'] = $users;
+
+        return $settings;
     }
 
     public function fetchUpdateDeposit(){

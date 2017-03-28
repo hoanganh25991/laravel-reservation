@@ -11,7 +11,6 @@ use App\Http\Requests\ApiRequest;
 use Illuminate\Support\Facades\Auth;
 use App\Libraries\HoiAjaxCall as Call;
 use App\OutletReservationSetting as Setting;
-use App\Http\Controllers\ReservationUserController as UserController;
 use App\Http\Controllers\OutletReservationSettingController as SettingController;
 
 class AdminController extends HoiController {
@@ -82,10 +81,7 @@ class AdminController extends HoiController {
         $notification = $setting_controller->fetchUpdateNotifications();
         $settings     = $setting_controller->fetchUpdateSettings();
         $deposit      = $setting_controller->fetchUpdateDeposit();
-        $user_controller= new UserController;
-        $users        = $user_controller->fetchUsers();
-        //eassign under setting config
-        $settings['users'] = $users;
+        
     
         $state = [
             'base_url'         => url(''),

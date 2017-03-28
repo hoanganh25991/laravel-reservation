@@ -206,27 +206,38 @@
                                     <table class="table table-striped">
                                         <thead>
                                         <tr>
-                                            <th>Firstname</th>
-                                            <th>Lastname</th>
+                                            <th>Display name</th>
+                                            <th>User name</th>
                                             <th>Email</th>
+                                            <th>Assigned Outlet</th>
+                                            <th>Role</th>
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        <tr>
-                                            <td>John</td>
-                                            <td>Doe</td>
-                                            <td>john@example.com</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Mary</td>
-                                            <td>Moe</td>
-                                            <td>mary@example.com</td>
-                                        </tr>
-                                        <tr>
-                                            <td>July</td>
-                                            <td>Dooley</td>
-                                            <td>july@example.com</td>
-                                        </tr>
+                                        <template v-for="(user, user_index) in settings.users">
+                                            <tr>
+                                                <td>{{ user.display_name }}</td>
+                                                <td>{{ user.user_name }}</td>
+                                                <td>{{ user.email }}</td>
+                                                <td>
+                                                    <select multiple v-model="user.outlet_ids"
+                                                            class="multiple-select"
+
+                                                    >
+                                                        <template v-for="(outlet, outlet_index) in outlets">
+                                                            <option :value="outlet.id">{{ outlet.outlet_name }}</option>
+                                                        </template>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <select v-model="user.permission_level">
+                                                        <option value="null">None</option>
+                                                        <option value="0">Reservations</option>
+                                                        <option value="10">Reservations</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                        </template>
                                         </tbody>
                                     </table>
                                 </div>

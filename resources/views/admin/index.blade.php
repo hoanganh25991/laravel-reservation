@@ -39,7 +39,7 @@
         title: 'Switch Outlet',
         content: 'Redirecting'
     }});
-    new Vue({
+    let vue = new Vue({
         el: '#app',
         data: window.vue_state,
         mounted(){

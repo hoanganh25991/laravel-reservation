@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\ReservationUser;
 use App\Http\Controllers\Controller;
+use App\Traits\HoiAuth;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
 
@@ -21,6 +23,7 @@ class RegisterController extends Controller
     */
 
     use RegistersUsers;
+    use HoiAuth;
     /**
      * Create a new controller instance.
      *
@@ -51,16 +54,20 @@ class RegisterController extends Controller
      * @return User
      */
     protected function create(array $data) {
-        return ReservationUser::create([
+        $user = ReservationUser::create([
             'user_name'     => $data['user_name'],
             'password_hash' => bcrypt($data['password']),
             'email'         => $data['email'],
             'display_name'  => $data['display_name'],
         ]);
+        
+        return $user;
     }
 
-    public function redirectTo(){
-//        return route('admin');
-        return redirect()->back();
-    }
+    /**
+     * When see "home" url, means redirect back not work
+     * It can't determine what BACK MEANS
+     * To prevent infinite loop on back
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|string
+     */
 }
