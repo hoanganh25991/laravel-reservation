@@ -159,4 +159,26 @@ class ReservationUser extends User {
                 return 'Logined';
         }
     }
+
+    /**
+     * Consider null on permission level as 'Reservation'
+     * @see ReservationUser::RESERVATIONS
+     * @param $value
+     * @return string
+     */
+    public function getPermissionLevelAttribute($value){
+        if(is_null($value)){
+            return ReservationUser::RESERVATIONS;
+        }
+
+        return $value;
+    }
+
+    public function setPermissionLevelAttribute($value){
+        if(is_null($value)){
+            $value = ReservationUser::RESERVATIONS;
+        }
+
+        $this->attributes['permission_level'] = $value;
+    }
 }
