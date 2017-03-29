@@ -203,10 +203,17 @@ class AdminSettings {
 
 	defaultState(){
 		let default_state  = window.state || {};
+
+		if(window.outlets){
+			default_state = Object.assign(default_state, {
+				outlets: window.outlets
+			})
+		}
 		let frontend_state = {
 			init_view : false,
 			// admin_step: 'weekly_sessions',
 			admin_step: 'weekly_sessions_view',
+			user_dialog_content: {},
 			deleted_sessions: [],
 			deleted_timings: [],
 		};
@@ -424,6 +431,10 @@ class AdminSettings {
 					 * Not respect app-state
 					 */
 					self.ajax_call(action);
+				},
+
+				_updateUserInfo(){
+					console.log('see you click');
 				}
 			}
 
@@ -478,6 +489,7 @@ class AdminSettings {
 
 	initView(){
 		store.dispatch({type: INIT_VIEW});
+		$('#user-dialog').modal('show');
 	}
 
 	adminStepReducer(state, action){

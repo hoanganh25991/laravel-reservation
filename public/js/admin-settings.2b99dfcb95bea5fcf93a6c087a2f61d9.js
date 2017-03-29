@@ -219,10 +219,17 @@ var AdminSettings = function () {
 		key: 'defaultState',
 		value: function defaultState() {
 			var default_state = window.state || {};
+
+			if (window.outlets) {
+				default_state = Object.assign(default_state, {
+					outlets: window.outlets
+				});
+			}
 			var frontend_state = {
 				init_view: false,
 				// admin_step: 'weekly_sessions',
 				admin_step: 'weekly_sessions_view',
+				user_dialog_content: {},
 				deleted_sessions: [],
 				deleted_timings: []
 			};
@@ -422,6 +429,9 @@ var AdminSettings = function () {
        * Not respect app-state
        */
 						self.ajax_call(action);
+					},
+					_updateUserInfo: function _updateUserInfo() {
+						console.log('see you click');
 					}
 				}
 
@@ -480,6 +490,7 @@ var AdminSettings = function () {
 		key: 'initView',
 		value: function initView() {
 			store.dispatch({ type: INIT_VIEW });
+			$('#user-dialog').modal('show');
 		}
 	}, {
 		key: 'adminStepReducer',

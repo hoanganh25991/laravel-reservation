@@ -232,7 +232,7 @@
                                                 <td>
                                                     <select v-model="user.permission_level">
                                                         <option value="null">None</option>
-                                                        <option value="0">Reservations</option>
+                                                        <option value="0">Reservation</option>
                                                         <option value="10">Administrator</option>
                                                     </select>
                                                 </td>
@@ -310,8 +310,28 @@
                 </div>
             </div>
         </div>
+        <div class="modal fade" id="user-dialog" style="margin-left: 175px;">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">User Info</h4>
+                    </div>
+                    <div class="modal-body">
+                        @include('admin.settings.user-dialog')
+                        @verbatim
+                    </div>
+                    <div class="modal-footer" style="border-top: 1px solid #e5e5e5;">
+                        <button
+                                class="btn bg-info"
+                                v-on:click="_updateUserInfo"
+                        >Save</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
         @include('partial.toast')
     </div>
+    @endverbatim
     @include('debug.redux-state')
 @endsection
 
