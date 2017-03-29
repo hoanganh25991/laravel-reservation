@@ -237,7 +237,7 @@ class AdminSettings {
 	buildVue(){
 		let state = this.getVueState();
 		let self  = this;
-		let vue = new Vue({
+		this.vue = new Vue({
 			el: '#app',
 			data(){
 				return state;
@@ -256,7 +256,7 @@ class AdminSettings {
 					/**
 					 * Guest next admin step
 					 */
-					let next_admin_step = vue.admin_step + '_view';
+					let next_admin_step = this.admin_step + '_view';
 					/**
 					 * Check if guest is right
 					 */
@@ -273,8 +273,8 @@ class AdminSettings {
 			methods: {
 				_addWeeklySession(){
 					let new_session = self._dumpWeeklySession();
-					let current = vue.weekly_sessions;
-					vue.weekly_sessions = [
+					let current = this.weekly_sessions;
+					this.weekly_sessions = [
 						...current,
 						new_session
 					];
@@ -284,7 +284,7 @@ class AdminSettings {
 
 					let btn           = e.target;
 					let session_index = btn.getAttribute('session-index');
-					let session       = vue.weekly_sessions[session_index];
+					let session       = this.weekly_sessions[session_index];
 
 					session.timings.push(self._dumpTiming());
 				},
@@ -293,15 +293,15 @@ class AdminSettings {
 					// console.log(e.target);
 					console.log('see delete timing');
 					try{
-						let i = vue._findTrElement(e);
+						let i = this._findTrElement(e);
 						let session_index = i.getAttribute('session-index');
 						let timing_index  = i.getAttribute('timing-index');
-						let session = vue.weekly_sessions[session_index];
+						let session = this.weekly_sessions[session_index];
 
 						let timing = session.timings[timing_index];
 						session.timings.splice(timing_index, 1);
 
-						vue.deleted_timings.push(timing);
+						this.deleted_timings.push(timing);
 					}catch(e){
 						return;
 					}
@@ -311,21 +311,21 @@ class AdminSettings {
 					// console.log(e.target);
 					console.log('see delete session');
 					try{
-						let i = vue._findTrElement(e);
+						let i = this._findTrElement(e);
 						let session_index = i.getAttribute('session-index');
 
-						let session = vue.weekly_sessions[session_index];
-						vue.weekly_sessions.splice(session_index, 1);
+						let session = this.weekly_sessions[session_index];
+						this.weekly_sessions.splice(session_index, 1);
 
-						vue.deleted_sessions.push(session);
+						this.deleted_sessions.push(session);
 					}catch(e){
 						return;
 					}
 				},
 				_addSpecialSession(){
 					let new_special_session = self._dumpSpecialSession();
-					let current = vue.special_sessions;
-					vue.special_sessions = [
+					let current = this.special_sessions;
+					this.special_sessions = [
 						...current,
 						new_special_session
 					];
@@ -336,7 +336,7 @@ class AdminSettings {
 
 					let btn           = e.target;
 					let session_index = btn.getAttribute('session-index');
-					let session       = vue.special_sessions[session_index];
+					let session       = this.special_sessions[session_index];
 
 					session.timings.push(self._dumpTiming());
 				},
@@ -345,13 +345,13 @@ class AdminSettings {
 					// console.log(e.target);
 					console.log('see delete session');
 					try{
-						let i = vue._findTrElement(e);
+						let i = this._findTrElement(e);
 						let session_index = i.getAttribute('session-index');
 
-						let session = vue.special_sessions[session_index];
-						vue.special_sessions.splice(session_index, 1);
+						let session = this.special_sessions[session_index];
+						this.special_sessions.splice(session_index, 1);
 
-						vue.deleted_sessions.push(session);
+						this.deleted_sessions.push(session);
 					}catch(e){
 						return;
 					}
@@ -361,15 +361,15 @@ class AdminSettings {
 					// console.log(e.target);
 					console.log('see delete timing');
 					try{
-						let i = vue._findTrElement(e);
+						let i = this._findTrElement(e);
 						let session_index = i.getAttribute('session-index');
 						let timing_index  = i.getAttribute('timing-index');
-						let session = vue.special_sessions[session_index];
+						let session = this.special_sessions[session_index];
 
 						let timing = session.timings[timing_index];
 						session = session.timings.splice(timing_index, 1);
 
-						vue.deleted_timings.push(timing);
+						this.deleted_timings.push(timing);
 					}catch(e){
 						return;
 					}
@@ -418,7 +418,7 @@ class AdminSettings {
 					/**
 					 * Check user list has at least 1 Administrator
 					 */
-					let users = vue.settings.users;
+					let users = this.settings.users;
 					let administrator = users.filter(user => user.permission_level == 10);
 					if(administrator.length == 0){
 						let toast = {
@@ -474,7 +474,7 @@ class AdminSettings {
 					}
 
 					/**
-					 * Handle action in vue way
+					 * Handle action in this way
 					 * Means bypass store & state
 					 * Not respect app-state
 					 */
@@ -483,7 +483,7 @@ class AdminSettings {
 
 				_updateSingleUser(){
 					console.log('see you click');
-					let u = vue.user_dialog_content;
+					let u = this.user_dialog_content;
 					/**
 					 * Before call update
 					 * Check if validate password
@@ -504,29 +504,31 @@ class AdminSettings {
 						}
 					}
 
+					self.user_dialog.modal('hide');
+
 
 					store.dispatch({
 						type: UPDATE_SINGLE_USER,
 						user_dialog_content: u
 					});
 
-					vue._updateSettings();
+					this._updateSettings();
 				},
 
 				_wantToChangePassword(){
 					console.log('see as for reset password');
-					vue.user_dialog_content.reset_password = true;
-					vue.user_dialog_content.password          = '';
-					vue.user_dialog_content.confirm_password  = '';
+					this.user_dialog_content.reset_password = true;
+					this.user_dialog_content.password          = '';
+					this.user_dialog_content.confirm_password  = '';
 				},
 
 				_updateUserDialog(e){
 					console.log('see tr click');
 					try{
-						let tr = vue._findTrElement(e);
+						let tr = this._findTrElement(e);
 
 						let user_index = tr.getAttribute('user-index');
-						let selected_user       = vue.settings.users[user_index];
+						let selected_user       = this.settings.users[user_index];
 
 						let user_dialog_content = Object.assign({}, selected_user);
 						/**
@@ -542,7 +544,7 @@ class AdminSettings {
 						/**
 						 * Set up user dialog content data
 						 */
-						// vue.user_dialog_content = user_dialog_content
+						// this.user_dialog_content = user_dialog_content
 
 						/**
 						 * @warn Should call store for update value
@@ -591,7 +593,7 @@ class AdminSettings {
 
 		});
 
-		this.vue = vue;
+
 	}
 
 	getVueState(){
