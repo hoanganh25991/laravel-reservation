@@ -63,6 +63,37 @@ class AdminController extends HoiController {
 
     /**
      * @param ApiRequest $req
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function getReservationDashboard(ApiRequest $req){
+        /**
+         * Reservations
+         */
+        $reservation_controller = new ReservationController;
+        $reservations = $reservation_controller->fetchUpdateReservations();
+
+        $state = [
+            'base_url'     => url(''),
+            'reservations' => $reservations
+        ];
+
+        /**
+         * Quick check, only handle 1 POST case
+         * From ajax
+         * @see Call::AJAX_REFETCHING_DATA
+         */
+        if($req->method() == 'POST'){
+            $data = $state;
+            $code = 200;
+            $msg  = Call::AJAX_REFETCHING_DATA_SUCCESS;
+            return $this->apiResponse($data, $code, $msg);
+        }
+
+        return view('admin.reservations')->with(compact('state'));
+    }
+
+    /**
+     * @param ApiRequest $req
      * @return $this
      */
     public function getSettingsDashboard(ApiRequest $req){
@@ -109,36 +140,5 @@ class AdminController extends HoiController {
         }
 
         return view('admin.settings')->with(compact('state'));
-    }
-    
-    /**
-     * @param ApiRequest $req
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     */
-    public function getReservationDashboard(ApiRequest $req){
-        /**
-         * Reservations
-         */
-        $reservation_controller = new ReservationController;
-        $reservations = $reservation_controller->fetchUpdateReservations();
-        
-        $state = [
-            'base_url'     => url(''),
-            'reservations' => $reservations
-        ];
-
-        /**
-         * Quick check, only handle 1 POST case
-         * From ajax
-         * @see Call::AJAX_REFETCHING_DATA
-         */
-        if($req->method() == 'POST'){
-            $data = $state;
-            $code = 200;
-            $msg  = Call::AJAX_REFETCHING_DATA_SUCCESS;
-            return $this->apiResponse($data, $code, $msg);
-        }
-        
-        return view('admin.reservations')->with(compact('state'));
     }
 }

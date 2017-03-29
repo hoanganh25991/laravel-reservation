@@ -9,7 +9,8 @@ use App\Http\Controllers\Controller;
 class ReservationUserController extends HoiController {
     
     public function fetchUsers(){
-        $users = ReservationUser::notAdministrator()->get();
+//        $users = ReservationUser::notAdministrator()->get();
+        $users = ReservationUser::notCurrentUser()->get();
         
         return $users;
     }

@@ -233,7 +233,7 @@
                                                     <select v-model="user.permission_level">
                                                         <option value="null">None</option>
                                                         <option value="0">Reservations</option>
-                                                        <option value="10">Reservations</option>
+                                                        <option value="10">Administrator</option>
                                                     </select>
                                                 </td>
                                             </tr>

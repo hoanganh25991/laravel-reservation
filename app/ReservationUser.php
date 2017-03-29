@@ -3,15 +3,20 @@
 namespace App;
 
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * @property string password_hash
  * @property mixed outlet_ids
  * @see ReservationUser::getOutletIdsAttribute
  * @property mixed permission_level
+ * @property mixed id
  * 
  * @method notAdministrator
  * @see ReservationUser::scopeNotAdministrator
+ * 
+ * @method notCurrentUser
+ * @see ReservationUser::scopeNotCurrentUser
  */
 class ReservationUser extends User {
     
@@ -111,6 +116,16 @@ class ReservationUser extends User {
         }
 
         $this->attributes['outlet_ids'] = $ids_str;
+    }
+    
+    public function scopeNotCurrentUser($query){
+        /** @var ReservationUser $user */
+        $user  = Auth::user();
+        if(!is_null($user)){
+            return $query->where('id', '!=', $user->id);
+        }
+        
+        return $query;
     }
 
     /**

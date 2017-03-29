@@ -70,4 +70,13 @@ class RegisterController extends Controller
      * To prevent infinite loop on back
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|string
      */
+
+    /**
+     * Override normal behavior, user is hardcode into DB
+     * No endpoint for register
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function showRegistrationForm(){
+        return redirect('login');
+    }
 }
