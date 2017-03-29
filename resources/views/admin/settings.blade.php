@@ -1,9 +1,6 @@
 @extends('layouts.admin')
 @section('content')
     <div id='app'>
-        <!-- Static navbar -->
-        {{--@include('admin.navigator')--}}
-         <!-- Main component for a primary marketing message or call to action -->
         <div>
             <div id="settings_content" class="row">
                 <div id="reservations_content" class="col-md-2">
@@ -318,7 +315,6 @@
                     </div>
                     <div class="modal-body">
                         @include('admin.settings.user-dialog')
-                        @verbatim
                     </div>
                     <div class="modal-footer" style="border-top: 1px solid #e5e5e5;">
                         <button
@@ -331,7 +327,6 @@
         </div><!-- /.modal -->
         @include('partial.toast')
     </div>
-    @endverbatim
     @include('debug.redux-state')
 @endsection
 
