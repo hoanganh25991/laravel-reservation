@@ -212,7 +212,8 @@
                                         </thead>
                                         <tbody>
                                         <template v-for="(user, user_index) in settings.users">
-                                            <tr>
+                                            <tr     :user-index='user_index'
+                                                    v-on:click="_updateUserDialog">
                                                 <td>{{ user.display_name }}</td>
                                                 <td>{{ user.user_name }}</td>
                                                 <td>{{ user.email }}</td>
@@ -228,8 +229,7 @@
                                                 </td>
                                                 <td>
                                                     <select v-model="user.permission_level">
-                                                        <option value="null">None</option>
-                                                        <option value="0">Reservation</option>
+                                                        <option value="0">Reservations</option>
                                                         <option value="10">Administrator</option>
                                                     </select>
                                                 </td>
@@ -319,7 +319,7 @@
                     <div class="modal-footer" style="border-top: 1px solid #e5e5e5;">
                         <button
                                 class="btn bg-info"
-                                v-on:click="_updateUserInfo"
+                                v-on:click="_updateSingleUser"
                         >Save</button>
                     </div>
                 </div><!-- /.modal-content -->

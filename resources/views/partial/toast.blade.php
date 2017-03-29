@@ -29,7 +29,7 @@
     }
 </style>
 @endpush
-<div id='toast'>
+<div id='toast' :style="(toast.type == 'danger') ? 'background-color: red;' : ''">
     <div style="display: inline-block">
         <img id="toast_logo" src="{{ url('images/cube.svg') }}">
     </div>

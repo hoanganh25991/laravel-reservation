@@ -116,6 +116,10 @@ class OutletReservationSettingController extends Controller {
                 foreach($users as $user_data){
                     $user = ReservationUser::findOrNew($user_data['id']);
                     $user->fill($user_data);
+                    if(!empty($user_data['reset_password'])
+                        && isset($user_data['password'])){
+                        $user->password_hash = bcrypt($user_data['password']);
+                    }
                     $user->save();
                 }
 

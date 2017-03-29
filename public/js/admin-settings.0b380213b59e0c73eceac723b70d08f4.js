@@ -27,6 +27,8 @@ var REFETCHING_DATA = 'REFETCHING_DATA';
 var REFETCHING_DATA_SUCCESS = 'REFETCHING_DATA_SUCCESS';
 var SWITCH_OUTLET = 'SWITCH_OUTLET';
 var AJAX_UPDATE_SCOPE_OUTLET_ID = 'AJAX_UPDATE_SCOPE_OUTLET_ID';
+var CHANGE_USER_DIALOG_CONTENT = 'CHANGE_USER_DIALOG_CONTENT';
+var UPDATE_SINGLE_USER = 'UPDATE_SINGLE_USER';
 // const SYNC_DATA = 'SYNC_DATA';
 
 var TOAST_SHOW = 'TOAST_SHOW';
@@ -53,6 +55,9 @@ var AJAX_REFETCHING_DATA_SUCCESS = 'AJAX_REFETCHING_DATA_SUCCESS';
 var AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS = 'AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS';
 
 var AdminSettings = function () {
+	/** @namespace user.permission_level */
+	/** @namespace window.outlets */
+	/** @namespace vue.settings.users */
 	/**
   * @namespace Redux
   * @namespace moment
@@ -173,6 +178,7 @@ var AdminSettings = function () {
 							notification: self.notificationReducer(state.notification, action)
 						});
 					case UPDATE_SETTINGS:
+					case UPDATE_SINGLE_USER:
 						return Object.assign({}, state, {
 							settings: self.settingsReducer(state.settings, action)
 						});
@@ -189,6 +195,12 @@ var AdminSettings = function () {
 
 							// let vue_state = window.vue_state;
 							return _state;
+						}
+					case CHANGE_USER_DIALOG_CONTENT:
+						{
+							return Object.assign({}, state, {
+								user_dialog_content: self.userDialogContentReducer(state.user_dialog_content, action)
+							});
 						}
 					default:
 						return state;
@@ -229,7 +241,9 @@ var AdminSettings = function () {
 				init_view: false,
 				// admin_step: 'weekly_sessions',
 				admin_step: 'weekly_sessions_view',
-				user_dialog_content: {},
+				user_dialog_content: {
+					outlet_ids: []
+				},
 				deleted_sessions: [],
 				deleted_timings: []
 			};
@@ -241,9 +255,11 @@ var AdminSettings = function () {
 		value: function buildVue() {
 			var state = this.getVueState();
 			var self = this;
-			this.vue = new Vue({
+			var vue = new Vue({
 				el: '#app',
-				data: state,
+				data: function data() {
+					return state;
+				},
 				mounted: function mounted() {
 					document.dispatchEvent(new CustomEvent('vue-mounted'));
 					self.event();
@@ -258,7 +274,7 @@ var AdminSettings = function () {
 						/**
        * Guest next admin step
        */
-						var next_admin_step = this.admin_step + '_view';
+						var next_admin_step = vue.admin_step + '_view';
 						/**
        * Check if guest is right
        */
@@ -275,15 +291,15 @@ var AdminSettings = function () {
 				methods: {
 					_addWeeklySession: function _addWeeklySession() {
 						var new_session = self._dumpWeeklySession();
-						var current = this.weekly_sessions;
-						this.weekly_sessions = [].concat(_toConsumableArray(current), [new_session]);
+						var current = vue.weekly_sessions;
+						vue.weekly_sessions = [].concat(_toConsumableArray(current), [new_session]);
 					},
 					_addTimingToSession: function _addTimingToSession(e) {
 						console.log('see add timing');
 
 						var btn = e.target;
 						var session_index = btn.getAttribute('session-index');
-						var session = this.weekly_sessions[session_index];
+						var session = vue.weekly_sessions[session_index];
 
 						session.timings.push(self._dumpTiming());
 					},
@@ -291,15 +307,15 @@ var AdminSettings = function () {
 						// console.log(e.target);
 						console.log('see delete timing');
 						try {
-							var i = this._findIElement(e);
+							var i = vue._findTrElement(e);
 							var session_index = i.getAttribute('session-index');
 							var timing_index = i.getAttribute('timing-index');
-							var session = this.weekly_sessions[session_index];
+							var session = vue.weekly_sessions[session_index];
 
 							var timing = session.timings[timing_index];
 							session.timings.splice(timing_index, 1);
 
-							this.deleted_timings.push(timing);
+							vue.deleted_timings.push(timing);
 						} catch (e) {
 							return;
 						}
@@ -308,28 +324,28 @@ var AdminSettings = function () {
 						// console.log(e.target);
 						console.log('see delete session');
 						try {
-							var i = this._findIElement(e);
+							var i = vue._findTrElement(e);
 							var session_index = i.getAttribute('session-index');
 
-							var session = this.weekly_sessions[session_index];
-							this.weekly_sessions.splice(session_index, 1);
+							var session = vue.weekly_sessions[session_index];
+							vue.weekly_sessions.splice(session_index, 1);
 
-							this.deleted_sessions.push(session);
+							vue.deleted_sessions.push(session);
 						} catch (e) {
 							return;
 						}
 					},
 					_addSpecialSession: function _addSpecialSession() {
 						var new_special_session = self._dumpSpecialSession();
-						var current = this.special_sessions;
-						this.special_sessions = [].concat(_toConsumableArray(current), [new_special_session]);
+						var current = vue.special_sessions;
+						vue.special_sessions = [].concat(_toConsumableArray(current), [new_special_session]);
 					},
 					_addTimingToSpecialSession: function _addTimingToSpecialSession(e) {
 						console.log('see add timing');
 
 						var btn = e.target;
 						var session_index = btn.getAttribute('session-index');
-						var session = this.special_sessions[session_index];
+						var session = vue.special_sessions[session_index];
 
 						session.timings.push(self._dumpTiming());
 					},
@@ -337,13 +353,13 @@ var AdminSettings = function () {
 						// console.log(e.target);
 						console.log('see delete session');
 						try {
-							var i = this._findIElement(e);
+							var i = vue._findTrElement(e);
 							var session_index = i.getAttribute('session-index');
 
-							var session = this.special_sessions[session_index];
-							this.special_sessions.splice(session_index, 1);
+							var session = vue.special_sessions[session_index];
+							vue.special_sessions.splice(session_index, 1);
 
-							this.deleted_sessions.push(session);
+							vue.deleted_sessions.push(session);
 						} catch (e) {
 							return;
 						}
@@ -352,15 +368,15 @@ var AdminSettings = function () {
 						// console.log(e.target);
 						console.log('see delete timing');
 						try {
-							var i = this._findIElement(e);
+							var i = vue._findTrElement(e);
 							var session_index = i.getAttribute('session-index');
 							var timing_index = i.getAttribute('timing-index');
-							var session = this.special_sessions[session_index];
+							var session = vue.special_sessions[session_index];
 
 							var timing = session.timings[timing_index];
 							session = session.timings.splice(timing_index, 1);
 
-							this.deleted_timings.push(timing);
+							vue.deleted_timings.push(timing);
 						} catch (e) {
 							return;
 						}
@@ -400,6 +416,40 @@ var AdminSettings = function () {
 						});
 					},
 					_updateSettings: function _updateSettings() {
+						/**
+       * Check user list has at least 1 Administrator
+       */
+						var users = vue.settings.users;
+						var administrator = users.filter(function (user) {
+							return user.permission_level == 10;
+						});
+						if (administrator.length == 0) {
+							var toast = {
+								title: 'Settings > Users',
+								content: 'Need at least one Administrator',
+								type: 'danger'
+							};
+
+							store.dispatch({
+								type: TOAST_SHOW,
+								toast: toast
+							});
+
+							// setTimeout(function(){
+							// 	let toast = {
+							// 		title: 'Setting > Users',
+							// 		content: 'Please assign some one as Administrator'
+							// 	};
+							//
+							// 	store.dispatch({
+							// 		type: TOAST_SHOW,
+							// 		toast
+							// 	});
+							// }, 2000);
+
+							return;
+						}
+
 						store.dispatch({
 							type: UPDATE_SETTINGS
 						});
@@ -424,18 +474,116 @@ var AdminSettings = function () {
 						};
 
 						/**
-       * Handle action in this way
+       * Handle action in vue way
        * Means bypass store & state
        * Not respect app-state
        */
 						self.ajax_call(action);
 					},
-					_updateUserInfo: function _updateUserInfo() {
+					_updateSingleUser: function _updateSingleUser() {
 						console.log('see you click');
+						var u = vue.user_dialog_content;
+						/**
+       * Before call update
+       * Check if validate password
+       */
+						if (u.reset_password) {
+							if (!u.password || u.password.length < 6) {
+								u.password_error = true;
+								return;
+							} else {
+								u.password_error = false;
+							}
+
+							if (u.password != u.confirm_password) {
+								u.password_mismatch = true;
+								return;
+							} else {
+								u.password_mismatch = false;
+							}
+						}
+
+						store.dispatch({
+							type: UPDATE_SINGLE_USER,
+							user_dialog_content: u
+						});
+
+						vue._updateSettings();
+					},
+					_wantToChangePassword: function _wantToChangePassword() {
+						console.log('see as for reset password');
+						vue.user_dialog_content.reset_password = true;
+						vue.user_dialog_content.password = '';
+						vue.user_dialog_content.confirm_password = '';
+					},
+					_updateUserDialog: function _updateUserDialog(e) {
+						console.log('see tr click');
+						try {
+							var tr = vue._findTrElement(e);
+
+							var user_index = tr.getAttribute('user-index');
+							var selected_user = vue.settings.users[user_index];
+
+							var user_dialog_content = Object.assign({}, selected_user);
+							/**
+        * Init fake password
+        * If don't want to change
+        * @type {boolean}
+        */
+							user_dialog_content.reset_password = false;
+							user_dialog_content.password = 'xxxxxx';
+							user_dialog_content.confirm_password = 'xxxxxx';
+							user_dialog_content.password_mismatch = false;
+							user_dialog_content.password_error = false;
+							/**
+        * Set up user dialog content data
+        */
+							// vue.user_dialog_content = user_dialog_content
+
+							/**
+        * @warn Should call store for update value
+        */
+							store.dispatch({
+								type: CHANGE_USER_DIALOG_CONTENT,
+								user_dialog_content: user_dialog_content
+							});
+							self.user_dialog.modal('show');
+						} catch (e) {
+							return;
+						}
+					},
+					_findTrElement: function _findTrElement(e) {
+						var tr = e.target;
+
+						var path = [tr].concat(e.path);
+
+						var i = 0;
+						while (i < path.length) {
+							var _tr = path[i];
+
+							/**
+        * Click on input / select to edit info
+        */
+							var is_click_on_edit_form = _tr.tagName == 'INPUT' || _tr.tagName == 'TEXTAREA' || _tr.tagName == 'SELECT';
+
+							if (is_click_on_edit_form) {
+								return null;
+							}
+
+							if (_tr.tagName == 'TR') {
+								return _tr;
+							}
+
+							i++;
+						}
+
+						return null;
 					}
 				}
 
 			});
+
+			this.vue = vue;
 		}
 	}, {
 		key: 'getVueState',
@@ -490,7 +638,6 @@ var AdminSettings = function () {
 		key: 'initView',
 		value: function initView() {
 			store.dispatch({ type: INIT_VIEW });
-			$('#user-dialog').modal('show');
 		}
 	}, {
 		key: 'adminStepReducer',
@@ -690,6 +837,45 @@ var AdminSettings = function () {
 					{
 						return self.vue.settings;
 					}
+				case UPDATE_SINGLE_USER:
+					{
+						var user_dialog_content = action.user_dialog_content;
+
+						var i = 0,
+						    index = 0;
+						var users = state.users;
+						while (i < users.length) {
+							if (users[i].id == user_dialog_content.id) {
+								index = i;
+							}
+
+							i++;
+						}
+
+						/**
+       * Get him out
+       */
+						var need_update_user = users[index];
+
+						/**
+       * Only assign on reservation key
+       * Not all what come from reservation_dialog_content
+       */
+						Object.keys(need_update_user).forEach(function (key) {
+							need_update_user[key] = user_dialog_content[key];
+						});
+
+						/**
+       * Allow reset password
+       */
+						var reset_password = user_dialog_content.reset_password,
+						    password = user_dialog_content.password;
+
+
+						Object.assign(need_update_user, { reset_password: reset_password, password: password });
+
+						return state;
+					}
 				default:
 					return state;
 			}
@@ -702,6 +888,18 @@ var AdminSettings = function () {
 				case UPDATE_DEPOSIT:
 					{
 						return self.vue.deposit;
+					}
+				default:
+					return state;
+			}
+		}
+	}, {
+		key: 'userDialogContentReducer',
+		value: function userDialogContentReducer(state, action) {
+			switch (action.type) {
+				case CHANGE_USER_DIALOG_CONTENT:
+					{
+						return action.user_dialog_content;
 					}
 				default:
 					return state;
@@ -721,6 +919,7 @@ var AdminSettings = function () {
 			this.admin_step_go = document.querySelectorAll('.go');
 			this.admin_step = document.querySelectorAll('#admin-step-container .admin-step');
 			this.admin_step_container = document.querySelector('#admin-step-container');
+			this.user_dialog = $('#user-dialog');
 		}
 	}, {
 		key: 'event',
@@ -859,6 +1058,14 @@ var AdminSettings = function () {
 						type: SAVE_EDIT_IN_VUE_TO_STORE,
 						branch: branch
 					});
+				}
+
+				/**
+     *
+     */
+				var show_user_dialog = action == CHANGE_USER_DIALOG_CONTENT;
+				if (show_user_dialog) {
+					self.user_dialog.modal('show');
 				}
 
 				/**

@@ -4,7 +4,7 @@
         <div class="form-group">
             <label class="col-md-4 text-right">User name</label>
             <input
-                    type="text" style="width: 100px"
+                    type="text" style="display: inline-block; max-width: 200px"
                     v-model="user_dialog_content.user_name"
             >
         </div>
@@ -12,9 +12,22 @@
         <div class="form-group">
             <label class="col-md-4 text-right">Password</label>
             <input
-                    type="text" style="width: 30px"
+                    type="password" style="display: inline-block; max-width: 200px"
                     v-model="user_dialog_content.password"
+                    v-on:click="_wantToChangePassword"
             >
+            <span v-show="user_dialog_content.password_error">Password at least 6 character</span>
+        </div>
+
+        <div class="form-group" v-show="user_dialog_content.reset_password">
+            <label class="col-md-4 text-right">Confirm</label>
+            <input
+                    type="password" style="display: inline-block; max-width: 200px"
+                    v-model="user_dialog_content.confirm_password"
+            >
+            <span v-show="user_dialog_content.password_mismatch"
+                  class="bg-danger"
+            >Please retype password, mismatch!</span>
         </div>
 
         <div class="form-group">
@@ -40,24 +53,17 @@
             <div class="panel-body">
                 <div class="form-group">
                     <label class="col-md-4 text-right">Permission level</label>
-                    <select
+                    <select v-model="user_dialog_content.permission_level"
                     >
-                        <option value="0">0</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-                        <option value="9">9</option>
+                        <option value="0">Reservations</option>
+                        <option value="10">Administrator</option>
                     </select>
                 </div>
 
                 <div class="form-group">
                     <label class="col-md-4 text-right">Assign Restaurant</label>
-                    <select
+                    <select multiple class="multiple-select"
+                            v-model="user_dialog_content.outlet_ids"
                     >
                         <template v-for="(outlet, outlet_index) in outlets">
                             <option :value="outlet.id">{{ outlet.outlet_name }}</option>

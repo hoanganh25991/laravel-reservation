@@ -2401,3 +2401,10 @@ label:hover:before {
 #settings .multiple-select:focus{
     height: auto;
  }
+#user-dialog .multiple-select{
+    transition: all 0.5s ease-in-out;
+    height: 35px;
+}
+#user-dialog .multiple-select:focus {
+    height: auto;
+}

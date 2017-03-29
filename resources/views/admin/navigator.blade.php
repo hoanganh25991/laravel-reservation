@@ -64,9 +64,12 @@
          * dangerous code
          */
         (function(){
+            //let outlets = window.outlets;
             new Vue({
                 el: '#outlet_select',
-                data: outlets,
+                data(){
+                    return outlets;
+                },
                 methods: {
                     _switchOutlet(e){
                         let a = e.target;

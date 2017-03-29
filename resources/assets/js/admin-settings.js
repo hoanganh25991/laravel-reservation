@@ -19,6 +19,8 @@ const REFETCHING_DATA        = 'REFETCHING_DATA';
 const REFETCHING_DATA_SUCCESS= 'REFETCHING_DATA_SUCCESS';
 const SWITCH_OUTLET          = 'SWITCH_OUTLET';
 const AJAX_UPDATE_SCOPE_OUTLET_ID = 'AJAX_UPDATE_SCOPE_OUTLET_ID';
+const CHANGE_USER_DIALOG_CONTENT = 'CHANGE_USER_DIALOG_CONTENT';
+const UPDATE_SINGLE_USER     = 'UPDATE_SINGLE_USER';
 // const SYNC_DATA = 'SYNC_DATA';
 
 const TOAST_SHOW = 'TOAST_SHOW';
@@ -50,6 +52,9 @@ const AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS = 'AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS
 
 
 class AdminSettings {
+	/** @namespace user.permission_level */
+	/** @namespace window.outlets */
+	/** @namespace vue.settings.users */
 	/**
 	 * @namespace Redux
 	 * @namespace moment
@@ -159,6 +164,7 @@ class AdminSettings {
 						notification: self.notificationReducer(state.notification, action)
 					});
 				case UPDATE_SETTINGS:
+				case UPDATE_SINGLE_USER:
 					return Object.assign({}, state, {
 						settings: self.settingsReducer(state.settings, action)
 					});
@@ -174,6 +180,11 @@ class AdminSettings {
 
 					// let vue_state = window.vue_state;
 					return state;
+				}
+				case CHANGE_USER_DIALOG_CONTENT: {
+					return Object.assign({}, state, {
+						user_dialog_content: self.userDialogContentReducer(state.user_dialog_content, action)
+					});
 				}
 				default:
 					return state;
@@ -213,7 +224,9 @@ class AdminSettings {
 			init_view : false,
 			// admin_step: 'weekly_sessions',
 			admin_step: 'weekly_sessions_view',
-			user_dialog_content: {},
+			user_dialog_content: {
+				outlet_ids: []
+			},
 			deleted_sessions: [],
 			deleted_timings: [],
 		};
@@ -224,9 +237,11 @@ class AdminSettings {
 	buildVue(){
 		let state = this.getVueState();
 		let self  = this;
-		this.vue = new Vue({
+		let vue = new Vue({
 			el: '#app',
-			data: state,
+			data(){
+				return state;
+			},
 			mounted(){
 				document.dispatchEvent(new CustomEvent('vue-mounted'));
 				self.event();
@@ -241,7 +256,7 @@ class AdminSettings {
 					/**
 					 * Guest next admin step
 					 */
-					let next_admin_step = this.admin_step + '_view';
+					let next_admin_step = vue.admin_step + '_view';
 					/**
 					 * Check if guest is right
 					 */
@@ -258,8 +273,8 @@ class AdminSettings {
 			methods: {
 				_addWeeklySession(){
 					let new_session = self._dumpWeeklySession();
-					let current = this.weekly_sessions;
-					this.weekly_sessions = [
+					let current = vue.weekly_sessions;
+					vue.weekly_sessions = [
 						...current,
 						new_session
 					];
@@ -269,7 +284,7 @@ class AdminSettings {
 
 					let btn           = e.target;
 					let session_index = btn.getAttribute('session-index');
-					let session       = this.weekly_sessions[session_index];
+					let session       = vue.weekly_sessions[session_index];
 
 					session.timings.push(self._dumpTiming());
 				},
@@ -278,15 +293,15 @@ class AdminSettings {
 					// console.log(e.target);
 					console.log('see delete timing');
 					try{
-						let i = this._findIElement(e);
+						let i = vue._findTrElement(e);
 						let session_index = i.getAttribute('session-index');
 						let timing_index  = i.getAttribute('timing-index');
-						let session = this.weekly_sessions[session_index];
+						let session = vue.weekly_sessions[session_index];
 
 						let timing = session.timings[timing_index];
 						session.timings.splice(timing_index, 1);
 
-						this.deleted_timings.push(timing);
+						vue.deleted_timings.push(timing);
 					}catch(e){
 						return;
 					}
@@ -296,21 +311,21 @@ class AdminSettings {
 					// console.log(e.target);
 					console.log('see delete session');
 					try{
-						let i = this._findIElement(e);
+						let i = vue._findTrElement(e);
 						let session_index = i.getAttribute('session-index');
 
-						let session = this.weekly_sessions[session_index];
-						this.weekly_sessions.splice(session_index, 1);
+						let session = vue.weekly_sessions[session_index];
+						vue.weekly_sessions.splice(session_index, 1);
 
-						this.deleted_sessions.push(session);
+						vue.deleted_sessions.push(session);
 					}catch(e){
 						return;
 					}
 				},
 				_addSpecialSession(){
 					let new_special_session = self._dumpSpecialSession();
-					let current = this.special_sessions;
-					this.special_sessions = [
+					let current = vue.special_sessions;
+					vue.special_sessions = [
 						...current,
 						new_special_session
 					];
@@ -321,7 +336,7 @@ class AdminSettings {
 
 					let btn           = e.target;
 					let session_index = btn.getAttribute('session-index');
-					let session       = this.special_sessions[session_index];
+					let session       = vue.special_sessions[session_index];
 
 					session.timings.push(self._dumpTiming());
 				},
@@ -330,13 +345,13 @@ class AdminSettings {
 					// console.log(e.target);
 					console.log('see delete session');
 					try{
-						let i = this._findIElement(e);
+						let i = vue._findTrElement(e);
 						let session_index = i.getAttribute('session-index');
 
-						let session = this.special_sessions[session_index];
-						this.special_sessions.splice(session_index, 1);
+						let session = vue.special_sessions[session_index];
+						vue.special_sessions.splice(session_index, 1);
 
-						this.deleted_sessions.push(session);
+						vue.deleted_sessions.push(session);
 					}catch(e){
 						return;
 					}
@@ -346,15 +361,15 @@ class AdminSettings {
 					// console.log(e.target);
 					console.log('see delete timing');
 					try{
-						let i = this._findIElement(e);
+						let i = vue._findTrElement(e);
 						let session_index = i.getAttribute('session-index');
 						let timing_index  = i.getAttribute('timing-index');
-						let session = this.special_sessions[session_index];
+						let session = vue.special_sessions[session_index];
 
 						let timing = session.timings[timing_index];
 						session = session.timings.splice(timing_index, 1);
 
-						this.deleted_timings.push(timing);
+						vue.deleted_timings.push(timing);
 					}catch(e){
 						return;
 					}
@@ -400,6 +415,39 @@ class AdminSettings {
 				},
 
 				_updateSettings(){
+					/**
+					 * Check user list has at least 1 Administrator
+					 */
+					let users = vue.settings.users;
+					let administrator = users.filter(user => user.permission_level == 10);
+					if(administrator.length == 0){
+						let toast = {
+							title: 'Settings > Users',
+							content: 'Need at least one Administrator',
+							type: 'danger'
+						}
+
+						store.dispatch({
+							type: TOAST_SHOW,
+							toast
+						});
+
+						// setTimeout(function(){
+						// 	let toast = {
+						// 		title: 'Setting > Users',
+						// 		content: 'Please assign some one as Administrator'
+						// 	};
+						//
+						// 	store.dispatch({
+						// 		type: TOAST_SHOW,
+						// 		toast
+						// 	});
+						// }, 2000);
+
+						return;
+					}
+
+
 					store.dispatch({
 						type: UPDATE_SETTINGS
 					});
@@ -426,19 +474,124 @@ class AdminSettings {
 					}
 
 					/**
-					 * Handle action in this way
+					 * Handle action in vue way
 					 * Means bypass store & state
 					 * Not respect app-state
 					 */
 					self.ajax_call(action);
 				},
 
-				_updateUserInfo(){
+				_updateSingleUser(){
 					console.log('see you click');
-				}
+					let u = vue.user_dialog_content;
+					/**
+					 * Before call update
+					 * Check if validate password
+					 */
+					if(u.reset_password){
+						if(!u.password || u.password.length < 6){
+							u.password_error = true;
+							return;
+						}else{
+							u.password_error = false;
+						}
+
+						if(u.password != u.confirm_password){
+							u.password_mismatch = true;
+							return;
+						}else{
+							u.password_mismatch = false;
+						}
+					}
+
+
+					store.dispatch({
+						type: UPDATE_SINGLE_USER,
+						user_dialog_content: u
+					});
+
+					vue._updateSettings();
+				},
+
+				_wantToChangePassword(){
+					console.log('see as for reset password');
+					vue.user_dialog_content.reset_password = true;
+					vue.user_dialog_content.password          = '';
+					vue.user_dialog_content.confirm_password  = '';
+				},
+
+				_updateUserDialog(e){
+					console.log('see tr click');
+					try{
+						let tr = vue._findTrElement(e);
+
+						let user_index = tr.getAttribute('user-index');
+						let selected_user       = vue.settings.users[user_index];
+
+						let user_dialog_content = Object.assign({}, selected_user);
+						/**
+						 * Init fake password
+						 * If don't want to change
+						 * @type {boolean}
+						 */
+						user_dialog_content.reset_password    = false;
+						user_dialog_content.password          = 'xxxxxx';
+						user_dialog_content.confirm_password  = 'xxxxxx';
+						user_dialog_content.password_mismatch = false;
+						user_dialog_content.password_error    = false;
+						/**
+						 * Set up user dialog content data
+						 */
+						// vue.user_dialog_content = user_dialog_content
+
+						/**
+						 * @warn Should call store for update value
+						 */
+						store.dispatch({
+							type: CHANGE_USER_DIALOG_CONTENT,
+							user_dialog_content
+						});
+						self.user_dialog.modal('show');
+					}catch(e){
+						return
+					}
+				},
+
+				_findTrElement(e){
+					let tr = e.target;
+
+					let path = [tr].concat(e.path);
+
+					let i = 0;
+					while(i < path.length){
+						let tr = path[i];
+
+						/**
+						 * Click on input / select to edit info
+						 */
+						let is_click_on_edit_form =
+							tr.tagName == 'INPUT'
+							|| tr.tagName == 'TEXTAREA'
+							|| tr.tagName == 'SELECT';
+
+						if(is_click_on_edit_form){
+							return null;
+						}
+
+						if(tr.tagName == 'TR'){
+							return tr;
+						}
+
+						i++;
+					}
+
+					return null;
+				},
 			}
 
 		});
+
+		this.vue = vue;
 	}
 
 	getVueState(){
@@ -489,7 +642,6 @@ class AdminSettings {
 
 	initView(){
 		store.dispatch({type: INIT_VIEW});
-		$('#user-dialog').modal('show');
 	}
 
 	adminStepReducer(state, action){
@@ -687,6 +839,43 @@ class AdminSettings {
 			case UPDATE_SETTINGS: {
 				return self.vue.settings;
 			}
+			case UPDATE_SINGLE_USER: {
+				let user_dialog_content = action.user_dialog_content;
+
+				let i = 0, index = 0;
+				let users = state.users;
+				while(i < users.length){
+					if(users[i].id == user_dialog_content.id){
+						index = i;
+					}
+
+					i++;
+				}
+
+				/**
+				 * Get him out
+				 */
+				let need_update_user = users[index];
+
+				/**
+				 * Only assign on reservation key
+				 * Not all what come from reservation_dialog_content
+				 */
+				Object
+					.keys(need_update_user)
+					.forEach(key => {
+						need_update_user[key] = user_dialog_content[key];
+					});
+
+				/**
+				 * Allow reset password
+				 */
+				let {reset_password, password} = user_dialog_content;
+
+				Object.assign(need_update_user, {reset_password, password});
+
+				return state;
+			}
 			default:
 				return state;
 		}
@@ -697,6 +886,16 @@ class AdminSettings {
 		switch(action.type){
 			case UPDATE_DEPOSIT: {
 				return self.vue.deposit;
+			}
+			default:
+				return state;
+		}
+	}
+
+	userDialogContentReducer(state, action){
+		switch(action.type){
+			case CHANGE_USER_DIALOG_CONTENT: {
+				return action.user_dialog_content;
 			}
 			default:
 				return state;
@@ -715,6 +914,7 @@ class AdminSettings {
 		this.admin_step_go = document.querySelectorAll('.go');
 		this.admin_step    = document.querySelectorAll('#admin-step-container .admin-step');
 		this.admin_step_container    = document.querySelector('#admin-step-container');
+		this.user_dialog   = $('#user-dialog');
 	}
 
 	event(){
@@ -796,7 +996,6 @@ class AdminSettings {
 
 
 
-
 			/**
 			 * Change admin step
 			 * @type {boolean}
@@ -869,6 +1068,15 @@ class AdminSettings {
 			}
 
 			/**
+			 *
+			 */
+			let show_user_dialog = action == CHANGE_USER_DIALOG_CONTENT;
+			if(show_user_dialog){
+				self.user_dialog.modal('show');
+			}
+
+
+			/**
 			 * Update state for vue
 			 * @type {boolean}
 			 */
@@ -884,7 +1092,7 @@ class AdminSettings {
 			// 	|| action == REFETCHING_DATA_SUCCESS;
 
 			if(!is_reuse_vue_state){
-			// if(should_sync_vue_state){
+				// if(should_sync_vue_state){
 				let vue_state = self.getVueState();
 				Object.assign(vue_state, state);
 			}

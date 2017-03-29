@@ -185,7 +185,7 @@ class AdminReservations {
 					// console.log('see tr click');
 					// console.log(e);
 					try{
-						let tr = this._findIElement(e);
+						let tr = this._findTrElement(e);
 						let reservation_index = tr.getAttribute('reservation-index');
 
 						/**
@@ -210,7 +210,7 @@ class AdminReservations {
 					}
 				},
 
-				_findIElement(e){
+				_findTrElement(e){
 					let tr = e.target;
 
 					let path = [tr].concat(e.path);

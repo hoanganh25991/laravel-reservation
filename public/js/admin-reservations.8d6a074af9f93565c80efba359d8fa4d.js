@@ -198,7 +198,7 @@ var AdminReservations = function () {
 						// console.log('see tr click');
 						// console.log(e);
 						try {
-							var tr = this._findIElement(e);
+							var tr = this._findTrElement(e);
 							var reservation_index = tr.getAttribute('reservation-index');
 
 							/**
@@ -222,7 +222,7 @@ var AdminReservations = function () {
 							return;
 						}
 					},
-					_findIElement: function _findIElement(e) {
+					_findTrElement: function _findTrElement(e) {
 						var tr = e.target;
 
 						var path = [tr].concat(e.path);
