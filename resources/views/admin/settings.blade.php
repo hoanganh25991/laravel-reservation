@@ -274,16 +274,21 @@
                                     <!-- div style="padding: 0 15px" -->
                                     <div>
                                         <h4>Deposit Calculation</h4>
-                                        <input type="number" class="form-control" style="width: 60px;display: inline-block;"
-                                               placeholder="$5"
-                                               v-model="deposit.DEPOSIT_VALUE"
-                                               :value="deposit.DEPOSIT_VALUE"
-                                               id="deposit_DEPOSIT_VALUE">
-                                        <select v-model="deposit.DEPOSIT_TYPE" style="display: inline-block">
-                                            <option disabled>Please deposit type</option>
-                                            <option value="0">Fixed Sum</option>
-                                            <option value="1">Per Pax</option>
-                                        </select>
+                                        <div class="input-group col-md-6">
+                                            <span class="input-group-addon">$</span>
+                                            <input type="number" class="form-control"
+                                                   placeholder="$5"
+                                                   v-model="deposit.DEPOSIT_VALUE"
+                                                   :value="deposit.DEPOSIT_VALUE"
+                                                   id="deposit_DEPOSIT_VALUE">
+                                            <div class="input-group-addon">
+                                                <select v-model="deposit.DEPOSIT_TYPE" class="input-group">
+                                                    <option disabled>Please deposit type</option>
+                                                    <option value="0">Fixed Sum</option>
+                                                    <option value="1">Per Pax</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
                                     <p></p>
                                     <!-- div style="padding: 0 15px" -->
