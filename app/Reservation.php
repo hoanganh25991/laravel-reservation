@@ -504,9 +504,10 @@ class Reservation extends HoiModel {
      */
     public function getSMSMessageOnReservedAttribute(){
         //send out an SMS
-        $long_datetime_str = $this->date->format('M d Y');
+        $date_str = $this->date->format('M d Y');
+        $time_str = $this->date->format('H:i');
 
-        return "Your reservation at $this->outlet_name $long_datetime_str has been received. Reservation code: $this->confirm_id";
+        return "Your reservation at $this->outlet_name on $date_str at $time_str has been received. Reservation code: $this->confirm_id";
     }
 
     public function getConfirmationSMSMessageAttribute(){
