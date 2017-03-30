@@ -428,13 +428,13 @@ class BookingForm {
 				(last_action == CHANGE_ADULT_PAX
 				|| last_action == CHANGE_CHILDREN_PAX);
 
-			let pax_over_30 =(state.pax.adult + state.pax.children) > 10;
-
-			let is_pax_over = has_pax_over_dependency && pax_over_30;
-
-			if(is_pax_over){
-				store.dispatch({type: PAX_OVER});
-			}
+			// let pax_over_30 =(state.pax.adult + state.pax.children) > 10;
+			//
+			// let is_pax_over = has_pax_over_dependency && pax_over_30;
+			//
+			// if(is_pax_over){
+			// 	store.dispatch({type: PAX_OVER});
+			// }
 
 			if(prestate.has_selected_day == false && state.has_selected_day == true){
 				store.dispatch({type: AJAX_CALL, ajax_call: 1});
@@ -878,6 +878,7 @@ class BookingForm {
 
 					console.log(msg, res.data);
 					window.alert(msg);
+					store.dispatch({type: PAX_OVER});
 					return;
 				}
 
