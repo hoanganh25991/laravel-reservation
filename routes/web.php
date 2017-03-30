@@ -61,6 +61,57 @@ Route::group(['middleware' => 'staff'], function (){
     Route::post('reservations', 'ReservationController@update');
 });
 
+
+/**
+ * Group for api call
+ */
+Route::group(['prefix' => 'api'], function(){
+    Route::get('', 'BookingController@getBookingForm');
+    Route::post('', 'BookingController@getBookingForm');
+
+    Route::get('home', 'BookingController@getBookingForm');
+    Route::post('home', 'BookingController@getBookingForm');
+
+    Route::get('reservations/thank-you', 'ReservationController@getThankYouPage')->name('reservation_thank_you');
+    Route::get('reservations/{confirm_id}', 'ReservationController@getConfirmPage')->name('reservation_confirm');
+    Route::post('reservations/{confirm_id}', 'ReservationController@getConfirmPage');
+
+    /**
+     * Route to admin page
+     */
+    Route::group([
+        'middleware' => 'staff',
+        'prefix' => 'admin'
+    ], function (){
+        //bring admin out of
+        Route::get('', 'AdminController@getDashboard')->name('admin');
+        Route::post('', 'AdminController@setUpOuletId');
+
+        Route::group(['middleware' => 'reservation'], function (){
+            Route::get('reservations', 'AdminController@getReservationDashboard');
+            Route::post('reservations', 'AdminController@getReservationDashboard');
+        });
+
+        Route::group(['middleware' => 'administrator'], function (){
+            Route::get('settings', 'AdminController@getSettingsDashboard');
+            Route::post('settings', 'AdminController@getSettingsDashboard');
+        });
+    });
+
+
+    /**
+     * Handle update post from admin page
+     */
+    Route::group(['middleware' => 'administrator'], function (){
+        Route::post('sessions', 'SessionController@update');
+        Route::post('outlet-reservation-settings', 'OutletReservationSettingController@update');
+    });
+
+    Route::group(['middleware' => 'staff'], function (){
+        Route::post('reservations', 'ReservationController@update');
+    });
+});
+
 Route::get('test', function (App\Http\Controllers\BookingController $c, App\Http\Controllers\AdminController $a,
     App\Http\Controllers\SessionController $s){
 
