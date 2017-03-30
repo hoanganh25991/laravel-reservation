@@ -88,6 +88,18 @@ class OutletReservationSetting extends HoiModel{
 //    const DEFAULT_PER_PAX_VALUE = 5;
 
     /**
+     * Overral pax
+     * Min pax
+     * Max pax
+     * For select pax form
+     */
+    const OVERALL_MIN_PAX         = 'OVERALL_MIN_PAX';
+    const DEFAULT_OVERALL_MIN_PAX = 2;
+
+    const OVERALL_MAX_PAX         = 'OVERALL_MAX_PAX';
+    const DEFAULT_OVERALL_MAX_PAX = 20;
+
+    /**
      * Cast value by type
      */
     const STRING = 0;
@@ -137,13 +149,16 @@ class OutletReservationSetting extends HoiModel{
             Setting::SEND_SMS_ON_BOOKING,
             Setting::SEND_SMS_CONFIRMATION,
             Setting::HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM,
-            Setting::BRAND_ID,
-            Setting::SMS_SENDER_NAME,
             //for deposit
             Setting::REQUIRE_DEPOSIT,
             Setting::DEPOSIT_THRESHOLD_PAX,
             Setting::DEPOSIT_TYPE,
             Setting::DEPOSIT_VALUE,
+            //for settings
+            Setting::BRAND_ID,
+            Setting::SMS_SENDER_NAME,
+            Setting::OVERALL_MIN_PAX,
+            Setting::OVERALL_MAX_PAX,
         ];
     }
 

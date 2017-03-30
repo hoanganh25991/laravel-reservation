@@ -19,44 +19,26 @@
                         @endforeach
                     </select>
                 </div>
+                @verbatim
                 <div class="selectors cf" :style="'display: ' + pax_over">
                     <div id="adults-wrap">
                         <label for="adults">Adults</label>
                         <select name="adult_pax" class="form-control">
-                            <option value="1" selected>1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                            <option value="6">6</option>
-                            <option value="7">7</option>
-                            <option value="8">8</option>
-                            <option value="9">9</option>
-                            <option value="10">10</option>
-                            <option value="11">11</option>
-                            <option value="12">12</option>
-                            <option value="13">13</option>
-                            <option value="14">14</option>
-                            <option value="15">15</option>
+                            <template v-for="n in (overall_max_pax - (overall_min_pax-1) )">
+                                <option :value="(overall_min_pax-1) + n">{{ (overall_min_pax-1) + n }}</option>
+                            </template>
                         </select>
                     </div>
                     <div id="children-wrap">
                         <label for="children">Children</label>
                         <select name="children_pax" class="form-control">
-                            <option value="0" selected>0</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                            <option value="6">6</option>
-                            <option value="7">7</option>
-                            <option value="8">8</option>
-                            <option value="9">9</option>
+                            <template v-for="n in (overall_max_pax - (overall_min_pax-1) )">
+                                <option :value="(overall_min_pax-1) + n">{{ (overall_min_pax-1) + n }}</option>
+                            </template>
                         </select>
                     </div>
                 </div>
-
+                @endverbatim
                 <div class="datetime cf">
                     <div class="clear"></div>
                     <div id="calendar-box" align="center"></div>
@@ -165,6 +147,10 @@
 
 @push('script')
 <script src="{{ url('js/vue.min.js') }}"></script>
+<script>@php
+    $state_json = json_encode($state, JSON_NUMERIC_CHECK);
+    echo "window.state = $state_json;";
+@endphp</script>
 <script src="{{ url(substr(mix('js/calendar.js'), 1)) }}"></script>
 <script src="{{ url(substr(mix('js/booking-form.js'), 1)) }}"></script>
 @endpush

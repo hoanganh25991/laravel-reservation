@@ -198,7 +198,9 @@ class OutletReservationSettingController extends Controller {
         $settings_config = Setting::settingsConfig();
         $settings_keys = [
             Setting::BRAND_ID,
-            Setting::SMS_SENDER_NAME
+            Setting::SMS_SENDER_NAME,
+            Setting::OVERALL_MIN_PAX,
+            Setting::OVERALL_MAX_PAX,
         ];
 
         $settings = Setting::buildKeyValueOfConfig($settings_config, $settings_keys);

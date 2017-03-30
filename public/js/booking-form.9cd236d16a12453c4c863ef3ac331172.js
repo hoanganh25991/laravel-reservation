@@ -157,17 +157,24 @@ var BookingForm = function () {
 	}, {
 		key: 'defaultState',
 		value: function defaultState() {
-			if (window.booking_form_state) return window.booking_form_state;
+			var server_state = {};
+			// if(window.booking_form_state){
+			// 	server_state = window.booking_form_state;
+			// }
+			if (window.state) {
+				server_state = window.state;
+			}
 
-			var state = {
+			/**
+    * Set overall min|max pax
+    */
+			var overall_min_pax = server_state['overall_min_pax'];
+
+			var frontend_state = {
 				init_view: false,
-				outlet: {
-					id: 1,
-					name: 'HoiPOS Cafe (West)'
-				},
 				pax: {
-					adult: 1,
-					children: 0
+					adult: overall_min_pax,
+					children: overall_min_pax
 				},
 				reservation: {
 					date: moment(),
@@ -197,6 +204,8 @@ var BookingForm = function () {
 				},
 				pax_over: "block"
 			};
+
+			var state = Object.assign(server_state, frontend_state);
 
 			this.state = state;
 

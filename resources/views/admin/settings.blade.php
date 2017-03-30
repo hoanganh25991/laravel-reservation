@@ -186,13 +186,31 @@
                         <div class="modal-body">
                             <div class="row">
                                 <div class="col-md-7">
-                                    <div class="form-group row">
-                                        <label for="settings_SMS_SENDER_NAME" class="col-md-4">SMS sender name</label>
+                                    <div class="form-group">
+                                        <label for="settings_SMS_SENDER_NAME" class="col-md-4 text-right">SMS sender name</label>
                                             <input type="text" class="form-control" style="width: 200px;display: inline-block;"
                                                    spellcheck="false"
                                                    v-model="settings.SMS_SENDER_NAME"
                                                    :value="settings.SMS_SENDER_NAME"
                                                    id="settings_SMS_SENDER_NAME">
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="settings_OVERALL_MIN_PAX" class="col-md-4 text-right">Overall min pax</label>
+                                        <input type="number" class="form-control" style="width: 100px;display: inline-block;"
+                                               spellcheck="false"
+                                               v-model="settings.OVERALL_MIN_PAX"
+                                               :value="settings.OVERALL_MIN_PAX"
+                                               id="settings_OVERALL_MIN_PAX">
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="settings_OVERALL_MAX_PAX" class="col-md-4 text-right">Overall max pax</label>
+                                        <input type="number" class="form-control" style="width: 100px;display: inline-block;"
+                                               spellcheck="false"
+                                               v-model="settings.OVERALL_MAX_PAX"
+                                               :value="settings.OVERALL_MAX_PAX"
+                                               id="settings_OVERALL_MAX_PAX">
                                         </label>
                                     </div>
                                 </div>
