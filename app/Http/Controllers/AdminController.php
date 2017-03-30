@@ -127,6 +127,10 @@ class AdminController extends HoiController {
 			'deleted_timings'  => [],
         ];
 
+        if($req->fromApiGroup()){
+            return $this->apiResponse($state, 200, Call::AJAX_SUCCESS);
+        }
+
         /**
          * Quick check, only handle 1 POST case
          * From ajax 

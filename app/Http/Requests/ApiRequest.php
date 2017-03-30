@@ -14,6 +14,7 @@ class ApiRequest extends FormRequest
     public function authorize()
     {
 //        return false;
+//        $this->uri
         return true;
     }
 
@@ -27,5 +28,13 @@ class ApiRequest extends FormRequest
         return [
             //
         ];
+    }
+    
+    public function fromApiGroup(){
+        /**
+         * Url means no query parameter
+         * Uri is full
+         */
+        return preg_match('/api/', $this->url());
     }
 }

@@ -113,7 +113,7 @@ Route::group(['prefix' => 'api'], function(){
 });
 
 Route::get('test', function (App\Http\Controllers\BookingController $c, App\Http\Controllers\AdminController $a,
-    App\Http\Controllers\SessionController $s){
+    App\Http\Controllers\SessionController $s, \App\Http\Requests\ApiRequest $req){
 
     //return \App\Timing::hasNewUpdate()->get()->count();
 
@@ -185,7 +185,9 @@ Route::get('test', function (App\Http\Controllers\BookingController $c, App\Http
 //
 //    $hoi_jobs->handle();
 
-    return url('');
+//    return url('');
+
+    return $req->url();
 
 });
 
