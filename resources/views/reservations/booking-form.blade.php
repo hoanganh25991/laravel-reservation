@@ -24,16 +24,16 @@
                     <div id="adults-wrap">
                         <label for="adults">Adults</label>
                         <select name="adult_pax" class="form-control">
-                            <template v-for="n in (overall_max_pax - (overall_min_pax-1) )">
-                                <option :value="(overall_min_pax-1) + n">{{ (overall_min_pax-1) + n }}</option>
+                            <template v-for="n in overall_max_pax + 1">
+                                <option :value="n - 1">{{ n - 1 }}</option>
                             </template>
                         </select>
                     </div>
                     <div id="children-wrap">
                         <label for="children">Children</label>
                         <select name="children_pax" class="form-control">
-                            <template v-for="n in (overall_max_pax - (overall_min_pax-1) )">
-                                <option :value="(overall_min_pax-1) + n">{{ (overall_min_pax-1) + n }}</option>
+                            <template v-for="n in overall_max_pax + 1">
+                                <option :value="n - 1">{{ n - 1 }}</option>
                             </template>
                         </select>
                     </div>

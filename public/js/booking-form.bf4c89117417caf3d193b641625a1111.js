@@ -173,8 +173,8 @@ var BookingForm = function () {
 			var frontend_state = {
 				init_view: false,
 				pax: {
-					adult: overall_min_pax,
-					children: overall_min_pax
+					adult: 1,
+					children: 0
 				},
 				reservation: {
 					date: moment(),
@@ -444,13 +444,15 @@ var BookingForm = function () {
 
 				var has_pax_over_dependency = last_action == CHANGE_ADULT_PAX || last_action == CHANGE_CHILDREN_PAX;
 
-				// let pax_over_30 =(state.pax.adult + state.pax.children) > 10;
-				//
-				// let is_pax_over = has_pax_over_dependency && pax_over_30;
-				//
-				// if(is_pax_over){
-				// 	store.dispatch({type: PAX_OVER});
-				// }
+				var pax_over_below = state.pax.adult + state.pax.children < state.overall_min_pax;
+				var pax_over_over = state.pax.adult + state.pax.children > state.overall_max_pax;
+
+				var is_pax_over = has_pax_over_dependency && (pax_over_below || pax_over_over);
+
+				if (is_pax_over) {
+					// store.dispatch({type: PAX_OVER});
+					window.alert('Over all pax should between ' + state.overall_min_pax + ' - ' + state.overall_max_pax + ' ');
+				}
 
 				if (prestate.has_selected_day == false && state.has_selected_day == true) {
 					store.dispatch({ type: AJAX_CALL, ajax_call: 1 });
