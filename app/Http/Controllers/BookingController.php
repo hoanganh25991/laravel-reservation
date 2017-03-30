@@ -102,6 +102,17 @@ class BookingController extends HoiController {
         return $available_chunk->isNotEmpty();
     }
 
+    public function bookingInOverallRange(ApiRequest $req){
+        $overall = $req->get('adult_pax') | $req->get('children_pax');
+
+        $settings_config = Setting::settingsConfig();
+        $overall_min_pax = $settings_config(Setting::OVERALL_MIN_PAX);
+        $overall_pax_pax = $settings_config(Setting::OVERALL_MAX_PAX);
+
+        return ($overall >= $overall_min_pax)
+                &&  ($overall <= $overall_pax_pax);
+    }
+
     /**
      * Finding available time from customer booking conditions
      * @return mixed
@@ -448,6 +459,16 @@ class BookingController extends HoiController {
                 $data = $validator->getMessageBag()->toArray();
                 $code = 200;
                 $msg  = Call::AJAX_VALIDATE_FAIL;
+                return $this->apiResponse($data, $code, $msg);
+            }
+
+            /**
+             * If booking out of overall min|max pax
+             */
+            if(!$this->bookingInOverallRange($req)){
+                $data = [];
+                $code = 200;
+                $msg  = 'reservation.out_of_overall_range';
                 return $this->apiResponse($data, $code, $msg);
             }
 
