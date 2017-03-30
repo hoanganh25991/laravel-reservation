@@ -103,7 +103,8 @@ class Reservation extends HoiModel {
      */
     protected $appends = [
 //        'full_phone_number',
-        'confirm_id'
+        'confirm_id',
+        'send_confirmation_by_timestamp'
     ];
 
     protected $hidden = [
@@ -135,7 +136,7 @@ class Reservation extends HoiModel {
         'table_name',
         'staff_remarks',
         'status',
-        'send_confirmation_by_timestamp',
+//        'send_confirmation_by_timestamp',
         'send_sms_confirmation',
         'send_email_confirmation',
         'session_name',
@@ -159,9 +160,9 @@ class Reservation extends HoiModel {
              * Auto compute send_confirmation_by_timestamp
              * Base on current config
              */
-            if(!isset($reservation->attributes['send_confirmation_by_timestamp'])){
-                $reservation->send_confirmation_by_timestamp = $reservation->getSendConfirmationByTimestampAttribute();
-            }
+//            if(!isset($reservation->attributes['send_confirmation_by_timestamp'])){
+//                $reservation->send_confirmation_by_timestamp = $reservation->getSendConfirmationByTimestampAttribute();
+//            }
 
             /**
              * Auto compuate send_sms_confirmation
@@ -337,10 +338,11 @@ class Reservation extends HoiModel {
      * @param string|null $date
      * @return Carbon|null
      */
-    public function getSendConfirmationByTimestampAttribute($date = null){
-        if(!is_null($date) && $date !== ''){
-            return Carbon::createFromFormat('Y-m-d H:i:s', $date, Setting::timezone());
-        }
+//    public function getSendConfirmationByTimestampAttribute($date = null){
+    public function getSendConfirmationByTimestampAttribute(){
+//        if(!is_null($date) && $date !== ''){
+//            return Carbon::createFromFormat('Y-m-d H:i:s', $date, Setting::timezone());
+//        }
 
         $notification_config = Setting::notificationConfig();
         $hours_before_reservation_timing_send_sms = $notification_config(Setting::HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM);
@@ -472,6 +474,7 @@ class Reservation extends HoiModel {
      * @param $val
      * @return int
      */
+//    public function getSendSMSConfirmationAttribute($val = null){
     public function getSendSMSConfirmationAttribute($val = null){
         if(!is_null($val)){
             return $val;
@@ -538,7 +541,7 @@ class Reservation extends HoiModel {
          * Return as datetime string to consistent with DB
          */
         $attributes['send_confirmation_by_timestamp']
-            = $this->getSendSMSConfirmationAttribute($attributes['send_confirmation_by_timestamp'])->format('Y-m-d H:i:s');
+            = $this->getSendConfirmationByTimestampAttribute($attributes['send_confirmation_by_timestamp'])->format('Y-m-d H:i:s');
 
         return $attributes;
     }
