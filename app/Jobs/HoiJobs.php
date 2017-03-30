@@ -54,24 +54,23 @@ class HoiJobs implements ShouldQueue
          * Less than current
          */
         $today = Carbon::now(Setting::timezone());
-        $today_str = $today->format('Y-m-d H:i:s');
-        /**
-         * Find reservation RESERVED
-         * Which one send confirmation has passed
-         */
+//        $today_str = $today->format('Y-m-d H:i:s');
+//        /**
+//         * Find reservation RESERVED
+//         * Which one send confirmation has passed
+//         */
         $reservations =
             Reservation::where([
                 ['status', '=', Reservation::RESERVED],
-                ['send_sms_confirmation', '=', Setting::SEND_SMS_CONFIRMATION],
+                ['send_sms_confirmation', '=', 1],
 //                ['send_confirmation_by_timestamp', '<=', $today_str]
             ])
             ->get();
 
         $need_send_reminder_reservations =
             $reservations
-                ->filter(function($reservation) use($today_str){
-                    /** @var Reservation  $reservation */
-                    return $reservation->send_confirmation_by_timestamp <= $today_str;
+                ->filter(function(Reservation $reservation) use($today){
+                    return $reservation->send_confirmation_by_timestamp->gte($today);
                 })->values();
         
         $need_send_reminder_reservations
