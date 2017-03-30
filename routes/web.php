@@ -130,6 +130,9 @@ Route::get('test', function (App\Http\Controllers\BookingController $c, App\Http
 //    $b = $r->send_confirmation_by_timestamp;
 //
 //    dd($r, $b);
+    $hoi_jobs = new \App\Jobs\HoiJobs();
+    
+    $hoi_jobs->handle();
 
 });
 
