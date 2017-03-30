@@ -70,7 +70,7 @@ class HoiJobs implements ShouldQueue
         $need_send_reminder_reservations =
             $reservations
                 ->filter(function(Reservation $reservation) use($today){
-                    return $reservation->send_confirmation_by_timestamp->gte($today);
+                    return $reservation->send_confirmation_by_timestamp->lte($today);
                 })->values();
         
         $need_send_reminder_reservations
