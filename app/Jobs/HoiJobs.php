@@ -63,24 +63,32 @@ class HoiJobs implements ShouldQueue
             Reservation::where([
                 ['status', '=', Reservation::RESERVED],
                 ['send_sms_confirmation', '=', Setting::SEND_SMS_CONFIRMATION],
-                ['send_confirmation_by_timestamp', '<=', $today_str]
+//                ['send_confirmation_by_timestamp', '<=', $today_str]
             ])
             ->get();
+
+        $need_send_reminder_reservations =
+            $reservations
+                ->filter(function($reservation) use($today_str){
+                    /** @var Reservation  $reservation */
+                    return $reservation->send_confirmation_by_timestamp <= $today_str;
+                })->values();
         
-        $reservations->each(function(Reservation $reservation){
-            $telephone   = $reservation->full_phone_number;
-            $message     = $reservation->confirmation_sms_message;
-            $sender_name = Setting::smsSenderName();
+        $need_send_reminder_reservations
+            ->each(function(Reservation $reservation){
+                $telephone   = $reservation->full_phone_number;
+                $message     = $reservation->confirmation_sms_message;
+                $sender_name = Setting::smsSenderName();
 
-            $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);
+                $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);
 
-            if($success_sent){
-                Log::info('Success send sms to reminder');
-                event(new SentReminderSMS($reservation));
-            }else{
-                throw new SMSException('SMS not sent');
-            }
-        });
+                if($success_sent){
+                    Log::info('Success send sms to reminder');
+                    event(new SentReminderSMS($reservation));
+                }else{
+                    throw new SMSException('SMS not sent');
+                }
+            });
     }
     
 }
