@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Traits\ApiUtils;
 use App\Libraries\HoiHash;
 use App\OutletReservationSetting as Setting;
+use Hamcrest\Core\Set;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
@@ -155,7 +156,7 @@ class OutletReservationSetting extends HoiModel{
             Setting::DEPOSIT_TYPE,
             Setting::DEPOSIT_VALUE,
             //for settings
-            Setting::BRAND_ID,
+//            Setting::BRAND_ID,
             Setting::SMS_SENDER_NAME,
             Setting::OVERALL_MIN_PAX,
             Setting::OVERALL_MAX_PAX,
@@ -270,9 +271,14 @@ class OutletReservationSetting extends HoiModel{
      * @return mixed
      */
     public static function brandId(){
-        $setting_config = Setting::settingsConfig();
-
-        return $setting_config(Setting::BRAND_ID);
+//        $setting_config = Setting::settingsConfig();
+//
+//        return $setting_config(Setting::BRAND_ID);
+        /**
+         * BRAND_ID hard code in env, which limit this server
+         * Which only server for outlet in this brand id
+         */
+        return env(Setting::BRAND_ID, Setting::DEFAULT_BRAND_ID);
     }
 
     /**
