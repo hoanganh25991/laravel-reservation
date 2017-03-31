@@ -197,7 +197,7 @@ class OutletReservationSettingController extends Controller {
     public function fetchUpdateSettings(){
         $settings_config = Setting::settingsConfig();
         $settings_keys = [
-            Setting::BRAND_ID,
+//            Setting::BRAND_ID,
             Setting::SMS_SENDER_NAME,
             Setting::OVERALL_MIN_PAX,
             Setting::OVERALL_MAX_PAX,
