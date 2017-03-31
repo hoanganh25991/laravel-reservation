@@ -1,5 +1,6 @@
 <?php
-use App\Jobs\HoiJobs;
+use App\Console\HoiKernel;
+use App\Jobs\HoiJobsForCronJobs;
 /*
 |--------------------------------------------------------------------------
 | Register The Auto Loader
@@ -39,18 +40,10 @@ $app = require_once __DIR__.'/bootstrap/app.php';
 | and wonderful application we have prepared for them.
 |
 */
+/** @var HoiKernel $kernel $kernel */
+$kernel = $app->make(HoiKernel::class);
+$kernel->handle(function(){
+    new HoiJobsForCronJobs;
+});
 
-$kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
-
-$response = $kernel->handle(
-    $request = Illuminate\Http\Request::capture()
-);
-
-$kernel->terminate($request, $response);
-
-$hoi_jobs = new HoiJobs;
-dispatch($hoi_jobs);
-
-$pm2_cmd = 'pm2 start pm2-queue-jobs.config.js';
-exec($pm2_cmd);
-
+$kernel->terminate();
