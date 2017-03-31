@@ -347,9 +347,9 @@ class Reservation extends HoiModel {
         $notification_config = Setting::notificationConfig();
         $hours_before_reservation_timing_send_sms = $notification_config(Setting::HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM);
 
-        if(env('APP_ENV') != 'production'){
-            return Carbon::now(Setting::timezone())->addMinutes(1);
-        }
+//        if(env('APP_ENV') != 'production'){
+//            return Carbon::now(Setting::timezone())->addMinutes(1);
+//        }
 
         /**
          * When default set up send confirmation by timestamp
