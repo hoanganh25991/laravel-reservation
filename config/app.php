@@ -64,7 +64,7 @@ return [
     |
     */
 
-    'timezone' => 'Asia/Ho_Chi_Minh',
+    'timezone' => env('TIMEZONE', 'Asia/Singapore'),
 
     /*
     |--------------------------------------------------------------------------

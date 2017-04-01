@@ -215,6 +215,14 @@ class OutletReservationSetting extends HoiModel{
     }
 
     /**
+     * Session outlet is setup or not
+     * @return bool
+     */
+    public function isOutletIdInjected(){
+        return is_null(session('outlet_id'));
+    }
+
+    /**
      * Session, Reservation filter by outlet id
      * outlet_id as global scope when query in database
      * @return mixed
