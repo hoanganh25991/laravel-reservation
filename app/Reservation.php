@@ -49,9 +49,6 @@ use App\OutletReservationSetting as Setting;
  * @property mixed $email
  * @property mixed $customer_remarks
  * 
- * @property Carbon $confirm_sms_date
- * @see App\Reservation::getConfirmSMSDateAttribute
- *
  * @property mixed $send_confirmation_by_timestamp
  * @see App\Reservation::getSendConfirmationByTimestampAttribute
  * 
@@ -75,7 +72,6 @@ class Reservation extends HoiModel {
 
     use ApiUtils;
 
-
     /**
      * Reservation status
      */
@@ -92,32 +88,44 @@ class Reservation extends HoiModel {
 
     protected $guarded = ['id'];
 
+    /**
+     * Reservation field should cast to Carbon datetime object
+     * Which easy to do math on date
+     */
     protected $dates = [
         'reservation_timestamp',
         'payment_timestamp',
     ];
 
     /**
-     * Bring these computed field when serialize to JSON
-     * @var array
+     * add fields when serialize model
+     * base on set/get, these fields computed
+     * @see App\Reservation::getConfirmIdAttribute
      */
     protected $appends = [
-//        'full_phone_number',
         'confirm_id',
         'send_confirmation_by_timestamp'
     ];
 
+    /**
+     * Should hidden when serialize model
+     */
     protected $hidden = [
         'customer_id',
-//        'outlet_id',
         'payment_id',
     ];
 
+    /**
+     * Should cast when serialize model
+     */
     protected $casts = [
         'send_sms_confirmation' => 'boolean',
         'staff_read_state'      => 'boolean'
     ];
 
+    /**
+     * Protect model from unwanted column when build query
+     */
     protected $fillable = [
         'outlet_id',
         'customer_id',
@@ -148,24 +156,18 @@ class Reservation extends HoiModel {
         'is_outdoor'
     ];
 
-    protected $events = [
-        //'created' => ReservationReserved::class,
-    ];
 
+    /**
+     * Inject into boot process
+     * To modify on query scope or
+     * Listen eloquent event : creating, saving, updating,...
+     */
     protected static function boot() {
         parent::boot();
         
         self::creating(function(Reservation $reservation){
             /**
-             * Auto compute send_confirmation_by_timestamp
-             * Base on current config
-             */
-//            if(!isset($reservation->attributes['send_confirmation_by_timestamp'])){
-//                $reservation->send_confirmation_by_timestamp = $reservation->getSendConfirmationByTimestampAttribute();
-//            }
-
-            /**
-             * Auto compuate send_sms_confirmation
+             * Compute send_sms_confirmation
              * Base on current config
              */
             if(!isset($reservation->attributes['send_sms_confirmation'])){
@@ -173,8 +175,7 @@ class Reservation extends HoiModel {
             }
 
             /**
-             * Default with no status explicit bind
-             * Reservation consider as RESERVERD
+             * No status explicit bind, setup default
              */
             if(!isset($reservation->attributes['status'])){
                 $status = Reservation::RESERVED;
@@ -195,9 +196,8 @@ class Reservation extends HoiModel {
 
         self::updated(function(Reservation $reservation){
             /**
-             * @warn may improve in future
-             * For checking it should resent SMS
-             * When reservation updated info
+             * @should resent SMS
+             * To info customer what updated
              */
         });
 
@@ -206,8 +206,9 @@ class Reservation extends HoiModel {
     }
 
     /**
-     * Validate when create/add/update... on Model
-     * @param $reservation_data
+     * Validate when create/add/update...
+     * @param array $reservation_data
+     * @return \Illuminate\Validation\Validator
      */
     public static function validateOnCRUD($reservation_data){
         $validator = Validator::make($reservation_data, [
@@ -227,8 +228,7 @@ class Reservation extends HoiModel {
     }
 
     /**
-     * Global scope when get Reservation
-     * It should in timeline order
+     * Global query scope, order by reservation time
      */
     public static function orderByRerservationTimestamp(){
         static::addGlobalScope('order_by_reservation_timestamp', function(Builder $builder){
@@ -237,7 +237,8 @@ class Reservation extends HoiModel {
     }
 
     /**
-     * Get Reservation reserved
+     * Get reservation reserved in date range
+     * @see App\OutletReservationSetting::dateRange
      * @param $query
      * @return mixed
      */
@@ -253,11 +254,13 @@ class Reservation extends HoiModel {
     }
 
     /**
-     * Reservation group by date time & capacity
-     * Like query into database, concat on different condition
-     * >>> can count easily on each group
+     * Count how many reservation at specific datetime & capicity
      *
-     * Need count how many reservation at specific datetime & at specific capicity
+     * Group reservation by date time & capacity
+     * Count members of each group
+     *
+     * Like query into database, concat column name of different conditions to run GROUPBY
+     *
      * @return mixed
      */
     public static function reservedGroupByDateTimeCapacity(){
@@ -307,18 +310,8 @@ class Reservation extends HoiModel {
     }
 
     /**
-     * Get out reservation timestamp as Carbon Obj
-     * Make easier to handle datetime
-     * @param $date_tring
-     * @return Carbon
-     */
-//    public function getReservationTimestampAttribute($date_tring){
-//        return Carbon::createFromFormat('Y-m-d H:i:s', $date_tring, Setting::timezone());
-//    }
-
-    /**
      * Hash reservaion id to generate confirm id
-     * Customer will not know the order
+     * Hide reservation id from customer
      * @return string
      */
     public function getConfirmIdAttribute(){
@@ -333,38 +326,26 @@ class Reservation extends HoiModel {
     }
 
     /**
+     * When should send confirmation (SMS, email,...)
      * Base on notification config: HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM
-     * determine when should send
-     * @param string|null $date
      * @return Carbon|null
      */
-//    public function getSendConfirmationByTimestampAttribute($date = null){
     public function getSendConfirmationByTimestampAttribute(){
-        /**
-         * Without outlet_id
-         * Can't determine which config used for each outlet
-         */
+        //Without outlet_id, can't determine which config used
         if(is_null($this->outlet_id)){
             return null;
         }
 
-        session(['outlet_id' => $this->outlet_id]);
+        Setting::injectOutletId($this->outlet_id);
 
         $notification_config = Setting::notificationConfig();
         $hours_before_reservation_timing_send_sms = $notification_config(Setting::HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM);
 
-        /**
-         * When default set up send confirmation by timestamp
-         * Without reservation_timestamp CAN NOT determine when
-         * Ignore
-         */
+       //Without reservation_timestamp CAN NOT determine when
         if(is_null($this->date)){
             return null;
         }
 
-        /**
-         * Should clone befor do any thing with Carbon datetime obj
-         */
         return $this->date->copy()->subHours($hours_before_reservation_timing_send_sms);
     }
 
@@ -374,20 +355,12 @@ class Reservation extends HoiModel {
      * @return bool
      */
     public function shouldSendConfirmSMS(){
-//        $notification_config = Setting::notificationConfig();
-//        $should_send_sms_to_confirm_reservation = $notification_config(Setting::SEND_SMS_CONFIRMATION) == Setting::SHOULD_SEND;
-//
-//        return $should_send_sms_to_confirm_reservation;
         return $this->send_sms_confirmation;
     }
 
-    public function getConfirmSMSDateAttribute(){
-        return $this->send_confirmation_by_timestamp;
-    }
-
     /**
+     * Should send reservaiotn summary SMS on booking
      * Base on notification config: SEND_SMS_ON_BOOKING
-     * check should send summary cms on booking
      * @return bool
      */
     public function shouldSendSMSOnBooking(){
@@ -399,8 +372,6 @@ class Reservation extends HoiModel {
 
     /**
      * Alias of should send SMS on booking
-     * BCS new logic only when reservation RESERVED
-     * SMS sent out
      * @return bool
      */
     public function shouldSendSMSOnReserved(){
@@ -414,13 +385,13 @@ class Reservation extends HoiModel {
     public function getConfirmComingUrlAttribute(){
         $confirm_id = $this->confirm_id;
 
-        return route("reservation_confirm", compact('confirm_id'));;
+        return route('reservation_confirm', compact('confirm_id'));;
     }
     
     /**
-     * Base on deposit config
-     * Reservation over specific pax
      * Need pay in advance
+     * When reservation over specific pax
+     * Base on deposit config : DEPOSIT_THRESHOLD_PAX
      */
 
     /**
@@ -440,7 +411,6 @@ class Reservation extends HoiModel {
 
     /**
      * If require, compute as $deposit property
-     * of reservation
      * @return int|mixed
      * @throws \Exception
      */
@@ -452,11 +422,9 @@ class Reservation extends HoiModel {
             $val = 0;
             switch($deposit_type){
                 case Setting::FIXED_SUM:
-//                    $val = $deposit_config(Setting::FIXED_SUM_VALUE);
                     $val = $deposit_config(Setting::DEPOSIT_VALUE);
                     break;
                 case Setting::PER_PAX:
-//                    $per_pax_value = $deposit_config(Setting::PER_PAX_VALUE);
                     $per_pax_value = $deposit_config(Setting::DEPOSIT_VALUE);
                     $val = $this->pax_size *  $per_pax_value;
                     break;
@@ -465,25 +433,22 @@ class Reservation extends HoiModel {
             return $val;
         }
         
-        throw new \Exception('Should not call deposit on reservation which not');
+        throw new \Exception('Should not call deposit on reservation which not required');
     }
 
     /**
      * Auto compute send sms confirmation on booot
      * Base on current config
-     */
-    /**
      * @param $val
      * @return int
      */
-//    public function getSendSMSConfirmationAttribute($val = null){
     public function getSendSMSConfirmationAttribute($val = null){
+        //if send sms confirmation setup, return it
         if(!is_null($val)){
             return $val;
         }
-
+        //if not, return default from current config
         $notification_config = Setting::notificationConfig();
-
         return $notification_config(Setting::SEND_SMS_CONFIRMATION);
     }
 
@@ -495,7 +460,7 @@ class Reservation extends HoiModel {
     }
 
     /**
-     * Convenience get outlet name
+     * Get outlet name
      */
     public function getOutletNameAttribute(){
         $outlet = $this->outlet;
@@ -504,7 +469,7 @@ class Reservation extends HoiModel {
     }
 
     /**
-     * Reservation SMS on booking reserved
+     * SMS message on booking reserved
      * @return string
      */
     public function getSMSMessageOnReservedAttribute(){
@@ -515,15 +480,17 @@ class Reservation extends HoiModel {
         return "Your reservation at $this->outlet_name on $date_str at $time_str has been received. Reservation code: $this->confirm_id";
     }
 
+    /**
+     * SMS message when reminder, with confirmation link
+     * @return string
+     */
     public function getConfirmationSMSMessageAttribute(){
         /**
          * Bcs of interval loop read database to pop a reservation to send
          * May not exactly as what config want
          * Recompute how many hours before
          */
-        //$minutes_before = Carbon::now(Setting::timezone())->diffInMinutes($this->confirm_sms_date, false);
-        //$hours_before = ceil($minutes_before / 60);
-        $hours_before = Carbon::now(Setting::timezone())->diffInHours($this->confirm_sms_date, false);
+        $hours_before = Carbon::now(Setting::timezone())->diffInHours($this->send_confirmation_by_timestamp, false);
         $sender_name  = Setting::smsSenderName();
         $time_str     = $this->date->format('H:i');
 
@@ -535,15 +502,13 @@ class Reservation extends HoiModel {
     }
 
     /**
-     * Override on serializtion
+     * Override on serialization process
      * @return array
      */
     public function attributesToArray() {
         $attributes = parent::attributesToArray();
 
-        /**
-         * Return as datetime string to consistent with DB
-         */
+        //conver Carbon dateime obj to timestamp str
         $attributes['send_confirmation_by_timestamp']
             = $this->getSendConfirmationByTimestampAttribute($attributes['send_confirmation_by_timestamp'])->format('Y-m-d H:i:s');
 
@@ -559,8 +524,7 @@ class Reservation extends HoiModel {
     public function scopeLast30Days($query, Carbon $start = null){
         $start = $start ?: Carbon::now(Setting::timezone());
 
-        $last_30_days = $start->copy()->subDays(30);
-
+        $last_30_days     = $start->copy()->subDays(30);
         $last_30_days_str = $last_30_days->format('Y-m-d H:i:s');
 
         return $query->where('reservation_timestamp', '>=', $last_30_days_str);

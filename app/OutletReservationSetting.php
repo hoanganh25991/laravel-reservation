@@ -128,7 +128,6 @@ class OutletReservationSetting extends HoiModel{
 
     /**
      * Store outlet config
-     * @var null|\Illuminate\Support\Collection
      */
     public static $all_config = null;
 
@@ -234,7 +233,7 @@ class OutletReservationSetting extends HoiModel{
      * Check if global query scope "outlet_id" is setup
      * @return bool
      */
-    public function isOutletIdInjected(){
+    public static function isOutletIdInjected(){
         return is_null(session('outlet_id'));
     }
 
@@ -242,7 +241,7 @@ class OutletReservationSetting extends HoiModel{
      * Set up global query scope "outlet_id"
      * @param $outlet_id
      */
-    public function injectOutletId($outlet_id){
+    public static function injectOutletId($outlet_id){
         session(compact('outlet_id'));
     }
 
