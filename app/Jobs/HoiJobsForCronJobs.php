@@ -43,7 +43,7 @@ class HoiJobsForCronJobs {
             $need_send_reminder_reservations =
                 Reservation::where([
                     ['status', Reservation::RESERVED],
-                    ['send_sms_confirmation', 1],
+                    ['send_sms_confirmation', Setting::SHOULD_SEND],
                     ['reservation_timestamp', '<=', $reservation_timestamp_str]
                 ])
                     ->get();

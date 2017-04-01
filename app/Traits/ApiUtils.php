@@ -16,16 +16,4 @@ trait ApiUtils{
         
         return $hour * 60 + $minute;
     }
-
-    protected function availableOnDay(){
-        $buffer_config = Setting::bufferConfig();
-        $max_days_in_advance = $buffer_config('MAX_DAYS_IN_ADVANCE');
-        
-        $today   = Carbon::now(Setting::timezone());
-        $max_day = $today->copy()->addDays($max_days_in_advance);
-        
-        return [$today, $max_day];
-    }
-
-    public static function sanityJSONEmptyArray(){}
 }

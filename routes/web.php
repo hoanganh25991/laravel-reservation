@@ -190,7 +190,11 @@ Route::get('test', function (App\Http\Controllers\BookingController $c, App\Http
 
 //    return url('');
 
-    return $req->url();
+    //return $req->url();
+    
+    App\OutletReservationSetting::allConfigByGroup();
+    
+    $b = App\OutletReservationSetting::bufferConfig();
 
 });
 
