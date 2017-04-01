@@ -66,15 +66,18 @@ Route::group(['middleware' => 'staff'], function (){
  * Group for api call
  */
 Route::group(['prefix' => 'api'], function(){
-    Route::get('', 'BookingController@getBookingForm');
-    Route::post('', 'BookingController@getBookingForm');
+    /**
+     * Route to book reservation
+     */
+    //Route::get('', 'BookingController@getBookingForm');
+    //Route::post('', 'BookingController@getBookingForm');
 
-    Route::get('home', 'BookingController@getBookingForm');
-    Route::post('home', 'BookingController@getBookingForm');
+    //Route::get('home', 'BookingController@getBookingForm');
+    //Route::post('home', 'BookingController@getBookingForm');
 
-    Route::get('reservations/thank-you', 'ReservationController@getThankYouPage')->name('reservation_thank_you');
-    Route::get('reservations/{confirm_id}', 'ReservationController@getConfirmPage')->name('reservation_confirm');
-    Route::post('reservations/{confirm_id}', 'ReservationController@getConfirmPage');
+    //Route::get('reservations/thank-you', 'ReservationController@getThankYouPage')->name('reservation_thank_you');
+    //Route::get('reservations/{confirm_id}', 'ReservationController@getConfirmPage')->name('reservation_confirm');
+    //Route::post('reservations/{confirm_id}', 'ReservationController@getConfirmPage');
 
     /**
      * Route to admin page

@@ -4,12 +4,16 @@ namespace App\Jobs;
 use App\Outlet;
 use Carbon\Carbon;
 use App\Reservation;
+use App\Traits\SendSMS;
 use App\Events\SentReminderSMS;
 use App\Exceptions\SMSException;
 use Illuminate\Support\Facades\Log;
 use App\OutletReservationSetting as Setting;
 
 class HoiJobsForCronJobs {
+
+    use SendSMS;
+
     public function __construct(){
         $this->sendConfirmSMS();
     }

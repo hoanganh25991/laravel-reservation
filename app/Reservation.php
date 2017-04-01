@@ -50,26 +50,26 @@ use App\OutletReservationSetting as Setting;
  * @property mixed $customer_remarks
  * 
  * @property Carbon $confirm_sms_date
- * @see Reservation::getConfirmSMSDateAttribute
+ * @see App\Reservation::getConfirmSMSDateAttribute
  *
  * @property mixed $send_confirmation_by_timestamp
- * @see Reservation::getSendConfirmationByTimestampAttribute
+ * @see App\Reservation::getSendConfirmationByTimestampAttribute
  * 
  * @property mixed $deposit
- * @see Reservation::getDepositAttribute
+ * @see App\Reservation::getDepositAttribute
  *
  * @property mixed send_sms_confirmation
- * @see Reservation::getSendSMSConfirmationAttribute
+ * @see App\Reservation::getSendSMSConfirmationAttribute
  *
  * Loading through relationship
  * @property mixed $outlet
- * @see Reservation::outlet
+ * @see App\Reservation::outlet
  * 
  * @property mixed $sms_message_on_reserved
- * @see Reservation::getSMSMessageOnReservedAttribute
+ * @see App\Reservation::getSMSMessageOnReservedAttribute
  * 
  * @property mixed $confirmation_sms_message
- * @see Reservation::getConfirmationSMSMessageAttribute
+ * @see App\Reservation::getConfirmationSMSMessageAttribute
  */
 class Reservation extends HoiModel {
 
@@ -340,16 +340,18 @@ class Reservation extends HoiModel {
      */
 //    public function getSendConfirmationByTimestampAttribute($date = null){
     public function getSendConfirmationByTimestampAttribute(){
-//        if(!is_null($date) && $date !== ''){
-//            return Carbon::createFromFormat('Y-m-d H:i:s', $date, Setting::timezone());
-//        }
+        /**
+         * Without outlet_id
+         * Can't determine which config used for each outlet
+         */
+        if(is_null($this->outlet_id)){
+            return null;
+        }
+
+        session(['outlet_id' => $this->outlet_id]);
 
         $notification_config = Setting::notificationConfig();
         $hours_before_reservation_timing_send_sms = $notification_config(Setting::HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM);
-
-//        if(env('APP_ENV') != 'production'){
-//            return Carbon::now(Setting::timezone())->addMinutes(1);
-//        }
 
         /**
          * When default set up send confirmation by timestamp
@@ -514,12 +516,14 @@ class Reservation extends HoiModel {
     }
 
     public function getConfirmationSMSMessageAttribute(){
-        $minutes_before = Carbon::now(Setting::timezone())->diffInMinutes($this->confirm_sms_date, false);
         /**
          * Bcs of interval loop read database to pop a reservation to send
-         * Compute hours before as ceiling round
+         * May not exactly as what config want
+         * Recompute how many hours before
          */
-        $hours_before = ceil($minutes_before / 60);
+        //$minutes_before = Carbon::now(Setting::timezone())->diffInMinutes($this->confirm_sms_date, false);
+        //$hours_before = ceil($minutes_before / 60);
+        $hours_before = Carbon::now(Setting::timezone())->diffInHours($this->confirm_sms_date, false);
         $sender_name  = Setting::smsSenderName();
         $time_str     = $this->date->format('H:i');
 
