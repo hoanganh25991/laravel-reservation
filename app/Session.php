@@ -5,10 +5,10 @@ namespace App;
 use Carbon\Carbon;
 use App\Traits\ApiUtils;
 use Illuminate\Support\Collection;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\Relation;
-use App\OutletReservationSetting as Setting;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Database\Eloquent\Builder;
+use App\OutletReservationSetting as Setting;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 /**
  * @property mixed one_off
@@ -43,7 +43,7 @@ class Session extends HoiModel{
      * one_off == 0 > normal session
      * one_off == 1 > special session
      */
-    const NORMAL_SESSION = 0;
+    const NORMAL_SESSION  = 0;
     const SPECIAL_SESSION = 1;
 
     /**
@@ -56,19 +56,22 @@ class Session extends HoiModel{
      * Convert Carbon day const to session day
      */
     const DAY_OF_WEEK = [
-        Carbon::MONDAY => 'on_mondays',
-        Carbon::TUESDAY => 'on_tuesdays',
+        Carbon::MONDAY    => 'on_mondays',
+        Carbon::TUESDAY   => 'on_tuesdays',
         Carbon::WEDNESDAY => 'on_wednesdays',
-        Carbon::THURSDAY => 'on_thursdays',
-        Carbon::FRIDAY => 'on_fridays',
-        Carbon::SATURDAY => 'on_saturdays',
-        Carbon::SUNDAY => 'on_sundays'
+        Carbon::THURSDAY  => 'on_thursdays',
+        Carbon::FRIDAY    => 'on_fridays',
+        Carbon::SATURDAY  => 'on_saturdays',
+        Carbon::SUNDAY    => 'on_sundays'
     ];
 
     protected $table = 'session';
 
     protected $guarded = ['id', 'timings'];
 
+    /**
+     * Protect model from unwanted column when build query
+     */
     protected $fillable = [
         'outlet_id',
         'session_name',
@@ -84,8 +87,9 @@ class Session extends HoiModel{
     ];
 
     /**
-     * Bring these computed field when serialize to JSON
-     * @var array
+     * add fields when serialize model
+     * base on set/get, these fields computed
+     * @see App\Session::getFirstArrivalTimeAttribute
      */
     protected $appends = [
         'first_arrival_time',
@@ -93,14 +97,23 @@ class Session extends HoiModel{
     ];
     
     protected $casts = [];
-    
 
+    /**
+     * Inject into boot process
+     * To modify on query scope or
+     * Listen eloquent event : creating, saving, updating,...
+     */
     protected static function boot(){
         parent::boot();
 
         static::byOutletId();
     }
 
+    /**
+     * Validate when create/add/update...
+     * @param array $session_data
+     * @return \Illuminate\Validation\Validator
+     */
     public static function validateOnCRUD($session_data){
         $validator = Validator::make($session_data, [
             "outlet_id"    => 'required|numeric',
@@ -114,6 +127,13 @@ class Session extends HoiModel{
         return $this->one_off == Session::SPECIAL_SESSION;
     }
 
+    /**
+     * Alias for one_off
+     * one_off considered as type of session
+     *      +when one_off = 0, means session reused for serveral days   > NORMAL
+     *      +when one_off = 1, means session ONLY used for specific day > SPECIAL
+     * @return mixed
+     */
     public function getTypeAttribute(){
         return $this->one_off;
     }
@@ -137,6 +157,7 @@ class Session extends HoiModel{
 
     /**
      * Query special session in date range
+     * @see App\OutletReservationSetting::dateRange
      * @param $query
      * @return mixed
      */
@@ -144,29 +165,18 @@ class Session extends HoiModel{
         $date_range = Setting::dateRange();
 
         return $query->where([
-            [
-                'one_off',
-                '=',
-                Session::SPECIAL_SESSION
-            ],
-            [
-                'one_off_date',
-                '>=',
-                $date_range[0]->format('Y-m-d')
-            ],
-            [
-                'one_off_date',
-                '<',
-                $date_range[1]->format('Y-m-d')
-            ]
+            ['one_off',       '=', Session::SPECIAL_SESSION],
+            ['one_off_date', '>=', $date_range[0]->format('Y-m-d')],
+            ['one_off_date', '<=', $date_range[1]->format('Y-m-d')]
         ]);
     }
 
     /**
      * Combine both normal session & special session
      * @warn At this step, we still don't know session is available
-     *           Session should have its earliest time satisfied MIN_HOURS_IN_ADVANCE_SESSION_TIME
-     *       Which base on its Timing
+     *       Session must have its earliest time satisfied
+     *       buffer config : MIN_HOURS_IN_ADVANCE_SESSION_TIME
+     *       Which base on its timings
      * @param $query
      * @return mixed
      */
@@ -206,10 +216,11 @@ class Session extends HoiModel{
 
     /**
      * Assign date to session
-     * @warn normal session can reuse for many days
-     * > return as collection of session with date
-     * > to normalize the consistent
-     * > special session after assigned also return a collection
+     * @warn Normal session reused for serveral days
+     *      return as collection of session with date
+     *      to remain the consistent of return collection
+     *      special session after assigned date
+     *      also return a collection
      * @param null $date_range
      * @return Collection
      */
@@ -217,9 +228,14 @@ class Session extends HoiModel{
         $sessions = collect([]);
 
         if($this->isSpecial()){
-            /* @case one_off_date NULL */
-            $this->date = Carbon::createFromFormat('Y-m-d', $this->one_off_date, Setting::timezone());
+            //special session, without one_off_date specify
+            //ignore it, no meaning
+            if(is_null($this->one_off_date)){
+                return $sessions;
+            }
 
+            $this->date = Carbon::createFromFormat('Y-m-d', $this->one_off_date, Setting::timezone());
+            //store it
             return $sessions->push($this);
         }
 
@@ -234,7 +250,7 @@ class Session extends HoiModel{
                 if($this->availableOnDay($session_day)){
                     $as = clone $this;
                     $as->date = $current->copy();
-
+                    //store it
                     $sessions->push($as);
                 }
 
@@ -259,43 +275,36 @@ class Session extends HoiModel{
      * Bcs min hour before session time
      * Which turn session into unavailable to pick
      * Consider earliest time as session time
-     * @see Setting::MIN_HOURS_IN_ADVANCE_SESSION_TIME
+     * @see App\OutletReservationSetting::MIN_HOURS_IN_ADVANCE_SESSION_TIME
      *
      * @return bool
      */
     public function availableToBook(){
-        /**
-         * No timings
-         */
+        //case 1 : No timings
         $is_no_timings = $this->timings->count() == 0;
         if($is_no_timings){
             return false;
         }
 
-        /**
-         * Min hours before session time
-         */
+        //case 2 : Min hours before session time
+        //Care on hours, only session different in time less than a day be checked
         $diff_less_than_a_day = Carbon::now(Setting::timezone())->diffInDays($this->date, false) == 0;
-        /**
-         * Care on hours, only check for
-         * session different in time less than a day should be checked
-         */
         if($diff_less_than_a_day){
-            //dd($this->timings->first());
-            $earliest_timing = $this->timings->first();
-            // $is_no_timings guardrantee $earliest_timing not NULL
+            $earliest_timing          = $this->timings->first();
             $session_start_timing_str = $earliest_timing->first_arrival_time;
-            $minutes = $this->getMinutes($session_start_timing_str);
-            $time_hour = (int)round($minutes / 60);
+
+            $minutes     = $this->getMinutes($session_start_timing_str);
+            $time_hour   = (int)round($minutes / 60);
             $time_minute = $minutes % 60;
             //compute exactly start timing of session
             $session_start_timing = $this->date->copy()->setTime($time_hour, $time_minute);
 
             $buffer_config = Setting::bufferConfig();
             $min_hours_session_time = $buffer_config(Setting::MIN_HOURS_IN_ADVANCE_SESSION_TIME);
-            $diff_in_hours = Carbon::now(Setting::timezone())->diffInHours($session_start_timing, false);
 
+            $diff_in_hours = Carbon::now(Setting::timezone())->diffInHours($session_start_timing, false);
             $satisfied_in_advance_session_time = $diff_in_hours >= $min_hours_session_time;
+
             return $satisfied_in_advance_session_time;
         }
 
@@ -304,10 +313,7 @@ class Session extends HoiModel{
 
     /**
      * Get all session which special
-     *
-     * Other method
-     * @see Session::scopeSpecialSession
-     * Limit session in available date range
+     * @see App\Session::scopeSpecialSession
      * @param $query
      * @return
      */
@@ -316,10 +322,11 @@ class Session extends HoiModel{
     }
 
     /**
-     * Session has timings, find the earliest arrival time
-     * Timings in session order by first arrival time
-     * as global scope
-     * @see Timing::orderByFirstArrival
+     * Session has timings, find the earliest first arrival time
+     *
+     * Bcs timings in session order by first arrival time by global query scope
+     * Just get the first of first > earliest
+     * @see App\Timing::orderByFirstArrival
      */
     public function getFirstArrivalTimeAttribute(){
         $timings = $this->timings;
@@ -331,7 +338,7 @@ class Session extends HoiModel{
     }
 
     /**
-     * Session has timings, find the last arrival time
+     * Session has timings, find the last of last arrival time
      */
     public function getLastArrivalTimeAttribute(){
         $timings = $this->timings;
@@ -344,19 +351,15 @@ class Session extends HoiModel{
 
 
     /**
-     * Override on serializtion
+     * Override on serialization
      * @return array
      */
     public function attributesToArray() {
         $attributes = parent::attributesToArray();
 
-
         /**
-         * Session when normal, session date is trivail
-         * BCS Session as available for day of week
-         *
          * After run assign date for specific date_range, session has date
-         * if has bring them to serialize
+         * Convert Carbon datetime obj to timestamp str
          * @see App\Session::assignDate
          */
         if(!is_null($this->date)){

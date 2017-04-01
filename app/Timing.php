@@ -263,7 +263,6 @@ class Timing extends HoiModel {
      * @return mixed
      */
     public function scopeAvailableToBook($query){
-//        return $query->where('disabled', Timing::AVAILABLE);
         return Timing::filterAvailableToBook($query);
     }
 
