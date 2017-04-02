@@ -17,6 +17,9 @@ class BrandCredit extends HoiModel {
 
     protected $guarded = ['id'];
 
+    /**
+     * Protect model from unwanted column when build query
+     */
     protected $fillable = [
         //'brand_id', //modified on boot
         'sms_credit_balance',
@@ -27,6 +30,11 @@ class BrandCredit extends HoiModel {
         'unlimited_email',
     ];
 
+    /**
+     * Inject into boot process
+     * To modify on query scope or
+     * Listen eloquent event : creating, saving, updating,...
+     */
     protected static function boot(){
         parent::boot();
 
@@ -62,7 +70,7 @@ class BrandCredit extends HoiModel {
         /**
          * Decrease balance
          */
-        if(!$this->inGodMod(static::SMS)){
+        if(!$this->inGodMod(BrandCredit::SMS)){
             $brand_credit->sms_credit_balance--;
         }
         
@@ -70,16 +78,14 @@ class BrandCredit extends HoiModel {
     }
 
     /**
-     * Check god mode to determine
-     * Should update balance 
+     * Check god mod of type X
      * @param string $type
      * @return bool
      */
-    private function inGodMod($type = BrandCredit::SMS){
+    public function inGodMod($type = null){
         switch($type){
-            case static::SMS:
-                return $this->unlimited_sms == static::GOD_MODE;
-            
+            case BrandCredit::SMS:
+                return $this->unlimited_sms == BrandCredit::GOD_MODE;
             default:
                 return false;
         }
