@@ -4,14 +4,12 @@ namespace App\Providers;
 
 use App\Outlet;
 use App\Timing;
-use Carbon\Carbon;
-use App\Jobs\HoiJobs;
 use App\ReservationUser;
+use App\Libraries\HoiHashPassword;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
-use App\OutletReservationSetting as Setting;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,13 +28,6 @@ class AppServiceProvider extends ServiceProvider
         require_once($hoi_helpers_path);
         
         /**
-         * Interval run HoiJobs
-         * @fail bcs, each request dispatch job????
-         * @see "queue-jobs.php"
-         */
-        //dispatch(new HoiJobs);
-
-        /**
          * Add custom validator on Timing
          */
         Validator::extend('arrival_time',  function ($attribute, $value, $parameters, $validator) {
@@ -48,12 +39,12 @@ class AppServiceProvider extends ServiceProvider
          * Admin page need outlet to switch between in navigator
          */
         View::composer(['admin.navigator'], function ($view) {
-            $outlets = [];
+            $outlets = collect([]);
             /** @var ReservationUser $user */
             $user = Auth::user();
-            
+
             if(!is_null($user) && $user->canAccessAdminPage()){
-                $outlets    = Outlet::whereIn('id', $user->allowedOutletIds())->get();
+                $outlets = Outlet::whereIn('id', $user->allowedOutletIds())->get();
             }
             
             $view->with(compact('outlets'));            
@@ -66,5 +57,8 @@ class AppServiceProvider extends ServiceProvider
      * @return void
      */
     public function register(){
+        $this->app->singleton('hash', function () {
+            return new HoiHashPassword();
+        });
     }
 }
