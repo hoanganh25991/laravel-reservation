@@ -40,19 +40,15 @@ class Timing extends HoiModel {
 
     /**
      * Interval minute for user pick time
-     * must follow these value
+     * Must follow these value
      */
     const INTERVAL_MINUTE_STEPS = [15, 20, 30];
 
     /**
-     * First arrival time & last arrival time pick rule
+     * First arrival time & last arrival time pick steps
      */
     const ARRIVAL_STEPS  = [30];
 
-    /**
-     * Capcaity prefix
-     */
-    const CAPACITY_PREFIX = 'capacity';
     const CAPACITY_X = [
         'capacity_1',
         'capacity_2',
@@ -101,8 +97,8 @@ class Timing extends HoiModel {
     ];
 
     protected $casts = [
-//        'disabled' => 'boolean',
-//        'children_allowed' => 'boolean'
+        'disabled'         => 'boolean',
+        'children_allowed' => 'boolean'
     ];
 
     protected static function boot(){
@@ -116,6 +112,8 @@ class Timing extends HoiModel {
     }
 
     /**
+     * Validate first|last arrival time follow step
+     * @see App\Timing::ARRIVAL_STEPS
      * @param $value
      * @return bool
      */
@@ -139,7 +137,9 @@ class Timing extends HoiModel {
     }
 
     /**
+     * Validate when create/add/update...
      * @param array $timing_data
+     * @return \Illuminate\Validation\Validator
      */
     public static function validateOnCRUD($timing_data){
         $validator = Validator::make($timing_data, [
@@ -161,6 +161,9 @@ class Timing extends HoiModel {
         return $validator;
     }
 
+    /**
+     * Global query scope, order timing by first arrival
+     */
     public static function orderByFirstArrival(){
         static::addGlobalScope('order_by_first_arrival', function(Builder $builder){
             $builder->orderBy('first_arrival_time', 'asc');
@@ -188,9 +191,12 @@ class Timing extends HoiModel {
         $end_time   = Carbon::createFromFormat('H:i:s', $this->last_arrival_time);
 
         $chunks = collect([]);
-
+        //lt: less than
+        //lte: less than & equal
+        //in this case, "chunk" only record the first arrival time
+        //use lt not lte to compare
         while($start_time->lt($end_time)){
-
+            //store timing info in chunk
             $chunk = (object)[
                 'time'               => $start_time->format('H:i'),
                 'session_type'       => $this->session->type,
@@ -207,7 +213,7 @@ class Timing extends HoiModel {
             ];
 
             $chunks->push($chunk);
-
+            //increase loop
             $start_time->addMinutes($minimum_interval_to_match);
         }
 
@@ -215,14 +221,11 @@ class Timing extends HoiModel {
     }
 
     /**
+     * Capacity name in column field base on pax size
      * @param $pax_size
      * @return string
      */
     public static function getCapacityName($pax_size){
-        $capacity_name = Timing::CAPACITY_PREFIX;
-
-        $value = "1";
-        
         switch($pax_size){
             case 1:
                 $value = '1';
@@ -238,12 +241,15 @@ class Timing extends HoiModel {
             case 6:
                 $value = '5_6';
                 break;
+            default:
+                $value = '1';
+                break;
         }
         
         if($pax_size >= 7)
             $value = '7_x';
         
-        return "{$capacity_name}_{$value}";
+        return "capacity_{$value}";
     }
     
     /**
@@ -264,77 +270,5 @@ class Timing extends HoiModel {
      */
     public function scopeAvailableToBook($query){
         return Timing::filterAvailableToBook($query);
-    }
-
-    /**
-     * Base on current config, timing store min pax for deposit rule
-     * @param $val
-     * @return bool
-     */
-    public function getChildrenAllowedAttribute($val){
-        if(is_null($val)){
-            return  Timing::CHILDREN_ALLOWED;
-        }
-        
-        return $val == Timing::CHILDREN_ALLOWED;
-    }
-
-    public function setChildrenAllowedAttribute($val){
-        switch($val){
-            case true:
-            case "true":
-                $sanity_val = Timing::CHILDREN_ALLOWED;
-                break;
-            case false:
-            case "false":
-                $sanity_val = Timing::CHILDREN_NOT_ALLOWED;
-                break;
-            default:
-                $sanity_val = Timing::CHILDREN_ALLOWED;
-                break;
-        }
-
-        $this->attributes['children_allowed'] = $sanity_val;
-    }
-
-    /**
-     * Set/get on disabled attribute
-     * Make sense when call as boolean
-     */
-
-    /**
-     * When disabled state not set, default as available
-     * @param $value
-     * @return int
-     */
-    public function getDisabledAttribute($value){
-        $value = is_null($value) ? Timing::AVAILABLE : $value;
-
-        return $value == Timing::AVAILABLE;
-    }
-
-    /**
-     * Convert boolean type in JSON
-     * Client send Timing through JSON
-     * When josn_decode, boolean as "true" | "false"
-     * @param $value
-     * @return int
-     */
-    public function setDisabledAttribute($value){
-        switch($value){
-            case true:
-            case "true":
-                $sanity_val = Timing::AVAILABLE;
-                break;
-            case false:
-            case "false":
-                $sanity_val = Timing::DISABLED;
-                break;
-            default:
-                $sanity_val = Timing::AVAILABLE;
-                break;
-        }
-
-        $this->attributes['disabled'] = $sanity_val;
     }
 }

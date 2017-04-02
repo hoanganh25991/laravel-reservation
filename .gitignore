@@ -9,3 +9,4 @@ Homestead.yaml
 .env
 /tmp
 #/database/reservation.sql
+/.vscode
