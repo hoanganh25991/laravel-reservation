@@ -27,12 +27,8 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
  * @property mixed $capacity_7_x
  * @property mixed $max_pax
  * @property mixed $min_pax_for_booking_deposit
- *
  * @property mixed $disabled
- * @see Timing::getDisabledAttribute
- * 
  * @property mixed $children_allowed
- * @see Timing::getChildrenAllowedAttribute
  */
 class Timing extends HoiModel {
     

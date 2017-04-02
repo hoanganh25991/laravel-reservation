@@ -10,12 +10,19 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
+/**
+ * Routes for Auth
+ */
 Auth::routes();
 Route::get('logout', function (){
     Auth::logout();
 //    return redirect()->back();
     return redirect('');
 });
+
+/**
+ * Routes for Booking
+ */
 Route::get('', 'BookingController@getBookingForm');
 Route::post('', 'BookingController@getBookingForm');
 
@@ -27,17 +34,16 @@ Route::get('reservations/{confirm_id}', 'ReservationController@getConfirmPage')-
 Route::post('reservations/{confirm_id}', 'ReservationController@getConfirmPage');
 
 /**
- * Route to admin page
+ * Routes for Admin page
  */
 Route::group([
     'middleware' => 'staff',
     'prefix' => 'admin'
 ], function (){
-    //bring admin out of
     Route::get('', 'AdminController@getDashboard')->name('admin');
     Route::post('', 'AdminController@setUpOuletId');
 
-    Route::group(['middleware' => 'reservation'], function (){
+    Route::group(['middleware' => 'reservations'], function (){
         Route::get('reservations', 'AdminController@getReservationDashboard');
         Route::post('reservations', 'AdminController@getReservationDashboard');
     });
@@ -90,7 +96,7 @@ Route::group(['prefix' => 'api'], function(){
         Route::get('', 'AdminController@getDashboard')->name('admin');
         Route::post('', 'AdminController@setUpOuletId');
 
-        Route::group(['middleware' => 'reservation'], function (){
+        Route::group(['middleware' => 'reservations'], function (){
             Route::get('reservations', 'AdminController@getReservationDashboard');
             Route::post('reservations', 'AdminController@getReservationDashboard');
         });

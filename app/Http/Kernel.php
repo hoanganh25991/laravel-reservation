@@ -3,7 +3,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\Administrator;
-use App\Http\Middleware\Reservation;
+use App\Http\Middleware\Reservations;
 use App\Http\Middleware\Staff;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
@@ -61,6 +61,6 @@ class Kernel extends HttpKernel
         'throttle'      => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'staff'         => Staff::class,
         'administrator' => Administrator::class,
-        'reservation'   => Reservation::class,
+        'reservations'  => Reservations::class,
     ];
 }

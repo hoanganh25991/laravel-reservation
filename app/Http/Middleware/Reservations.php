@@ -6,7 +6,7 @@ use Closure;
 use App\ReservationUser;
 use Illuminate\Support\Facades\Auth;
 
-class Reservation
+class Reservations
 {
     /**
      * Handle an incoming request.
