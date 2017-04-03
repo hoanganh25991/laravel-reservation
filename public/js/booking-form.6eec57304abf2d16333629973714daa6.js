@@ -39,6 +39,7 @@ var AJAX_RESERVATION_VALIDATE_FAIL = 'AJAX_RESERVATION_VALIDATE_FAIL';
 var AJAX_RESERVATION_NO_LONGER_AVAILABLE = 'AJAX_RESERVATION_NO_LONGER_AVAILABLE';
 var AJAX_RESERVATION_REQUIRED_DEPOSIT = 'AJAX_RESERVATION_REQUIRED_DEPOSIT';
 var AJAX_RESERVATION_SUCCESS_CREATE = 'AJAX_RESERVATION_SUCCESS_CREATE';
+var AJAX_BOOKING_CONDITION_VALIDATE_FAIL = 'AJAX_BOOKING_CONDITION_VALIDATE_FAIL';
 
 var BookingForm = function () {
 	/** @namespace res.statusMsg */
@@ -860,39 +861,15 @@ var BookingForm = function () {
 				data: data,
 				success: function success(res) {
 					console.log(res);
-					/**
-      * Need update confirm_id
-      * Only not for searching available_time
-      */
-					//noinspection JSValidateTypes
-					if (res.statusMsg == AJAX_RESERVATION_NO_LONGER_AVAILABLE) {
-						var _data = res.data;
-						var msg = 'SORRY, Someone has book before you. Rerservation no longer available';
-
-						console.log(msg, res.data);
-						window.alert(msg);
-						return;
-					}
-
 					//noinspection JSValidateTypes
 					if (res.statusMsg == AJAX_RESERVATION_SUCCESS_CREATE) {
-						var _data2 = res.data;
-						var confirm_id = _data2.confirm_id;
+						var _data = res.data;
+						var confirm_id = _data.confirm_id;
 
 						store.dispatch({
 							type: CHANGE_RESERVATION_CONFIRM_ID,
 							confirm_id: confirm_id
 						});
-						return;
-					}
-
-					//noinspection JSValidateTypes
-					if (res.statusMsg == AJAX_RESERVATION_REQUIRED_DEPOSIT) {
-						var _msg = 'REQUIRED DEPOSIT, payment amount: ';
-
-						console.log(_msg, res.data);
-						window.alert(_msg);
-						store.dispatch({ type: PAX_OVER });
 						return;
 					}
 
@@ -902,25 +879,19 @@ var BookingForm = function () {
       */
 					//noinspection JSValidateTypes
 					if (res.statusMsg == AJAX_AVAILABLE_TIME_FOUND) {
-						var _data3 = res.data;
+						var _data2 = res.data;
 
 						store.dispatch({
 							type: CHANGE_AVAILABLE_TIME,
-							available_time: _data3
+							available_time: _data2
 						});
 
 						return;
 					}
-
-					if (res.statusMsg == AJAX_RESERVATION_VALIDATE_FAIL) {
-						var _msg2 = 'VALIDATE FAIL: ';
-
-						console.log(_msg2, res.data);
-						window.alert(_msg2);
-						return;
-					}
 				},
-				complete: function complete() {
+				complete: function complete(res) {
+					console.log(res);
+
 					store.dispatch({
 						type: DIALOG_HAS_DATA,
 						dialog_has_data: true
@@ -928,6 +899,44 @@ var BookingForm = function () {
 				},
 				error: function error(res) {
 					console.log(res);
+					res = res.responseJSON;
+					if (res.statusMsg == AJAX_BOOKING_CONDITION_VALIDATE_FAIL) {
+						var msg = 'Booking condition validate fail';
+
+						window.alert(msg);
+						return;
+					}
+					/**
+      * Need update confirm_id
+      * Only not for searching available_time
+      */
+					//noinspection JSValidateTypes
+					if (res.statusMsg == AJAX_RESERVATION_NO_LONGER_AVAILABLE) {
+						var _data3 = res.data;
+						var _msg = 'SORRY, Someone has book before you. Rerservation no longer available';
+
+						console.log(_msg, res.data);
+						window.alert(_msg);
+						return;
+					}
+
+					//noinspection JSValidateTypes
+					if (res.statusMsg == AJAX_RESERVATION_REQUIRED_DEPOSIT) {
+						var _msg2 = 'REQUIRED DEPOSIT, payment amount: ';
+
+						console.log(_msg2, res.data);
+						window.alert(_msg2);
+						store.dispatch({ type: PAX_OVER });
+						return;
+					}
+
+					if (res.statusMsg == AJAX_RESERVATION_VALIDATE_FAIL) {
+						var _msg3 = 'VALIDATE FAIL: ';
+
+						console.log(_msg3, res.data);
+						window.alert(_msg3);
+						return;
+					}
 				}
 			});
 		}
