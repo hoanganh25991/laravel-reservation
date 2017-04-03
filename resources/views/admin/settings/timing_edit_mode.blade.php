@@ -4,8 +4,10 @@
         <td>
             <label class="switch">
                 <input type="checkbox"
-                       v-model="timing['disabled']"
-                       :checked="timing['disabled']">
+                       :session-id="session.id"
+                       :timing-index="timing_index"
+                       v-on:click="_updateTimingDisabled"
+                       :checked="!timing['disabled']">
                 <div class="slider round"></div>
             </label>
         </td>

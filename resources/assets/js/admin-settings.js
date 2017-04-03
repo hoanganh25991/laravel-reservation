@@ -589,6 +589,36 @@ class AdminSettings {
 
 					return null;
 				},
+
+				_updateTimingDisabled(e){
+					console.log(e);
+					let input = e.target;
+					if(input.tagName == 'INPUT'){
+						try{
+							let session_id = input.getAttribute('session-id');
+							let timing_index = input.getAttribute('timing-index');
+
+							let sessions = this.weekly_sessions.filter(session => session.id == session_id);
+
+							//try to find him in special
+							/** @warn data should be nomarlize, in this way, hard to keep track event when has session-id */
+							if(sessions.length == 0){
+								sessions = this.special_sessions.filter(session => session.id == session_id);
+							}
+
+							if(sessions.length == 0){
+								return;
+							}
+
+							let timing = sessions[0].timings[timing_index];
+
+							timing.disabled = !input.checked;
+						}catch(e){
+							return;
+						}
+
+					}
+				}
 			}
 
 		});

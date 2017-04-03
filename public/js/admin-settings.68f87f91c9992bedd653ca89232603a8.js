@@ -580,6 +580,38 @@ var AdminSettings = function () {
 						}
 
 						return null;
+					},
+					_updateTimingDisabled: function _updateTimingDisabled(e) {
+						console.log(e);
+						var input = e.target;
+						if (input.tagName == 'INPUT') {
+							try {
+								var session_id = input.getAttribute('session-id');
+								var timing_index = input.getAttribute('timing-index');
+
+								var sessions = this.weekly_sessions.filter(function (session) {
+									return session.id == session_id;
+								});
+
+								//try to find him in special
+								/** @warn data should be nomarlize, in this way, hard to keep track event when has session-id */
+								if (sessions.length == 0) {
+									sessions = this.special_sessions.filter(function (session) {
+										return session.id == session_id;
+									});
+								}
+
+								if (sessions.length == 0) {
+									return;
+								}
+
+								var timing = sessions[0].timings[timing_index];
+
+								timing.disabled = !input.checked;
+							} catch (e) {
+								return;
+							}
+						}
 					}
 				}
 

@@ -5,7 +5,7 @@
             <label class="switch">{{ timing.disabled }}
                 <input type="checkbox"
                        disabled
-                       :checked="timing['disabled']">
+                       :checked="!timing['disabled']">
                 <div class="slider round"></div>
             </label>
         </td>
