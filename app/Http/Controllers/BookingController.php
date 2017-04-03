@@ -477,8 +477,8 @@ class BookingController extends HoiController {
 
                     if($validator->fails()){
                         $data = $validator->getMessageBag()->toArray();
-                        $code = 200;
-                        $msg  = Call::AJAX_VALIDATE_FAIL;
+                        $code = 422;
+                        $msg  = Call::AJAX_RESERVATION_VALIDATE_FAIL;
                         break;
                     }
 
@@ -487,7 +487,7 @@ class BookingController extends HoiController {
                      */
                     if(!$this->bookingInOverallRange($req)){
                         $data = ['pax' => 'total pax out of overall_range'];
-                        $code = 200;
+                        $code = 422;
                         $msg  = Call::AJAX_RESERVATION_VALIDATE_FAIL;
                         break;
                     }
@@ -500,7 +500,7 @@ class BookingController extends HoiController {
                      */
                     if(!$this->bookingStillAvailable($req)){
                         $data = [];
-                        $code = 200;
+                        $code = 422;
                         $msg  = Call::AJAX_RESERVATION_NO_LONGER_AVAILABLE;
                         break;
                     }
@@ -518,7 +518,7 @@ class BookingController extends HoiController {
                         $confirm_id = $reservation->confirm_id;
 
                         $data = compact('confirm_id', 'deposit');
-                        $code = 200;
+                        $code = 422;
                         $msg  = Call::AJAX_RESERVATION_REQUIRED_DEPOSIT;
                         break;
                     }
