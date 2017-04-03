@@ -85,6 +85,8 @@ Route::group(['prefix' => 'api'], function(){
     //Route::get('reservations/{confirm_id}', 'ReservationController@getConfirmPage')->name('reservation_confirm');
     //Route::post('reservations/{confirm_id}', 'ReservationController@getConfirmPage');
 
+    Route::get('outlets', 'OutletController@fetchAllOutlet');
+
     /**
      * Route to admin page
      */
