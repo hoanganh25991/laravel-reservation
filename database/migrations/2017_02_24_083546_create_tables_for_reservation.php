@@ -5,7 +5,8 @@ use Illuminate\Database\Migrations\Migration;
 
 class CreateTablesForReservation extends Migration
 {
-    const SQL_FILE_NAME = 'reservation.sql';
+    //const SQL_FILE_NAME = 'reservation.sql';
+    const SQL_FILE_NAME = 'reservation-2017-03-22.sql';
     /**
      * Run the migrations.
      *

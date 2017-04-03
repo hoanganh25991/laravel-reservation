@@ -11,15 +11,13 @@
 |
 */
 
-/** @var \Illuminate\Database\Eloquent\Factory $factory */
 $factory->define(App\ReservationUser::class, function (Faker\Generator $faker) {
     static $password;
 
     return [
         'user_name' => $faker->userName,
-        'password' => $password ?: $password = bcrypt('password'),
+        'password_hash' => $password ?: $password = sha1('a'),
         'email' => $faker->unique()->safeEmail,
-        'display_name' => $faker->name,
-        'secret_token' => str_random(10),
+        'display_name' => $faker->name
     ];
 });
