@@ -25,6 +25,17 @@ const CHANGE_CUSTOMER_EMAIL		  = 'CHANGE_CUSTOMER_EMAIL'
 const CHANGE_CUSTOMER_PHONE 	  = 'CHANGE_CUSTOMER_PHONE'
 const CHANGE_CUSTOMER_REMARKS	  = 'CHANGE_CUSTOMER_REMARKS'
 
+const AJAX_SEARCH_AVAILABLE_TIME  = 'AJAX_SEARCH_AVAILABLE_TIME';
+const AJAX_SUBMIT_BOOKING         = 'AJAX_SUBMIT_BOOKING';
+
+const AJAX_AVAILABLE_TIME_FOUND = 'AJAX_AVAILABLE_TIME_FOUND';
+const AJAX_RESERVATION_VALIDATE_FAIL = 'AJAX_RESERVATION_VALIDATE_FAIL';
+const AJAX_RESERVATION_NO_LONGER_AVAILABLE = 'AJAX_RESERVATION_NO_LONGER_AVAILABLE';
+const AJAX_RESERVATION_REQUIRED_DEPOSIT = 'AJAX_RESERVATION_REQUIRED_DEPOSIT';
+const AJAX_RESERVATION_SUCCESS_CREATE = 'AJAX_RESERVATION_SUCCESS_CREATE';
+
+
+
 class BookingForm {
 	/** @namespace res.statusMsg */
 	/** @namespace action.adult_pax */
@@ -824,7 +835,8 @@ class BookingForm {
 		let data = {
 			outlet_id: state.outlet.id,
 			adult_pax: state.pax.adult,
-			children_pax: state.pax.children
+			children_pax: state.pax.children,
+			type: AJAX_SEARCH_AVAILABLE_TIME,
 		};
 
 		if(state.form_step == 'form-step-3'){
@@ -842,11 +854,12 @@ class BookingForm {
 				phone_country_code,
 				phone,
 				customer_remarks: remarks,
-				step: 'form-step-3'
+				type: AJAX_SUBMIT_BOOKING,
 			});
 
-			console.log(data);
 		}
+
+		console.log(data);
 
 		$.ajax({
 			url: '',
@@ -859,16 +872,7 @@ class BookingForm {
 				 * Only not for searching available_time
 				 */
 				//noinspection JSValidateTypes
-				if(res.statusMsg != 'available_time'){
-					let data = res.data;
-					let {confirm_id} = data;
-					store.dispatch({
-						type: CHANGE_RESERVATION_CONFIRM_ID,
-						confirm_id,
-					});
-				}
-				//noinspection JSValidateTypes
-				if(res.statusMsg == 'reservation.no_longer_available'){
+				if(res.statusMsg == AJAX_RESERVATION_NO_LONGER_AVAILABLE){
 					let data = res.data;
 					let msg  = 'SORRY, Someone has book before you. Rerservation no longer available';
 
@@ -878,12 +882,18 @@ class BookingForm {
 				}
 
 				//noinspection JSValidateTypes
-				if(res.statusMsg == 'reservation.confirm_id'){
+				if(res.statusMsg == AJAX_RESERVATION_SUCCESS_CREATE){
+					let data = res.data;
+					let {confirm_id} = data;
+					store.dispatch({
+						type: CHANGE_RESERVATION_CONFIRM_ID,
+						confirm_id,
+					});
 					return;
 				}
 
 				//noinspection JSValidateTypes
-				if(res.statusMsg == 'reservation.required_deposit'){
+				if(res.statusMsg == AJAX_RESERVATION_REQUIRED_DEPOSIT){
 					let msg = 'REQUIRED DEPOSIT, payment amount: ';
 
 					console.log(msg, res.data);
@@ -897,7 +907,7 @@ class BookingForm {
 				 * When call ajax
 				 */
 				//noinspection JSValidateTypes
-				if(res.statusMsg == 'available_time'){
+				if(res.statusMsg == AJAX_AVAILABLE_TIME_FOUND){
 					let data = res.data;
 
 					store.dispatch({
@@ -905,6 +915,14 @@ class BookingForm {
 						available_time: data
 					});
 
+					return;
+				}
+
+				if(res.statusMsg == AJAX_RESERVATION_VALIDATE_FAIL){
+					let msg = 'VALIDATE FAIL: ';
+
+					console.log(msg, res.data);
+					window.alert(msg);
 					return;
 				}
 			},

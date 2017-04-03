@@ -15,8 +15,8 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\Libraries\HoiAjaxCall as Call;
-use Illuminate\Support\Facades\Response;
 use App\OutletReservationSetting as Setting;
+//use App\Libraries\HoiAjaxCall as Call;
 
 class BookingController extends HoiController {
 
@@ -63,7 +63,8 @@ class BookingController extends HoiController {
          * Store Outlet in session for reuse as global query scope
          */
         $outlet_id = $condition['outlet_id'];
-        session(compact('outlet_id'));
+        //session(compact('outlet_id'));
+        Setting::injectOutletId($outlet_id);
 
         $this->booking_condition = $condition;
     }
@@ -76,12 +77,29 @@ class BookingController extends HoiController {
         return $this->booking_condition['children_pax'] > 0;
     }
 
+    /**
+     * Validate data before search availabe time
+     * @param ApiRequest $req
+     * @return mixed
+     */
+    public function validateBookingCondition(ApiRequest $req){
+        $validator = Validator::make($req->all(), [
+            'outlet_id'    => 'required|numeric',
+            'adult_pax'    => 'required|numeric',
+            'children_pax' => 'required|numeric'
+        ]);
+        
+        return $validator;
+    }
+
     public function bookingStillAvailable(ApiRequest $req){
-        $this->setUpBookingConditions($req->only([
-            'outlet_id',
-            'adult_pax',
-            'children_pax'
-        ]));
+        $this->setUpBookingConditions(
+            $req->only([
+                'outlet_id',
+                'adult_pax',
+                'children_pax'
+            ])
+        );
 
         $booking_date   = Carbon::createFromFormat('Y-m-d H:i:s', $req->get('reservation_timestamp'), Setting::timezone());
         $available_time = $this->availableTime();
@@ -103,7 +121,7 @@ class BookingController extends HoiController {
     }
 
     public function bookingInOverallRange(ApiRequest $req){
-        $overall = $req->get('adult_pax') | $req->get('children_pax');
+        $overall = $req->get('adult_pax') + $req->get('children_pax');
 
         $settings_config = Setting::settingsConfig();
         $overall_min_pax = $settings_config(Setting::OVERALL_MIN_PAX);
@@ -127,17 +145,17 @@ class BookingController extends HoiController {
 
         $date_with_available_time
             ->each(function($chunks, $date){
-                $chunks->each(function($chunk) use($date){
-                    $time = $chunk->time;
-                    foreach(Timing::CAPACITY_X as $capacity){
-                        $group_name = Reservation::groupNameByDateTimeCapacity($date, $time, $capacity);
-
-                        try{
-                            $reserved_cap     = $this->reserved_reservations[$group_name];
-                            $chunk->$capacity = $chunk->$capacity - $reserved_cap;
-                        }catch(\Exception $e){}
-                    }
-                });
+                $chunks
+                    ->each(function($chunk) use($date){
+                        $time = $chunk->time;
+                        foreach(Timing::CAPACITY_X as $capacity){
+                            $group_name = Reservation::groupNameByDateTimeCapacity($date, $time, $capacity);
+                            try{
+                                $reserved_cap     = $this->reserved_reservations[$group_name];
+                                $chunk->$capacity = $chunk->$capacity - $reserved_cap;
+                            }catch(\Exception $e){}
+                        }
+                    });
             });
 
         /**
@@ -369,14 +387,15 @@ class BookingController extends HoiController {
      * Should recalculate
      */
     public function shouldUseCache(){
-        if(env('APP_ENV') != 'production'){
-            return false;
-        }
-
-        $filename  = static::cacheFileName(static::SHOULD_UPDATE_DATES_WITH_AVAILABLE_TIME);
-        $shouldUpdateCache = Cache::pull($filename, false);
-
-        return !$shouldUpdateCache;
+//        if(env('APP_ENV') != 'production'){
+//            return false;
+//        }
+//
+//        $filename  = static::cacheFileName(static::SHOULD_UPDATE_DATES_WITH_AVAILABLE_TIME);
+//        $shouldUpdateCache = Cache::pull($filename, false);
+//
+//        return !$shouldUpdateCache;
+        return false;
     }
 
     /**
@@ -413,105 +432,114 @@ class BookingController extends HoiController {
      * @return $this|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function getBookingForm(ApiRequest $req){
-        /**
-         * Customer query to get available time
-         */
-        if($req->method() == 'POST' && !$req->has('step')){
-            /* @var Validator $validator*/
-            $validator = Validator::make($req->all(), [
-                'outlet_id'    => 'required',
-                'adult_pax'    => 'required',
-                'children_pax' => 'required'
-            ]);
+        if($req->method() == 'POST'){
+            $action_type = $req->get('type');
 
-            if($validator->fails()){
-                return $this->apiResponse($req->all(), 422, $validator->getMessageBag()->toArray());
+            switch($action_type){
+                /**
+                 * Customer query to get available time
+                 */
+                case Call::AJAX_SEARCH_AVAILABLE_TIME:
+                    /* @var Validator $validator*/
+                    $validator = $this->validateBookingCondition($req);
+
+                    if($validator->fails()){
+                        $data = $validator->getMessageBag()->toArray();
+                        $code = 422;
+                        $msg  = Call::AJAX_BOOKING_CONDITION_VALIDATE_FAIL;
+                        break;
+                    }
+
+                    /**
+                     * Inject customer booking condition into booking controller
+                     */
+                    $this->setUpBookingConditions($req->all());
+
+                    /**
+                     * Compute available time
+                     */
+                    $available_time = $this->availableTime();
+
+                    /**
+                     * @warn need update to has it own statusMsg
+                     * rather than implicit tell available time on return
+                     */
+                    $data = $available_time;
+                    $code = 200;
+                    $msg  = Call::AJAX_AVAILABLE_TIME_FOUND;
+                    break;
+                /**
+                 * Customer submit complete form
+                 * to create reservation
+                 */
+                case Call::AJAX_SUBMIT_BOOKING:
+                    $validator = Reservation::validateOnCRUD($req->all());
+
+                    if($validator->fails()){
+                        $data = $validator->getMessageBag()->toArray();
+                        $code = 200;
+                        $msg  = Call::AJAX_VALIDATE_FAIL;
+                        break;
+                    }
+
+                    /**
+                     * If booking out of overall min|max pax
+                     */
+                    if(!$this->bookingInOverallRange($req)){
+                        $data = ['pax' => 'total pax out of overall_range'];
+                        $code = 200;
+                        $msg  = Call::AJAX_RESERVATION_VALIDATE_FAIL;
+                        break;
+                    }
+
+                    /**
+                     * Recheck if customer with reservation info still available
+                     * Customer may search through any condition
+                     * But only Submit hit, info send
+                     * In that longtime, not sure reservation still available
+                     */
+                    if(!$this->bookingStillAvailable($req)){
+                        $data = [];
+                        $code = 200;
+                        $msg  = Call::AJAX_RESERVATION_NO_LONGER_AVAILABLE;
+                        break;
+                    }
+
+                    $reservation = new Reservation($req->all());
+
+                    //Store reservation
+                    $reservation->save();
+
+                    /**
+                     * Case: Reservation with deposit require
+                     */
+                    if($reservation->requiredDeposit()){
+                        $deposit    = $reservation->deposit;
+                        $confirm_id = $reservation->confirm_id;
+
+                        $data = compact('confirm_id', 'deposit');
+                        $code = 200;
+                        $msg  = Call::AJAX_RESERVATION_REQUIRED_DEPOSIT;
+                        break;
+                    }
+
+                    /**
+                     * Normal case: Reservation created
+                     * RESERVED
+                     */
+                    $confirm_id =  $reservation->confirm_id;
+
+                    $data = compact('confirm_id');
+                    $code = 200;
+                    $msg  = Call::AJAX_RESERVATION_SUCCESS_CREATE;
+                    break;
+                default:
+                    $data = [];
+                    $code = 200;
+                    $msg  = Call::AJAX_UNKNOWN_CASE;
+                    break;
             }
 
-            /**
-             * Inject customer booking condition into booking controller
-             */
-            $this->setUpBookingConditions($req->all());
-
-            /**
-             * Compute available time
-             */
-            $available_time = $this->availableTime();
-
-            /**
-             * @warn need update to has it own statusMsg
-             * rather than implicit tell available time on return
-             */
-            $data = $available_time;
-            $code = 200;
-            $msg  = 'available_time';
-            return $this->apiResponse($data, $code, $msg);
-        }
-
-        /**
-         * Customer submit complete form
-         * to create reservation
-         */
-        if($req->method() == 'POST' && $req->get('step') == 'form-step-3'){
-            $validator = Reservation::validateOnCRUD($req->all());
-
-            if($validator->fails()){
-                $data = $validator->getMessageBag()->toArray();
-                $code = 200;
-                $msg  = Call::AJAX_VALIDATE_FAIL;
-                return $this->apiResponse($data, $code, $msg);
-            }
-
-            /**
-             * If booking out of overall min|max pax
-             */
-            if(!$this->bookingInOverallRange($req)){
-                $data = [];
-                $code = 200;
-                $msg  = 'reservation.out_of_overall_range';
-                return $this->apiResponse($data, $code, $msg);
-            }
-
-            /**
-             * Recheck if customer with reservation info still available
-             * Customer may search through any condition
-             * But only Submit hit, info send
-             * In that longtime, not sure reservation still available
-             */
-            if(!$this->bookingStillAvailable($req)){
-                $data = [];
-                $code = 200;
-                $msg  = 'reservation.no_longer_available';
-                return $this->apiResponse($data, $code, $msg);
-            }
-
-            $reservation = new Reservation($req->all());
-
-            //Store reservation
-            $reservation->save();
-
-            /**
-             * Case: Reservation with deposit require
-             */
-            if($reservation->requiredDeposit()){
-                $deposit    = $reservation->deposit;
-                $confirm_id = $reservation->confirm_id;
-
-                $data  = compact('confirm_id', 'deposit');
-                $code  = 200;
-                $msg   = 'reservation.required_deposit';
-                return $this->apiResponse($data, $code, $msg);
-            }
-
-            /**
-             * Normal case: Reservation created
-             * RESERVED
-             */
-            $confirm_id =  $reservation->confirm_id;
-
-            $data = compact('confirm_id');
-            $code = 200;
-            $msg  = 'reservation.confirm_id';
             return $this->apiResponse($data, $code, $msg);
         }
 
@@ -543,7 +571,4 @@ class BookingController extends HoiController {
 
         return view('reservations.booking-form', compact('outlets', 'state'));
     }
-
-    
-
 }

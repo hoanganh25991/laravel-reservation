@@ -31,6 +31,15 @@ var CHANGE_CUSTOMER_EMAIL = 'CHANGE_CUSTOMER_EMAIL';
 var CHANGE_CUSTOMER_PHONE = 'CHANGE_CUSTOMER_PHONE';
 var CHANGE_CUSTOMER_REMARKS = 'CHANGE_CUSTOMER_REMARKS';
 
+var AJAX_SEARCH_AVAILABLE_TIME = 'AJAX_SEARCH_AVAILABLE_TIME';
+var AJAX_SUBMIT_BOOKING = 'AJAX_SUBMIT_BOOKING';
+
+var AJAX_AVAILABLE_TIME_FOUND = 'AJAX_AVAILABLE_TIME_FOUND';
+var AJAX_RESERVATION_VALIDATE_FAIL = 'AJAX_RESERVATION_VALIDATE_FAIL';
+var AJAX_RESERVATION_NO_LONGER_AVAILABLE = 'AJAX_RESERVATION_NO_LONGER_AVAILABLE';
+var AJAX_RESERVATION_REQUIRED_DEPOSIT = 'AJAX_RESERVATION_REQUIRED_DEPOSIT';
+var AJAX_RESERVATION_SUCCESS_CREATE = 'AJAX_RESERVATION_SUCCESS_CREATE';
+
 var BookingForm = function () {
 	/** @namespace res.statusMsg */
 	/** @namespace action.adult_pax */
@@ -809,7 +818,8 @@ var BookingForm = function () {
 			var data = {
 				outlet_id: state.outlet.id,
 				adult_pax: state.pax.adult,
-				children_pax: state.pax.children
+				children_pax: state.pax.children,
+				type: AJAX_SEARCH_AVAILABLE_TIME
 			};
 
 			if (state.form_step == 'form-step-3') {
@@ -838,11 +848,11 @@ var BookingForm = function () {
 					phone_country_code: phone_country_code,
 					phone: phone,
 					customer_remarks: remarks,
-					step: 'form-step-3'
+					type: AJAX_SUBMIT_BOOKING
 				});
-
-				console.log(data);
 			}
+
+			console.log(data);
 
 			$.ajax({
 				url: '',
@@ -855,18 +865,8 @@ var BookingForm = function () {
       * Only not for searching available_time
       */
 					//noinspection JSValidateTypes
-					if (res.statusMsg != 'available_time') {
+					if (res.statusMsg == AJAX_RESERVATION_NO_LONGER_AVAILABLE) {
 						var _data = res.data;
-						var confirm_id = _data.confirm_id;
-
-						store.dispatch({
-							type: CHANGE_RESERVATION_CONFIRM_ID,
-							confirm_id: confirm_id
-						});
-					}
-					//noinspection JSValidateTypes
-					if (res.statusMsg == 'reservation.no_longer_available') {
-						var _data2 = res.data;
 						var msg = 'SORRY, Someone has book before you. Rerservation no longer available';
 
 						console.log(msg, res.data);
@@ -875,12 +875,19 @@ var BookingForm = function () {
 					}
 
 					//noinspection JSValidateTypes
-					if (res.statusMsg == 'reservation.confirm_id') {
+					if (res.statusMsg == AJAX_RESERVATION_SUCCESS_CREATE) {
+						var _data2 = res.data;
+						var confirm_id = _data2.confirm_id;
+
+						store.dispatch({
+							type: CHANGE_RESERVATION_CONFIRM_ID,
+							confirm_id: confirm_id
+						});
 						return;
 					}
 
 					//noinspection JSValidateTypes
-					if (res.statusMsg == 'reservation.required_deposit') {
+					if (res.statusMsg == AJAX_RESERVATION_REQUIRED_DEPOSIT) {
 						var _msg = 'REQUIRED DEPOSIT, payment amount: ';
 
 						console.log(_msg, res.data);
@@ -894,7 +901,7 @@ var BookingForm = function () {
       * When call ajax
       */
 					//noinspection JSValidateTypes
-					if (res.statusMsg == 'available_time') {
+					if (res.statusMsg == AJAX_AVAILABLE_TIME_FOUND) {
 						var _data3 = res.data;
 
 						store.dispatch({
@@ -902,6 +909,14 @@ var BookingForm = function () {
 							available_time: _data3
 						});
 
+						return;
+					}
+
+					if (res.statusMsg == AJAX_RESERVATION_VALIDATE_FAIL) {
+						var _msg2 = 'VALIDATE FAIL: ';
+
+						console.log(_msg2, res.data);
+						window.alert(_msg2);
 						return;
 					}
 				},
