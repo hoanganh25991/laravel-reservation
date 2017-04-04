@@ -75,11 +75,11 @@ Route::group(['prefix' => 'api'], function(){
     /**
      * Route to book reservation
      */
-    //Route::get('', 'BookingController@getBookingForm');
-    //Route::post('', 'BookingController@getBookingForm');
+    Route::get('', 'BookingController@getBookingForm');
+    Route::post('', 'BookingController@getBookingForm');
 
-    //Route::get('home', 'BookingController@getBookingForm');
-    //Route::post('home', 'BookingController@getBookingForm');
+    Route::get('home', 'BookingController@getBookingForm');
+    Route::post('home', 'BookingController@getBookingForm');
 
     //Route::get('reservations/thank-you', 'ReservationController@getThankYouPage')->name('reservation_thank_you');
     //Route::get('reservations/{confirm_id}', 'ReservationController@getConfirmPage')->name('reservation_confirm');
