@@ -186,6 +186,9 @@ class BookingForm {
 
 		let frontend_state = {
 			init_view: false,
+			outlet: {},
+			overall_min_pax: 2,
+			overall_max_pax: 20,
 			pax: {
 				adult: 1,
 				children: 0

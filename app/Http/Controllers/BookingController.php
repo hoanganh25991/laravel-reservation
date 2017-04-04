@@ -179,6 +179,9 @@ class BookingController extends HoiController {
                 ->map->values();
 
 
+        $dates_with_available_time_capacity =
+            $dates_with_available_time_capacity->merge($this->defaultDatesWithAvailableTime());
+
         return $dates_with_available_time_capacity;
     }
 
@@ -195,6 +198,26 @@ class BookingController extends HoiController {
         }
 
         return null;
+    }
+
+    private function defaultDatesWithAvailableTime(){
+        $date_range = Setting::dateRange();
+
+        $default = [];
+
+        $current = $date_range[0]->copy();
+        while($current->lte($date_range[1])){
+            $date_with_available_time = [
+                $current->format('Y-m-d') => []
+            ];
+
+            $default[] = $date_with_available_time;
+
+            //increase loop
+            $current->addDay();
+        }
+
+        return $default;
     }
 
     /**
@@ -436,6 +459,11 @@ class BookingController extends HoiController {
             $action_type = $req->get('type');
 
             switch($action_type){
+                default:
+                    $data = [];
+                    $code = 200;
+                    $msg  = Call::AJAX_UNKNOWN_CASE;
+                    break;
                 /**
                  * Customer query to get available time
                  */
@@ -533,11 +561,6 @@ class BookingController extends HoiController {
                     $code = 200;
                     $msg  = Call::AJAX_RESERVATION_SUCCESS_CREATE;
                     break;
-                default:
-                    $data = [];
-                    $code = 200;
-                    $msg  = Call::AJAX_UNKNOWN_CASE;
-                    break;
             }
 
             return $this->apiResponse($data, $code, $msg);
@@ -545,24 +568,34 @@ class BookingController extends HoiController {
 
         //Handle get
         $outlets = Outlet::all();
-        /**
-         * Add select pax with min|max
-         * to client side
-         */
-        $setting_config  = Setting::settingsConfig();
-        $overall_min_pax = $setting_config(Setting::OVERALL_MIN_PAX);
-        $overall_max_pax = $setting_config(Setting::OVERALL_MAX_PAX);
 
-        $state = [
-            'overall_min_pax' => $overall_min_pax,
-            'overall_max_pax' => $overall_max_pax
-        ];
+        /**
+         * Server state
+         * Base on that frontend client render
+         */
+        $state = [];
 
         /**
          * Self pick the first one
          */
         $outlet_x = $outlets->first();
+
         if($outlet_x){
+            /**
+             * Add select pax with min|max
+             * to client side
+             */
+            Setting::injectOutletId($outlet_x->id);
+            $setting_config  = Setting::settingsConfig();
+            $overall_min_pax = $setting_config(Setting::OVERALL_MIN_PAX);
+            $overall_max_pax = $setting_config(Setting::OVERALL_MAX_PAX);
+
+            $state = [
+                'overall_min_pax' => $overall_min_pax,
+                'overall_max_pax' => $overall_max_pax
+            ];
+            
+            
             $state['outlet'] = [
                 'id' => $outlet_x->id,
                 'name' => $outlet_x->outlet_name

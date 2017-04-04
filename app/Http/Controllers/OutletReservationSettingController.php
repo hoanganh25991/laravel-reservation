@@ -188,7 +188,9 @@ class OutletReservationSettingController extends Controller {
 
         $notification = Setting::buildKeyValueOfConfig($notification_config, $notification_keys);
 
-        $sms_credit_balance = BrandCredit::first()->sms_credit_balance;
+        /** @var BrandCredit $brand_credit */
+        $brand_credit       = BrandCredit::first();
+        $sms_credit_balance = $brand_credit->sms_credit_balance;
         $notification['sms_credit_balance'] = $sms_credit_balance;
 
         return $notification;
