@@ -1,8 +1,8 @@
-const AJAX_SEND_CLIENT_TOKEN = 'AJAX_SEND_CLIENT_TOKEN';
+const AJAX_PAYMENT_REQUEST = 'AJAX_PAYMENT_REQUEST';
 
 class PayPalAuthorize {
 
-	construct(token, paypal_instance_options, base_url){
+	construct(token, paypal_instance_options, base_url, data){
 		this.paypal_instance_options =
 			Object.assign({
 				flow: 'checkout', // Required
@@ -26,6 +26,8 @@ class PayPalAuthorize {
 		this.token = token;
 
 		this.base_url = base_url;
+		
+		this.data = data;
 
 		this.initPaypal();
 	}
@@ -61,13 +63,17 @@ class PayPalAuthorize {
 							throw err;
 						}
 						console.log('tokenizationPayload', tokenizationPayload);
+						
+						let data = 
+							Object.assign({
+								tokenizationPayload: JSON.stringify(tokenizationPayload),
+								type: AJAX_PAYMENT_REQUEST
+							}, self.data);
+						
 						$.ajax({
 							url: `${self.base_url}/pay_pal}`,
 							method: 'POST',
-							data: {
-								tokenizationPayload: JSON.stringify(tokenizationPayload),
-								type: AJAX_SEND_CLIENT_TOKEN
-							},
+							data: data,
 							success(res){
 								console.log(res);
 							},

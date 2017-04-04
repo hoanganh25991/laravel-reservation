@@ -4,7 +4,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var AJAX_SEND_CLIENT_TOKEN = 'AJAX_SEND_CLIENT_TOKEN';
+var AJAX_PAYMENT_REQUEST = 'AJAX_PAYMENT_REQUEST';
 
 var PayPalAuthorize = function () {
 	function PayPalAuthorize() {
@@ -13,7 +13,7 @@ var PayPalAuthorize = function () {
 
 	_createClass(PayPalAuthorize, [{
 		key: 'construct',
-		value: function construct(token, paypal_instance_options, base_url) {
+		value: function construct(token, paypal_instance_options, base_url, data) {
 			this.paypal_instance_options = Object.assign({
 				flow: 'checkout', // Required
 				amount: 10.00, // Required
@@ -36,6 +36,8 @@ var PayPalAuthorize = function () {
 			this.token = token;
 
 			this.base_url = base_url;
+
+			this.data = data;
 
 			this.initPaypal();
 		}
@@ -72,13 +74,16 @@ var PayPalAuthorize = function () {
 								throw err;
 							}
 							console.log('tokenizationPayload', tokenizationPayload);
+
+							var data = Object.assign({
+								tokenizationPayload: JSON.stringify(tokenizationPayload),
+								type: AJAX_PAYMENT_REQUEST
+							}, self.data);
+
 							$.ajax({
 								url: self.base_url + '/pay_pal}',
 								method: 'POST',
-								data: {
-									tokenizationPayload: JSON.stringify(tokenizationPayload),
-									type: AJAX_SEND_CLIENT_TOKEN
-								},
+								data: data,
 								success: function success(res) {
 									console.log(res);
 								},

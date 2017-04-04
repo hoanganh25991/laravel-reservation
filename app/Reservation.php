@@ -66,7 +66,10 @@ use App\OutletReservationSetting as Setting;
  * @see App\Reservation::getSMSMessageOnReservedAttribute
  * 
  * @property mixed $confirmation_sms_message
+ * @property string $payment_id
  * @see App\Reservation::getConfirmationSMSMessageAttribute
+ * @property double payment_amount
+ * @property string payment_timestamp
  */
 class Reservation extends HoiModel {
 
@@ -416,6 +419,8 @@ class Reservation extends HoiModel {
      */
     public function getDepositAttribute(){
         if($this->requiredDeposit()){
+            //inject which outlet_id use to get config
+            Setting::injectOutletId($this->outlet_id);
             $deposit_config = Setting::depositConfig();
             $deposit_type   = $deposit_config(Setting::DEPOSIT_TYPE);
             
