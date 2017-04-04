@@ -495,7 +495,7 @@ class Reservation extends HoiModel {
          * May not exactly as what config want
          * Recompute how many hours before
          */
-        $hours_before = Carbon::now(Setting::timezone())->diffInHours($this->send_confirmation_by_timestamp, false);
+        $hours_before = Carbon::now(Setting::timezone())->diffInHours($this->reservation_timestamp, false);
         $sender_name  = Setting::smsSenderName();
         $time_str     = $this->date->format('H:i');
 

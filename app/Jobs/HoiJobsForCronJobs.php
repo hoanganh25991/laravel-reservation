@@ -37,7 +37,7 @@ class HoiJobsForCronJobs {
             /**
              * Compute reservation timestamp should sent reminder
              */
-            $reservation_timestamp     = $today->copy()->subHours($hours_before_reservation_timing_send_sms)->subMinutes(5);
+            $reservation_timestamp     = $today->copy()->addHours($hours_before_reservation_timing_send_sms)->addMinutes(5);
             $reservation_timestamp_str = $reservation_timestamp->format('Y-m-d H:i:s');
 
             $need_send_reminder_reservations =

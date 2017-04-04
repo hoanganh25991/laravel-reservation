@@ -201,9 +201,11 @@ Route::get('test', function (App\Http\Controllers\BookingController $c, App\Http
 
     //return $req->url();
     
-    App\OutletReservationSetting::allConfigByGroup();
+    //App\OutletReservationSetting::allConfigByGroup();
     
-    $b = App\OutletReservationSetting::bufferConfig();
+    //$b = App\OutletReservationSetting::bufferConfig();
 
+    $hour_before = \Carbon\Carbon::now()->diffInHours(\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', '2017-04-04 08:00:00'), false);
+    return $hour_before;
 });
 
