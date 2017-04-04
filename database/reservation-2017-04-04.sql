@@ -61,41 +61,6 @@ CREATE TABLE IF NOT EXISTS `customer_authentication` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Data exporting was unselected.
--- Dumping structure for table hoipos_v2.failed_jobs
-CREATE TABLE IF NOT EXISTS `failed_jobs` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `connection` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `queue` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `exception` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `failed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Data exporting was unselected.
--- Dumping structure for table hoipos_v2.jobs
-CREATE TABLE IF NOT EXISTS `jobs` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `queue` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `attempts` tinyint(3) unsigned NOT NULL,
-  `reserved_at` int(10) unsigned DEFAULT NULL,
-  `available_at` int(10) unsigned NOT NULL,
-  `created_at` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `jobs_queue_reserved_at_index` (`queue`,`reserved_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=2123 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Data exporting was unselected.
--- Dumping structure for table hoipos_v2.migrations
-CREATE TABLE IF NOT EXISTS `migrations` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `batch` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Data exporting was unselected.
 -- Dumping structure for table hoipos_v2.outlet
 CREATE TABLE IF NOT EXISTS `outlet` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -115,8 +80,8 @@ CREATE TABLE IF NOT EXISTS `outlet` (
 ) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8;
 
 -- Data exporting was unselected.
--- Dumping structure for table hoipos_v2.outlet_reservation_setting
-CREATE TABLE IF NOT EXISTS `outlet_reservation_setting` (
+-- Dumping structure for table hoipos_v2.res_outlet_reservation_setting
+CREATE TABLE IF NOT EXISTS `res_outlet_reservation_setting` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `outlet_id` bigint(20) DEFAULT NULL,
   `setting_group` int(11) DEFAULT NULL COMMENT '1=buffers,2=notifications,3=others',
@@ -126,18 +91,18 @@ CREATE TABLE IF NOT EXISTS `outlet_reservation_setting` (
   `created_timestamp` timestamp NULL DEFAULT NULL,
   `modified_timestamp` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8;
 
 -- Data exporting was unselected.
--- Dumping structure for table hoipos_v2.outlet_reservation_user
-CREATE TABLE IF NOT EXISTS `outlet_reservation_user` (
+-- Dumping structure for table hoipos_v2.res_outlet_reservation_user
+CREATE TABLE IF NOT EXISTS `res_outlet_reservation_user` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `outlet_ids` text,
   `user_name` text,
-  `password_hash` text,
   `email` text,
   `display_name` text,
+  `outlet_ids` text,
   `permission_level` int(11) DEFAULT NULL COMMENT '0= full administrator, 500 = see and manage reservations only',
+  `password_hash` text,
   `secret_token` varchar(200) DEFAULT NULL,
   `secret_expiry` timestamp NULL DEFAULT NULL,
   `pending_password_reset` tinyint(4) DEFAULT NULL,
@@ -145,21 +110,11 @@ CREATE TABLE IF NOT EXISTS `outlet_reservation_user` (
   `created_timestamp` timestamp NULL DEFAULT NULL,
   `modified_timestamp` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8;
 
 -- Data exporting was unselected.
--- Dumping structure for table hoipos_v2.outlet_reservation_user_reset_password
-CREATE TABLE IF NOT EXISTS `outlet_reservation_user_reset_password` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `user_id` bigint(20) DEFAULT NULL,
-  `reset_token` varchar(64) DEFAULT NULL,
-  `created_timestamp` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- Data exporting was unselected.
--- Dumping structure for table hoipos_v2.reservation
-CREATE TABLE IF NOT EXISTS `reservation` (
+-- Dumping structure for table hoipos_v2.res_reservation
+CREATE TABLE IF NOT EXISTS `res_reservation` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `outlet_id` bigint(20) DEFAULT NULL,
   `customer_id` bigint(20) DEFAULT NULL,
@@ -169,22 +124,19 @@ CREATE TABLE IF NOT EXISTS `reservation` (
   `email` text,
   `phone_country_code` varchar(32) DEFAULT NULL,
   `phone` text,
-  `session_name` text,
   `status` int(11) DEFAULT NULL COMMENT '100=reserved,200=reminder sent,300=confirmed,400=arrived,-100=user cancelled,-200=staff cancelled,-300=no show',
-  `reservation_code` varchar(16) DEFAULT NULL,
   `adult_pax` int(11) DEFAULT NULL,
   `children_pax` int(11) DEFAULT NULL,
   `reservation_timestamp` timestamp NULL DEFAULT NULL,
   `customer_remarks` text,
-  `send_confirmation_by_timestamp` timestamp NULL DEFAULT NULL,
+  `is_outdoor` tinyint(4) DEFAULT NULL,
   `send_sms_confirmation` tinyint(4) DEFAULT NULL,
   `send_email_confirmation` tinyint(4) DEFAULT NULL,
   `table_layout_id` bigint(20) DEFAULT NULL,
   `table_layout_name` varchar(16) DEFAULT NULL,
   `table_name` varchar(16) DEFAULT NULL,
-  `is_outdoor` tinyint(4) DEFAULT NULL,
-  `staff_remarks` text,
   `staff_read_state` tinyint(4) DEFAULT NULL,
+  `staff_remarks` text,
   `payment_required` tinyint(4) DEFAULT NULL,
   `payment_id` text,
   `payment_timestamp` timestamp NULL DEFAULT NULL,
@@ -192,11 +144,11 @@ CREATE TABLE IF NOT EXISTS `reservation` (
   `created_timestamp` timestamp NULL DEFAULT NULL,
   `modified_timestamp` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 -- Data exporting was unselected.
--- Dumping structure for table hoipos_v2.session
-CREATE TABLE IF NOT EXISTS `session` (
+-- Dumping structure for table hoipos_v2.res_session
+CREATE TABLE IF NOT EXISTS `res_session` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `outlet_id` bigint(20) DEFAULT NULL,
   `session_name` text,
@@ -212,14 +164,15 @@ CREATE TABLE IF NOT EXISTS `session` (
   `one_off` tinyint(4) DEFAULT NULL,
   `one_off_date` date DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
 
 -- Data exporting was unselected.
--- Dumping structure for table hoipos_v2.timing
-CREATE TABLE IF NOT EXISTS `timing` (
+-- Dumping structure for table hoipos_v2.res_timing
+CREATE TABLE IF NOT EXISTS `res_timing` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `session_id` bigint(20) DEFAULT NULL,
   `timing_name` text,
+  `disabled` tinyint(4) DEFAULT NULL,
   `first_arrival_time` time DEFAULT NULL,
   `last_arrival_time` time DEFAULT NULL,
   `interval_minutes` int(11) DEFAULT NULL,
@@ -230,15 +183,11 @@ CREATE TABLE IF NOT EXISTS `timing` (
   `capacity_7_x` int(11) DEFAULT NULL,
   `max_pax` int(11) DEFAULT NULL,
   `children_allowed` tinyint(4) DEFAULT NULL,
-  `min_pax_for_booking_deposit` int(11) DEFAULT NULL,
-  `booking_deposit_type` tinyint(4) DEFAULT NULL COMMENT '1=per head,2=lump sum',
-  `booking_deposit_amount` decimal(32,2) DEFAULT NULL,
-  `disabled` tinyint(4) DEFAULT NULL,
+  `is_outdoor` tinyint(4) DEFAULT NULL COMMENT 'to indicate alternative slots for outdoor',
   `created_timestamp` timestamp NULL DEFAULT NULL,
   `modified_timestamp` timestamp NULL DEFAULT NULL,
-  `is_outdoor` tinyint(4) DEFAULT NULL COMMENT 'to indicate alternative slots for outdoor',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
 
 -- Data exporting was unselected.
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

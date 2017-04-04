@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS `jobs` (
   `created_at` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `jobs_queue_reserved_at_index` (`queue`,`reserved_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=2123 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2314 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.
 -- Dumping structure for table hoipos_v2.migrations
@@ -169,20 +169,18 @@ CREATE TABLE IF NOT EXISTS `reservation` (
   `email` text,
   `phone_country_code` varchar(32) DEFAULT NULL,
   `phone` text,
-  `session_name` text,
   `status` int(11) DEFAULT NULL COMMENT '100=reserved,200=reminder sent,300=confirmed,400=arrived,-100=user cancelled,-200=staff cancelled,-300=no show',
-  `reservation_code` varchar(16) DEFAULT NULL,
   `adult_pax` int(11) DEFAULT NULL,
   `children_pax` int(11) DEFAULT NULL,
   `reservation_timestamp` timestamp NULL DEFAULT NULL,
   `customer_remarks` text,
+  `is_outdoor` tinyint(4) DEFAULT NULL,
   `send_confirmation_by_timestamp` timestamp NULL DEFAULT NULL,
   `send_sms_confirmation` tinyint(4) DEFAULT NULL,
   `send_email_confirmation` tinyint(4) DEFAULT NULL,
   `table_layout_id` bigint(20) DEFAULT NULL,
   `table_layout_name` varchar(16) DEFAULT NULL,
   `table_name` varchar(16) DEFAULT NULL,
-  `is_outdoor` tinyint(4) DEFAULT NULL,
   `staff_remarks` text,
   `staff_read_state` tinyint(4) DEFAULT NULL,
   `payment_required` tinyint(4) DEFAULT NULL,
@@ -192,7 +190,7 @@ CREATE TABLE IF NOT EXISTS `reservation` (
   `created_timestamp` timestamp NULL DEFAULT NULL,
   `modified_timestamp` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=68 DEFAULT CHARSET=utf8;
 
 -- Data exporting was unselected.
 -- Dumping structure for table hoipos_v2.session
@@ -230,13 +228,10 @@ CREATE TABLE IF NOT EXISTS `timing` (
   `capacity_7_x` int(11) DEFAULT NULL,
   `max_pax` int(11) DEFAULT NULL,
   `children_allowed` tinyint(4) DEFAULT NULL,
-  `min_pax_for_booking_deposit` int(11) DEFAULT NULL,
-  `booking_deposit_type` tinyint(4) DEFAULT NULL COMMENT '1=per head,2=lump sum',
-  `booking_deposit_amount` decimal(32,2) DEFAULT NULL,
+  `is_outdoor` tinyint(4) DEFAULT NULL COMMENT 'to indicate alternative slots for outdoor',
   `disabled` tinyint(4) DEFAULT NULL,
   `created_timestamp` timestamp NULL DEFAULT NULL,
   `modified_timestamp` timestamp NULL DEFAULT NULL,
-  `is_outdoor` tinyint(4) DEFAULT NULL COMMENT 'to indicate alternative slots for outdoor',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
