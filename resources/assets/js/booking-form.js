@@ -904,7 +904,7 @@ class BookingForm {
 				});
 			},
 			error(res){
-				console.log(res);
+				//console.log(res);
 				res = res.responseJSON;
 				if(res.statusMsg == AJAX_BOOKING_CONDITION_VALIDATE_FAIL){
 					let msg = 'Booking condition validate fail';

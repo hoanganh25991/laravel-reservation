@@ -43,4 +43,7 @@ class HoiAjaxCall {
     
     const AJAX_ALL_OUTLETS = 'AJAX_ALL_OUTLETS';
 
+    const AJAX_SEND_CLIENT_TOKEN = 'AJAX_SEND_CLIENT_TOKEN';
+
+
 }

@@ -898,7 +898,7 @@ var BookingForm = function () {
 					});
 				},
 				error: function error(res) {
-					console.log(res);
+					//console.log(res);
 					res = res.responseJSON;
 					if (res.statusMsg == AJAX_BOOKING_CONDITION_VALIDATE_FAIL) {
 						var msg = 'Booking condition validate fail';

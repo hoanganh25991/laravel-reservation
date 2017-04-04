@@ -41,6 +41,11 @@ mix.babel(['resources/assets/js/admin-settings.js'], js_output_dir + '/admin-set
  */
 mix.babel(['resources/assets/js/admin-reservations.js'], js_output_dir + '/admin-reservations.js');
 
+/**
+ * Js code for admin>reservations page
+ */
+mix.babel(['resources/assets/js/paypal-authorize.js'], js_output_dir + '/paypal-authorize.js');
+
 
 
 /**
