@@ -112,7 +112,7 @@ class BookingController extends HoiController {
 
         /** @var Collection $available_chunk */
         $available_chunk =
-            $available_time_on_booking_date
+            collect($available_time_on_booking_date)
                 ->filter(function($chunk) use($booking_date){
                     return $chunk->time == $booking_date->format('H:i');
                 })->values();
