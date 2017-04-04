@@ -65,7 +65,7 @@ class Session extends HoiModel{
         Carbon::SUNDAY    => 'on_sundays'
     ];
 
-    protected $table = 'session';
+    protected $table = 'res_session';
 
     protected $guarded = ['id', 'timings'];
 

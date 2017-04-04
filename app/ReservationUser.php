@@ -52,7 +52,7 @@ class ReservationUser extends User {
         'role'
     ];
 
-    protected $table = 'outlet_reservation_user';
+    protected $table = 'res_outlet_reservation_user';
 
     protected $rememberTokenName = 'secret_token';
 

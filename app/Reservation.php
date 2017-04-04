@@ -84,7 +84,7 @@ class Reservation extends HoiModel {
     const STAFF_CANCELLED = -200;
     const NO_SHOW         = -300;
 
-    protected $table = 'reservation';
+    protected $table = 'res_reservation';
 
     protected $guarded = ['id'];
 

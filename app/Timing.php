@@ -71,7 +71,7 @@ class Timing extends HoiModel {
     const NO_DEPOSIT  = 0;
     const HAS_DEPOSIT = 1;
     
-    protected $table = 'timing';
+    protected $table = 'res_timing';
     
     protected $guarded = ['id'];
 

@@ -111,7 +111,7 @@ class OutletReservationSetting extends HoiModel{
      */
     const HASH_SALT = 'Hashids is a small open-source library that generates short, unique, non-sequential ids from numbers.';
 
-    protected $table = 'outlet_reservation_setting';
+    protected $table = 'res_outlet_reservation_setting';
 
     /**
      * Protect model from unwanted column when build query
