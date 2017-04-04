@@ -91,5 +91,17 @@ class BrandCredit extends HoiModel {
         }
     }
 
+    public static function instance(){
+        $brand_credit = BrandCredit::first();
+        
+        if(is_null($brand_credit)){
+            $brand_credit = new BrandCredit([
+                'brand_id' => Setting::brandId()
+            ]);
 
+            $brand_credit->save();
+        }
+        
+        return $brand_credit;
+    }
 }

@@ -207,12 +207,7 @@ class BookingController extends HoiController {
 
         $current = $date_range[0]->copy();
         while($current->lte($date_range[1])){
-            $date_with_available_time = [
-                $current->format('Y-m-d') => []
-            ];
-
-            $default[] = $date_with_available_time;
-
+            $default[$current->format('Y-m-d')] = [];
             //increase loop
             $current->addDay();
         }
