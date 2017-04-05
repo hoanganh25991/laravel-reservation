@@ -118,7 +118,6 @@ class PayPalController extends HoiController{
 
                 } else {
                     $err  = var_export($result->errors);
-
                     $data = $err;
                     $code = 422;
                     $msg  = Call::AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL;

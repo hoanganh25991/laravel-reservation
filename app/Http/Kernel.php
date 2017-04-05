@@ -62,5 +62,6 @@ class Kernel extends HttpKernel
         'staff'         => Staff::class,
         'administrator' => Administrator::class,
         'reservations'  => Reservations::class,
+        'cors'          => \Barryvdh\Cors\ServiceProvider::class,
     ];
 }

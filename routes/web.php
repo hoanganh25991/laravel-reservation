@@ -71,7 +71,10 @@ Route::group(['middleware' => 'staff'], function (){
 /**
  * Group for api call
  */
-Route::group(['prefix' => 'api'], function(){
+Route::group([
+    'prefix' => 'api',
+    'middleware' => 'cors'
+], function (){
     /**
      * Route to book reservation
      */
@@ -126,15 +129,6 @@ Route::group(['prefix' => 'api'], function(){
 
 
 Route::post('paypal', 'PayPalController@handlePayment');
-
-
-
-
-
-
-
-
-
 
 
 Route::get('test', function (App\Http\Controllers\BookingController $c, App\Http\Controllers\AdminController $a,
@@ -213,12 +207,14 @@ Route::get('test', function (App\Http\Controllers\BookingController $c, App\Http
 //    return url('');
 
     //return $req->url();
-    
+
     //App\OutletReservationSetting::allConfigByGroup();
-    
+
     //$b = App\OutletReservationSetting::bufferConfig();
 
-    $hour_before = \Carbon\Carbon::now()->diffInHours(\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', '2017-04-04 08:00:00'), false);
+    $hour_before =
+        \Carbon\Carbon::now()->diffInHours(\Carbon\Carbon::createFromFormat('Y-m-d H:i:s', '2017-04-04 08:00:00'),
+            false);
     return $hour_before;
 });
 

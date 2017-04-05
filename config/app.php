@@ -190,6 +190,9 @@ return [
 
         Barryvdh\Debugbar\ServiceProvider::class,
 
+        //allow cross origin
+        Barryvdh\Cors\ServiceProvider::class,
+
     ],
 
     /*
