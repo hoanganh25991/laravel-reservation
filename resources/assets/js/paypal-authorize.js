@@ -1,8 +1,11 @@
 const AJAX_PAYMENT_REQUEST = 'AJAX_PAYMENT_REQUEST';
-
+const AJAX_PAYMENT_REQUEST_SUCCESS = 'AJAX_PAYMENT_REQUEST_SUCCESS';
+const AJAX_PAYMENT_REQUEST_VALIDATE_FAIL = 'AJAX_PAYMENT_REQUEST_VALIDATE_FAIL';
+const AJAX_PAYMENT_REQUEST_FIND_RESERVATION_FAIL = 'AJAX_PAYMENT_REQUEST_FIND_RESERVATION_FAIL';
+const AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL = 'AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL';
 class PayPalAuthorize {
 
-	construct(token, paypal_instance_options, base_url, data){
+	constructor(token, paypal_instance_options, base_url){
 		this.paypal_instance_options =
 			Object.assign({
 				flow: 'checkout', // Required
@@ -27,8 +30,6 @@ class PayPalAuthorize {
 
 		this.base_url = base_url;
 		
-		this.data = data;
-
 		this.initPaypal();
 	}
 
@@ -68,14 +69,31 @@ class PayPalAuthorize {
 							Object.assign({
 								tokenizationPayload: JSON.stringify(tokenizationPayload),
 								type: AJAX_PAYMENT_REQUEST
-							}, self.data);
+							}, self.paypal_instance_options);
 						
 						$.ajax({
-							url: `${self.base_url}/pay_pal}`,
+							url: self.base_url,
 							method: 'POST',
 							data: data,
 							success(res){
 								console.log(res);
+								if(res.statusMsg == AJAX_PAYMENT_REQUEST_SUCCESS){
+									$('#paypal-dialog').modal('hide');
+									console.log(res);
+									console.log('success payment');
+									return;
+								}
+							},
+							error(res){
+								if(res.statusMsg == AJAX_PAYMENT_REQUEST_VALIDATE_FAIL
+									|| res.statusMsg == AJAX_PAYMENT_REQUEST_FIND_RESERVATION_FAIL
+									|| res.statusMsg == AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL){
+									let msg = 'PAYPAL FAIL: see log';
+
+									console.log(msg, res.data);
+									window.alert(msg);
+									return;
+								}
 							},
 							complete(res){
 								console.log('response from tokenizationPayload.php', res);

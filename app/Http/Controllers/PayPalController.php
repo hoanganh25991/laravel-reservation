@@ -40,7 +40,7 @@ class PayPalController extends HoiController{
         return $validator;
     }
 
-    public function getToken(){
+    public function generateToken(){
         $clientToken = $this->gateway->clientToken()->generate();
 
         return $clientToken;
@@ -92,10 +92,14 @@ class PayPalController extends HoiController{
 
                 $amount = $reservation->deposit;
 
+                $tokenizationPayload = json_decode($req->get('tokenizationPayload'), JSON_NUMERIC_CHECK);
+
+                $paymentMethodNonce  = $tokenizationPayload['nonce'];
+
                 $result =
                     $this->gateway->transaction()->sale([
                         'amount'             => $amount,
-                        'paymentMethodNonce' => $req->get('tokenizationPayload'),
+                        'paymentMethodNonce' => $paymentMethodNonce,
                     ]);
 
                 if ($result->success) {
@@ -108,10 +112,14 @@ class PayPalController extends HoiController{
                     $reservation->payment_id        = $transaction_id;
                     $reservation->payment_amount    = $amount;
                     $reservation->payment_timestamp = Carbon::now(Setting::timezone());
+                    //update status as RESERVED
+                    $reservation->status            = Reservation::RESERVED;
                     $reservation->save();
 
                 } else {
-                    $data = [];
+                    $err  = var_export($result->errors);
+
+                    $data = $err;
                     $code = 422;
                     $msg  = Call::AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL;
                     break;

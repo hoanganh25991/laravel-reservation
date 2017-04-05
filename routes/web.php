@@ -124,6 +124,19 @@ Route::group(['prefix' => 'api'], function(){
     });
 });
 
+
+Route::post('paypal', 'PayPalController@handlePayment');
+
+
+
+
+
+
+
+
+
+
+
 Route::get('test', function (App\Http\Controllers\BookingController $c, App\Http\Controllers\AdminController $a,
     App\Http\Controllers\SessionController $s, \App\Http\Requests\ApiRequest $req){
 

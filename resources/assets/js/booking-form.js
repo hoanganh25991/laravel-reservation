@@ -34,8 +34,14 @@ const AJAX_RESERVATION_NO_LONGER_AVAILABLE = 'AJAX_RESERVATION_NO_LONGER_AVAILAB
 const AJAX_RESERVATION_REQUIRED_DEPOSIT = 'AJAX_RESERVATION_REQUIRED_DEPOSIT';
 const AJAX_RESERVATION_SUCCESS_CREATE = 'AJAX_RESERVATION_SUCCESS_CREATE';
 const AJAX_BOOKING_CONDITION_VALIDATE_FAIL = 'AJAX_BOOKING_CONDITION_VALIDATE_FAIL';
+//const CHANGE_RESERVATION_DEPOSIT = 'CHANGE_RESERVATION_DEPOSIT';
+//const AJAX_PAYMENT_REQUEST = 'AJAX_PAYMENT_REQUEST';
 
+const AJAX_PAYMENT_REQUEST_VALIDATE_FAIL = 'AJAX_PAYMENT_REQUEST_VALIDATE_FAIL';
+const AJAX_PAYMENT_REQUEST_FIND_RESERVATION_FAIL = 'AJAX_PAYMENT_REQUEST_FIND_RESERVATION_FAIL';
+const AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL = 'AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL';
 
+// const AJAX_PAYMENT_REQUEST_SUCCESS = 'AJAX_PAYMENT_REQUEST_SUCCESS';
 
 class BookingForm {
 	/** @namespace res.statusMsg */
@@ -237,7 +243,7 @@ class BookingForm {
 		let vue_state = this.getVueState();
 
 		// let form_vue = new Vue({
-		new Vue({
+		this.vue = new Vue({
 			el: '#form-step-container',
 			data: vue_state
 		});
@@ -828,6 +834,7 @@ class BookingForm {
 		// console.info('ajax call');
 		let store = window.store;
 		let state = store.getState();
+		let self  = this;
 
 		store.dispatch({type: DIALOG_SHOW_HIDE, show: true});
 
@@ -893,6 +900,13 @@ class BookingForm {
 
 					return;
 				}
+
+				// if(res.statusMsg == AJAX_PAYMENT_REQUEST_SUCCESS){
+				// 	$('#paypal-dialog').modal('hide');
+				// 	console.log(res);
+				// 	console.log('success payment');
+				// 	return;
+				// }
 			},
 			complete(res){
 				console.log(res);
@@ -927,11 +941,32 @@ class BookingForm {
 
 				//noinspection JSValidateTypes
 				if(res.statusMsg == AJAX_RESERVATION_REQUIRED_DEPOSIT){
+					let data = res.data;
 					let msg = 'REQUIRED DEPOSIT, payment amount: ';
+					
+					store.dispatch({
+						type: CHANGE_RESERVATION_CONFIRM_ID,
+						confirm_id: data.confirm_id
+					});
 
+					// store.dispatch({
+					// 	type: CHANGE_RESERVATION_DEPOSIT,
+					// 	deposit: data.deposit
+					// });
+					let amount     = data.deposit
+					let token      = data.paypal_token;
+					let confirm_id = data.confirm_id;
+
+					//noinspection ES6ModulesDependencies
+					let base_url = self.url('paypal');
+					let paypal_authorize = new PayPalAuthorize(token, {amount, confirm_id}, base_url);
+					self.vue.reservation.deposit = amount;
+
+					$('#paypal-dialog').modal('show');
+					
 					console.log(msg, res.data);
-					window.alert(msg);
-					store.dispatch({type: PAX_OVER});
+					//window.alert(msg);
+					//store.dispatch({type: PAX_OVER});
 					return;
 				}
 
@@ -942,8 +977,36 @@ class BookingForm {
 					window.alert(msg);
 					return;
 				}
+
+				// if(res.statusMsg == AJAX_PAYMENT_REQUEST_VALIDATE_FAIL
+				// || res.statusMsg == AJAX_PAYMENT_REQUEST_FIND_RESERVATION_FAIL
+				// || res.statusMsg == AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL){
+				// 	let msg = 'PAYPAL FAIL: see log';
+				//
+				// 	console.log(msg, res.data);
+				// 	window.alert(msg);
+				// 	return;
+				// }
 			}
 		});
+	}
+
+	url(path){
+		let store = window.store;
+		let state = store.getState();
+
+		//noinspection JSUnresolvedVariable
+		let base_url = state.base_url || '';
+
+		if(base_url.endsWith('/')){
+			base_url = path.substr(1);
+		}
+
+		if(path.startsWith('/')){
+			path = path.substr(1);
+		}
+
+		return `${base_url}/${path}`;
 	}
 
 	pointToFormStep(){
