@@ -53,6 +53,7 @@
         }
 
         svg.addEventListener('click', function(){
+            console.log('see you click');
             div.toggleHeight();
         });
     })();

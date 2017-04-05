@@ -14,7 +14,7 @@
                 @endcomponent
                 <div id="check-availability" class="content">
                     <div class="rid-select">
-                        <select name="outlet_id" id="rid" title="spize" class="form-control">
+                        <select name="outlet_id" id="rid" title="spize" class="form-control" :value="outlet.id">
                             @foreach($outlets as $outlet)
                                 <option value="{{ $outlet->id }}">{{ $outlet->name }}</option>
                             @endforeach
@@ -24,7 +24,7 @@
                     <div class="selectors cf" :style="'display: ' + pax_over">
                         <div id="adults-wrap">
                             <label for="adults">Adults</label>
-                            <select name="adult_pax" class="form-control">
+                            <select name="adult_pax" class="form-control" :value="pax.adult">
                                 <template v-for="n in overall_max_pax + 1">
                                     <option :value="n - 1">{{ n - 1 }}</option>
                                 </template>
@@ -32,7 +32,7 @@
                         </div>
                         <div id="children-wrap">
                             <label for="children">Children</label>
-                            <select name="children_pax" class="form-control">
+                            <select name="children_pax" class="form-control" :value="pax.children">
                                 <template v-for="n in overall_max_pax + 1">
                                     <option :value="n - 1">{{ n - 1 }}</option>
                                 </template>
@@ -171,8 +171,8 @@
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
         </div><!-- /.modal -->
-        @include('debug.redux-state')
     </div>
+    @include('debug.redux-state')
 @endsection
 
 @push('script')

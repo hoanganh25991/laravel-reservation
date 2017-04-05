@@ -175,11 +175,6 @@ var BookingForm = function () {
 				server_state = window.state;
 			}
 
-			/**
-    * Set overall min|max pax
-    */
-			var overall_min_pax = server_state['overall_min_pax'];
-
 			var frontend_state = {
 				init_view: false,
 				outlet: {},
@@ -218,7 +213,7 @@ var BookingForm = function () {
 				pax_over: "block"
 			};
 
-			var state = Object.assign(server_state, frontend_state);
+			var state = Object.assign(frontend_state, server_state);
 
 			this.state = state;
 

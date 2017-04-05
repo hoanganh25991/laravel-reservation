@@ -35,6 +35,13 @@ class AppServiceProvider extends ServiceProvider
         });
 
         /**
+         * Add custom validator on Timing
+         */
+        Validator::extend('handled_outlet_id',  function ($attribute, $value, $parameters, $validator) {
+            return Outlet::validateHandledOutletId($value);
+        });
+
+        /**
          * View composer for Admin page
          * Admin page need outlet to switch between in navigator
          */

@@ -22,4 +22,10 @@ class Outlet extends HoiModel {
         static::byBrandId();
     }
     
+    public static function validateHandledOutletId($value){
+        $outlet_ids = Outlet::all()->pluck('id');
+        
+        return $outlet_ids->contains($value);
+    }
+    
 }

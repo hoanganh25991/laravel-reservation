@@ -215,7 +215,7 @@ class Reservation extends HoiModel {
      */
     public static function validateOnCRUD($reservation_data){
         $validator = Validator::make($reservation_data, [
-            'outlet_id'    => 'required|numeric',
+            'outlet_id'    => 'required|numeric|handled_outlet_id',
             'salutation'   => 'required',
             'first_name'   => 'required',
             'last_name'    => 'required',
