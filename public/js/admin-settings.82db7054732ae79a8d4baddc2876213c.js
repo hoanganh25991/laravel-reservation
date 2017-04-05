@@ -307,7 +307,7 @@ var AdminSettings = function () {
 						// console.log(e.target);
 						console.log('see delete timing');
 						try {
-							var i = this._findTrElement(e);
+							var i = this._findIElement(e);
 							var session_index = i.getAttribute('session-index');
 							var timing_index = i.getAttribute('timing-index');
 							var session = this.weekly_sessions[session_index];
@@ -324,7 +324,7 @@ var AdminSettings = function () {
 						// console.log(e.target);
 						console.log('see delete session');
 						try {
-							var i = this._findTrElement(e);
+							var i = this._findIElement(e);
 							var session_index = i.getAttribute('session-index');
 
 							var session = this.weekly_sessions[session_index];
