@@ -54,8 +54,8 @@ class BookingController extends HoiController {
     public function setUpBookingConditions($condition = []){
         $condition =
             array_merge([
-                'outlet_id'  => 1,
-                'adult_pax' => 1,
+                'outlet_id'    => 0,
+                'adult_pax'    => 0,
                 'children_pax' => 0,
             ], $condition);
 
@@ -79,11 +79,11 @@ class BookingController extends HoiController {
 
     /**
      * Validate data before search availabe time
-     * @param ApiRequest $req
+     * @param array $condition
      * @return mixed
      */
-    public function validateBookingCondition(ApiRequest $req){
-        $validator = Validator::make($req->all(), [
+    public function validateBookingCondition($condition){
+        $validator = Validator::make($condition, [
             'outlet_id'    => 'required|numeric',
             'adult_pax'    => 'required|numeric',
             'children_pax' => 'required|numeric'
@@ -178,9 +178,10 @@ class BookingController extends HoiController {
                 })
                 ->map->values();
 
+        $default = $this->defaultDatesWithAvailableTime();
 
         $dates_with_available_time_capacity =
-            $dates_with_available_time_capacity->merge($this->defaultDatesWithAvailableTime());
+            $default->merge($dates_with_available_time_capacity);
 
         return $dates_with_available_time_capacity;
     }
@@ -203,7 +204,7 @@ class BookingController extends HoiController {
     private function defaultDatesWithAvailableTime(){
         $date_range = Setting::dateRange();
 
-        $default = [];
+        $default = collect([]);
 
         $current = $date_range[0]->copy();
         while($current->lte($date_range[1])){
@@ -464,7 +465,7 @@ class BookingController extends HoiController {
                  */
                 case Call::AJAX_SEARCH_AVAILABLE_TIME:
                     /* @var Validator $validator*/
-                    $validator = $this->validateBookingCondition($req);
+                    $validator = $this->validateBookingCondition($req->all());
 
                     if($validator->fails()){
                         $data = $validator->getMessageBag()->toArray();
