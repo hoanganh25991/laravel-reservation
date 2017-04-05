@@ -112,7 +112,7 @@ class BookingController extends HoiController {
 
         /** @var Collection $available_chunk */
         $available_chunk =
-            collect($available_time_on_booking_date)
+            $available_time_on_booking_date
                 ->filter(function($chunk) use($booking_date){
                     return $chunk->time == $booking_date->format('H:i');
                 })->values();
@@ -207,7 +207,7 @@ class BookingController extends HoiController {
 
         $current = $date_range[0]->copy();
         while($current->lte($date_range[1])){
-            $default[$current->format('Y-m-d')] = [];
+            $default[$current->format('Y-m-d')] = collect([]);
             //increase loop
             $current->addDay();
         }
