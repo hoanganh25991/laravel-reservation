@@ -73,7 +73,7 @@ Route::group(['middleware' => 'staff'], function (){
  */
 Route::group([
     'prefix' => 'api',
-    'middleware' => 'cors'
+    'middleware' => 'api'
 ], function (){
     /**
      * Route to book reservation

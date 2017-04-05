@@ -42,6 +42,7 @@ class Kernel extends HttpKernel
         'api' => [
             'throttle:60,1',
             'bindings',
+            \Barryvdh\Cors\HandleCors::class,
         ],
     ];
 
@@ -62,6 +63,6 @@ class Kernel extends HttpKernel
         'staff'         => Staff::class,
         'administrator' => Administrator::class,
         'reservations'  => Reservations::class,
-        'cors'          => \Barryvdh\Cors\ServiceProvider::class,
+        //'cors'          => \Barryvdh\Cors\ServiceProvider::class,
     ];
 }
