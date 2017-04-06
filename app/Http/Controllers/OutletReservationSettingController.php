@@ -20,22 +20,17 @@ class OutletReservationSettingController extends Controller {
         $action_type = $data['type'];
 
         switch($action_type){
+            //Handle buffer config
             case Call::AJAX_UPDATE_BUFFER:
                 $buffer = $data['buffer'];
 
                 foreach($buffer as $key => $value){
-                    $config = Setting::where([
-                        ['setting_group', Setting::BUFFER_GROUP],
-                        ['setting_key', $key]
-                    ])->first();
-                    
-                    if(is_null($config)){
-                        $config = new Setting([
-                            'setting_group' => Setting::BUFFER_GROUP,
-                            'setting_key'   => $key
+                    $config =
+                        Setting::findOrNew([
+                            ['setting_group', Setting::BUFFER_GROUP],
+                            ['setting_key', $key]
                         ]);
-                    }
-                    
+
                     $config->setting_value = $value;
                     $config->save();
                 }
@@ -44,28 +39,17 @@ class OutletReservationSettingController extends Controller {
                 $code = 200;
                 $msg  = Call::AJAX_SUCCESS;
                 break;
+            //Handle notification config
             case Call::AJAX_UPDATE_NOTIFICATION:
                 $notification = $data['notification'];
 
                 foreach($notification as $key => $value){
-                    $config = Setting::where([
-                        ['setting_group', Setting::NOTIFICATION_GROUP],
-                        ['setting_key', $key]
-                    ])->first();
-
-                    if(is_null($config)){
-                        $config = new Setting([
-                            'setting_group' => Setting::NOTIFICATION_GROUP,
-                            'setting_key'   => $key
+                    $config =
+                        Setting::findOrNew([
+                            ['setting_group', Setting::NOTIFICATION_GROUP],
+                            ['setting_key', $key]
                         ]);
-                    }
 
-                    /**
-                     * @warn quick sanity data
-                     * Need global handle transform
-                     */
-                    $value = $value === true  ? 1 : $value;
-                    $value = $value === false ? 0 : $value;
                     $config->setting_value = $value;
                     $config->save();
                 }
@@ -74,35 +58,17 @@ class OutletReservationSettingController extends Controller {
                 $code = 200;
                 $msg  = Call::AJAX_SUCCESS;
                 break;
+            //Handle setting config
             case Call::AJAX_UPDATE_SETTINGS:
                 $settings = $data['settings'];
                 
-
-                foreach($allowed_change_settings as $key){
-                    if(!isset($settings[$key])){
-                        continue;
-                    }
-
-                    $value = $settings[$key];
-
-                    $config = Setting::where([
-                        ['setting_group', Setting::SETTINGS_GROUP],
-                        ['setting_key', $key]
-                    ])->first();
-
-                    if(is_null($config)){
-                        $config = new Setting([
-                            'setting_group' => Setting::SETTINGS_GROUP,
-                            'setting_key'   => $key
+                foreach($settings as $key => $value){
+                    $config =
+                        Setting::findOrNew([
+                            ['setting_group', Setting::SETTINGS_GROUP],
+                            ['setting_key', $key]
                         ]);
-                    }
 
-                    /**
-                     * @warn quick sanity data
-                     * Need global handle transform
-                     */
-                    $value = $value === true  ? 1 : $value;
-                    $value = $value === false ? 0 : $value;
                     $config->setting_value = $value;
                     $config->save();
                 }
@@ -126,28 +92,17 @@ class OutletReservationSettingController extends Controller {
                 $code = 200;
                 $msg  = Call::AJAX_SUCCESS;
                 break;
+            //Handle deposit config
             case Call::AJAX_UPDATE_DEPOSIT:
                 $settings = $data['deposit'];
 
                 foreach($settings as $key => $value){
-                    $config = Setting::where([
-                        ['setting_group', Setting::DEPOSIT_GROUP],
-                        ['setting_key', $key]
-                    ])->first();
-
-                    if(is_null($config)){
-                        $config = new Setting([
+                    $config =
+                        Setting::findOrNew([
                             'setting_group' => Setting::DEPOSIT_GROUP,
                             'setting_key'   => $key
                         ]);
-                    }
 
-                    /**
-                     * @warn quick sanity data
-                     * Need global handle transform
-                     */
-                    $value = $value === true  ? 1 : $value;
-                    $value = $value === false ? 0 : $value;
                     $config->setting_value = $value;
                     $config->save();
                 }
@@ -156,8 +111,9 @@ class OutletReservationSettingController extends Controller {
                 $code = 200;
                 $msg  = Call::AJAX_SUCCESS;
                 break;
+            //Fallback case
             default:
-                $data = $req->all();
+                $data = [];
                 $code = 200;
                 $msg = Call::AJAX_UNKNOWN_CASE;
                 break;

@@ -9,8 +9,9 @@ use Illuminate\Support\Collection;
 use App\OutletReservationSetting as Setting;
 
 /**
- * @property mixed outlet_id
- * @property mixed setting_key
+ * @property mixed $outlet_id
+ * @property mixed $setting_key
+ * @property mixed $setting_value
  * @see App\OutletReservationSetting::outletId
  */
 class OutletReservationSetting extends HoiModel{
@@ -190,6 +191,22 @@ class OutletReservationSetting extends HoiModel{
             Setting::OVERALL_MIN_PAX,
             Setting::OVERALL_MAX_PAX,
         ];
+    }
+
+    /**
+     * Convenience way to find or create new one
+     * $condistion is where clause into database condition
+     * @param array $condition
+     * @return Setting $config
+     */
+    public static function findOrNew($condition){
+        $config = Setting::where($condition)->first();
+        
+        if(is_null($config)){
+            $config = new Setting($condition);
+        }
+        
+        return $config;
     }
 
     /**
