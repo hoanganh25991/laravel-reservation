@@ -77,7 +77,6 @@ class OutletReservationSettingController extends Controller {
             case Call::AJAX_UPDATE_SETTINGS:
                 $settings = $data['settings'];
                 
-                $allowed_change_settings = Setting::allowedChangeSettingKeys();
 
                 foreach($allowed_change_settings as $key){
                     if(!isset($settings[$key])){

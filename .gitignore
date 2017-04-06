@@ -10,3 +10,4 @@ Homestead.yaml
 /tmp
 #/database/reservation.sql
 /.vscode
+/npm-debug.log.*

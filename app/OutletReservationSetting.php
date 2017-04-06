@@ -10,6 +10,7 @@ use App\OutletReservationSetting as Setting;
 
 /**
  * @property mixed outlet_id
+ * @property mixed setting_key
  * @see App\OutletReservationSetting::outletId
  */
 class OutletReservationSetting extends HoiModel{
@@ -143,6 +144,22 @@ class OutletReservationSetting extends HoiModel{
             if(!isset($setting->attributes['outlet_id'])){
                 $setting->outlet_id = Setting::outletId();
             }
+        });
+
+        /**
+         * Right before save into database
+         * Setting key cross check if it allowed
+         * Discard running save it validate fail
+         */
+        static::saving(function(Setting $setting){
+            $setting_key = $setting->setting_key;
+            $allowed     = in_array($setting_key, Setting::allowedChangeSettingKeys());
+
+            if(!$allowed){
+                return false;
+            }
+
+            return true;
         });
 
         static::byOutletId();
