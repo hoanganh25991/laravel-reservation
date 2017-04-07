@@ -87,7 +87,7 @@
                 @endcomponent
                 <div id="confirm-details" class="content">
                     <div class="form-groups">
-                        <select id="d-title" class="form-control" name="salutation">
+                        <select id="d-title" class="form-control" name="salutation" :value="customer.salutation">
                             <option value="Mr.">Mr.</option>
                             <option value="Ms.">Ms.</option>
                             <option value="Mrs.">Mrs.</option>
