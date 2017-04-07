@@ -907,6 +907,8 @@ var BookingForm = function () {
 						// 	confirm_id,
 						// });
 						//update reservation
+						Object.assign(vue_state, { reservation: reservation });
+
 						store.dispatch({
 							type: SYNC_RESERVATION,
 							reservation: reservation

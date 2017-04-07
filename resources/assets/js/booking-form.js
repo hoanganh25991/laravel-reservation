@@ -913,6 +913,8 @@ class BookingForm {
 					// 	confirm_id,
 					// });
 					//update reservation
+					Object.assign(vue_state, {reservation});
+					
 					store.dispatch({
 						type: SYNC_RESERVATION,
 						reservation,
