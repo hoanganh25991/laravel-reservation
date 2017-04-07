@@ -221,6 +221,7 @@ var BookingForm = function () {
 				// 	phone: '903865657',
 				// 	remarks: 'hello world'
 				// },
+				customer: {},
 				pax_over: "block"
 			};
 

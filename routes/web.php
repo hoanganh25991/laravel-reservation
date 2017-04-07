@@ -20,7 +20,32 @@ Route::get('logout', function (){
     return redirect('');
 });
 
+/**
+ * Fix explicit tell which brand_id used
+ */
+//Route::get('{brand_id}/{go?}', function($brand_id, $go){
+//    return compact('brand_id', 'go');
+//});
 
+Route::get('{brand_id}/{go?}', function($brand_id, $go){
+    \App\OutletReservationSetting::injectBrandId($brand_id);
+
+    switch($go){
+        case 'booking':
+            //(new \App\Http\Controllers\BookingController)->getBookingForm();
+            $reponse = (new \App\Http\Controllers\BookingController)->getBookingForm();
+            break;
+        case '':
+            //(new \App\Http\Controllers\BookingController)->getBookingForm();
+            $reponse = (new \App\Http\Controllers\BookingController)->getBookingForm();
+            break;
+        default:
+            $reponse = ['go' => 'bac'];
+            break;
+    }
+
+    return $reponse;
+});
 
 /**
  * Routes for Booking
@@ -220,9 +245,3 @@ Route::get('test', function (App\Http\Controllers\BookingController $c, App\Http
     return $hour_before;
 });
 
-/**
- * Fix explicit tell which brand_id used
- */
-Route::get('{brand_id}/{go?}', function($brand_id, $go){
-    return compact('brand_id', 'go');
-});
