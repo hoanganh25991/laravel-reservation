@@ -112,6 +112,7 @@ class PayPalController extends HoiController{
                     $reservation->payment_id        = $transaction_id;
                     $reservation->payment_amount    = $amount;
                     $reservation->payment_timestamp = Carbon::now(Setting::timezone());
+                    $reservation->payment_status    = Reservation::PAYMENT_PAID;
                     //update status as RESERVED
                     $reservation->status            = Reservation::RESERVED;
                     $reservation->save();
@@ -125,7 +126,7 @@ class PayPalController extends HoiController{
                 }
 
                 //everything is fine
-                $data = [];
+                $data = compact('reservation');
                 $code = 200;
                 $msg  = Call::AJAX_PAYMENT_REQUEST_SUCCESS;
                 break;

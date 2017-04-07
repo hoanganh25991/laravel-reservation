@@ -166,7 +166,7 @@
                     @endverbatim
                     <div class="modal-footer">
                         <hr>
-                        @include('paypal.authorize')
+                        {{--@include('paypal.authorize')--}}
                     </div>
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->

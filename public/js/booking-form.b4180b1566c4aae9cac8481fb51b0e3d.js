@@ -31,6 +31,8 @@ var CHANGE_CUSTOMER_EMAIL = 'CHANGE_CUSTOMER_EMAIL';
 var CHANGE_CUSTOMER_PHONE = 'CHANGE_CUSTOMER_PHONE';
 var CHANGE_CUSTOMER_REMARKS = 'CHANGE_CUSTOMER_REMARKS';
 
+var SYNC_RESERVATION = 'SYNC_RESERVATION';
+
 var AJAX_SEARCH_AVAILABLE_TIME = 'AJAX_SEARCH_AVAILABLE_TIME';
 var AJAX_SUBMIT_BOOKING = 'AJAX_SUBMIT_BOOKING';
 
@@ -117,6 +119,7 @@ var BookingForm = function () {
 					case CHANGE_RESERVATION_DATE:
 					case CHANGE_RESERVATION_TIME:
 					case CHANGE_RESERVATION_CONFIRM_ID:
+					case SYNC_RESERVATION:
 						return Object.assign({}, state, {
 							reservation: self.reservationReducer(state.reservation, action)
 						});
@@ -337,6 +340,9 @@ var BookingForm = function () {
 					return Object.assign({}, state, {
 						confirm_id: action.confirm_id
 					});
+				case SYNC_RESERVATION:
+					var new_state = Object.assign(state, action.reservation);
+					return new_state;
 				default:
 					return state;
 			}
@@ -812,6 +818,25 @@ var BookingForm = function () {
 					clearTimeout(timeId);
 				}, state.dialog.min_exist_time);
 			});
+
+			/**
+    * Handle payment success
+    */
+			document.addEventListener('PAYPAL_PAYMENT_SUCCESS', function (e) {
+				console.log(e);
+				var res = e.detail;
+
+				/**
+     * in this case, res.data should contain reservation
+     */
+				var reservation = res.data.reservation;
+				Object.assign(vue_state, { reservation: reservation });
+
+				store.dispatch({
+					type: SYNC_RESERVATION,
+					reservation: reservation
+				});
+			});
 		}
 	}, {
 		key: 'ajaxCall',
@@ -870,12 +895,18 @@ var BookingForm = function () {
 					console.log(res);
 					//noinspection JSValidateTypes
 					if (res.statusMsg == AJAX_RESERVATION_SUCCESS_CREATE) {
-						var _data = res.data;
-						var confirm_id = _data.confirm_id;
-
+						// let data = res.data;
+						// let {confirm_id} = data;
+						var reservation = res.data.reservation;
+						// let {confirm_id} = reservation;
+						// store.dispatch({
+						// 	type: CHANGE_RESERVATION_CONFIRM_ID,
+						// 	confirm_id,
+						// });
+						//update reservation
 						store.dispatch({
-							type: CHANGE_RESERVATION_CONFIRM_ID,
-							confirm_id: confirm_id
+							type: SYNC_RESERVATION,
+							reservation: reservation
 						});
 						return;
 					}
@@ -886,11 +917,11 @@ var BookingForm = function () {
       */
 					//noinspection JSValidateTypes
 					if (res.statusMsg == AJAX_AVAILABLE_TIME_FOUND) {
-						var _data2 = res.data;
+						var _data = res.data;
 
 						store.dispatch({
 							type: CHANGE_AVAILABLE_TIME,
-							available_time: _data2
+							available_time: _data
 						});
 
 						return;
@@ -926,7 +957,7 @@ var BookingForm = function () {
       */
 					//noinspection JSValidateTypes
 					if (res.statusMsg == AJAX_RESERVATION_NO_LONGER_AVAILABLE) {
-						var _data3 = res.data;
+						var _data2 = res.data;
 						var _msg = 'SORRY, Someone has book before you. Rerservation no longer available';
 
 						console.log(_msg, res.data);
@@ -936,28 +967,38 @@ var BookingForm = function () {
 
 					//noinspection JSValidateTypes
 					if (res.statusMsg == AJAX_RESERVATION_REQUIRED_DEPOSIT) {
-						var _data4 = res.data;
-						var _msg2 = 'REQUIRED DEPOSIT, payment amount: ';
+						var reservation = res.data.reservation;
+						// let {confirm_id} = reservation;
+						// store.dispatch({
+						// 	type: CHANGE_RESERVATION_CONFIRM_ID,
+						// 	confirm_id,
+						// });
+						//update reservation
+						Object.assign(vue_state, { reservation: reservation });
 
 						store.dispatch({
-							type: CHANGE_RESERVATION_CONFIRM_ID,
-							confirm_id: _data4.confirm_id
+							type: SYNC_RESERVATION,
+							reservation: reservation
 						});
+
+						var _data3 = res.data;
+						var _msg2 = 'REQUIRED DEPOSIT, payment amount: ';
 
 						// store.dispatch({
 						// 	type: CHANGE_RESERVATION_DEPOSIT,
 						// 	deposit: data.deposit
 						// });
-						var amount = _data4.deposit;
-						var token = _data4.paypal_token;
-						var confirm_id = _data4.confirm_id;
+						var amount = reservation.deposit;
+						var confirm_id = reservation.confirm_id;
+						var token = _data3.paypal_token;
 
 						//noinspection ES6ModulesDependencies
 						var base_url = self.url('paypal');
 						var paypal_authorize = new PayPalAuthorize(token, { amount: amount, confirm_id: confirm_id }, base_url);
-						self.vue.reservation.deposit = amount;
 
-						$('#paypal-dialog').modal('show');
+						//self.vue.reservation.deposit = amount;
+
+						//$('#paypal-dialog').modal('show');
 
 						console.log(_msg2, res.data);
 						//window.alert(msg);

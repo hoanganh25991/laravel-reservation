@@ -1,29 +1,31 @@
-const INIT_VIEW			= 'INIT_VIEW'
-const CHANGE_FORM_STEP	= 'CHANGE_FORM_STEP'
+const INIT_VIEW			= 'INIT_VIEW';
+const CHANGE_FORM_STEP	= 'CHANGE_FORM_STEP';
 
-const CHANGE_CUSTOMER_PHONE_COUNTRY_CODE = 'CHANGE_CUSTOMER_PHONE_COUNTRY_CODE'
-const CHANGE_OUTLET					= 'CHANGE_OUTLET'
-const CHANGE_ADULT_PAX				= 'CHANGE_ADULT_PAX'
-const CHANGE_CHILDREN_PAX			= 'CHANGE_CHILDREN_PAX'
-const HAS_SELECTED_DAY	            = 'HAS_SELECTED_DAY'
-const CHANGE_RESERVATION_DATE		= 'CHANGE_RESERVATION_DATE'
-const CHANGE_RESERVATION_TIME		= 'CHANGE_RESERVATION_TIME'
-const CHANGE_RESERVATION_CONFIRM_ID = 'CHANGE_RESERVATION_CONFIRM_ID'
-const CHANGE_AVAILABLE_TIME	        = 'CHANGE_AVAILABLE_TIME'
+const CHANGE_CUSTOMER_PHONE_COUNTRY_CODE = 'CHANGE_CUSTOMER_PHONE_COUNTRY_CODE';
+const CHANGE_OUTLET					= 'CHANGE_OUTLET';
+const CHANGE_ADULT_PAX				= 'CHANGE_ADULT_PAX';
+const CHANGE_CHILDREN_PAX			= 'CHANGE_CHILDREN_PAX';
+const HAS_SELECTED_DAY	            = 'HAS_SELECTED_DAY';
+const CHANGE_RESERVATION_DATE		= 'CHANGE_RESERVATION_DATE';
+const CHANGE_RESERVATION_TIME		= 'CHANGE_RESERVATION_TIME';
+const CHANGE_RESERVATION_CONFIRM_ID = 'CHANGE_RESERVATION_CONFIRM_ID';
+const CHANGE_AVAILABLE_TIME	        = 'CHANGE_AVAILABLE_TIME';
 
-const PAX_OVER 			= 'PAX_OVER'
-const AJAX_CALL			= 'AJAX_CALL'
-const DIALOG_SHOW_HIDE		= 'DIALOG_SHOW_HIDE'
-const DIALOG_HAS_DATA	= 'DIALOG_HAS_DATA'
-const DIALOG_HIDDEN		= 'DIALOG_HIDDEN'
-const DIALOG_EXCEED_MIN_EXIST_TIME = 'DIALOG_EXCEED_MIN_EXIST_TIME'
+const PAX_OVER 			= 'PAX_OVER';
+const AJAX_CALL			= 'AJAX_CALL';
+const DIALOG_SHOW_HIDE  = 'DIALOG_SHOW_HIDE';
+const DIALOG_HAS_DATA	= 'DIALOG_HAS_DATA';
+const DIALOG_HIDDEN		= 'DIALOG_HIDDEN';
+const DIALOG_EXCEED_MIN_EXIST_TIME = 'DIALOG_EXCEED_MIN_EXIST_TIME';
 
-const CHANGE_CUSTOMER_SALUTATION  = 'CHANGE_CUSTOMER_SALUTATION'
-const CHANGE_CUSTOMER_FIRST_NAME  = 'CHANGE_CUSTOMER_FIRST_NAME'
-const CHANGE_CUSTOMER_LAST_NAME	  = 'CHANGE_CUSTOMER_LAST_NAME'
-const CHANGE_CUSTOMER_EMAIL		  = 'CHANGE_CUSTOMER_EMAIL'
-const CHANGE_CUSTOMER_PHONE 	  = 'CHANGE_CUSTOMER_PHONE'
-const CHANGE_CUSTOMER_REMARKS	  = 'CHANGE_CUSTOMER_REMARKS'
+const CHANGE_CUSTOMER_SALUTATION  = 'CHANGE_CUSTOMER_SALUTATION';
+const CHANGE_CUSTOMER_FIRST_NAME  = 'CHANGE_CUSTOMER_FIRST_NAME';
+const CHANGE_CUSTOMER_LAST_NAME	  = 'CHANGE_CUSTOMER_LAST_NAME';
+const CHANGE_CUSTOMER_EMAIL		  = 'CHANGE_CUSTOMER_EMAIL';
+const CHANGE_CUSTOMER_PHONE 	  = 'CHANGE_CUSTOMER_PHONE';
+const CHANGE_CUSTOMER_REMARKS	  = 'CHANGE_CUSTOMER_REMARKS';
+
+const SYNC_RESERVATION = 'SYNC_RESERVATION';
 
 const AJAX_SEARCH_AVAILABLE_TIME  = 'AJAX_SEARCH_AVAILABLE_TIME';
 const AJAX_SUBMIT_BOOKING         = 'AJAX_SUBMIT_BOOKING';
@@ -120,6 +122,7 @@ class BookingForm {
 				case CHANGE_RESERVATION_DATE:
 				case CHANGE_RESERVATION_TIME:
 				case CHANGE_RESERVATION_CONFIRM_ID:
+				case SYNC_RESERVATION:
 					return Object.assign({}, state, {
 						reservation: self.reservationReducer(state.reservation, action)
 					});
@@ -335,6 +338,9 @@ class BookingForm {
 				return Object.assign({}, state, {
 					confirm_id: action.confirm_id
 				});
+			case SYNC_RESERVATION:
+				let new_state = Object.assign(state, action.reservation);
+				return new_state;
 			default:
 				return state;
 		}
@@ -828,6 +834,25 @@ class BookingForm {
 					clearTimeout(timeId);
 				}, state.dialog.min_exist_time);
 			});
+
+		/**
+		 * Handle payment success
+		 */
+		document.addEventListener('PAYPAL_PAYMENT_SUCCESS', (e)=>{
+			console.log(e);
+			let res = e.detail;
+
+			/**
+			 * in this case, res.data should contain reservation
+			 */
+			let reservation = res.data.reservation;
+			Object.assign(vue_state, {reservation});
+
+			store.dispatch({
+				type: SYNC_RESERVATION,
+				reservation,
+			});
+		});
 	}
 
 	ajaxCall(){
@@ -876,11 +901,18 @@ class BookingForm {
 				console.log(res);
 				//noinspection JSValidateTypes
 				if(res.statusMsg == AJAX_RESERVATION_SUCCESS_CREATE){
-					let data = res.data;
-					let {confirm_id} = data;
+					// let data = res.data;
+					// let {confirm_id} = data;
+					let reservation = res.data.reservation;
+					// let {confirm_id} = reservation;
+					// store.dispatch({
+					// 	type: CHANGE_RESERVATION_CONFIRM_ID,
+					// 	confirm_id,
+					// });
+					//update reservation
 					store.dispatch({
-						type: CHANGE_RESERVATION_CONFIRM_ID,
-						confirm_id,
+						type: SYNC_RESERVATION,
+						reservation,
 					});
 					return;
 				}
@@ -941,28 +973,38 @@ class BookingForm {
 
 				//noinspection JSValidateTypes
 				if(res.statusMsg == AJAX_RESERVATION_REQUIRED_DEPOSIT){
+					let reservation = res.data.reservation;
+					// let {confirm_id} = reservation;
+					// store.dispatch({
+					// 	type: CHANGE_RESERVATION_CONFIRM_ID,
+					// 	confirm_id,
+					// });
+					//update reservation
+					Object.assign(vue_state, {reservation});
+					
+					store.dispatch({
+						type: SYNC_RESERVATION,
+						reservation,
+					});
+
 					let data = res.data;
 					let msg = 'REQUIRED DEPOSIT, payment amount: ';
 					
-					store.dispatch({
-						type: CHANGE_RESERVATION_CONFIRM_ID,
-						confirm_id: data.confirm_id
-					});
-
 					// store.dispatch({
 					// 	type: CHANGE_RESERVATION_DEPOSIT,
 					// 	deposit: data.deposit
 					// });
-					let amount     = data.deposit
+					let amount     = reservation.deposit
+					let confirm_id = reservation.confirm_id;
 					let token      = data.paypal_token;
-					let confirm_id = data.confirm_id;
 
 					//noinspection ES6ModulesDependencies
 					let base_url = self.url('paypal');
 					let paypal_authorize = new PayPalAuthorize(token, {amount, confirm_id}, base_url);
-					self.vue.reservation.deposit = amount;
+					
+					//self.vue.reservation.deposit = amount;
 
-					$('#paypal-dialog').modal('show');
+					//$('#paypal-dialog').modal('show');
 					
 					console.log(msg, res.data);
 					//window.alert(msg);

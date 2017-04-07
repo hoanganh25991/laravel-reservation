@@ -42,6 +42,20 @@
             <td><label>Special Request:</label></td>
             <td><p>@{{ customer.remarks }}</p></td>
         </tr>
+        <tr v-show="reservation.payment_status == 100">
+            <td><label>Deposit Paid</label></td>
+            <td>
+                <p>$ @{{ reservation.deposit }}</p>
+                <p>Your deposit will be returned when you arrive for your reservation</p>
+            </td>
+        </tr>
+        <tr v-show="reservation.payment_status == 25">
+        {{--<tr>--}}
+            <td><label>Deposit Required</label></td>
+            <td>
+                @include('paypal.authorize')
+            </td>
+        </tr>
         </tbody>
     </table>
     <div class="form-actions cf bottom_room">

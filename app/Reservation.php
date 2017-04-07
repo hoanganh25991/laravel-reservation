@@ -70,6 +70,7 @@ use App\OutletReservationSetting as Setting;
  * @see App\Reservation::getConfirmationSMSMessageAttribute
  * @property double payment_amount
  * @property string payment_timestamp
+ * @property int $payment_status
  */
 class Reservation extends HoiModel {
 
@@ -86,6 +87,14 @@ class Reservation extends HoiModel {
     const USER_CANCELLED  = -100;
     const STAFF_CANCELLED = -200;
     const NO_SHOW         = -300;
+
+    /**
+     * Payment status
+     */
+    const PAYMENT_UNPAID         = 25;
+    const PAYMENT_REFUNDED       = 50;
+    const PAYMENT_PAID           = 100;
+    const PAYMENT_CHARGED        = 200;   
 
     protected $table = 'res_reservation';
 
@@ -107,7 +116,8 @@ class Reservation extends HoiModel {
      */
     protected $appends = [
         'confirm_id',
-        'send_confirmation_by_timestamp'
+        'send_confirmation_by_timestamp',
+        'deposit',
     ];
 
     /**
@@ -181,10 +191,14 @@ class Reservation extends HoiModel {
              * No status explicit bind, setup default
              */
             if(!isset($reservation->attributes['status'])){
+                //consider success reserved if no deposit required
                 $status = Reservation::RESERVED;
                 
                 if($reservation->requiredDeposit()){
                     $status = Reservation::REQUIRED_DEPOSIT;
+
+                    //implicit tell payment_status as unpaid
+                    $reservation->payment_status = Reservation::PAYMENT_UNPAID;
                 }
 
                 $reservation->status = $status;

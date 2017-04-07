@@ -538,11 +538,11 @@ class BookingController extends HoiController {
                      * Case: Reservation with deposit require
                      */
                     if($reservation->requiredDeposit()){
-                        $deposit      = $reservation->deposit;
-                        $confirm_id   = $reservation->confirm_id;
+                        //$deposit      = $reservation->deposit;
+                        //$confirm_id   = $reservation->confirm_id;
                         $paypal_token = (new PayPalController)->generateToken();
 
-                        $data = compact('confirm_id', 'deposit', 'paypal_token');
+                        $data = compact('reservation', 'paypal_token');
                         $code = 422;
                         $msg  = Call::AJAX_RESERVATION_REQUIRED_DEPOSIT;
                         break;
@@ -554,7 +554,8 @@ class BookingController extends HoiController {
                      */
                     $confirm_id =  $reservation->confirm_id;
 
-                    $data = compact('confirm_id');
+                    //$data = compact('confirm_id');
+                    $data = compact('reservation');
                     $code = 200;
                     $msg  = Call::AJAX_RESERVATION_SUCCESS_CREATE;
                     break;

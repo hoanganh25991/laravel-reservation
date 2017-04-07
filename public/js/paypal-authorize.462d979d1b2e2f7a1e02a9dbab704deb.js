@@ -86,9 +86,10 @@ var PayPalAuthorize = function () {
 								success: function success(res) {
 									console.log(res);
 									if (res.statusMsg == AJAX_PAYMENT_REQUEST_SUCCESS) {
-										$('#paypal-dialog').modal('hide');
+										//$('#paypal-dialog').modal('hide');
 										console.log(res);
 										console.log('success payment');
+										document.dispatchEvent(new CustomEvent('PAYPAL_PAYMENT_SUCCESS', { detail: res }));
 										return;
 									}
 								},
