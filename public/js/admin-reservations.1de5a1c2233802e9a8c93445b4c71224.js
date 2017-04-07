@@ -50,6 +50,14 @@ var AJAX_ERROR = 'AJAX_ERROR';
 var AJAX_VALIDATE_FAIL = 'AJAX_VALIDATE_FAIL';
 var AJAX_REFETCHING_DATA_SUCCESS = 'AJAX_REFETCHING_DATA_SUCCESS';
 
+/**
+ * Payment status
+ */
+var PAYMENT_UNPAID = 25;
+var PAYMENT_REFUNDED = 50;
+var PAYMENT_PAID = 100;
+var PAYMENT_CHARGED = 200;
+
 var AdminReservations = function () {
 	/**
   * @namespace Redux
@@ -280,6 +288,40 @@ var AdminReservations = function () {
        * When handle action in this way
        */
 						self.ajax_call(action);
+					},
+					_updateReservationPayment: function _updateReservationPayment(e) {
+						console.log(e);
+						var vue = this;
+						var button = e.target;
+						if (button.tagName == 'BUTTON') {
+							try {
+								var action = button.getAttribute('action');
+								var reservation_index = button.getAttribute('reservation-index');
+
+								var reservation = vue.reservations[reservation_index];
+
+								var payment_status = void 0;
+								switch (action) {
+									default:
+										payment_status = PAYMENT_REFUNDED;
+										break;
+									case 'refund':
+										payment_status = PAYMENT_REFUNDED;
+										break;
+									case 'charge':
+										payment_status = PAYMENT_CHARGED;
+										break;
+								}
+
+								reservation.payment_status = payment_status;
+
+								e.stopPropagation();
+
+								store.dispatch({
+									type: UPDATE_RESERVATIONS
+								});
+							} catch (e) {}
+						}
 					}
 				}
 

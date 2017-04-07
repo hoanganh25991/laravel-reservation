@@ -3,7 +3,7 @@
     <div id='app'>
         {{--@include('admin.navigator')--}}
         <div class="row">
-            <div class="col-md-10 col-md-offset-1">
+            <div class="col-md-11 col-md-offset-1">
                 @verbatim
                 <div class="modal-content">
                     <div class="modal-header">
@@ -26,6 +26,7 @@
                                     <th>Customer Remarks</th>
                                     <th>Staff Remarks</th>
                                     <th>Status</th>
+                                    <th>Deposit</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -81,6 +82,16 @@
                                                 <option value="-200" class="bg-warning">Staff cancelled</option>
                                                 <option value="-300" class="bg-danger">No show</option>
                                             </select>
+                                        </td>
+                                        <td>
+                                            <div v-show="reservation.payment_status == 100">
+                                                <button action="refund" :reservation-index='reservation_index'  class="bg-info"
+                                                    v-on:click="_updateReservationPayment"
+                                                >Refund</button>
+                                                <button action="charge" :reservation-index='reservation_index' class="bg-danger"
+                                                    v-on:click="_updateReservationPayment"
+                                                >Charge</button>
+                                            </div>
                                         </td>
                                     </tr>
                                 </template>

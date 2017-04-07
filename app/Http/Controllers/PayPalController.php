@@ -1,12 +1,14 @@
 <?php
 namespace App\Http\Controllers;
 
+use Braintree\Transaction;
 use Carbon\Carbon;
 use App\Reservation;
 use Braintree\Gateway;
 use App\Traits\ApiResponse;
 use App\Http\Requests\ApiRequest;
 use App\Libraries\HoiAjaxCall as Call;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use App\OutletReservationSetting as Setting;
 
@@ -139,6 +141,79 @@ class PayPalController extends HoiController{
         }
 
         return $this->apiResponse($data, $code, $msg);
+    }
+
+    /**
+     * Refund a transaction
+     * This means that if the transaction still not settle down
+     * >>> VOID IT
+     * >>> TOTALLY SETTLE DOWN > REFUND
+     * @param $trasaction_id
+     * @return bool
+     */
+    public static function refund($trasaction_id){
+        /**
+         * Check status to call void or refund
+         */
+        $paypal_controller = new PayPalController;
+        try{
+            $transaction = $paypal_controller->gateway->transaction()->find($trasaction_id);
+
+            switch($transaction->escrowStatus){
+                case Transaction::ESCROW_HOLD_PENDING:
+                    $result = $paypal_controller->gateway->transaction()->void($trasaction_id);
+                    break;
+                case Transaction::ESCROW_RELEASED:
+                    $result = $paypal_controller->gateway->transaction()->refund($trasaction_id);
+                    break;
+//                default:
+//                    $result = (object)[
+//                        'success' => false
+//                    ];
+//                    break;
+            }
+
+            if($result->success){
+                return true;
+            }else{
+                //log error
+                Log::info('fail refund');
+                return false;
+            }
+        //exception throw when no transaction found
+        }catch(\Exception $e){
+            //log or do sth with error
+            Log::info('fail find transaction');
+            return false;
+        }
+        //debug here to review transaction
+
+        return false;
+    }
+
+    /**
+     * Charge a transaction or capture|settle down it
+     * A transaction when create for help customer can get refund
+     * Default status as pending
+     * @param $trasaction_id
+     * @return bool
+     */
+    public static function charge($trasaction_id){
+        /**
+         * Settle it down to get money
+         */
+        $result = (new PayPalController)->gateway->transaction()->submitForSettlement($trasaction_id);
+
+        if($result->success){
+            return true;
+        }else{
+            $error = var_export($result->errors);
+            Log::info('charge fail');
+            return false;
+            //log or do sth
+        }
+
+        return false;
     }
 
 }

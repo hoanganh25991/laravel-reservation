@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Http\Controllers\PayPalController;
 use Carbon\Carbon;
 //use Hashids\Hashids;
 use App\Traits\ApiUtils;
@@ -166,7 +167,8 @@ class Reservation extends HoiModel {
         'payment_timestamp',
         'payment_amount',
         'payment_required',
-        'is_outdoor'
+        'payment_status',
+        'is_outdoor',
     ];
 
 
@@ -216,6 +218,44 @@ class Reservation extends HoiModel {
              * @should resent SMS
              * To info customer what updated
              */
+        });
+
+        self::saving(function(Reservation $reservation){
+            /**
+             * It's time to de refund/charge
+             * When status change
+             */
+            /**
+             * How to compare if it changed
+             * PAID > REFUNDED
+             * PAID > CHARGED
+             */
+            $previous_state = $reservation->getOriginal('payment_staus');
+            //Only handle when state change
+            if($previous_state == Reservation::PAYMENT_PAID){
+                $transaction_id = $reservation->payment_id;
+                
+                $success = false;
+                switch($reservation->payment_status){
+                    case Reservation::PAYMENT_REFUNDED:
+                        $success = PayPalController::refund($transaction_id);
+                        break;
+                    case Reservation::PAYMENT_CHARGED:
+                        $success = PayPalController::charge($transaction_id);
+                        break;
+                    default:
+                        break;
+                }
+                
+                if(!$success){
+                    //restore status
+                    $reservation->payment_status = $previous_state;
+                }
+                
+                //when return as false
+                //we explicit tell discard save record to DB
+                return true;
+            }
         });
 
         static::orderByRerservationTimestamp();
@@ -452,7 +492,8 @@ class Reservation extends HoiModel {
             return $val;
         }
         
-        throw new \Exception('Should not call deposit on reservation which not required');
+        //throw new \Exception('Should not call deposit on reservation which not required');
+        return null;
     }
 
     /**
