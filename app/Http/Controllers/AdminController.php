@@ -114,7 +114,7 @@ class AdminController extends HoiController {
         $notification = $setting_controller->fetchUpdateNotifications();
         $settings     = $setting_controller->fetchUpdateSettings();
         $deposit      = $setting_controller->fetchUpdateDeposit();
-        
+        $outlets      = Outlet::all();
     
         $state = [
             'base_url'         => url(''),
@@ -127,6 +127,7 @@ class AdminController extends HoiController {
             'admin_step'       => 'weekly_sessions_view',
 			'deleted_sessions' => [],
 			'deleted_timings'  => [],
+            'outlets'          => $outlets,
         ];
 
         if($req->fromApiGroup()){

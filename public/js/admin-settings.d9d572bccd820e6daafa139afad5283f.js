@@ -232,11 +232,11 @@ var AdminSettings = function () {
 		value: function defaultState() {
 			var default_state = window.state || {};
 
-			if (window.outlets) {
-				default_state = Object.assign(default_state, {
-					outlets: window.outlets
-				});
-			}
+			// if(window.outlets){
+			// 	default_state = Object.assign(default_state, {
+			// 		outlets: window.outlets
+			// 	})
+			// }
 			var frontend_state = {
 				init_view: false,
 				// admin_step: 'weekly_sessions',

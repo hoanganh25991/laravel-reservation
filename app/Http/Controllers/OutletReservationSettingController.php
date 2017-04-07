@@ -163,7 +163,7 @@ class OutletReservationSettingController extends Controller {
         $settings = Setting::buildKeyValueOfConfig($settings_config, $settings_keys);
 
         $user_controller= new UserController;
-        $users        = $user_controller->fetchUsers();
+        $users          = $user_controller->fetchUsers();
         //eassign under setting config
         $settings['users'] = $users;
 
