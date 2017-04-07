@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use App\ReservationUser;
 use Illuminate\Support\Facades\Auth;
+use App\OutletReservationSetting as Setting;
 
 class Reservations
 {
@@ -29,6 +30,13 @@ class Reservations
         
 
         if($user->isReservations()){
+            $brand_id = $user->brand_id;
+            if(is_null($brand_id)){
+                throw new \Exception('User not assigned brand_id, can not determine allowed him move on or not');
+            }
+            //Have to inject
+            Setting::injectBrandId($brand_id);
+
             return $next($request);
         }
 
