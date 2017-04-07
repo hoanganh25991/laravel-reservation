@@ -326,13 +326,27 @@ class OutletReservationSetting extends HoiModel{
         return Setting::getConfigGroup(Setting::DEPOSIT_GROUP);
     }
 
+
+    /**
+     * Inject "brand_id"
+     * for global scope query
+     * @param $brand_id
+     */
+    public static function injectBrandId($brand_id = 1){
+        //BRAND_ID hard-code in .env file
+        //return env(Setting::BRAND_ID, Setting::DEFAULT_BRAND_ID);
+        session(compact('brand_id'));
+    }
+
     /**
      * Get "brand_id"
      * Only handlde outlets under this brand
      */
     public static function brandId(){
         //BRAND_ID hard-code in .env file
-        return env(Setting::BRAND_ID, Setting::DEFAULT_BRAND_ID);
+        //return env(Setting::BRAND_ID, Setting::DEFAULT_BRAND_ID);
+        /** @warn submit default is FINE, but we never know what if no brand_id found */
+        return session('brand_id', 1);
     }
 
     /**

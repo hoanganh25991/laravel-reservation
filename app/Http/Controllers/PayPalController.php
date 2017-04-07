@@ -1,10 +1,10 @@
 <?php
 namespace App\Http\Controllers;
 
-use Braintree\Transaction;
 use Carbon\Carbon;
 use App\Reservation;
 use Braintree\Gateway;
+use Braintree\Transaction;
 use App\Traits\ApiResponse;
 use App\Http\Requests\ApiRequest;
 use App\Libraries\HoiAjaxCall as Call;

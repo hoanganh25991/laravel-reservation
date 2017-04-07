@@ -20,6 +20,8 @@ Route::get('logout', function (){
     return redirect('');
 });
 
+
+
 /**
  * Routes for Booking
  */
@@ -218,3 +220,9 @@ Route::get('test', function (App\Http\Controllers\BookingController $c, App\Http
     return $hour_before;
 });
 
+/**
+ * Fix explicit tell which brand_id used
+ */
+Route::get('{brand_id}/{go?}', function($brand_id, $go){
+    return compact('brand_id', 'go');
+});
