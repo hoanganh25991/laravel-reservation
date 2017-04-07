@@ -572,7 +572,8 @@ class BookingController extends HoiController {
          * Base on that frontend client render
          */
         $state = [
-            'base_url' => url('')
+            'base_url' => url(''),
+            'outlets'  => $outlets
         ];
 
         /**
@@ -590,18 +591,15 @@ class BookingController extends HoiController {
             $overall_min_pax = $setting_config(Setting::OVERALL_MIN_PAX);
             $overall_max_pax = $setting_config(Setting::OVERALL_MAX_PAX);
 
-            $state = [
-                'overall_min_pax' => $overall_min_pax,
-                'overall_max_pax' => $overall_max_pax
-            ];
-            
-            
+            $state['overall_min_pax'] = $overall_min_pax;
+            $state['overall_max_pax'] = $overall_max_pax;
+
             $state['outlet'] = [
-                'id' => $outlet_x->id,
+                'id'   => $outlet_x->id,
                 'name' => $outlet_x->outlet_name
             ];
         }
 
-        return view('reservations.booking-form', compact('outlets', 'state'));
+        return view('reservations.booking-form', compact('state'));
     }
 }

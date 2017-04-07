@@ -15,9 +15,12 @@
                 <div id="check-availability" class="content">
                     <div class="rid-select">
                         <select name="outlet_id" id="rid" title="spize" class="form-control" :value="outlet.id">
-                            @foreach($outlets as $outlet)
-                                <option value="{{ $outlet->id }}">{{ $outlet->name }}</option>
-                            @endforeach
+                            {{--@foreach($outlets as $outlet)--}}
+                                {{--<option value="{{ $outlet->id }}">{{ $outlet->name }}</option>--}}
+                            {{--@endforeach--}}
+                            <template v-for="(outlet, outlet_index) in outlets">
+                                <option :value="outlet.id">@{{ outlet.outlet_name }}</option>
+                            </template>
                         </select>
                     </div>
                     @verbatim
