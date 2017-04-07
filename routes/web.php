@@ -22,31 +22,13 @@ Route::get('logout', function (){
 
 /**
  * Fix explicit tell which brand_id used
+ * @param $brand_id
+ * @param $go
+ * @param \App\Http\Requests\ApiRequest $req
  */
 //Route::get('{brand_id}/{go?}', function($brand_id, $go){
 //    return compact('brand_id', 'go');
 //});
-
-Route::get('{brand_id}/{go?}', function($brand_id, $go){
-    \App\OutletReservationSetting::injectBrandId($brand_id);
-
-    switch($go){
-        case 'booking':
-            //(new \App\Http\Controllers\BookingController)->getBookingForm();
-            $reponse = (new \App\Http\Controllers\BookingController)->getBookingForm();
-            break;
-        case '':
-            //(new \App\Http\Controllers\BookingController)->getBookingForm();
-            $reponse = (new \App\Http\Controllers\BookingController)->getBookingForm();
-            break;
-        default:
-            $reponse = ['go' => 'bac'];
-            break;
-    }
-
-    return $reponse;
-});
-
 /**
  * Routes for Booking
  */
@@ -245,3 +227,52 @@ Route::get('test', function (App\Http\Controllers\BookingController $c, App\Http
     return $hour_before;
 });
 
+/**
+ *
+ *
+ *
+ *
+ *
+ * Inject brand id in route
+ */
+/**
+ * Routes for Booking
+ */
+Route::get('{brand_id}', 'BookingController@getBookingForm');
+Route::post('{brand_id}', 'BookingController@getBookingForm');
+
+Route::get('{brand_id}/home', 'BookingController@getBookingForm');
+Route::post('{brand_id}/home', 'BookingController@getBookingForm');
+
+/**
+ * Routes for Admin page
+ */
+Route::group([
+    'middleware' => 'staff',
+], function (){
+    Route::get('{brand_id}/admin', 'AdminController@getDashboard')->name('admin');
+    Route::post('{brand_id}/admin', 'AdminController@setUpOuletId');
+
+    Route::group(['middleware' => 'reservations'], function (){
+        Route::get('{brand_id}/admin/reservations', 'AdminController@getReservationDashboard');
+        Route::post('{brand_id}/admin/reservations', 'AdminController@getReservationDashboard');
+    });
+
+    Route::group(['middleware' => 'administrator'], function (){
+        Route::get('{brand_id}/admin/settings', 'AdminController@getSettingsDashboard');
+        Route::post('{brand_id}/admin/settings', 'AdminController@getSettingsDashboard');
+    });
+});
+
+
+/**
+ * Handle update post from admin page
+ */
+Route::group(['middleware' => 'administrator'], function (){
+    Route::post('{brand_id}/sessions', 'SessionController@update');
+    Route::post('{brand_id}/outlet-reservation-settings', 'OutletReservationSettingController@update');
+});
+
+Route::group(['middleware' => 'staff'], function (){
+    Route::post('{brand_id}/reservations', 'ReservationController@update');
+});

@@ -25,12 +25,14 @@ class AdminController extends HoiController {
         $user = Auth::user();
         $outlet_ids = $user->allowedOutletIds();
         $outlets    = Outlet::whereIn('id', $outlet_ids)->get();
+        $brand_id   = Setting::brandId();
 
         $state = [
             'outlets'         => $outlets,
             'selected_outlet' => null,
             'base_url'        => url(''),
             'user'            => $user,
+            'brand_id'       => $brand_id,
         ];
 
         return view('admin.index')->with(compact('state'));

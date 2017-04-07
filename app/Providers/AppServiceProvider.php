@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
+use App\OutletReservationSetting as Setting;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -54,7 +55,9 @@ class AppServiceProvider extends ServiceProvider
                 $outlets = Outlet::whereIn('id', $user->allowedOutletIds())->get();
             }
             
-            $view->with(compact('outlets'));            
+            $brand_id = Setting::brandId();
+            
+            $view->with(compact('outlets', 'brand_id'));            
         });
     }
 
