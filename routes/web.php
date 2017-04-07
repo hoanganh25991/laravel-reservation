@@ -108,8 +108,8 @@ Route::group([
         'prefix' => 'admin'
     ], function (){
         //bring admin out of
-        Route::get('', 'AdminController@getDashboard')->name('admin');
-        Route::post('', 'AdminController@setUpOuletId');
+//        Route::get('', 'AdminController@getDashboard')->name('admin');
+//        Route::post('', 'AdminController@setUpOuletId');
 
         Route::group(['middleware' => 'reservations'], function (){
             Route::get('reservations', 'AdminController@getReservationDashboard');
@@ -243,36 +243,3 @@ Route::post('{brand_id}', 'BookingController@getBookingForm');
 
 Route::get('{brand_id}/home', 'BookingController@getBookingForm');
 Route::post('{brand_id}/home', 'BookingController@getBookingForm');
-
-/**
- * Routes for Admin page
- */
-Route::group([
-    'middleware' => 'staff',
-], function (){
-    Route::get('{brand_id}/admin', 'AdminController@getDashboard')->name('admin');
-    Route::post('{brand_id}/admin', 'AdminController@setUpOuletId');
-
-    Route::group(['middleware' => 'reservations'], function (){
-        Route::get('{brand_id}/admin/reservations', 'AdminController@getReservationDashboard');
-        Route::post('{brand_id}/admin/reservations', 'AdminController@getReservationDashboard');
-    });
-
-    Route::group(['middleware' => 'administrator'], function (){
-        Route::get('{brand_id}/admin/settings', 'AdminController@getSettingsDashboard');
-        Route::post('{brand_id}/admin/settings', 'AdminController@getSettingsDashboard');
-    });
-});
-
-
-/**
- * Handle update post from admin page
- */
-Route::group(['middleware' => 'administrator'], function (){
-    Route::post('{brand_id}/sessions', 'SessionController@update');
-    Route::post('{brand_id}/outlet-reservation-settings', 'OutletReservationSettingController@update');
-});
-
-Route::group(['middleware' => 'staff'], function (){
-    Route::post('{brand_id}/reservations', 'ReservationController@update');
-});

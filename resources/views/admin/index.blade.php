@@ -89,7 +89,7 @@
                     success(res){
                         if(res.statusMsg == AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS){
 
-                            window.location.href = vue._url(`${vue.brand_id}/admin/reservations`);
+                            window.location.href = vue._url('admin/reservations');
 //                            break;
                         }
 

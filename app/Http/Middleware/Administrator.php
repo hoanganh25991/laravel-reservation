@@ -2,18 +2,20 @@
 
 namespace App\Http\Middleware;
 
-use App\ReservationUser;
 use Closure;
+use App\ReservationUser;
 use Illuminate\Support\Facades\Auth;
+use App\OutletReservationSetting as Setting;
 
 class Administrator
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param  \Illuminate\Http\Request $request
+     * @param  \Closure $next
      * @return mixed
+     * @throws \Exception
      */
     public function handle($request, Closure $next){
         /** @var ReservationUser $user */
@@ -24,6 +26,13 @@ class Administrator
         }
 
         if($user->isAdministrator()){
+            $brand_id = $user->brand_id;
+            if(is_null($brand_id)){
+                throw new \Exception('User not assigned brand_id, can not determine allowed him move on or not');
+            }
+            //Have to inject
+            Setting::injectBrandId($brand_id);
+
             return $next($request);
         }
 

@@ -2,8 +2,12 @@
 
 namespace App;
 
+use Illuminate\Http\Request;
+use App\Http\Requests\ApiRequest;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Notifications\Notifiable;
+use App\OutletReservationSetting as Setting;
 
 /**
  * @property string password_hash
@@ -15,7 +19,8 @@ use Illuminate\Notifications\Notifiable;
  * @see App\ReservationUser::getPermissionLevelAttribute
  *
  * @property mixed id
- * 
+ * @property mixed brand_id
+ *
  * @method notAdministrator
  * @see App\ReservationUser::scopeNotAdministrator
  * 
@@ -55,6 +60,28 @@ class ReservationUser extends User {
     protected $table = 'res_outlet_reservation_user';
 
     protected $rememberTokenName = 'secret_token';
+
+    /**
+     * Inject into boot process
+     * To modify on query scope or
+     * Listen eloquent event : creating, saving, updating,...
+     */
+    protected static function boot() {
+        parent::boot();
+
+        /**
+         * Why have to check if on $req
+         * Bcs when validate login user
+         * this global scope whill kill us
+         */
+        $req = app()->make(Request::class);
+        $not_scope_brand_id = $req && preg_match('/login/', $req->url());
+        if(!$not_scope_brand_id){
+            static::byBrandId();
+        }else{
+            Log::info($req->url());
+        }
+    }
 
     public function getAuthPassword() {
         return $this->password_hash;
@@ -98,7 +125,11 @@ class ReservationUser extends User {
      * Users in this role can modify on reservations
      */
     public function isReservations(){
-        return $this->permission_level == ReservationUser::RESERVATIONS;
+        $is_reservations     = $this->permission_level == ReservationUser::RESERVATIONS;
+        $goto_allowed_outlet = in_array(Setting::outletId(), $this->outlet_ids);
+
+        $allowed = $is_reservations && $goto_allowed_outlet;
+        return $allowed;
     }
 
     /**
@@ -106,7 +137,11 @@ class ReservationUser extends User {
      * Users has this role can modify all configs
      */
     public function isAdministrator(){
-        return $this->permission_level == ReservationUser::ADMINISTRATOR;
+        $is_admin = $this->permission_level == ReservationUser::ADMINISTRATOR;
+        $goto_allowed_outlet = in_array(Setting::outletId(), $this->outlet_ids);
+
+        $allowed  = $is_admin && $goto_allowed_outlet;
+        return $allowed;
     }
 
     /**

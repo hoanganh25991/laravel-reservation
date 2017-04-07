@@ -3,16 +3,16 @@
         <div class="row">
             <div class="col-md-2">
                 <div class="navbar-header">
-                    <a class="navbar-brand" href="{{ url('', [$brand_id, 'admin']) }}">Admin Page</a>
+                    <a class="navbar-brand" href="{{ url('admin') }}">Admin Page</a>
                 </div>
             </div>
 
             <div class="col-md-10">
                 <div id="navbar" class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
-                        <li><a href="{{ url('',  [$brand_id, 'admin', 'reservations']) }}">Reservations</a></li>
+                        <li><a href="{{ url('admin/reservations') }}">Reservations</a></li>
                         {{--<li><a href="#customers_content"         >Customers</a></li>--}}
-                        <li><a href="{{ url('', [$brand_id, 'admin', 'settings']) }}">Settings</a></li>
+                        <li><a href="{{ url('admin/settings') }}">Settings</a></li>
                     </ul>
 
 
@@ -51,36 +51,36 @@
     </div><!--/.container-fluid -->
 </nav>
 <script>@php
-    $outlets_json = json_encode($outlets);
-    $admin_url    = json_encode(url('admin'));
-    echo "window.outlets = $outlets_json;";
-@endphp</script>
+        $outlets_json = json_encode($outlets);
+        $admin_url    = json_encode(url('admin'));
+        echo "window.outlets = $outlets_json;";
+    @endphp</script>
 @push('before-body')
-    <script>
-        /**
-         * @warn
-         * @warn
-         * @warn
-         * dangerous code
-         */
-        (function(){
-            //let outlets = window.outlets;
-            new Vue({
-                el: '#outlet_select',
-                data(){
-                    return outlets;
-                },
-                methods: {
-                    _switchOutlet(e){
-                        let a = e.target;
-                        if(a.tagName == 'A'){
-                            let outlet_id = a.getAttribute('outlet-id');
-                            let data = {outlet_id};
-                            document.dispatchEvent(new CustomEvent('switch-outlet', {detail: data}));
-                        }
+<script>
+    /**
+     * @warn
+    * @warn
+    * @warn
+    * dangerous code
+     */
+    (function(){
+        //let outlets = window.outlets;
+        new Vue({
+            el: '#outlet_select',
+            data(){
+                return outlets;
+            },
+            methods: {
+                _switchOutlet(e){
+                    let a = e.target;
+                    if(a.tagName == 'A'){
+                        let outlet_id = a.getAttribute('outlet-id');
+                        let data = {outlet_id};
+                        document.dispatchEvent(new CustomEvent('switch-outlet', {detail: data}));
                     }
                 }
-            });
-        })();
-    </script>
+            }
+        });
+    })();
+</script>
 @endpush
