@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Brand;
 use Carbon\Carbon;
 use App\Reservation;
 use Braintree\Gateway;
@@ -21,7 +22,16 @@ class PayPalController extends HoiController{
     
     public function __construct(){
         //get token from config
-        $access_token = env('PAYPAL_ACCESS_TOKEN');
+        //$access_token = env('PAYPAL_ACCESS_TOKEN');
+        $brand_id = Setting::brandId();
+        /** @var Brand $brand */
+        $brand    = Brand::find($brand_id);
+
+        if(is_null($brand)){
+            throw new \Exception("Paypal can not find brand with id $brand_id");
+        }
+
+        $access_token = $brand->paypal_token;
         
         if(is_null($access_token)){
             throw new \Exception('Paypal access token not found');
