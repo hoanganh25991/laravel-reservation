@@ -1,4 +1,8 @@
 <?php
+use App\Http\Requests\ApiRequest;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\BookingController;
+use App\OutletReservationSetting as Setting;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,9 +24,9 @@ Route::get('logout', 'Auth\LoginController@hoiLogout')->name('logout');
 /**
  * Handle booking
  */
-Route::get('{brand_id}', 'BookingController@getBookingForm');
-Route::post('{brand_id}', 'BookingController@getBookingForm');
-
+//Route::match(['get', 'post'], '{brand_id}', 'BookingController@getBookingForm')->where('brand_id', '[0-9]+');
+Route::get('{brand_id}', 'BookingController@getBookingForm')->where('brand_id', '[0-9]+');
+Route::post('{brand_id}', 'BookingController@getBookingForm')->where('brand_id', '[0-9]+');
 Route::get('reservations/thank-you', 'ReservationController@getThankYouPage')->name('reservation_thank_you');
 Route::get('reservations/{confirm_id}', 'ReservationController@getConfirmPage')->name('reservation_confirm');
 Route::post('reservations/{confirm_id}', 'ReservationController@getConfirmPage');
@@ -30,8 +34,12 @@ Route::post('reservations/{confirm_id}', 'ReservationController@getConfirmPage')
 /**
  * Routes for Admin page
  */
-Route::group(['middleware' => 'staff'], function (){
-    //admin home page
+/**
+ * Brand id inject through user
+ * When he logined in
+ * @see App\ReservationUser::injectBrandId
+ */
+Route::group(['middleware' => 'reservations'], function (){
     Route::get('admin', 'AdminController@getDashboard')->name('admin');
     Route::post('admin', 'AdminController@setUpOuletId');
     //reservations detail
@@ -163,15 +171,3 @@ Route::get('test', function (App\Http\Controllers\BookingController $c, App\Http
             false);
     return $hour_before;
 });
-
-/**
- *
- *
- *
- *
- *
- * Inject brand id in route
- */
-/**
- * Routes for Booking
- */

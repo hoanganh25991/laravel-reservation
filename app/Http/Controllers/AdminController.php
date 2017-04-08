@@ -18,13 +18,31 @@ class AdminController extends HoiController {
     use ApiResponse;
 
     /**
+     * AdminController constructor.
+     * Brand id implicit inject when get into admin page
+     * These function FINE, but not good
+     * Current logic base on res_outlet_reservation_user
+     * Have to accept _._!
+     */
+    public function __construct(){
+        /**
+         * CAN'T access user here
+         * BCS after this instance, middleware start run
+         * ONLY after middleware run, we have $user
+         */
+//        $user = Auth::user();
+//        $user->injectBrandId();
+    }
+
+    /**
      * @return $this
      */
     public function getDashboard(){
         /** @var ReservationUser $user */
         $user = Auth::user();
-        $outlet_ids = $user->allowedOutletIds();
-        $outlets    = Outlet::whereIn('id', $outlet_ids)->get();
+        $user->injectBrandId();
+
+        $outlets    = $user->outletsCanAccess();
         $brand_id   = Setting::brandId();
 
         $state = [
@@ -66,8 +84,14 @@ class AdminController extends HoiController {
     /**
      * @param ApiRequest $req
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @throws \Exception
      */
     public function getReservationDashboard(ApiRequest $req){
+        /** @var ReservationUser $user */
+        $user = Auth::user();
+        $user->injectBrandId();
+
+        $this->resolveOutletIdToInject();
         /**
          * Reservations
          */
@@ -99,6 +123,11 @@ class AdminController extends HoiController {
      * @return $this
      */
     public function getSettingsDashboard(ApiRequest $req){
+        /** @var ReservationUser $user */
+        $user = Auth::user();
+        $user->injectBrandId();
+
+        $this->resolveOutletIdToInject();
         /**
          * Sessions data
          */
@@ -147,5 +176,25 @@ class AdminController extends HoiController {
         }
 
         return view('admin.settings')->with(compact('state'));
+    }
+
+    public function resolveOutletIdToInject(){
+        /**
+         * These code is DANGEROUS, bcs it base on SESSION
+         * which will lose it strength when work standalone with frontend api
+         */
+        $outlet_id = session('outlet_id');
+
+        if(is_null($outlet_id)){
+            /** @var ReservationUser $user */
+            $user = Auth::user();
+            $outlet_id = $user->allowedOutletIds()->first();
+
+            if(is_null($outlet_id)){
+                throw new \Exception('Can\'t resolve outlet_id to move on');
+            }
+        }
+
+        Setting::injectOutletId($outlet_id);
     }
 }

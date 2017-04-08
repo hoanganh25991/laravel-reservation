@@ -33,7 +33,7 @@ class HoiModel extends Model {
     /**
      * Global scope query by brand id
      */
-    protected static function byBrandId(){
+    public static function byBrandId(){
         static::addGlobalScope('brand_id', function(Builder $buidler){
             $brand_id = Setting::brandId();
             $buidler->where('brand_id', $brand_id);

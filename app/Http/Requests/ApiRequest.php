@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\OutletReservationSetting as Setting;
 
 class ApiRequest extends FormRequest
 {
@@ -13,14 +12,6 @@ class ApiRequest extends FormRequest
      * @return bool
      */
     public function authorize(){
-//        return false;
-//        $this->uri
-        $brand_id = $this->route('brand_id');
-        
-        if(is_numeric($brand_id)){
-            Setting::injectBrandId($brand_id);
-        }
-        
         return true;
     }
 

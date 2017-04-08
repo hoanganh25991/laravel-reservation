@@ -270,8 +270,13 @@ class OutletReservationSetting extends HoiModel{
     /**
      * Set up global query scope "outlet_id"
      * @param $outlet_id
+     * @throws \Exception
      */
     public static function injectOutletId($outlet_id){
+        if(!is_numeric($outlet_id)){
+            throw new \Exception('Brand id to inject MUST BE A NUMBER');
+        }
+        
         Setting::$outlet_id = $outlet_id;
     }
 
@@ -331,8 +336,13 @@ class OutletReservationSetting extends HoiModel{
      * Inject "brand_id"
      * for global scope query
      * @param $brand_id
+     * @throws \Exception
      */
     public static function injectBrandId($brand_id){
+        if(!is_numeric($brand_id)){
+            throw new \Exception('Brand id to inject MUST BE A NUMBER');    
+        }
+        
         Setting::$brand_id = $brand_id;
     }
 

@@ -39,35 +39,7 @@ class BookingController extends HoiController {
     public $recalculate = false;
 
     /** @var array booking_condition */
-    public $booking_condition = [
-        'outlet_id'  => 1,
-        'adult_pax' => 1,
-        'children_pax' => 0,
-    ];
-
-    /**
-     * Store customer booking condition in property
-     * Easy to access through filter availableTime
-     * @param array $condition
-     * @see BookingController::availableTime
-     */
-    public function setUpBookingConditions($condition = []){
-        $condition =
-            array_merge([
-                'outlet_id'    => 0,
-                'adult_pax'    => 0,
-                'children_pax' => 0,
-            ], $condition);
-
-        /**
-         * Store Outlet in session for reuse as global query scope
-         */
-        $outlet_id = $condition['outlet_id'];
-        //session(compact('outlet_id'));
-        Setting::injectOutletId($outlet_id);
-
-        $this->booking_condition = $condition;
-    }
+    public $booking_condition = null;
 
     public function bookingPaxSize(){
         return $this->booking_condition['adult_pax'] + $this->booking_condition['children_pax'];
@@ -90,6 +62,22 @@ class BookingController extends HoiController {
         ]);
         
         return $validator;
+    }
+
+    /**
+     * Store customer booking condition in property
+     * Easy to access through filter availableTime
+     * @param array $condition
+     * @see BookingController::validateBookingCondition
+     * @see BookingController::availableTime
+     */
+    public function setUpBookingConditions($condition = []){
+        /**
+         * Store Outlet in session for reuse as global query scope
+         */
+        Setting::injectOutletId($condition['outlet_id']);
+
+        $this->booking_condition = $condition;
     }
 
     public function bookingStillAvailable(ApiRequest $req){
@@ -564,17 +552,17 @@ class BookingController extends HoiController {
             return $this->apiResponse($data, $code, $msg);
         }
 
-        //Handle get
-        $outlets = Outlet::all();
-
         /**
-         * Server state
-         * Base on that frontend client render
+         * Inject Brand id through route uri
          */
-        $state = [
-            'base_url' => url(''),
-            'outlets'  => $outlets
-        ];
+        $brand_id = $req->route()->parameter('brand_id');
+        Setting::injectBrandId($brand_id);
+
+        //Handle get
+        $outlet  = [];
+        $outlets = Outlet::all();
+        $overall_min_pax = Setting::DEFAULT_OVERALL_MIN_PAX;
+        $overall_max_pax = Setting::DEFAULT_OVERALL_MAX_PAX;
 
         /**
          * Self pick the first one
@@ -582,23 +570,28 @@ class BookingController extends HoiController {
         $outlet_x = $outlets->first();
 
         if($outlet_x){
-            /**
-             * Add select pax with min|max
-             * to client side
-             */
             Setting::injectOutletId($outlet_x->id);
             $setting_config  = Setting::settingsConfig();
             $overall_min_pax = $setting_config(Setting::OVERALL_MIN_PAX);
             $overall_max_pax = $setting_config(Setting::OVERALL_MAX_PAX);
 
-            $state['overall_min_pax'] = $overall_min_pax;
-            $state['overall_max_pax'] = $overall_max_pax;
-
-            $state['outlet'] = [
+            $outlet = [
                 'id'   => $outlet_x->id,
                 'name' => $outlet_x->outlet_name
             ];
         }
+
+        /**
+         * Server state
+         * Base on that frontend client render
+         */
+        $state = [
+            'base_url'        => url(''),
+            'outlet'          => $outlet,
+            'outlets'         => $outlets,
+            'overall_min_pax' => $overall_min_pax,
+            'overall_max_pax' => $overall_max_pax,
+        ];
 
         return view('reservations.booking-form', compact('state'));
     }

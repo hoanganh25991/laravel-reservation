@@ -19,7 +19,7 @@ class Outlet extends HoiModel {
     protected static function boot() {
         parent::boot();
 
-        //static::byBrandId();
+        static::byBrandId();
     }
     
     public static function validateHandledOutletId($value){

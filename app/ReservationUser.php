@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Http\Request;
 use App\Http\Requests\ApiRequest;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Notifications\Notifiable;
@@ -68,17 +69,6 @@ class ReservationUser extends User {
      */
     protected static function boot() {
         parent::boot();
-
-        /**
-         * Why have to check if on $req
-         * Bcs when validate login user
-         * this global scope whill kill us
-         */
-        $req = app()->make(Request::class);
-        $not_scope_brand_id = $req && preg_match('/login/', $req->url());
-        if(!$not_scope_brand_id){
-            static::byBrandId();
-        }
     }
 
     public function getAuthPassword() {
@@ -123,11 +113,8 @@ class ReservationUser extends User {
      * Users in this role can modify on reservations
      */
     public function isReservations(){
-        $is_reservations     = $this->permission_level == ReservationUser::RESERVATIONS;
-        $goto_allowed_outlet = in_array(Setting::outletId(), $this->outlet_ids);
-
-        $allowed = $is_reservations && $goto_allowed_outlet;
-        return $allowed;
+        $is_reservations = $this->permission_level == ReservationUser::RESERVATIONS;
+        return $is_reservations;
     }
 
     /**
@@ -136,19 +123,16 @@ class ReservationUser extends User {
      */
     public function isAdministrator(){
         $is_admin = $this->permission_level == ReservationUser::ADMINISTRATOR;
-        $goto_allowed_outlet = in_array(Setting::outletId(), $this->outlet_ids);
-
-        $allowed  = $is_admin && $goto_allowed_outlet;
-        return $allowed;
+        return $is_admin;
     }
 
     /**
      * Assigned outlets
      * @see App\ReservationUser::getOutletIdsAttribute
-     * @return array
+     * @return Collection
      */
-    public function allowedOutletIds(){
-        return $this->outlet_ids;
+        public function allowedOutletIds(){
+            return $this->outlet_ids;
     }
 
     /**
@@ -169,7 +153,7 @@ class ReservationUser extends User {
     /**
      * Parse assigned outlets str into array
      * @param $value
-     * @return array
+     * @return Collection
      */
     public function getOutletIdsAttribute($value){
         $ids_str = $value;
@@ -179,8 +163,11 @@ class ReservationUser extends User {
         }
 
         $ids = preg_split('/\s*,\s*/', trim($ids_str));
+        
+        //love collection to wrap ids
+        $ids_c = collect($ids); 
 
-        return $ids;
+        return $ids_c;
     }
 
     /**
@@ -232,5 +219,29 @@ class ReservationUser extends User {
             default:
                 return 'Logined';
         }
+    }
+
+    /**
+     * When user logined in, he only assign to specify brand_id
+     * Base on this info, inject this infomation to global query scope
+     */
+    public function injectBrandId(){
+        $brand_id = $this->brand_id;
+
+        if(is_null($brand_id)){
+            throw new \Exception('User not assigned brand_id, can not determine allowed him move on or not');
+        }
+        //Have to inject
+        Setting::injectBrandId($brand_id);
+    }
+
+    /**
+     * Convenience call to fetch all outlets he can access
+     */
+    public function outletsCanAccess(){
+        $outlet_ids = $this->allowedOutletIds();
+        $outlets    = Outlet::whereIn('id', $outlet_ids)->get();
+        
+        return $outlets;
     }
 }
