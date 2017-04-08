@@ -30,9 +30,7 @@ class LoginController extends Controller
      * Create a new controller instance.
      *
      */
-    public function __construct() {
-        $this->middleware('guest', ['except' => 'logout']);
-    }
+    public function __construct() {}
 
     /**
      * Get the login username to be used by the controller.
@@ -41,6 +39,18 @@ class LoginController extends Controller
      */
     public function username() {
         return 'user_name';
+    }
+
+    /**
+     * Log the user out of the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function hoiLogout(){
+        Auth::logout();
+        
+        return redirect()->route('login');
     }
     
 }

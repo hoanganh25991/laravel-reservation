@@ -13,30 +13,15 @@
 /**
  * Routes for Auth
  */
-Auth::routes();
-Route::get('logout', function (){
-    Auth::logout();
-//    return redirect()->back();
-    return redirect('');
-});
+Route::get('login', 'Auth\LoginController@showLoginForm')->name('login');
+Route::post('login', 'Auth\LoginController@login');
+Route::get('logout', 'Auth\LoginController@hoiLogout')->name('logout');
 
 /**
- * Fix explicit tell which brand_id used
- * @param $brand_id
- * @param $go
- * @param \App\Http\Requests\ApiRequest $req
+ * Handle booking
  */
-//Route::get('{brand_id}/{go?}', function($brand_id, $go){
-//    return compact('brand_id', 'go');
-//});
-/**
- * Routes for Booking
- */
-Route::get('', 'BookingController@getBookingForm');
-Route::post('', 'BookingController@getBookingForm');
-
-Route::get('home', 'BookingController@getBookingForm');
-Route::post('home', 'BookingController@getBookingForm');
+Route::get('{brand_id}', 'BookingController@getBookingForm');
+Route::post('{brand_id}', 'BookingController@getBookingForm');
 
 Route::get('reservations/thank-you', 'ReservationController@getThankYouPage')->name('reservation_thank_you');
 Route::get('reservations/{confirm_id}', 'ReservationController@getConfirmPage')->name('reservation_confirm');
@@ -45,99 +30,51 @@ Route::post('reservations/{confirm_id}', 'ReservationController@getConfirmPage')
 /**
  * Routes for Admin page
  */
-Route::group([
-    'middleware' => 'staff',
-    'prefix' => 'admin'
-], function (){
-    Route::get('', 'AdminController@getDashboard')->name('admin');
-    Route::post('', 'AdminController@setUpOuletId');
-
+Route::group(['middleware' => 'staff'], function (){
+    //admin home page
+    Route::get('admin', 'AdminController@getDashboard')->name('admin');
+    Route::post('admin', 'AdminController@setUpOuletId');
+    //reservations detail
     Route::group(['middleware' => 'reservations'], function (){
-        Route::get('reservations', 'AdminController@getReservationDashboard');
-        Route::post('reservations', 'AdminController@getReservationDashboard');
+        Route::get('admin/reservations', 'AdminController@getReservationDashboard');
+        Route::post('admin/reservations', 'AdminController@getReservationDashboard');
     });
-
+    //administartor detail
     Route::group(['middleware' => 'administrator'], function (){
-        Route::get('settings', 'AdminController@getSettingsDashboard');
-        Route::post('settings', 'AdminController@getSettingsDashboard');
+        Route::get('admin/settings', 'AdminController@getSettingsDashboard');
+        Route::post('admin/settings', 'AdminController@getSettingsDashboard');
     });
 });
 
-
 /**
- * Handle update post from admin page
+ * Handle update from admin page call
  */
 Route::group(['middleware' => 'administrator'], function (){
     Route::post('sessions', 'SessionController@update');
     Route::post('outlet-reservation-settings', 'OutletReservationSettingController@update');
 });
 
-Route::group(['middleware' => 'staff'], function (){
+Route::group(['middleware' => 'reservations'], function (){
     Route::post('reservations', 'ReservationController@update');
 });
+
+/**
+ * Handle paypal
+ */
+Route::post('paypal', 'PayPalController@handlePayment');
 
 
 /**
  * Group for api call
  */
-Route::group([
-    'prefix' => 'api',
-    'middleware' => 'api'
-], function (){
-    /**
-     * Route to book reservation
-     */
-    Route::get('', 'BookingController@getBookingForm');
-    Route::post('', 'BookingController@getBookingForm');
-
-    Route::get('home', 'BookingController@getBookingForm');
-    Route::post('home', 'BookingController@getBookingForm');
-
-    //Route::get('reservations/thank-you', 'ReservationController@getThankYouPage')->name('reservation_thank_you');
-    //Route::get('reservations/{confirm_id}', 'ReservationController@getConfirmPage')->name('reservation_confirm');
-    //Route::post('reservations/{confirm_id}', 'ReservationController@getConfirmPage');
+Route::group(['prefix' => 'api','middleware' => 'api'], function (){
 
     Route::get('outlets', 'OutletController@fetchAllOutlet');
     Route::post('outlets', 'OutletController@fetchAllOutlet');
 
-    /**
-     * Route to admin page
-     */
-    Route::group([
-        'middleware' => 'staff',
-        'prefix' => 'admin'
-    ], function (){
-        //bring admin out of
-//        Route::get('', 'AdminController@getDashboard')->name('admin');
-//        Route::post('', 'AdminController@setUpOuletId');
-
-        Route::group(['middleware' => 'reservations'], function (){
-            Route::get('reservations', 'AdminController@getReservationDashboard');
-            Route::post('reservations', 'AdminController@getReservationDashboard');
-        });
-
-        Route::group(['middleware' => 'administrator'], function (){
-            Route::get('settings', 'AdminController@getSettingsDashboard');
-            Route::post('settings', 'AdminController@getSettingsDashboard');
-        });
-    });
-
-
-    /**
-     * Handle update post from admin page
-     */
-    Route::group(['middleware' => 'administrator'], function (){
-        Route::post('sessions', 'SessionController@update');
-        Route::post('outlet-reservation-settings', 'OutletReservationSettingController@update');
-    });
-
-    Route::group(['middleware' => 'staff'], function (){
-        Route::post('reservations', 'ReservationController@update');
-    });
 });
 
 
-Route::post('paypal', 'PayPalController@handlePayment');
 
 
 Route::get('test', function (App\Http\Controllers\BookingController $c, App\Http\Controllers\AdminController $a,
@@ -238,8 +175,3 @@ Route::get('test', function (App\Http\Controllers\BookingController $c, App\Http
 /**
  * Routes for Booking
  */
-Route::get('{brand_id}', 'BookingController@getBookingForm');
-Route::post('{brand_id}', 'BookingController@getBookingForm');
-
-Route::get('{brand_id}/home', 'BookingController@getBookingForm');
-Route::post('{brand_id}/home', 'BookingController@getBookingForm');
