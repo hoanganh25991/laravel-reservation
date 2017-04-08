@@ -33,9 +33,13 @@ class RouteServiceProvider extends ServiceProvider
             return Reservation::find($reservation_id);
         });
 
-//        Route::bind('brand_id', function($brand_id){
-//            return $brand_id;
-//        });
+        /**
+         * This is the best place to resolve brand_id
+         */
+        Route::bind('brand_id', function($brand_id){
+            Setting::injectBrandId($brand_id);
+            return $brand_id;
+        });
     }
 
     /**

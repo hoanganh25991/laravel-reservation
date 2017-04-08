@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\Eloquent\Builder;
 use App\OutletReservationSetting as Setting;
+use Illuminate\Validation\Rule;
 
 /**
  * @property mixed reservation_timestamp
@@ -268,8 +269,10 @@ class Reservation extends HoiModel {
      * @return \Illuminate\Validation\Validator
      */
     public static function validateOnCRUD($reservation_data){
+        $allowed_outltes_id = Outlet::all()->pluck('id')->toArray();
+        
         $validator = Validator::make($reservation_data, [
-            'outlet_id'    => 'required|numeric|handled_outlet_id',
+            'outlet_id'    => ['required', 'numeric', Rule::in($allowed_outltes_id)],
             'salutation'   => 'required',
             'first_name'   => 'required',
             'last_name'    => 'required',

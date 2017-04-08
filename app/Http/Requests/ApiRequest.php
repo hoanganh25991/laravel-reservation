@@ -3,9 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\OutletReservationSetting as Setting;
 
-class ApiRequest extends FormRequest
-{
+class ApiRequest extends FormRequest {
     /**
      * Determine if the user is authorized to make this request.
      *

@@ -36,11 +36,11 @@ class AppServiceProvider extends ServiceProvider
         });
 
         /**
-         * Add custom validator on Timing
+         * Add custom validator on outlet_id
          */
-        Validator::extend('handled_outlet_id',  function ($attribute, $value, $parameters, $validator) {
-            return Outlet::validateHandledOutletId($value);
-        });
+//        Validator::extend('handled_outlet_id',  function ($attribute, $value, $parameters, $validator) {
+//            return Outlet::validateHandledOutletId($value);
+//        });
 
         /**
          * View composer for Admin page
@@ -52,12 +52,10 @@ class AppServiceProvider extends ServiceProvider
             $user = Auth::user();
 
             if(!is_null($user) && $user->canAccessAdminPage()){
-                $outlets = Outlet::whereIn('id', $user->allowedOutletIds())->get();
+                $outlets = $user->outletsCanAccess();
             }
             
-            $brand_id = Setting::brandId();
-            
-            $view->with(compact('outlets', 'brand_id'));            
+            $view->with(compact('outlets'));
         });
     }
 

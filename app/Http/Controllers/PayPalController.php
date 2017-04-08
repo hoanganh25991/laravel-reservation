@@ -8,8 +8,8 @@ use Braintree\Gateway;
 use Braintree\Transaction;
 use App\Traits\ApiResponse;
 use App\Http\Requests\ApiRequest;
-use App\Libraries\HoiAjaxCall as Call;
 use Illuminate\Support\Facades\Log;
+use App\Libraries\HoiAjaxCall as Call;
 use Illuminate\Support\Facades\Validator;
 use App\OutletReservationSetting as Setting;
 
@@ -21,8 +21,7 @@ class PayPalController extends HoiController{
     protected $gateway;
     
     public function __construct(){
-        //get token from config
-        //$access_token = env('PAYPAL_ACCESS_TOKEN');
+//        $brand_id = $req->route()->parameter('brand_id');
         $brand_id = Setting::brandId();
         /** @var Brand $brand */
         $brand    = Brand::find($brand_id);
@@ -56,6 +55,12 @@ class PayPalController extends HoiController{
         $clientToken = $this->gateway->clientToken()->generate();
 
         return $clientToken;
+    }
+    
+    public function laravelBug(){
+        $msg = 'RouterSerivceProvider not work with post method, it need get method go first??? WHY';
+        
+        return $msg;
     }
 
 

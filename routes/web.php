@@ -14,6 +14,9 @@ use App\OutletReservationSetting as Setting;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+
+
 /**
  * Routes for Auth
  */
@@ -69,8 +72,8 @@ Route::group(['middleware' => 'reservations'], function (){
 /**
  * Handle paypal
  */
-Route::post('paypal', 'PayPalController@handlePayment');
-
+Route::get('{brand_id}/paypal', 'PayPalController@laravelBug')->where('brand_id', '[0-9]+');
+Route::post('{brand_id}/paypal', 'PayPalController@handlePayment')->where('brand_id', '[0-9]+');
 
 /**
  * Group for api call
