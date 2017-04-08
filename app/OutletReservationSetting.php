@@ -133,6 +133,10 @@ class OutletReservationSetting extends HoiModel{
      */
     public static $all_config = null;
 
+    public static $brand_id   = null;
+
+    public static $outlet_id  = null;
+
     /**
      * Inject into boot process
      * To modify on query scope or
@@ -264,28 +268,24 @@ class OutletReservationSetting extends HoiModel{
     }
 
     /**
-     * Check if global query scope "outlet_id" is setup
-     * @return bool
-     */
-    public static function isOutletIdInjected(){
-        return is_null(session('outlet_id'));
-    }
-
-    /**
      * Set up global query scope "outlet_id"
      * @param $outlet_id
      */
     public static function injectOutletId($outlet_id){
-        session(compact('outlet_id'));
+        Setting::$outlet_id = $outlet_id;
     }
 
     /**
      * Get global query scope "outlet_id"
-     * @warn default as 1 when "outlet_id" not found
      * @return mixed
+     * @throws \Exception
      */
     public static function outletId(){
-        return session('outlet_id', 1);
+        if(is_null(Setting::$outlet_id)){
+            throw new \Exception('Please tell me which outlet_id used!');
+        }
+
+        return Setting::$outlet_id;
     }
 
     /**
@@ -332,10 +332,8 @@ class OutletReservationSetting extends HoiModel{
      * for global scope query
      * @param $brand_id
      */
-    public static function injectBrandId($brand_id = 1){
-        //BRAND_ID hard-code in .env file
-        //return env(Setting::BRAND_ID, Setting::DEFAULT_BRAND_ID);
-        session(compact('brand_id'));
+    public static function injectBrandId($brand_id){
+        Setting::$brand_id = $brand_id;
     }
 
     /**
@@ -343,10 +341,11 @@ class OutletReservationSetting extends HoiModel{
      * Only handlde outlets under this brand
      */
     public static function brandId(){
-        //BRAND_ID hard-code in .env file
-        //return env(Setting::BRAND_ID, Setting::DEFAULT_BRAND_ID);
-        /** @warn submit default is FINE, but we never know what if no brand_id found */
-        return session('brand_id', 1);
+        if(is_null(Setting::$brand_id)){
+            throw new \Exception('Please tell me which brand_id used!');
+        }
+
+        return Setting::$brand_id;
     }
 
     /**

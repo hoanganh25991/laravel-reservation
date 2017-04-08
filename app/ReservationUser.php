@@ -78,8 +78,6 @@ class ReservationUser extends User {
         $not_scope_brand_id = $req && preg_match('/login/', $req->url());
         if(!$not_scope_brand_id){
             static::byBrandId();
-        }else{
-            Log::info($req->url());
         }
     }
 
