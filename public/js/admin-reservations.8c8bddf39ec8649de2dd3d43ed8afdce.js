@@ -77,15 +77,7 @@ var AdminReservations = function () {
 						});
 					case SYNC_DATA:
 						{
-							console.log('still not handle SYNC DATA case');
-							return state;
-						}
-					case REFETCHING_DATA_SUCCESS:
-						{
-							var _state = action.state;
-							var frontend_state = self.getFrontEndState();
-
-							return Object.assign(_state, frontend_state);
+							return Object.assign(state, action.data);
 						}
 					default:
 						return state;
@@ -354,7 +346,6 @@ var AdminReservations = function () {
 			document.addEventListener('switch-outlet', function (e) {
 				var outlet_id = e.detail.outlet_id;
 
-
 				store.dispatch({
 					type: TOAST_SHOW,
 					toast: {
@@ -364,7 +355,7 @@ var AdminReservations = function () {
 				});
 
 				var action = {
-					type: AJAX_UPDATE_SCOPE_OUTLET_ID,
+					type: AJAX_REFETCHING_DATA,
 					outlet_id: outlet_id
 				};
 
@@ -417,6 +408,10 @@ var AdminReservations = function () {
 					Object.assign(window.vue_state, { toast: toast });
 					window.Toast.show();
 				}
+
+				if (action == SYNC_DATA) {
+					Object.assign(window.vue_state, store.getState());
+				}
 			});
 		}
 	}, {
@@ -449,23 +444,19 @@ var AdminReservations = function () {
 			switch (action.type) {
 				case AJAX_UPDATE_RESERVATIONS:
 					{
-						var url = self.url('reservations');
-						var data = action;
-						data.outlet_id = state.outlet_id;
+						var url = self.url('');
+						var outlet_id = state.outlet_id;
+						var data = Object.assign({}, action, { outlet_id: outlet_id });
+
 						$.ajax({ url: url, data: data });
-						break;
-					}
-				case AJAX_UPDATE_SCOPE_OUTLET_ID:
-					{
-						var _url = self.url('admin');
-						var _data = action.data;
-						$.ajax({ url: _url, data: _data });
 						break;
 					}
 				case AJAX_REFETCHING_DATA:
 					{
-						var _url2 = self.url('admin/reservations');
-						$.ajax({ url: _url2 });
+						var _url = self.url('');
+						var _data = Object.assign({}, action);
+
+						$.ajax({ url: _url, data: _data });
 						break;
 					}
 				default:
@@ -474,6 +465,100 @@ var AdminReservations = function () {
 			}
 
 			// console.log('????')
+		}
+	}, {
+		key: 'ajax_call_success',
+		value: function ajax_call_success(res) {
+			var self = this;
+
+			switch (res.statusMsg) {
+				case AJAX_SUCCESS:
+					{
+						var toast = {
+							title: 'Update success',
+							content: '＼＿ヘ(ᐖ◞)､ '
+						};
+
+						store.dispatch({
+							type: TOAST_SHOW,
+							toast: toast
+						});
+
+						store.dispatch({
+							type: SYNC_DATA,
+							data: res.data
+						});
+
+						break;
+					}
+				case AJAX_REFETCHING_DATA_SUCCESS:
+					{
+						store.dispatch({
+							type: TOAST_SHOW,
+							toast: {
+								title: 'Switch Outlet',
+								content: 'Fetched Data'
+							}
+						});
+
+						store.dispatch({
+							type: SYNC_DATA,
+							data: res.data
+						});
+
+						break;
+					}
+				case AJAX_VALIDATE_FAIL:
+					{
+						var _toast = {
+							title: 'Validate Fail',
+							content: JSON.stringify(res.data)
+						};
+
+						store.dispatch({
+							type: TOAST_SHOW,
+							toast: _toast
+						});
+
+						break;
+					}
+				case AJAX_UNKNOWN_CASE:
+					{
+						var _toast2 = {
+							title: 'Unknown case',
+							content: 'xxx'
+						};
+
+						store.dispatch({
+							type: TOAST_SHOW,
+							toast: _toast2
+						});
+
+						break;
+					}
+				default:
+					break;
+
+			}
+		}
+	}, {
+		key: 'ajax_call_error',
+		value: function ajax_call_error(res) {
+			console.log(res);
+			var toast = {
+				title: 'Server error',
+				content: '(⊙.☉)7'
+			};
+
+			store.dispatch({
+				type: TOAST_SHOW,
+				toast: toast
+			});
+		}
+	}, {
+		key: 'ajax_call_complete',
+		value: function ajax_call_complete(res) {
+			//console.log(res);
 		}
 	}, {
 		key: 'hack_ajax',
@@ -519,109 +604,6 @@ var AdminReservations = function () {
 			}
 
 			return base_url + '/' + path;
-		}
-	}, {
-		key: 'ajax_call_success',
-		value: function ajax_call_success(res) {
-			var self = this;
-
-			switch (res.statusMsg) {
-				case AJAX_SUCCESS:
-					{
-						var toast = {
-							title: 'Update success',
-							content: '＼＿ヘ(ᐖ◞)､ '
-						};
-
-						store.dispatch({
-							type: TOAST_SHOW,
-							toast: toast
-						});
-
-						store.dispatch({
-							type: SYNC_DATA,
-							data: res.data
-						});
-
-						break;
-					}
-				case AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS:
-					{
-						var action = {
-							type: AJAX_REFETCHING_DATA
-						};
-
-						self.ajax_call(action);
-						break;
-					}
-				case AJAX_REFETCHING_DATA_SUCCESS:
-					{
-						store.dispatch({
-							type: TOAST_SHOW,
-							toast: {
-								title: 'Switch Outlet',
-								content: 'Fetched Data'
-							}
-						});
-
-						store.dispatch({
-							type: REFETCHING_DATA_SUCCESS,
-							state: res.data
-						});
-
-						break;
-					}
-				case AJAX_VALIDATE_FAIL:
-					{
-						var _toast = {
-							title: 'Validate Fail',
-							content: JSON.stringify(res.data)
-						};
-
-						store.dispatch({
-							type: TOAST_SHOW,
-							toast: _toast
-						});
-
-						break;
-					}
-				case AJAX_ERROR:
-					{
-						var _toast2 = {
-							title: 'Update fail',
-							content: JSON.stringify(res)
-						};
-
-						store.dispatch({
-							type: TOAST_SHOW,
-							toast: _toast2
-						});
-
-						break;
-					}
-				default:
-					break;
-
-			}
-		}
-	}, {
-		key: 'ajax_call_error',
-		value: function ajax_call_error(res) {
-			console.log(res);
-			var toast = {
-				title: 'Server error',
-				content: '(⊙.☉)7'
-			};
-
-			store.dispatch({
-				type: TOAST_SHOW,
-				toast: toast
-			});
-		}
-	}, {
-		key: 'ajax_call_complete',
-		value: function ajax_call_complete(res) {
-			//console.log(res);
 		}
 	}]);
 

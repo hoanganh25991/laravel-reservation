@@ -42,18 +42,12 @@ Route::any('{brand_id}/paypal', 'PayPalController@handlePayment')->where('brand_
 //staff user handle reservations
 Route::group(['middleware' => 'reservations'], function (){
     Route::any('admin', 'AdminController@getDashboard')->name('admin');
-    Route::post('admin', 'AdminController@setUpOuletId');
-
     Route::any('admin/reservations', 'AdminController@getReservationDashboard');
-
-    Route::post('reservations', 'ReservationController@update');
 });
 
 //administartor detail
 Route::group(['middleware' => 'administrator'], function (){
     Route::any('admin/settings', 'AdminController@getSettingsDashboard');
-    Route::post('sessions', 'SessionController@update');
-    Route::post('outlet-reservation-settings', 'OutletReservationSettingController@update');
 });
 
 

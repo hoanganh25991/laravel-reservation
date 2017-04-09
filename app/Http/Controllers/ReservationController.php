@@ -69,16 +69,18 @@ class ReservationController extends HoiController{
     }
 
     public function update(ApiRequest $req){
-        $data = json_decode($req->getContent(), JSON_NUMERIC_CHECK);
+        $action_type = $req->json('type');
 
-        $action_type = $data['type'];
-
+        //Flag to notify context of this function
+        //Should resuse it or not
+        $used = true;
+        
         switch($action_type){
             case Call::AJAX_UPDATE_RESERVATIONS:
-                $reservations = $data['reservations'];
+                $reservations = $req->json('reservations');
 
                 $validator = null;
-
+                
                 foreach($reservations as $reservation_data){
                     $validator = Reservation::validateOnCRUD($reservation_data);
 
@@ -91,24 +93,25 @@ class ReservationController extends HoiController{
                     $reservation->save();
                 }
 
-                if($validator->fails()){
+                if(!is_null($validator) && $validator->fails()){
                     $data = $validator->getMessageBag()->toArray();
                     $code = 200;
                     $msg  = Call::AJAX_VALIDATE_FAIL;
                 }else{
-                    $data = $this->fetchUpdateReservations();
+                    $used = false;
+                    $data = [];
                     $code = 200;
                     $msg  = Call::AJAX_SUCCESS;
                 }
                 break;
             default:
-                $data = $req->all();
+                $data = [];
                 $code = 200;
                 $msg  = Call::AJAX_UNKNOWN_CASE;
                 break;
         }
 
-        return $this->apiResponse($data, $code, $msg);
+        return compact('data', 'code', 'msg', 'used');
     }
 
     public function fetchUpdateReservations(){

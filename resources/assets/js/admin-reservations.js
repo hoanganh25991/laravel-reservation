@@ -64,14 +64,7 @@ class AdminReservations {
 						toast: action.toast
 					});
 				case SYNC_DATA:{
-					console.log('still not handle SYNC DATA case');
-					return state;
-				}
-				case REFETCHING_DATA_SUCCESS: {
-					let state = action.state;
-					let frontend_state =  self.getFrontEndState();
-
-					return Object.assign(state, frontend_state);
+					return Object.assign(state, action.data);
 				}
 				default:
 					return state;
@@ -336,7 +329,7 @@ class AdminReservations {
 		let self = this;
 		
 		document.addEventListener('switch-outlet', (e)=>{
-			let {outlet_id} = e.detail;
+			let outlet_id = e.detail.outlet_id;
 
 			store.dispatch({
 				type: TOAST_SHOW,
@@ -347,7 +340,7 @@ class AdminReservations {
 			});
 
 			let action = {
-				type: AJAX_UPDATE_SCOPE_OUTLET_ID,
+				type: AJAX_REFETCHING_DATA,
 				outlet_id
 			}
 
@@ -400,6 +393,10 @@ class AdminReservations {
 				Object.assign(window.vue_state, {toast});
 				window.Toast.show();
 			}
+
+			if(action == SYNC_DATA){
+				Object.assign(window.vue_state, store.getState());
+			}
 		});
 	}
 
@@ -426,26 +423,22 @@ class AdminReservations {
 		});
 
 
-
 		let state = store.getState();
 
 		switch(action.type){
 			case AJAX_UPDATE_RESERVATIONS: {
-				let url  = self.url('reservations');
-				let data = action;
-				data.outlet_id = state.outlet_id;
-				$.ajax({url, data});
-				break;
-			}
-			case AJAX_UPDATE_SCOPE_OUTLET_ID: {
-				let url = self.url('admin');
-				let data = action.data;
+				let url       = self.url('');
+				let outlet_id = state.outlet_id;
+				let data      = Object.assign({}, action, {outlet_id});
+				
 				$.ajax({url, data});
 				break;
 			}
 			case AJAX_REFETCHING_DATA: {
-				let url = self.url('admin/reservations');
-				$.ajax({url});
+				let url         = self.url('');
+				let data        = Object.assign({}, action);
+				
+				$.ajax({url, data});
 				break;
 			}
 			default:
@@ -454,50 +447,6 @@ class AdminReservations {
 		}
 
 		// console.log('????')
-	}
-
-	hack_ajax(){
-		//check if not init
-		if(this._hasHackAjax)
-			return;
-
-		this._hasHackAjax = true;
-
-		let self = this;
-
-		let o_ajax = $.ajax;
-		$.ajax = function(options){
-			let data = options.data;
-			let data_json = JSON.stringify(data);
-			//console.log(data_json);
-			options = Object.assign(options, {
-				method  : 'POST',
-				data    : data_json,
-				success : self.ajax_call_success,
-				error   : self.ajax_call_error,
-				compelte: self.ajax_call_complete
-			});
-
-			return o_ajax(options);
-		}
-	}
-	
-	url(path){
-		let store = window.store;
-		let state = store.getState();
-		
-		//noinspection JSUnresolvedVariable
-		let base_url = state.base_url || '';
-		
-		if(base_url.endsWith('/')){
-			base_url = path.substr(1);
-		}
-		
-		if(path.startsWith('/')){
-			path = path.substr(1);
-		}
-		
-		return `${base_url}/${path}`;
 	}
 
 	ajax_call_success(res){
@@ -522,14 +471,6 @@ class AdminReservations {
 
 				break;
 			}
-			case AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS: {
-				let action = {
-					type: AJAX_REFETCHING_DATA
-				}
-
-				self.ajax_call(action);
-				break;
-			}
 			case AJAX_REFETCHING_DATA_SUCCESS:{
 				store.dispatch({
 					type: TOAST_SHOW,
@@ -540,8 +481,8 @@ class AdminReservations {
 				});
 
 				store.dispatch({
-					type: REFETCHING_DATA_SUCCESS,
-					state: res.data
+					type: SYNC_DATA,
+					data: res.data
 				});
 
 				break;
@@ -559,10 +500,10 @@ class AdminReservations {
 
 				break;
 			}
-			case AJAX_ERROR: {
+			case AJAX_UNKNOWN_CASE: {
 				let toast = {
-					title:'Update fail',
-					content: JSON.stringify(res)
+					title:'Unknown case',
+					content: 'xxx'
 				}
 
 				store.dispatch({
@@ -593,6 +534,50 @@ class AdminReservations {
 	
 	ajax_call_complete(res){
 		//console.log(res);
+	}
+
+	hack_ajax(){
+		//check if not init
+		if(this._hasHackAjax)
+			return;
+
+		this._hasHackAjax = true;
+
+		let self = this;
+
+		let o_ajax = $.ajax;
+		$.ajax = function(options){
+			let data = options.data;
+			let data_json = JSON.stringify(data);
+			//console.log(data_json);
+			options = Object.assign(options, {
+				method  : 'POST',
+				data    : data_json,
+				success : self.ajax_call_success,
+				error   : self.ajax_call_error,
+				compelte: self.ajax_call_complete
+			});
+
+			return o_ajax(options);
+		}
+	}
+
+	url(path){
+		let store = window.store;
+		let state = store.getState();
+
+		//noinspection JSUnresolvedVariable
+		let base_url = state.base_url || '';
+
+		if(base_url.endsWith('/')){
+			base_url = path.substr(1);
+		}
+
+		if(path.startsWith('/')){
+			path = path.substr(1);
+		}
+
+		return `${base_url}/${path}`;
 	}
 }
 
