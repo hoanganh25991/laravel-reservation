@@ -54,6 +54,8 @@ var AdminReservations = function () {
 		//Hack into these core concept, to get log
 		this.hack_store();
 		this.hack_ajax();
+
+		this.initView();
 	}
 
 	_createClass(AdminReservations, [{
@@ -66,6 +68,10 @@ var AdminReservations = function () {
 				var action = arguments[1];
 
 				switch (action.type) {
+					case INIT_VIEW:
+						return Object.assign({}, state, {
+							init_view: self.initViewReducer(state.init_view, action)
+						});
 					case SHOW_RESERVATION_DIALOG_CONTENT:
 					case HIDE_RESERVATION_DIALOG_CONTENT:
 						return Object.assign({}, state, {
@@ -289,6 +295,23 @@ var AdminReservations = function () {
 		key: 'buildVueState',
 		value: function buildVueState() {
 			return Object.assign({}, store.getState());
+		}
+	}, {
+		key: 'initViewReducer',
+		value: function initViewReducer(state, action) {
+			switch (action.type) {
+				case INIT_VIEW:
+					{
+						return true;
+					}
+				default:
+					return state;
+			}
+		}
+	}, {
+		key: 'initView',
+		value: function initView() {
+			store.dispatch({ type: INIT_VIEW });
 		}
 	}, {
 		key: 'reservationDialogContentReducer',

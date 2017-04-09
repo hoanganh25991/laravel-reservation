@@ -234,7 +234,7 @@ var BookingForm = function () {
 			return this.state;
 		}
 	}, {
-		key: 'getVueState',
+		key: 'buildVueState',
 		value: function getVueState() {
 			if (typeof window.vue_state == 'undefined') {
 				window.vue_state = Object.assign({}, store.getState());
@@ -514,7 +514,7 @@ var BookingForm = function () {
 			store.subscribe(function () {
 				var state = store.getState();
 				//update this way for vue see it
-				var vue_state = self.getVueState();
+				var vue_state = self.buildVueState();
 				Object.assign(vue_state, state);
 
 				//debug

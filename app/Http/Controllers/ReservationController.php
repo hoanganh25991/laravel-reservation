@@ -68,13 +68,15 @@ class ReservationController extends HoiController{
         return $state;
     }
 
+    /**
+     * @param ApiRequest $req
+     * @return $this
+     */
     public function update(ApiRequest $req){
         $action_type = $req->json('type');
 
         //Flag to notify context of this function
         //Should resuse it or not
-        $used = true;
-        
         switch($action_type){
             case Call::AJAX_UPDATE_RESERVATIONS:
                 $reservations = $req->json('reservations');
@@ -92,17 +94,27 @@ class ReservationController extends HoiController{
                     $reservation->fill($reservation_data);
                     $reservation->save();
                 }
-
-                if(!is_null($validator) && $validator->fails()){
-                    $data = $validator->getMessageBag()->toArray();
-                    $code = 200;
-                    $msg  = Call::AJAX_VALIDATE_FAIL;
-                }else{
-                    $used = false;
+                
+                //which means no reservations submit
+                if(is_null($validator)){
                     $data = [];
                     $code = 200;
                     $msg  = Call::AJAX_SUCCESS;
+                    break;
                 }
+
+                //validate run & fail
+                if($validator->fails()){
+                    $data = $validator->getMessageBag()->toArray();
+                    $code = 200;
+                    $msg  = Call::AJAX_VALIDATE_FAIL;
+                    break;
+                }
+            
+                //everything is fine
+                $data = $this->fetchUpdateReservations();
+                $code = 200;
+                $msg  = Call::AJAX_SUCCESS;
                 break;
             default:
                 $data = [];
@@ -111,7 +123,7 @@ class ReservationController extends HoiController{
                 break;
         }
 
-        return compact('data', 'code', 'msg', 'used');
+        return $this->apiResponse($data, $code, $msg);
     }
 
     public function fetchUpdateReservations(){
@@ -119,6 +131,4 @@ class ReservationController extends HoiController{
         
         return $reservations;
     }
-    
-    
 }

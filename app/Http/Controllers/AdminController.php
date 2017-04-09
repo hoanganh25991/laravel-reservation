@@ -38,32 +38,6 @@ class AdminController extends HoiController {
     }
 
     /**
-     * Outlet id used through session to limit query to DB
-     * @param ApiRequest $req
-     * @return $this
-     */
-    public function setUpOuletId(ApiRequest $req){
-        /** @var ReservationUser $user */
-        $user      = Auth::user();
-        $outlet_id = $req->json('outlet_id');
-
-        $has_permission_on_outlet = $user->allowedOutletIds()->contains($outlet_id);
-
-        if($has_permission_on_outlet){
-            session(compact('outlet_id'));
-            $data = [];
-            $code = 200;
-            $msg  = Call::AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS;
-        }else{
-            $data = [];
-            $code = 422;
-            $msg  = Call::AJAX_UPDATE_SCOPE_OUTLET_ID_ERROR;
-        }
-
-        return $this->apiResponse($data, $code, $msg);
-    }
-
-    /**
      * @param ApiRequest $req
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      * @throws \Exception
@@ -75,41 +49,46 @@ class AdminController extends HoiController {
 
         $action_type = $req->json('type');
 
-        if(!is_null($action_type)){
+        if($req->method() == 'POST'){
             switch($action_type){
                 case Call::AJAX_UPDATE_RESERVATIONS:
-                    $api_data = $reservation_controller->update($req);
+                    $response = $reservation_controller->update($req);
+                    break;
                 case Call::AJAX_REFETCHING_DATA:
+                    $data = $this->reservationsState();
+                    $code = 200;
+                    $msg  = Call::AJAX_REFETCHING_DATA_SUCCESS;
+                    $response = $this->apiResponse($data, $code, $msg);
                     break;
                 default:
-                    $api_data = $reservation_controller->update($req);
+                    $data = [];
+                    $code = 200;
+                    $msg  = Call::AJAX_UNKNOWN_CASE;
+                    $response = $this->apiResponse($data, $code, $msg);
                     break;
             }
+
+            return $response;
         }
 
+        $state = $this->reservationsState();
+
+        //Handle get
+        return view('admin.reservations')->with(compact('state'));
+    }
+
+    private function reservationsState(){
+        $reservation_controller = new ReservationController;
         //Build state
         $reservations = $reservation_controller->fetchUpdateReservations();
 
         $state = [
-            'base_url'     => $req->url(),
+            'base_url'     => url()->current(),
             'outlet_id'    => Setting::outletId(),
             'reservations' => $reservations
         ];
 
-        if(isset($api_data) && $api_data['used']){
-            //Response as what api_data help us build
-            return $this->apiResponse($api_data['data'], $api_data['code'], $api_data['msg']);
-        }
-
-        if($req->method() == 'POST'){
-            $data = $state;
-            $code = 200;
-            $msg  = Call::AJAX_SUCCESS;
-            return $this->apiResponse($data, $code, $msg);
-        }
-
-        //Handle get
-        return view('admin.reservations')->with(compact('state'));
+        return $state;
     }
 
     /**
@@ -119,10 +98,52 @@ class AdminController extends HoiController {
     public function getSettingsDashboard(ApiRequest $req){
         //Realy important, outlet id should specific which one
         $this->resolveOutletIdToInject();
+
+        $session_controller = new SessionController;
+        $setting_controller = new SettingController;
+
+        //implicit get action_type from json call
+        $action_type = $req->json('type');
+
+        if($req->method() == 'POST'){
+            switch($action_type){
+                case Call::AJAX_UPDATE_SESSIONS:
+                    $response = $session_controller->update($req);
+                    break;
+                case Call::AJAX_UPDATE_BUFFER:
+                case Call::AJAX_UPDATE_NOTIFICATION:
+                case Call::AJAX_UPDATE_SETTINGS:
+                case Call::AJAX_UPDATE_DEPOSIT:
+                    $response = $setting_controller->update($req);
+                    break;
+                case Call::AJAX_REFETCHING_DATA:
+                    $data = $this->settingsState();
+                    $code = 200;
+                    $msg  = Call::AJAX_REFETCHING_DATA_SUCCESS;
+                    $response = $this->apiResponse($data, $code, $msg);
+                    break;
+                default:
+                    $data = [];
+                    $code = 200;
+                    $msg  = Call::AJAX_UNKNOWN_CASE;
+                    $response = $this->apiResponse($data, $code, $msg);
+                    break;
+
+            }
+
+            return $response;
+        }
+
+        $state = $this->settingsState();
+
+        return view('admin.settings')->with(compact('state'));
+    }
+
+    private function settingsState(){
+        $session_controller= new SessionController;
         /**
          * Sessions data
          */
-        $session_controller= new SessionController;
         $weekly_sessions   = $session_controller->fetchUpdatedWeeklySessions();
         $special_sesssions = $session_controller->fetchUpdatedSpecialSessions();
 
@@ -135,9 +156,9 @@ class AdminController extends HoiController {
         $settings     = $setting_controller->fetchUpdateSettings();
         $deposit      = $setting_controller->fetchUpdateDeposit();
         $outlets      = Outlet::all();
-    
+
         $state = [
-            'base_url'         => url(''),
+            'base_url'         => url()->current(),
             'outlet_id'        => Setting::outletId(),
             'weekly_sessions'  => $weekly_sessions,
             'special_sessions' => $special_sesssions,
@@ -145,13 +166,10 @@ class AdminController extends HoiController {
             'notification'     => $notification,
             'settings'         => $settings,
             'deposit'          => $deposit,
-            'admin_step'       => 'weekly_sessions_view',
-			'deleted_sessions' => [],
-			'deleted_timings'  => [],
             'outlets'          => $outlets,
         ];
 
-        return view('admin.settings')->with(compact('state'));
+        return $state;
     }
 
     public function resolveOutletIdToInject(){

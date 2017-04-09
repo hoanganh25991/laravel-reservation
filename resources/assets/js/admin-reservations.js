@@ -47,6 +47,8 @@ class AdminReservations {
 		//Hack into these core concept, to get log
 		this.hack_store();
 		this.hack_ajax();
+
+		this.initView();
 	}
 
 	buildRedux(){
@@ -54,6 +56,10 @@ class AdminReservations {
 		let default_state = this.defaultState();
 		let rootReducer = function(state = default_state, action){
 			switch(action.type){
+				case INIT_VIEW:
+					return Object.assign({}, state, {
+						init_view: self.initViewReducer(state.init_view, action)
+					});
 				case SHOW_RESERVATION_DIALOG_CONTENT:
 				case HIDE_RESERVATION_DIALOG_CONTENT:
 					return Object.assign({}, state, {
@@ -280,6 +286,20 @@ class AdminReservations {
 
 	buildVueState(){
 		return Object.assign({}, store.getState());
+	}
+
+	initViewReducer(state, action){
+		switch(action.type){
+			case INIT_VIEW:{
+				return true;
+			}
+			default:
+				return state;
+		}
+	}
+
+	initView(){
+		store.dispatch({type: INIT_VIEW});
 	}
 
 	reservationDialogContentReducer(state, action){
