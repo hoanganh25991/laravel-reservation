@@ -1,9 +1,4 @@
 <?php
-use App\Http\Requests\ApiRequest;
-use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\BookingController;
-use App\OutletReservationSetting as Setting;
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -20,69 +15,55 @@ use App\OutletReservationSetting as Setting;
 /**
  * Routes for Auth
  */
-Route::get('login', 'Auth\LoginController@showLoginForm')->name('login');
-Route::post('login', 'Auth\LoginController@login');
+Route::any('login', 'Auth\LoginController@hoiLogin')->name('login');
 Route::get('logout', 'Auth\LoginController@hoiLogout')->name('logout');
+//Route::post('login', 'Auth\LoginController@login');
+
+/**
+* Auto inject brand id, outlet id
+* @see \App\Http\Middleware\ResolveBrandOutletId
+*/
 
 /**
  * Handle booking
  */
-//Route::match(['get', 'post'], '{brand_id}', 'BookingController@getBookingForm')->where('brand_id', '[0-9]+');
-Route::get('{brand_id}', 'BookingController@getBookingForm')->where('brand_id', '[0-9]+');
-Route::post('{brand_id}', 'BookingController@getBookingForm')->where('brand_id', '[0-9]+');
+Route::any('{brand_id}', 'BookingController@getBookingForm')->where('brand_id', '[0-9]+');
 Route::get('reservations/thank-you', 'ReservationController@getThankYouPage')->name('reservation_thank_you');
-Route::get('reservations/{confirm_id}', 'ReservationController@getConfirmPage')->name('reservation_confirm');
-Route::post('reservations/{confirm_id}', 'ReservationController@getConfirmPage');
+Route::any('reservations/{confirm_id}', 'ReservationController@getConfirmPage')->name('reservation_confirm');
+/**
+ * Handle paypal
+ */
+Route::any('{brand_id}/paypal', 'PayPalController@handlePayment')->where('brand_id', '[0-9]+');
 
 /**
- * Routes for Admin page
+ * Handle admin page
+ * Need permisstion
  */
-/**
- * Brand id inject through user
- * When he logined in
- * @see App\ReservationUser::injectBrandId
- */
+//staff user handle reservations
 Route::group(['middleware' => 'reservations'], function (){
-    Route::get('admin', 'AdminController@getDashboard')->name('admin');
+    Route::any('admin', 'AdminController@getDashboard')->name('admin');
     Route::post('admin', 'AdminController@setUpOuletId');
-    //reservations detail
-    Route::group(['middleware' => 'reservations'], function (){
-        Route::get('admin/reservations', 'AdminController@getReservationDashboard');
-        Route::post('admin/reservations', 'AdminController@getReservationDashboard');
-    });
-    //administartor detail
-    Route::group(['middleware' => 'administrator'], function (){
-        Route::get('admin/settings', 'AdminController@getSettingsDashboard');
-        Route::post('admin/settings', 'AdminController@getSettingsDashboard');
-    });
+
+    Route::any('admin/reservations', 'AdminController@getReservationDashboard');
+
+    Route::post('reservations', 'ReservationController@update');
 });
 
-/**
- * Handle update from admin page call
- */
+//administartor detail
 Route::group(['middleware' => 'administrator'], function (){
+    Route::any('admin/settings', 'AdminController@getSettingsDashboard');
     Route::post('sessions', 'SessionController@update');
     Route::post('outlet-reservation-settings', 'OutletReservationSettingController@update');
 });
 
-Route::group(['middleware' => 'reservations'], function (){
-    Route::post('reservations', 'ReservationController@update');
-});
 
 /**
- * Handle paypal
- */
-Route::get('{brand_id}/paypal', 'PayPalController@testBrandIdInjected')->where('brand_id', '[0-9]+');
-Route::post('{brand_id}/paypal', 'PayPalController@handlePayment')->where('brand_id', '[0-9]+');
-
-/**
- * Group for api call
+ * Api call
+ * Currently only support frontend call
  */
 Route::group(['prefix' => 'api','middleware' => 'api'], function (){
-
     Route::get('outlets', 'OutletController@fetchAllOutlet');
     Route::post('outlets', 'OutletController@fetchAllOutlet');
-
 });
 
 

@@ -81,6 +81,13 @@ class PayPalController extends HoiController{
      * @return $this
      */
     public function handlePayment(ApiRequest $req){
+        //test end point
+        if($req->method() == 'GET'){
+            $this->initGateway();
+            
+            return 'Gateway success init';
+        }
+        
         $this->initGateway();
         
         $action_type = $req->get('type');
