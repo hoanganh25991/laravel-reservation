@@ -69,13 +69,12 @@ class AdminController extends HoiController {
      * @throws \Exception
      */
     public function getReservationDashboard(ApiRequest $req){
-        //realy important, outlet id should specific which one
+        //Realy important, outlet id should specific which one
         $this->resolveOutletIdToInject();
-        /**
-         * Reservations
-         */
+
+        //Build state
         $reservation_controller = new ReservationController;
-        $reservations = $reservation_controller->fetchUpdateReservations();
+        $reservations           = $reservation_controller->fetchUpdateReservations();
 
         $state = [
             'base_url'     => url(''),
@@ -83,6 +82,23 @@ class AdminController extends HoiController {
             'reservations' => $reservations
         ];
 
+        //Handle post
+        if($req->method() == 'POST'){
+            //bcs of simple of reservations case
+            //only handle one option
+            switch(null){
+                default:
+                    $data = $state;
+                    $code = 200;
+                    $msg  = Call::AJAX_REFETCHING_DATA_SUCCESS;
+                    break;
+            }
+
+            return $this->apiResponse($data, $code, $msg);
+        }
+        
+
+        //Handle get
         return view('admin.reservations')->with(compact('state'));
     }
 
@@ -91,7 +107,7 @@ class AdminController extends HoiController {
      * @return $this
      */
     public function getSettingsDashboard(ApiRequest $req){
-        //realy important, outlet id should specific which one
+        //Realy important, outlet id should specific which one
         $this->resolveOutletIdToInject();
         /**
          * Sessions data

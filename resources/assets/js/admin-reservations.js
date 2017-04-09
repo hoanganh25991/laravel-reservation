@@ -1,19 +1,11 @@
 const INIT_VIEW = 'INIT_VIEW';
 
-const CHANGE_RESERVATION_DIALOG_CONTENT = 'CHANGE_RESERVATION_DIALOG_CONTENT';
-const UPDATE_SINGLE_RESERVATIONS         = 'UPDATE_SINGLE_RESERVATIONS';
+const SHOW_RESERVATION_DIALOG_CONTENT = 'SHOW_RESERVATION_DIALOG_CONTENT';
+const HIDE_RESERVATION_DIALOG_CONTENT = 'HIDE_RESERVATION_DIALOG_CONTENT';
+const UPDATE_SINGLE_RESERVATION         = 'UPDATE_SINGLE_RESERVATION';
 const UPDATE_RESERVATIONS = 'UPDATE_RESERVATIONS';
 
 const SYNC_DATA              = 'SYNC_DATA';
-const DELETE_TIMING          = 'DELETE_TIMING';
-const DELETE_SESSION         = 'DELETE_SESSION';
-const DELETE_SPECIAL_SESSION = 'DELETE_SPECIAL_SESSION';
-const UPDATE_SPECIAL_SESSIONS = 'UPDATE_SPECIAL_SESSIONS';
-const SAVE_EDIT_IN_VUE_TO_STORE = 'SAVE_EDIT_IN_VUE_TO_STORE';
-const UPDATE_BUFFER          = 'UPDATE_BUFFER';
-const UPDATE_NOTIFICATION    = 'UPDATE_NOTIFICATION';
-const UPDATE_SETTINGS        = 'UPDATE_SETTINGS';
-const UPDATE_DEPOSIT         = 'UPDATE_DEPOSIT';
 const REFETCHING_DATA        = 'REFETCHING_DATA';
 // const SYNC_DATA = 'SYNC_DATA';
 
@@ -24,13 +16,6 @@ const REFETCHING_DATA_SUCCESS     = 'REFETCHING_DATA_SUCCESS';
 // AJAX ACTION
 const AJAX_UPDATE_RESERVATIONS    = 'AJAX_UPDATE_RESERVATIONS';
 
-const AJAX_UPDATE_WEEKLY_SESSIONS = 'AJAX_UPDATE_WEEKLY_SESSIONS';
-const AJAX_DELETE_WEEKLY_SESSIONS = 'AJAX_DELETE_WEEKLY_SESSIONS';
-const AJAX_UPDATE_SESSIONS        = 'AJAX_UPDATE_SESSIONS';
-const AJAX_UPDATE_BUFFER          = 'AJAX_UPDATE_BUFFER';
-const AJAX_UPDATE_NOTIFICATION    = 'AJAX_UPDATE_NOTIFICATION';
-const AJAX_UPDATE_SETTINGS        = 'AJAX_UPDATE_SETTINGS';
-const AJAX_UPDATE_DEPOSIT         = 'AJAX_UPDATE_DEPOSIT';
 const AJAX_UPDATE_SCOPE_OUTLET_ID = 'AJAX_UPDATE_SCOPE_OUTLET_ID';
 const AJAX_REFETCHING_DATA        = 'AJAX_REFETCHING_DATA';
 
@@ -42,16 +27,12 @@ const AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS = 'AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS
 const AJAX_SUCCESS  = 'AJAX_SUCCESS';
 const AJAX_ERROR    = 'AJAX_ERROR';
 const AJAX_VALIDATE_FAIL = 'AJAX_VALIDATE_FAIL';
-const AJAX_REFETCHING_DATA_SUCCESS  = 'AJAX_REFETCHING_DATA_SUCCESS';
+const AJAX_REFETCHING_DATA_SUCCESS = 'AJAX_REFETCHING_DATA_SUCCESS';
 
-/**
- * Payment status
- */
-const PAYMENT_UNPAID         = 25;
-const PAYMENT_REFUNDED       = 50;
-const PAYMENT_PAID           = 100;
-const PAYMENT_CHARGED        = 200;
-
+//Paypal
+const PAYMENT_REFUNDED = 25;
+const PAYMENT_PAID     = 100;
+const PAYMENT_CHARGED  = 200;
 
 
 class AdminReservations {
@@ -63,13 +44,9 @@ class AdminReservations {
 	constructor(){
 		this.buildRedux();
 		this.buildVue();
-		/**
-		 * Unsafe to bind event when vue not sure init
-		 * Bind inside vue-mounted
-		 */
-		//this.event();
-		//this.listener();
-		this.initView();
+		//Hack into these core concept, to get log
+		this.hack_store();
+		this.hack_ajax();
 	}
 
 	buildRedux(){
@@ -77,18 +54,10 @@ class AdminReservations {
 		let default_state = this.defaultState();
 		let rootReducer = function(state = default_state, action){
 			switch(action.type){
-				case INIT_VIEW:
-					return Object.assign({}, state, {
-						init_view: self.initViewReducer(state.init_view, action)
-					});
-				case CHANGE_RESERVATION_DIALOG_CONTENT:
+				case SHOW_RESERVATION_DIALOG_CONTENT:
+				case HIDE_RESERVATION_DIALOG_CONTENT:
 					return Object.assign({}, state, {
 						reservation_dialog_content: self.reservationDialogContentReducer(state.reservation_dialog_content, action)
-					});
-				case UPDATE_SINGLE_RESERVATIONS:
-				case UPDATE_RESERVATIONS:
-					return Object.assign({}, state, {
-						reservations: self.reservationsReducer(state.reservations, action)
 					});
 				case TOAST_SHOW:
 					return Object.assign({}, state, {
@@ -96,9 +65,6 @@ class AdminReservations {
 					});
 				case SYNC_DATA:{
 					console.log('still not handle SYNC DATA case');
-					return state;
-				}
-				case REFETCHING_DATA: {
 					return state;
 				}
 				case REFETCHING_DATA_SUCCESS: {
@@ -113,9 +79,6 @@ class AdminReservations {
 		}
 
 		window.store = Redux.createStore(rootReducer);
-
-		this.hack_store();
-
 	}
 
 	hack_store(){
@@ -142,80 +105,60 @@ class AdminReservations {
 
 	getFrontEndState(){
 		return {
-			init_view : false,
 			reservation_dialog_content: {},
+			toast: {
+				title: 'Title',
+				content: 'Content'
+			}
 		};
 	}
 
 	defaultState(){
 		let default_state  = window.state || {};
-		let frontend_state =  this.getFrontEndState();
 
+		let frontend_state = this.getFrontEndState();
+		
 		return Object.assign(default_state, frontend_state);
 	}
 
 	buildVue(){
-		let state = this.getVueState();
+		window.vue_state = this.buildVueState();
+
 		let self  = this;
-		this.vue = new Vue({
+
+		this.vue  = new Vue({
 			el: '#app',
-			data: state,
+			data: window.vue_state,
 			mounted(){
 				document.dispatchEvent(new CustomEvent('vue-mounted'));
 				self.event();
 				self.view();
 				self.listener();
-
-
-			},
-			beforeUpdate(){
-
-
-			},
-			updated(){
-				// let store  = window.store;
-				// let action = store.getLastAction();
-				//
-				// /**
-				//  * Calling out dialog for reservation detail
-				//  * To bundle change, wait for SAVE clicked
-				//  * @type {boolean}
-				//  */
-				// let should_auto_update = action != CHANGE_RESERVATION_DIALOG_CONTENT;
-				// if(should_auto_update){
-				// 	store.dispatch({
-				// 		type: UPDATE_RESERVATIONS
-				// 	});
-				// }
 			},
 			methods: {
 				_reservationDetailDialog(e){
-					// console.log('see tr click');
-					// console.log(e);
 					try{
 						let tr = this._findTrElement(e);
-						let reservation_index = tr.getAttribute('reservation-index');
+						let reservation_index  = tr.getAttribute('reservation-index');
+						let picked_reservation = this.reservations[reservation_index];
+						//Update reservations staff_read
+						picked_reservation.staff_read_state = true;
+						//Clone it into reservation dialog content
+						let dialog_reservation = Object.assign({}, picked_reservation);
+						//Diloag need data for other stuff
+						//Self update for itself
+						let date = moment(dialog_reservation.reservation_timestamp, 'Y-M-D H:m:s');
+						dialog_reservation.date_str = date.format('YYYY-MM-DD');
+						dialog_reservation.time_str = date.format('HH:mm');
 
-						/**
-						 * Update to mark as staff read
-						 * @warn modify in this way VERY DANGEROUS
-						 * Many thing may make a reservation maked as READ
-						 * Type on something,...
-						 * Change on something,...
-						 * @type {boolean}
-						 */
-						this.reservations[reservation_index].staff_read_state = true;
-
-						let reservation = Object.assign({}, this.reservations[reservation_index]);
+						//Update these info into vue
+						Object.assign(window.vue_state, {reservation_dialog_content: dialog_reservation});
 
 						store.dispatch({
-							type: CHANGE_RESERVATION_DIALOG_CONTENT,
-							reservation_dialog_content: reservation
+							type: SHOW_RESERVATION_DIALOG_CONTENT,
+							reservation_dialog_content: dialog_reservation
 						});
-					}catch(e){
-						// console.log('click on other element, which more important than tr')
-						return;
-					}
+					}catch(e){}
 				},
 
 				_findTrElement(e){
@@ -233,7 +176,8 @@ class AdminReservations {
 						let is_click_on_edit_form =
 							tr.tagName == 'INPUT'
 							|| tr.tagName == 'TEXTAREA'
-							|| tr.tagName == 'SELECT';
+							|| tr.tagName == 'SELECT'
+							|| tr.tagName == 'BUTTON';
 
 						if(is_click_on_edit_form){
 							return null;
@@ -249,38 +193,55 @@ class AdminReservations {
 					return null;
 				},
 
-				_updateReservationDialog(){
-					let reservation_dialog_content = this.reservation_dialog_content
-					store.dispatch({
-						type: UPDATE_SINGLE_RESERVATIONS,
-						reservation_dialog_content
-					});
-				},
+				_updateSingleReservation(){
+					let reservation_dialog_content = this.reservation_dialog_content;
+					//Recalculate reservation timestamp from select data
+					reservation_dialog_content.reservation_timestamp = `${reservation_dialog_content.date_str} ${reservation_dialog_content.time_str}:00`;
 
-				_updateReservations(){
-					store.dispatch({
-						type: UPDATE_RESERVATIONS
-					});
-				},
+					let reservations = this.reservations;
 
-				_switchOutlet(data){
-					store.dispatch({
-						type: TOAST_SHOW,
-						toast: {
-							title: 'Switch Outlet',
-							content: 'Fetching Data'
+					/**
+					 * Find which reservation need update info
+					 * Base on reservation dialog content
+					 */
+					let i = 0, found = false;
+					while(i < reservations.length && !found){
+						if(reservations[i].id == reservation_dialog_content.id){
+							found = true;
 						}
-					});
 
-					let action = {
-						type: AJAX_UPDATE_SCOPE_OUTLET_ID,
-						data
+						i++;
 					}
 
 					/**
-					 * By pass store
-					 * When handle action in this way
+					 * Get him out
 					 */
+					let need_update_reservation = reservations[i-1];
+
+					/**
+					 * Only assign on reservation key
+					 * Not all what come from reservation_dialog_content
+					 */
+					Object
+						.keys(need_update_reservation)
+						.forEach(key => {
+							need_update_reservation[key] = reservation_dialog_content[key];
+						});
+
+					store.dispatch({
+						type: HIDE_RESERVATION_DIALOG_CONTENT
+					});
+
+					this._updateReservations();
+				},
+
+				_updateReservations(){
+					let reservations = this.reservations;
+					let action = {
+						type: AJAX_UPDATE_RESERVATIONS,
+						reservations
+					}
+
 					self.ajax_call(action);
 				},
 
@@ -291,14 +252,14 @@ class AdminReservations {
 					if(button.tagName == 'BUTTON'){
 						try{
 							let action = button.getAttribute('action');
-							let reservation_index = button.getAttribute('reservation-index');
-							
-							let reservation = vue.reservations[reservation_index];
+							let reservation_index  = button.getAttribute('reservation-index');
+							let picked_reservation = vue.reservations[reservation_index];
 							
 							let payment_status;
+
 							switch(action){
 								default:
-									payment_status = PAYMENT_REFUNDED;
+									//payment_status = PAYMENT_PAID;
 									break;
 								case 'refund':
 									payment_status = PAYMENT_REFUNDED;
@@ -307,82 +268,34 @@ class AdminReservations {
 									payment_status = PAYMENT_CHARGED;
 									break;
 							}
-							
-							reservation.payment_status = payment_status;
-							
+
+							if(payment_status){
+								picked_reservation.payment_status = payment_status;
+							}
+
+							//Stop bubble event
 							e.stopPropagation();
 
-							store.dispatch({
-								type: UPDATE_RESERVATIONS,
-								// reservations: vue.reservations,
-							});
+							this._updateReservations();
 						}
 						catch(e){}
 					}
 				}
-
 			}
-
 		});
 	}
 
-	getVueState(){
-		if(typeof window.vue_state != 'undefined'){
-			return window.vue_state;
-		}
-
-		// window.vue_state = store.getState();
-		/**
-		 * Above assign go wrong
-		 * BCS vue will modifed on given state
-		 * Which will change state of store
-		 * >>> hard to understand workflow
-		 */
-		window.vue_state = Object.assign({}, store.getState());
-
-		/**
-		 * Vue handle weekly_view
-		 * Bring compute weekly_view to client
-		 */
-
-		/**
-		 * Notification with toast
-		 */
-		window.vue_state.toast = {
-			title: 'Title',
-			content: 'Content'
-		};
-
-		return window.vue_state;
-	}
-
-	initViewReducer(state, action){
-		switch(action.type){
-			case INIT_VIEW:{
-				return true;
-			}
-			default:
-				return state;
-		}
-	}
-
-	initView(){
-		store.dispatch({type: INIT_VIEW});
+	buildVueState(){
+		return Object.assign({}, store.getState());
 	}
 
 	reservationDialogContentReducer(state, action){
 		switch(action.type){
-			case CHANGE_RESERVATION_DIALOG_CONTENT:{
-				let r = action.reservation_dialog_content;
-				/**
-				 * Modify custom on datetime
-				 * @type {*|moment.Moment}
-				 */
-				let date = moment(r.reservation_timestamp, 'Y-M-D H:m:s');
-				r.date_str = date.format('YYYY-MM-DD');
-				r.time_str = date.format('HH:mm');
-				
-				return r;
+			case SHOW_RESERVATION_DIALOG_CONTENT:{
+				return action.reservation_dialog_content;
+			}
+			case HIDE_RESERVATION_DIALOG_CONTENT:{
+				return state;
 			}
 			default:
 				return state;
@@ -391,39 +304,8 @@ class AdminReservations {
 
 	reservationsReducer(state, action){
 		switch(action.type){
-			case UPDATE_SINGLE_RESERVATIONS: {
-				let reservation_dialog_content = action.reservation_dialog_content;
+			case UPDATE_SINGLE_RESERVATION: {
 
-				reservation_dialog_content.reservation_timestamp = `${reservation_dialog_content.date_str} ${reservation_dialog_content.time_str}:00`;
-
-				/**
-				 * Find which reservation need update info
-				 * Base on reservation dialog content
-				 * @type {number}
-				 */
-				let i = 0, index = 0;
-				while(i < state.length){
-					if(state[i].id == reservation_dialog_content.id){
-						index = i;
-					}
-
-					i++;
-				}
-
-				/**
-				 * Get him out
-				 */
-				let need_update_reservation = state[index];
-
-				/**
-				 * Only assign on reservation key
-				 * Not all what come from reservation_dialog_content
-				 */
-				Object
-					.keys(need_update_reservation)
-					.forEach(key => {
-						need_update_reservation[key] = reservation_dialog_content[key];
-					});
 
 				return state;
 			}
@@ -438,27 +320,42 @@ class AdminReservations {
 		}
 	}
 
-	findView(){
-		/**
-		 * Only run one time
-		 */
-		if(this._hasFindView){
+	_findView(){
+		///Only run one time
+		if(this._hasFindView)
 			return;
-		}
+		
 		this._hasFindView = true;
 
 		this.reservation_dialog = $('#reservation-dialog');
 	}
 
 	event(){
-		this.findView();
+		this._findView();
 		
 		let self = this;
 		
 		document.addEventListener('switch-outlet', (e)=>{
-			let data = e.detail;
-			
-			this.vue._switchOutlet(data);
+			let {outlet_id} = e.detail;
+
+			store.dispatch({
+				type: TOAST_SHOW,
+				toast: {
+					title: 'Switch Outlet',
+					content: 'Fetching Data'
+				}
+			});
+
+			let action = {
+				type: AJAX_UPDATE_SCOPE_OUTLET_ID,
+				outlet_id
+			}
+
+			/**
+			 * By pass store
+			 * When handle action in this way
+			 */
+			self.ajax_call(action);
 		});
 	}
 
@@ -466,49 +363,42 @@ class AdminReservations {
 		let store = window.store;
 		let self  = this;
 
-		/**
-		 * Debug state
-		 */
+		//Debug state
 		let pre = document.querySelector('#redux-state');
 		if(!pre){
 			let body = document.querySelector('body');
 			pre = document.createElement('pre');
-			body.appendChild(pre);
+			//body.appendChild(pre);
 		}
 
 		store.subscribe(()=>{
-			let action = store.getLastAction();
-			let state = store.getState();
+			let action   = store.getLastAction();
+			let state    = store.getState();
 			let prestate = store.getPrestate();
 
-			/**
-			 * Debug
-			 */
+			//Debug
 			pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));
 
 			/**
 			 * Show dialog for edit reservation detail
-			 * @type {boolean}
 			 */
-			let show_reservation_dialog = action == CHANGE_RESERVATION_DIALOG_CONTENT;
-			if(show_reservation_dialog){
+			if(action == SHOW_RESERVATION_DIALOG_CONTENT){
 				self.reservation_dialog.modal('show');
 			}
 
-			let success_update_single_reservation = action == UPDATE_SINGLE_RESERVATIONS;
-			if(success_update_single_reservation){
+
+			if(action == HIDE_RESERVATION_DIALOG_CONTENT){
 				self.reservation_dialog.modal('hide');
-			};
+			}
+
 			/**
 			 * Show toast
 			 */
 			if(action == TOAST_SHOW){
+				let toast = state.toast;
+				//update toast in vue
+				Object.assign(window.vue_state, {toast});
 				window.Toast.show();
-			}
-
-			if(true){
-				let vue_state = self.getVueState();
-				Object.assign(vue_state, state);
 			}
 		});
 	}
@@ -521,39 +411,10 @@ class AdminReservations {
 			let action   = store.getLastAction();
 			let state    = store.getState();
 			let prestate = store.getPrestate();
-
-			let update_single_reservation = action == UPDATE_SINGLE_RESERVATIONS;
-			if(update_single_reservation){
-				let action = {
-					type: AJAX_UPDATE_RESERVATIONS,
-					reservations: state.reservations
-				}
-
-				self.ajax_call(action);
-			}
-
-			let update_reservations = action == UPDATE_RESERVATIONS;
-			if(update_reservations){
-				let action = {
-					type: AJAX_UPDATE_RESERVATIONS,
-					reservations: state.reservations
-				}
-
-				self.ajax_call(action);
-			}
-			
-			if(action == REFETCHING_DATA){
-				let action = {
-					type: AJAX_REFETCHING_DATA
-				}
-
-				self.ajax_call(action);
-			}
 		});
 	}
 
 	ajax_call(action){
-		if(typeof action.type != 'undefined'){console.log('ajax call', action.type);}
 		let self = this;
 
 		store.dispatch({
@@ -564,7 +425,7 @@ class AdminReservations {
 			}
 		});
 
-		this.hack_ajax();
+
 
 		let state = store.getState();
 
@@ -597,10 +458,10 @@ class AdminReservations {
 
 	hack_ajax(){
 		//check if not init
-		if(typeof this._has_hack_ajax != 'undefined'){
+		if(this._hasHackAjax)
 			return;
-		}
-		this._has_hack_ajax = true;
+
+		this._hasHackAjax = true;
 
 		let self = this;
 
@@ -616,7 +477,6 @@ class AdminReservations {
 				error   : self.ajax_call_error,
 				compelte: self.ajax_call_complete
 			});
-
 
 			return o_ajax(options);
 		}
@@ -641,7 +501,8 @@ class AdminReservations {
 	}
 
 	ajax_call_success(res){
-		// console.log(res);
+		let self = this;
+		
 		switch(res.statusMsg){
 			case AJAX_SUCCESS: {
 				let toast = {
@@ -662,9 +523,11 @@ class AdminReservations {
 				break;
 			}
 			case AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS: {
-				store.dispatch({
-					type: REFETCHING_DATA
-				});
+				let action = {
+					type: AJAX_REFETCHING_DATA
+				}
+
+				self.ajax_call(action);
 				break;
 			}
 			case AJAX_REFETCHING_DATA_SUCCESS:{
@@ -729,7 +592,7 @@ class AdminReservations {
 	}
 	
 	ajax_call_complete(res){
-		console.log(res);
+		//console.log(res);
 	}
 }
 

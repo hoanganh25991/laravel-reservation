@@ -555,7 +555,7 @@ var BookingForm = function () {
 			if (typeof this._hasRunFindView == 'undefined') {
 				this._hasRunFindView = true;
 			} else {
-				console.info('findView has run');
+				console.info('_findView has run');
 				return;
 			}
 

@@ -38,7 +38,7 @@ var ReservationConfirm = function () {
 			});
 		}
 	}, {
-		key: 'findView',
+		key: '_findView',
 		value: function findView() {
 			if (typeof this._hasFindView == 'undefined') {
 				this._hasFindView = true;

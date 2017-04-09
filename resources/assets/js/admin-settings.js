@@ -1348,10 +1348,10 @@ class AdminSettings {
 
 	hack_ajax(){
 		//check if not init
-		if(typeof this._has_hack_ajax != 'undefined'){
+		if(typeof this._hasHackAjax != 'undefined'){
 			return;
 		}
-		this._has_hack_ajax = true;
+		this._hasHackAjax = true;
 
 		let self = this;
 
