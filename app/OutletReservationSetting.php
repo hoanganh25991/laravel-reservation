@@ -226,11 +226,17 @@ class OutletReservationSetting extends HoiModel{
      * Get all config for an outlet by group
      * Build convenience function call style as map
      * Store in static to reuse in current request
+     * @param null $which_outlet
      * @return mixed
+     * @throws \Exception
      */
-    public static function allConfigByGroup(){
+    public static function allConfigByGroup($which_outlet = null){
         if(!is_null(Setting::$all_config)){
             return Setting::$all_config;
+        }
+        
+        if(!is_null($which_outlet)){
+            Setting::injectOutletId($which_outlet);
         }
 
         $setting = new Setting;
@@ -296,10 +302,11 @@ class OutletReservationSetting extends HoiModel{
     /**
      * Config of each group
      * @param int $group_name
+     * @param null $which_outlet
      * @return \Closure
      */
-    public static function getConfigGroup($group_name = Setting::BUFFER_GROUP){
-        $config_by_group = Setting::allConfigByGroup();
+    public static function getConfigGroup($group_name = Setting::BUFFER_GROUP, $which_outlet = null){
+        $config_by_group = Setting::allConfigByGroup($which_outlet);
 
         try{
             $config_group = $config_by_group[(string)$group_name];
@@ -313,22 +320,23 @@ class OutletReservationSetting extends HoiModel{
 
     /**
      * Alias of allConfigByGroup for specific group
+     * @param $which_outlet
      * @return \Closure
      */
-    public static function bufferConfig(){
-        return Setting::getConfigGroup(Setting::BUFFER_GROUP);
+    public static function bufferConfig($which_outlet){
+        return Setting::getConfigGroup(Setting::BUFFER_GROUP, $which_outlet);
     }
 
-    public static function settingsConfig(){
-        return Setting::getConfigGroup(Setting::SETTINGS_GROUP);
+    public static function settingsConfig($which_outlet){
+        return Setting::getConfigGroup(Setting::SETTINGS_GROUP, $which_outlet);
     }
 
-    public static function notificationConfig(){
-        return Setting::getConfigGroup(Setting::NOTIFICATION_GROUP);
+    public static function notificationConfig($which_outlet){
+        return Setting::getConfigGroup(Setting::NOTIFICATION_GROUP, $which_outlet);
     }
 
-    public static function depositConfig(){
-        return Setting::getConfigGroup(Setting::DEPOSIT_GROUP);
+    public static function depositConfig($which_outlet){
+        return Setting::getConfigGroup(Setting::DEPOSIT_GROUP, $which_outlet);
     }
 
 

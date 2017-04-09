@@ -72,7 +72,7 @@ Route::group(['middleware' => 'reservations'], function (){
 /**
  * Handle paypal
  */
-Route::get('{brand_id}/paypal', 'PayPalController@laravelBug')->where('brand_id', '[0-9]+');
+Route::get('{brand_id}/paypal', 'PayPalController@testBrandIdInjected')->where('brand_id', '[0-9]+');
 Route::post('{brand_id}/paypal', 'PayPalController@handlePayment')->where('brand_id', '[0-9]+');
 
 /**

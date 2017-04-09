@@ -7,11 +7,11 @@ use Carbon\Carbon;
 //use Hashids\Hashids;
 use App\Traits\ApiUtils;
 use App\Events\ReservationReserved;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\Eloquent\Builder;
 use App\OutletReservationSetting as Setting;
-use Illuminate\Validation\Rule;
 
 /**
  * @property mixed reservation_timestamp
@@ -262,7 +262,7 @@ class Reservation extends HoiModel {
         static::orderByRerservationTimestamp();
         static::byOutletId();
     }
-
+    
     /**
      * Validate when create/add/update...
      * @param array $reservation_data
@@ -396,7 +396,7 @@ class Reservation extends HoiModel {
             return null;
         }
 
-        Setting::injectOutletId($this->outlet_id);
+        //Setting::injectOutletId($this->outlet_id);
 
         $notification_config = Setting::notificationConfig();
         $hours_before_reservation_timing_send_sms = $notification_config(Setting::HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM);
@@ -459,7 +459,7 @@ class Reservation extends HoiModel {
      * @return bool
      */
     public function requiredDeposit(){
-        $deposit_config = Setting::depositConfig();
+        $deposit_config = Setting::depositConfig($this->outlet_id);
         $deposit_threshold_pax = $deposit_config(Setting::DEPOSIT_THRESHOLD_PAX);
 
         if($this->pax_size > $deposit_threshold_pax){
@@ -477,8 +477,8 @@ class Reservation extends HoiModel {
     public function getDepositAttribute(){
         if($this->requiredDeposit()){
             //inject which outlet_id use to get config
-            Setting::injectOutletId($this->outlet_id);
-            $deposit_config = Setting::depositConfig();
+            //Setting::injectOutletId($this->outlet_id);
+            $deposit_config = Setting::depositConfig($this->outlet_id);
             $deposit_type   = $deposit_config(Setting::DEPOSIT_TYPE);
             
             $val = 0;
@@ -511,7 +511,7 @@ class Reservation extends HoiModel {
             return $val;
         }
         //if not, return default from current config
-        $notification_config = Setting::notificationConfig();
+        $notification_config = Setting::notificationConfig($this->outlet_id);
         return $notification_config(Setting::SEND_SMS_CONFIRMATION);
     }
 

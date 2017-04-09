@@ -18,10 +18,19 @@ class PayPalController extends HoiController{
 
     use ApiResponse;
     
-    protected $gateway;
+    public $gateway;
     
     public function __construct(){
-//        $brand_id = $req->route()->parameter('brand_id');
+        /**
+         * Controller construct is not reliable to run ANYTHING
+         * WHY???
+         * BCS Route parse action string > bind (controller, action)
+         * As list url > action
+         * >>> controller construct init before any route parse run 
+         */
+    }
+    
+    public function initGateway(){
         $brand_id = Setting::brandId();
         /** @var Brand $brand */
         $brand    = Brand::find($brand_id);
@@ -31,11 +40,11 @@ class PayPalController extends HoiController{
         }
 
         $access_token = $brand->paypal_token;
-        
+
         if(is_null($access_token)){
             throw new \Exception('Paypal access token not found');
         }
-        
+
         $this->gateway = new Gateway([
             'accessToken' => $access_token
         ]);
@@ -52,17 +61,17 @@ class PayPalController extends HoiController{
     }
 
     public function generateToken(){
+        $this->initGateway();
         $clientToken = $this->gateway->clientToken()->generate();
 
         return $clientToken;
     }
-    
-    public function laravelBug(){
-        $msg = 'RouterSerivceProvider not work with post method, it need get method go first??? WHY';
-        
-        return $msg;
-    }
 
+    public function testBrandIdInjected(){
+        $this->initGateway();
+
+        return "Gateway init";
+    }
 
     /**
      * Handle payment request from customer
@@ -72,6 +81,8 @@ class PayPalController extends HoiController{
      * @return $this
      */
     public function handlePayment(ApiRequest $req){
+        $this->initGateway();
+        
         $action_type = $req->get('type');
 
         switch($action_type){
@@ -171,6 +182,7 @@ class PayPalController extends HoiController{
          * Check status to call void or refund
          */
         $paypal_controller = new PayPalController;
+        $paypal_controller->initGateway();
         try{
             $transaction = $paypal_controller->gateway->transaction()->find($trasaction_id);
 
@@ -217,7 +229,9 @@ class PayPalController extends HoiController{
         /**
          * Settle it down to get money
          */
-        $result = (new PayPalController)->gateway->transaction()->submitForSettlement($trasaction_id);
+        $paypal_controller = new PayPalController;
+        $paypal_controller->initGateway();
+        $result = $paypal_controller->gateway->transaction()->submitForSettlement($trasaction_id);
 
         if($result->success){
             return true;

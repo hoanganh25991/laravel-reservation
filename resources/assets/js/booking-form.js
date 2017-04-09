@@ -215,18 +215,18 @@ class BookingForm {
 			ajax_call: 0,
 			has_selected_day: false,
 			form_step: 'form-step-1',
-			// customer: {
-			// 	salutation: 'Mr.',
-			// 	first_name: 'Anh',
-			// 	last_name : 'Le Hoang',
-			// 	email: 'lehoanganh25991@gmail.com',
-			// 	phone_country_code: '+84',
-			// 	phone: '903865657',
-			// 	remarks: 'hello world'
-			// },
 			customer: {
 				salutation: 'Mr.',
+				first_name: 'Anh',
+				last_name : 'Le Hoang',
+				email: 'lehoanganh25991@gmail.com',
+				phone_country_code: '+84',
+				phone: '903865657',
+				remarks: 'hello world'
 			},
+			// customer: {
+			// 	salutation: 'Mr.',
+			// },
 			pax_over: "block"
 		};
 		

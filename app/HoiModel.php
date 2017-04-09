@@ -55,4 +55,8 @@ class HoiModel extends Model {
         
         return $model;
     }
+
+    public static function find($id){
+        return static::withoutGlobalScopes()->where('id', $id)->first();
+    }
 }
