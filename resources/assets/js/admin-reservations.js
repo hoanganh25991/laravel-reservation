@@ -566,10 +566,13 @@ class AdminReservations {
 
 		this.hack_ajax();
 
+		let state = store.getState();
+
 		switch(action.type){
 			case AJAX_UPDATE_RESERVATIONS: {
 				let url  = self.url('reservations');
 				let data = action;
+				data.outlet_id = state.outlet_id;
 				$.ajax({url, data});
 				break;
 			}

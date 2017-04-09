@@ -68,5 +68,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton('hash', function () {
             return new HoiHashPassword();
         });
+        
+        
     }
 }

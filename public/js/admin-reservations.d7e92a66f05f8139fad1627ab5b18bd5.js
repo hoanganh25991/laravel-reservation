@@ -585,11 +585,14 @@ var AdminReservations = function () {
 
 			this.hack_ajax();
 
+			var state = store.getState();
+
 			switch (action.type) {
 				case AJAX_UPDATE_RESERVATIONS:
 					{
 						var url = self.url('reservations');
 						var data = action;
+						data.outlet_id = state.outlet_id;
 						$.ajax({ url: url, data: data });
 						break;
 					}

@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Reservation;
+use App\ReservationUser;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\OutletReservationSetting as Setting;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
@@ -37,9 +39,16 @@ class RouteServiceProvider extends ServiceProvider
          * This is the best place to resolve brand_id
          */
         Route::bind('brand_id', function($brand_id){
-            Setting::injectBrandId($brand_id);
+//            Setting::injectBrandId($brand_id);
             return $brand_id;
         });
+
+//        /** @var ReservationUser $user */
+//        $user = Auth::user();
+//
+//        if(!is_null($user)){
+//            $user->injectBrandId();
+//        }
     }
 
     /**

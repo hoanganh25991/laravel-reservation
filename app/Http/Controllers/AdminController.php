@@ -40,7 +40,7 @@ class AdminController extends HoiController {
     public function getDashboard(){
         /** @var ReservationUser $user */
         $user = Auth::user();
-        $user->injectBrandId();
+        //$user->injectBrandId();
 
         $outlets    = $user->outletsCanAccess();
         $brand_id   = Setting::brandId();
@@ -67,7 +67,7 @@ class AdminController extends HoiController {
         /** @var ReservationUser $user */
         $user = Auth::user();
 
-        if(in_array($outlet_id, $user->allowedOutletIds())){
+        if($user->allowedOutletIds()->contains($outlet_id)){
             session(compact('outlet_id'));
             $data = [];
             $code = 200;
@@ -88,8 +88,8 @@ class AdminController extends HoiController {
      */
     public function getReservationDashboard(ApiRequest $req){
         /** @var ReservationUser $user */
-        $user = Auth::user();
-        $user->injectBrandId();
+        //$user = Auth::user();
+        //$user->injectBrandId();
 
         $this->resolveOutletIdToInject();
         /**
@@ -100,6 +100,7 @@ class AdminController extends HoiController {
 
         $state = [
             'base_url'     => url(''),
+            'outlet_id'    => Setting::outletId(),
             'reservations' => $reservations
         ];
 
@@ -124,8 +125,8 @@ class AdminController extends HoiController {
      */
     public function getSettingsDashboard(ApiRequest $req){
         /** @var ReservationUser $user */
-        $user = Auth::user();
-        $user->injectBrandId();
+        //$user = Auth::user();
+        //$user->injectBrandId();
 
         $this->resolveOutletIdToInject();
         /**
@@ -147,6 +148,7 @@ class AdminController extends HoiController {
     
         $state = [
             'base_url'         => url(''),
+            'outlet_id'        => Setting::outletId(),
             'weekly_sessions'  => $weekly_sessions,
             'special_sessions' => $special_sesssions,
             'buffer'           => $buffer,
@@ -183,7 +185,7 @@ class AdminController extends HoiController {
          * These code is DANGEROUS, bcs it base on SESSION
          * which will lose it strength when work standalone with frontend api
          */
-        $outlet_id = session('outlet_id');
+        $outlet_id = session()->pull('outlet_id');
 
         if(is_null($outlet_id)){
             /** @var ReservationUser $user */

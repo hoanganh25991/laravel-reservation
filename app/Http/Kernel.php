@@ -4,6 +4,7 @@ namespace App\Http;
 
 use App\Http\Middleware\Administrator;
 use App\Http\Middleware\Reservations;
+use App\Http\Middleware\ResolveBrandOutletId;
 use App\Http\Middleware\Staff;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
@@ -35,8 +36,9 @@ class Kernel extends HttpKernel
             \Illuminate\Session\Middleware\StartSession::class,
             // \Illuminate\Session\Middleware\AuthenticateSession::class,
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-//            \App\Http\Middleware\VerifyCsrfToken::class,
+            //            \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            ResolveBrandOutletId::class,
         ],
 
         'api' => [

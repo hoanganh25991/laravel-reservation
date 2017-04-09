@@ -2,12 +2,11 @@
 
 namespace App;
 
-use App\Http\Controllers\PayPalController;
 use Carbon\Carbon;
 //use Hashids\Hashids;
 use App\Traits\ApiUtils;
-use App\Events\ReservationReserved;
 use Illuminate\Validation\Rule;
+use App\Events\ReservationReserved;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\Eloquent\Builder;
@@ -389,16 +388,17 @@ class Reservation extends HoiModel {
      * When should send confirmation (SMS, email,...)
      * Base on notification config: HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM
      * @return Carbon|null
+     * @throws \Exception
      */
     public function getSendConfirmationByTimestampAttribute(){
         //Without outlet_id, can't determine which config used
         if(is_null($this->outlet_id)){
-            return null;
+            throw new \Exception('Reservation need outlet_id to decide config');
         }
 
         //Setting::injectOutletId($this->outlet_id);
 
-        $notification_config = Setting::notificationConfig();
+        $notification_config = Setting::notificationConfig($this->outlet_id);
         $hours_before_reservation_timing_send_sms = $notification_config(Setting::HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM);
 
        //Without reservation_timestamp CAN NOT determine when

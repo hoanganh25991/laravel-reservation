@@ -62,6 +62,8 @@ class ReservationUser extends User {
 
     protected $rememberTokenName = 'secret_token';
 
+    //public static $should_scope_by_brand_id = true;
+
     /**
      * Inject into boot process
      * To modify on query scope or
@@ -69,6 +71,10 @@ class ReservationUser extends User {
      */
     protected static function boot() {
         parent::boot();
+
+//        if(static::$should_scope_by_brand_id){
+//            static::byBrandId();
+//        }
     }
 
     public function getAuthPassword() {
@@ -244,4 +250,6 @@ class ReservationUser extends User {
         
         return $outlets;
     }
+    
+    
 }

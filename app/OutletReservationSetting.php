@@ -280,7 +280,7 @@ class OutletReservationSetting extends HoiModel{
      */
     public static function injectOutletId($outlet_id){
         if(!is_numeric($outlet_id)){
-            throw new \Exception('Brand id to inject MUST BE A NUMBER');
+            throw new \Exception('outlet id to inject MUST BE A NUMBER');
         }
         
         Setting::$outlet_id = $outlet_id;
@@ -323,19 +323,19 @@ class OutletReservationSetting extends HoiModel{
      * @param $which_outlet
      * @return \Closure
      */
-    public static function bufferConfig($which_outlet){
+    public static function bufferConfig($which_outlet = null){
         return Setting::getConfigGroup(Setting::BUFFER_GROUP, $which_outlet);
     }
 
-    public static function settingsConfig($which_outlet){
+    public static function settingsConfig($which_outlet = null){
         return Setting::getConfigGroup(Setting::SETTINGS_GROUP, $which_outlet);
     }
 
-    public static function notificationConfig($which_outlet){
+    public static function notificationConfig($which_outlet = null){
         return Setting::getConfigGroup(Setting::NOTIFICATION_GROUP, $which_outlet);
     }
 
-    public static function depositConfig($which_outlet){
+    public static function depositConfig($which_outlet = null){
         return Setting::getConfigGroup(Setting::DEPOSIT_GROUP, $which_outlet);
     }
 

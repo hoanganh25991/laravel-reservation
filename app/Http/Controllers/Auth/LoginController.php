@@ -30,7 +30,12 @@ class LoginController extends Controller
      * Create a new controller instance.
      *
      */
-    public function __construct() {}
+    public function __construct() {
+        //ReservationUser used for login check
+        //should not limit by brand_id
+        //we don't know which brand_id used
+        //ReservationUser::$should_scope_by_brand_id = false;
+    }
 
     /**
      * Get the login username to be used by the controller.
@@ -40,7 +45,7 @@ class LoginController extends Controller
     public function username() {
         return 'user_name';
     }
-
+    
     /**
      * Log the user out of the application.
      *
