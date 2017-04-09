@@ -17,40 +17,21 @@ class AdminController extends HoiController {
 
     use ApiResponse;
 
-    /**
-     * AdminController constructor.
-     * Brand id implicit inject when get into admin page
-     * These function FINE, but not good
-     * Current logic base on res_outlet_reservation_user
-     * Have to accept _._!
-     */
-    public function __construct(){
-        /**
-         * CAN'T access user here
-         * BCS after this instance, middleware start run
-         * ONLY after middleware run, we have $user
-         */
-//        $user = Auth::user();
-//        $user->injectBrandId();
-    }
+    public function __construct(){}
 
     /**
      * @return $this
      */
     public function getDashboard(){
         /** @var ReservationUser $user */
-        $user = Auth::user();
-        //$user->injectBrandId();
-
-        $outlets    = $user->outletsCanAccess();
-        $brand_id   = Setting::brandId();
+        $user     = Auth::user();
+        $outlets  = $user->outletsCanAccess();
 
         $state = [
             'outlets'         => $outlets,
             'selected_outlet' => null,
             'base_url'        => url(''),
             'user'            => $user,
-            'brand_id'       => $brand_id,
         ];
 
         return view('admin.index')->with(compact('state'));
@@ -62,12 +43,13 @@ class AdminController extends HoiController {
      * @return $this
      */
     public function setUpOuletId(ApiRequest $req){
-        $data = json_decode($req->getContent(), true);
-        $outlet_id = $data['outlet_id'];
         /** @var ReservationUser $user */
-        $user = Auth::user();
+        $user      = Auth::user();
+        $outlet_id = $req->json('outlet_id');
 
-        if($user->allowedOutletIds()->contains($outlet_id)){
+        $has_permission_on_outlet = $user->allowedOutletIds()->contains($outlet_id);
+
+        if($has_permission_on_outlet){
             session(compact('outlet_id'));
             $data = [];
             $code = 200;
@@ -87,10 +69,7 @@ class AdminController extends HoiController {
      * @throws \Exception
      */
     public function getReservationDashboard(ApiRequest $req){
-        /** @var ReservationUser $user */
-        //$user = Auth::user();
-        //$user->injectBrandId();
-
+        //realy important, outlet id should specific which one
         $this->resolveOutletIdToInject();
         /**
          * Reservations
@@ -104,18 +83,6 @@ class AdminController extends HoiController {
             'reservations' => $reservations
         ];
 
-        /**
-         * Quick check, only handle 1 POST case
-         * From ajax
-         * @see Call::AJAX_REFETCHING_DATA
-         */
-        if($req->method() == 'POST'){
-            $data = $state;
-            $code = 200;
-            $msg  = Call::AJAX_REFETCHING_DATA_SUCCESS;
-            return $this->apiResponse($data, $code, $msg);
-        }
-
         return view('admin.reservations')->with(compact('state'));
     }
 
@@ -124,10 +91,7 @@ class AdminController extends HoiController {
      * @return $this
      */
     public function getSettingsDashboard(ApiRequest $req){
-        /** @var ReservationUser $user */
-        //$user = Auth::user();
-        //$user->injectBrandId();
-
+        //realy important, outlet id should specific which one
         $this->resolveOutletIdToInject();
         /**
          * Sessions data
@@ -161,35 +125,19 @@ class AdminController extends HoiController {
             'outlets'          => $outlets,
         ];
 
-        if($req->fromApiGroup()){
-            return $this->apiResponse($state, 200, Call::AJAX_SUCCESS);
-        }
-
-        /**
-         * Quick check, only handle 1 POST case
-         * From ajax 
-         * @see Call::AJAX_REFETCHING_DATA
-         */
-        if($req->method() == 'POST'){
-            $data = $state;
-            $code = 200;
-            $msg  = Call::AJAX_REFETCHING_DATA_SUCCESS;
-            return $this->apiResponse($data, $code, $msg);
-        }
-
         return view('admin.settings')->with(compact('state'));
     }
 
     public function resolveOutletIdToInject(){
         /**
-         * These code is DANGEROUS, bcs it base on SESSION
-         * which will lose it strength when work standalone with frontend api
+         * Pull from session means get & delete
          */
         $outlet_id = session()->pull('outlet_id');
 
         if(is_null($outlet_id)){
             /** @var ReservationUser $user */
-            $user = Auth::user();
+            $user      = Auth::user();
+            //implicit means he want to go to the first one
             $outlet_id = $user->allowedOutletIds()->first();
 
             if(is_null($outlet_id)){

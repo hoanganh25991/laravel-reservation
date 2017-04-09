@@ -72,11 +72,6 @@ class BookingController extends HoiController {
      * @see BookingController::availableTime
      */
     public function setUpBookingConditions($condition = []){
-        /**
-         * Store Outlet in session for reuse as global query scope
-         */
-        Setting::injectOutletId($condition['outlet_id']);
-
         $this->booking_condition = $condition;
     }
 
@@ -381,8 +376,8 @@ class BookingController extends HoiController {
         /**
          * Save cache before move on
          */
-        $file_name = static::cacheFilename(static::DATES_WITH_AVAILABLE_TIME);
-        Cache::put($file_name, $return, 24 * 60);//expire in day
+//        $file_name = static::cacheFilename(static::DATES_WITH_AVAILABLE_TIME);
+//        Cache::put($file_name, $return, 24 * 60);//expire in day
 
         return $return;
     }
@@ -394,14 +389,6 @@ class BookingController extends HoiController {
      * Should recalculate
      */
     public function shouldUseCache(){
-//        if(env('APP_ENV') != 'production'){
-//            return false;
-//        }
-//
-//        $filename  = static::cacheFileName(static::SHOULD_UPDATE_DATES_WITH_AVAILABLE_TIME);
-//        $shouldUpdateCache = Cache::pull($filename, false);
-//
-//        return !$shouldUpdateCache;
         return false;
     }
 
@@ -528,8 +515,6 @@ class BookingController extends HoiController {
                      * Case: Reservation with deposit require
                      */
                     if($reservation->requiredDeposit()){
-                        //$deposit      = $reservation->deposit;
-                        //$confirm_id   = $reservation->confirm_id;
                         $paypal_token = (new PayPalController)->generateToken();
 
                         $data = compact('reservation', 'paypal_token');
@@ -542,9 +527,7 @@ class BookingController extends HoiController {
                      * Normal case: Reservation created
                      * RESERVED
                      */
-                    $confirm_id =  $reservation->confirm_id;
 
-                    //$data = compact('confirm_id');
                     $data = compact('reservation');
                     $code = 200;
                     $msg  = Call::AJAX_RESERVATION_SUCCESS_CREATE;
@@ -553,12 +536,6 @@ class BookingController extends HoiController {
 
             return $this->apiResponse($data, $code, $msg);
         }
-
-        /**
-         * Inject Brand id through route uri
-         */
-        $brand_id = $req->route()->parameter('brand_id');
-        Setting::injectBrandId($brand_id);
 
         //Handle get
         $outlet  = [];

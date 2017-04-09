@@ -3,7 +3,6 @@
 namespace App;
 
 use Carbon\Carbon;
-//use Hashids\Hashids;
 use App\Traits\ApiUtils;
 use Illuminate\Validation\Rule;
 use App\Events\ReservationReserved;
