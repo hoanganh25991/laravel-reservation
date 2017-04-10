@@ -3,10 +3,10 @@
 <head>
     <link href="{{ url('css/bootstrap.min.css') }}" rel="stylesheet" media="screen">
     <link href="{{ url('css/font-awesome.min.css') }}" rel="stylesheet" media="screen">
-    <link href="{{ url(substr(mix('css/reservation.css'), 1)) }}" rel="stylesheet">
+    <link href="{{ url('css/reservation.css') }}" rel="stylesheet">
     @stack('css')
 </head>
-<body style="width: 468px; height: 670px; overflow: hidden;">
+<body>
 
 <div class="container">
     @yield('content')
