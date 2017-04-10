@@ -56,7 +56,7 @@ class HoiJobsForCronJobs {
                         ['send_sms_confirmation', Setting::SHOULD_SEND],
                         ['reservation_timestamp', '<=', $reservation_timestamp_str]
                     ])
-                        ->get();
+                    ->get();
 
                 $need_send_reminder_reservations
                     ->each(function(Reservation $reservation){

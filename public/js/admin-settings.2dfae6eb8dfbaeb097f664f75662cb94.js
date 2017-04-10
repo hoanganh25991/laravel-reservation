@@ -326,7 +326,7 @@ var AdminSettings = function () {
 
 						var action = {
 							type: AJAX_UPDATE_NOTIFICATION,
-							buffer: vue.notification
+							notification: vue.notification
 						};
 
 						self.ajax_call(action);
