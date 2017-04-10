@@ -478,7 +478,7 @@ var BookingForm = function () {
 
 				if (is_pax_over) {
 					// store.dispatch({type: PAX_OVER});
-					window.alert('Over all pax should between ' + state.overall_min_pax + ' - ' + state.overall_max_pax + ' ');
+					window.alert('Total number of people should be between ' + state.overall_min_pax + ' - ' + state.overall_max_pax + ' ');
 				}
 
 				if (prestate.has_selected_day == false && state.has_selected_day == true) {
