@@ -16,8 +16,6 @@ a:hover {
 label {
     float: left;
     display: inline;
-    width: 130px;
-    padding: 5px;
     font-size: 13px;
     font-weight: bold;
     color: #232323;
@@ -1024,12 +1022,8 @@ ul#user-options {
     font-size: 12px
 }
 .container .box {
-    width: 500px;
+    width: 100%;
     margin: 0 auto;
-    background: #fdfdfd;
-    border: 1px solid #d9d9d9;
-    border-radius: 0 0 4px 4px;
-    border-radius: 4px;
     position: relative;
     padding: 0 0 10px
 }
@@ -1448,7 +1442,6 @@ ul#user-options {
 #confirm-details label {
     float: left;
     display: inline-block;
-    color: #666
 }
 #confirm-details #d-title {
     width: 78px;
@@ -1458,9 +1451,6 @@ ul#user-options {
     margin-left: 30px;
     position: relative;
     top: -1px
-}
-#confirm-details .form-control {
-    width: 300px
 }
 #confirm-details .form-set {
     float: left;
@@ -1514,12 +1504,11 @@ ul#user-options {
     height: 80px
 }
 #confirm-details .note {
-    width: 280px;
     font-size: 10px;
-    margin-left: 31%;
     line-height: 1.3em;
     margin-top: 5px;
-    color: #444
+    color: #999;
+    text-align: center;
 }
 #confirm-details #agree {
     margin: 0 auto;
@@ -2248,7 +2237,6 @@ ul#user-options {
 #form-step-container .form-step {
     position: absolute;
     top: 0;
-    left: calc(50vw - 250px);
     transition: all 0.5s ease-in-out;
     transform: scale(0,0);
 }

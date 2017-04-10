@@ -7,13 +7,13 @@
             <div class="box form-step" id="form-step-1">
                 @component('reservations.header')
                 @slot('title')
-                Make a Reservation at <span class="r-name"> <a href="{{ url('') }}" target="_blank"
+                Reservation at <span class="r-name"> <a href="{{ url('') }}" target="_blank"
                                                                id="reservation_title">@{{ outlet.name }}</a></span>
-                <p class="sub"></p>
                 @endslot
                 @endcomponent
                 <div id="check-availability" class="content">
                     <div class="rid-select">
+                        <label for="outlet_id">Select an outlet</label>
                         <select name="outlet_id" id="rid" title="spize" class="form-control" :value="outlet.id">
                             {{--@foreach($outlets as $outlet)--}}
                                 {{--<option value="{{ $outlet->id }}">{{ $outlet->name }}</option>--}}
@@ -47,7 +47,7 @@
                         <div class="clear"></div>
                         <div id="calendar-box" align="center"></div>
                         <div id="dt-choice" class="cf">
-                            <label id="reservation_date">@{{ reservation.date.format('MMM D Y') }}</label>
+                            <label id="reservation_date">@{{ reservation.date.format('DD MMM Y') }}</label>
                             <input type="hidden" name="reservation_date" value="">
                             <select name="reservation_time" class="form-control">
                                 <option>N/A</option>
@@ -56,16 +56,14 @@
                         <div class="agree-box cf">
                             <div class="checkbox cf">
                                 <label for="agree_box">I acknowledge that this is a waitlisted reservation and is
-                                    subjected
-                                    to
-                                    the restaurant's confirmation.</label>
+                                    subjected to the restaurant's confirmation.</label>
                                 <input id="agree_box" type="checkbox" name="agree_box" value="1"
                                        class="form-control agree-check" required>
                             </div>
                         </div>
                     </div>
                     <div class="form-actions cf bottom_room">
-                        <button class="btn-form-next btn btn-primary  pull-right" destination="form-step-2">Next
+                        <button class="btn-form-next btn btn-block btn-primary" destination="form-step-2">Next
                         </button>
                     </div>
                 </div>
@@ -86,38 +84,44 @@
                 @endslot
                 @endcomponent
                 <div id="confirm-details" class="content">
-                    <div class="form-groups">
-                        <select id="d-title" class="form-control" name="salutation" :value="customer.salutation">
+                    <div class="form-groups login-form">
+                        <select id="d-title" class="form-control login-field" name="salutation" :value="customer.salutation">
                             <option value="Mr.">Mr.</option>
                             <option value="Ms.">Ms.</option>
                             <option value="Mrs.">Mrs.</option>
                             <option value="Mdm.">Mdm.</option>
                         </select>
-                        <input type="text" class="form-control d-name name_check" name="first_name"
-                               :value="customer.first_name"
-                               placeholder="First Name" title="First Name">&nbsp;
-                        <input type="text" class="form-control d-name name_check" name="last_name"
-                               :value="customer.last_name"
-                               placeholder="Last Name" title="Last Name">
+                        <div class="form-group">
+                            <input type="text" class="form-control d-name name_check login-field" name="first_name"
+                                :value="customer.first_name"
+                                placeholder="First Name" title="First Name">&nbsp;
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control d-name name_check login-field" name="last_name"
+                                :value="customer.last_name"
+                                placeholder="Last Name" title="Last Name">
+                        </div>
+
+                        <div class="form-group">
+                            <input type="email" class="form-control login-field" name="email" id="booking-email"
+                                   :value="customer.email" placeholder="Enter Email Address">
+                            <label class="login-field-icon fa fa-envelope" for="booking-email"></label>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="text" id="phone-area" class="form-control contry_check" name="phone_country_code"
+                                :value="customer.phone_country_code" placeholder="+65" title="Area Code">
+                            <input type="tel" class="form-control login-field mobile_check" name="phone" id="telephone"
+                                   :value="customer.phone" placeholder="Phone Number" title="Phone Number">
+                            <label class="login-field-icon fa fa-mobile" for="telephone"></label>
+                        </div>
+
+                        <div class="form-group">
+                            <textarea class="form-control login-field" placeholder="Special Requests (maximum 85 characters)"
+                                        name="remarks" id="booking-remarks" :value="customer.remarks" maxlength="85"></textarea>
+                            <p class="note">Special requests are not guaranteed and are subject to availability and restaurant discretion.</p>
+                        </div>
                     </div>
-                    <br>
-                    <div class="form-groups">
-                        <label for="email">Email Address</label>
-                        <input type="email" class="form-control" name="email" :value="customer.email"
-                               placeholder="Enter Email Address" title="Enter Email Address"><br>
-                        <label for="telephone">Mobile Phone</label>
-                        <input type="text" id="phone-area" class="form-control contry_check" name="phone_country_code"
-                               :value="customer.phone_country_code" placeholder="+65" title="Area Code">
-                        <input type="tel" id="telephone" class="form-control mobile_check" name="phone"
-                               :value="customer.phone"
-                               placeholder="Phone Number" title="Phone Number"><br>
-                        <label for="notes" class="textarea">Special Requests</label><textarea class="form-control"
-                                                                                              name="remarks"
-                                                                                              placeholder="Message (Maximum 85 characters.)"
-                                                                                              maxlength="85"
-                                                                                              :value="customer.remarks"></textarea>
-                        <p class="note">Special requests are not guaranteed and are subject to availability and
-                            restaurant discretion.</p></div>
 
                     <div class="form-actions cf bottom_room">
                         <button class="btn-form-next btn btn-primary pull-right" destination="form-step-3">Next</button>
@@ -137,7 +141,7 @@
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                                     aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">Sending reservation...</h4>
+                        <h4 class="modal-title">Checking reservation...</h4>
                     </div>
                     <div class="modal-body center">
                         {{--<div style="width: 100px; display: inline-block">--}}
