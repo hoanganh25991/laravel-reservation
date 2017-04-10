@@ -56,16 +56,14 @@
                         <div class="agree-box cf">
                             <div class="checkbox cf">
                                 <label for="agree_box">I acknowledge that this is a waitlisted reservation and is
-                                    subjected
-                                    to
-                                    the restaurant's confirmation.</label>
+                                    subjected to the restaurant's confirmation.</label>
                                 <input id="agree_box" type="checkbox" name="agree_box" value="1"
                                        class="form-control agree-check" required>
                             </div>
                         </div>
                     </div>
                     <div class="form-actions cf bottom_room">
-                        <button class="btn-form-next btn btn-primary  pull-right" destination="form-step-2">Next
+                        <button class="btn-form-next btn btn-block btn-info" destination="form-step-2">Next
                         </button>
                     </div>
                 </div>
