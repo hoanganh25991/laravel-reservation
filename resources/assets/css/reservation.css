@@ -1024,9 +1024,8 @@ ul#user-options {
     font-size: 12px
 }
 .container .box {
+    width: 100%;
     margin: 0 auto;
-    border-radius: 0 0 4px 4px;
-    border-radius: 4px;
     position: relative;
     padding: 0 0 10px
 }
