@@ -57,6 +57,14 @@ class AppServiceProvider extends ServiceProvider
             
             $view->with(compact('outlets'));
         });
+
+        /**
+         * Fix url in console
+         */
+        /** @var \Illuminate\Routing\UrlGenerator $url */
+        $url = $this->app['url'];
+        // Force the application URL
+        $url->forceRootUrl(config('app.url'));
     }
 
     /**
