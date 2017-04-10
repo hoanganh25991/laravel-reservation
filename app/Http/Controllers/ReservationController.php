@@ -112,7 +112,7 @@ class ReservationController extends HoiController{
                 }
 
                 //everything is fine
-                $data = $this->fetchUpdateReservations();
+                $data = ['reservations' =>  $this->fetchUpdateReservations()];
                 $code = 200;
                 $msg  = Call::AJAX_SUCCESS;
                 break;
