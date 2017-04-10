@@ -218,6 +218,22 @@ class Reservation extends HoiModel {
              * @should resent SMS
              * To info customer what updated
              */
+            $previous_state = $reservation->getOriginal('status');
+            //Only handle when state change
+            if($previous_state == Reservation::REQUIRED_DEPOSIT){
+
+                switch($reservation->status){
+                    case Reservation::RESERVED:
+                        event(new ReservationReserved($reservation));
+                        break;
+                    default:
+                        break;
+                }
+
+                //when return as false
+                //we explicit tell discard save record to DB
+                return true;
+            }
         });
 
         self::saving(function(Reservation $reservation){
