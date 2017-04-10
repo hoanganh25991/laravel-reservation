@@ -200,14 +200,11 @@ class PayPalController extends HoiController{
                 case Transaction::ESCROW_RELEASED:
                     $result = $paypal_controller->gateway->transaction()->refund($trasaction_id);
                     break;
-//                default:
-//                    $result = (object)[
-//                        'success' => false
-//                    ];
-//                    break;
+                default:
+                    break;
             }
 
-            if($result->success){
+            if(isset($result) && $result->success){
                 return true;
             }else{
                 //log error

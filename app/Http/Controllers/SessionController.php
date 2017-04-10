@@ -14,16 +14,15 @@ class SessionController extends HoiController{
     use ApiResponse;
 
     public function update(ApiRequest $req){
-        $data = json_decode($req->getContent(), JSON_NUMERIC_CHECK);
-        $action_type = $data['type'];
+        $action_type = $req->json('type');
 
         switch($action_type){
             case Call::AJAX_UPDATE_SESSIONS:
-                $sessions = $data['sessions'];
+                $sessions = $req->json('sessions');
 
-                $deleted_sessions = $data['deleted_sessions'];
+                $deleted_sessions = $req->json('deleted_sessions');
                 
-                $deleted_timings  = $data['deleted_timings'];
+                $deleted_timings  = $req->json('deleted_timings');
 
                 $validator = null;
 

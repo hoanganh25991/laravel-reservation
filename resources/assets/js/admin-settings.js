@@ -282,6 +282,10 @@ class AdminSettings {
 				_updateWeeklySessions(){
 					let vue = this;
 
+					//noinspection JSUnresolvedVariable
+					this._resolveTimingArrivalTime(vue.weekly_sessions);
+
+					//noinspection JSUnresolvedVariable
 					let action = {
 						type             : AJAX_UPDATE_SESSIONS,
 						sessions         : vue.weekly_sessions,
@@ -533,6 +537,22 @@ class AdminSettings {
 						}
 
 					}
+				},
+
+				_resolveTimingArrivalTime(sessions){
+					sessions.forEach(session => {
+						session
+							.timings
+							.forEach(timing => {
+								if(timing.first_arrival_time.split(':').length == 2){
+									timing.first_arrival_time = timing.first_arrival_time + ':00';
+								}
+
+								if(timing.last_arrival_time.split(':').length == 2){
+									timing.last_arrival_time = timing.last_arrival_time + ':00';
+								}
+							});
+					});
 				}
 			}
 
@@ -584,9 +604,14 @@ class AdminSettings {
 	}
 
 	_dumpWeeklySession(){
+		let store = window.store;
+		let state = store.getState();
+
+		let outlet_id = state.outlet_id;
+
 		let dump_session = {
 			"id": this._randomId(),
-			"outlet_id": 1,
+			"outlet_id": outlet_id,
 			"session_name": "Lunch time",
 			"on_mondays": 1,
 			"on_tuesdays": 1,
@@ -595,8 +620,6 @@ class AdminSettings {
 			"on_fridays": 1,
 			"on_saturdays": 1,
 			"on_sundays": 1,
-			"created_timestamp": "2017-03-03 21:39:39",
-			"modified_timestamp": "2017-03-06 21:39:33",
 			"one_off": 0,
 			"one_off_date": null,
 			"first_arrival_time": "05:00:00",
@@ -626,8 +649,6 @@ class AdminSettings {
 			"max_pax": 20,
 			"children_allowed": true,
 			"is_outdoor": null,
-			"created_timestamp": "2017-03-02 20:11:45",
-			"modified_timestamp": "2017-03-02 21:51:41"
 		};
 
 		return dump_timing;
@@ -643,11 +664,16 @@ class AdminSettings {
 	}
 
 	_dumpSpecialSession(){
-		let today = moment();
-		let date_str = today.format('YYYY-MM-DD');
+		let store = window.store;
+		let state = store.getState();
+
+		let outlet_id = state.outlet_id;
+		let today     = moment();
+		let date_str  = today.format('YYYY-MM-DD');
+
 		let dump_special_session = {
 			"id": this._randomId(),
-			"outlet_id": 1,
+			"outlet_id": outlet_id,
 			"session_name": "Special session",
 			"on_mondays": null,
 			"on_tuesdays": null,
@@ -656,8 +682,6 @@ class AdminSettings {
 			"on_fridays": null,
 			"on_saturdays": null,
 			"on_sundays": null,
-			"created_timestamp": "2017-03-03 21:39:39",
-			"modified_timestamp": "2017-03-06 21:39:33",
 			"one_off": 1,
 			"one_off_date": date_str,
 			"timings": [
@@ -1027,21 +1051,7 @@ class AdminSettings {
 	
 	ajax_call_complete(){}
 
-	resolveTimingArrivalTime(sessions){
-		sessions.forEach(session => {
-			session
-				.timings
-				.forEach(timing => {
-					if(timing.first_arrival_time.split(':').length == 2){
-						timing.first_arrival_time = timing.first_arrival_time + ':00';
-					}
 
-					if(timing.last_arrival_time.split(':').length == 2){
-						timing.last_arrival_time = timing.last_arrival_time + ':00';
-					}
-				});
-		});
-	}
 
 	hack_ajax(){
 		//check if not init

@@ -286,6 +286,10 @@ var AdminSettings = function () {
 					_updateWeeklySessions: function _updateWeeklySessions() {
 						var vue = this;
 
+						//noinspection JSUnresolvedVariable
+						this._resolveTimingArrivalTime(vue.weekly_sessions);
+
+						//noinspection JSUnresolvedVariable
 						var action = {
 							type: AJAX_UPDATE_SESSIONS,
 							sessions: vue.weekly_sessions,
@@ -530,6 +534,19 @@ var AdminSettings = function () {
 								return;
 							}
 						}
+					},
+					_resolveTimingArrivalTime: function _resolveTimingArrivalTime(sessions) {
+						sessions.forEach(function (session) {
+							session.timings.forEach(function (timing) {
+								if (timing.first_arrival_time.split(':').length == 2) {
+									timing.first_arrival_time = timing.first_arrival_time + ':00';
+								}
+
+								if (timing.last_arrival_time.split(':').length == 2) {
+									timing.last_arrival_time = timing.last_arrival_time + ':00';
+								}
+							});
+						});
 					}
 				}
 
@@ -588,9 +605,14 @@ var AdminSettings = function () {
 	}, {
 		key: '_dumpWeeklySession',
 		value: function _dumpWeeklySession() {
+			var store = window.store;
+			var state = store.getState();
+
+			var outlet_id = state.outlet_id;
+
 			var dump_session = {
 				"id": this._randomId(),
-				"outlet_id": 1,
+				"outlet_id": outlet_id,
 				"session_name": "Lunch time",
 				"on_mondays": 1,
 				"on_tuesdays": 1,
@@ -599,8 +621,6 @@ var AdminSettings = function () {
 				"on_fridays": 1,
 				"on_saturdays": 1,
 				"on_sundays": 1,
-				"created_timestamp": "2017-03-03 21:39:39",
-				"modified_timestamp": "2017-03-06 21:39:33",
 				"one_off": 0,
 				"one_off_date": null,
 				"first_arrival_time": "05:00:00",
@@ -628,9 +648,7 @@ var AdminSettings = function () {
 				"capacity_7_x": 1,
 				"max_pax": 20,
 				"children_allowed": true,
-				"is_outdoor": null,
-				"created_timestamp": "2017-03-02 20:11:45",
-				"modified_timestamp": "2017-03-02 21:51:41"
+				"is_outdoor": null
 			};
 
 			return dump_timing;
@@ -648,11 +666,16 @@ var AdminSettings = function () {
 	}, {
 		key: '_dumpSpecialSession',
 		value: function _dumpSpecialSession() {
+			var store = window.store;
+			var state = store.getState();
+
+			var outlet_id = state.outlet_id;
 			var today = moment();
 			var date_str = today.format('YYYY-MM-DD');
+
 			var dump_special_session = {
 				"id": this._randomId(),
-				"outlet_id": 1,
+				"outlet_id": outlet_id,
 				"session_name": "Special session",
 				"on_mondays": null,
 				"on_tuesdays": null,
@@ -661,8 +684,6 @@ var AdminSettings = function () {
 				"on_fridays": null,
 				"on_saturdays": null,
 				"on_sundays": null,
-				"created_timestamp": "2017-03-03 21:39:39",
-				"modified_timestamp": "2017-03-06 21:39:33",
 				"one_off": 1,
 				"one_off_date": date_str,
 				"timings": [this._dumpTiming()]
@@ -1035,21 +1056,6 @@ var AdminSettings = function () {
 	}, {
 		key: 'ajax_call_complete',
 		value: function ajax_call_complete() {}
-	}, {
-		key: 'resolveTimingArrivalTime',
-		value: function resolveTimingArrivalTime(sessions) {
-			sessions.forEach(function (session) {
-				session.timings.forEach(function (timing) {
-					if (timing.first_arrival_time.split(':').length == 2) {
-						timing.first_arrival_time = timing.first_arrival_time + ':00';
-					}
-
-					if (timing.last_arrival_time.split(':').length == 2) {
-						timing.last_arrival_time = timing.last_arrival_time + ':00';
-					}
-				});
-			});
-		}
 	}, {
 		key: 'hack_ajax',
 		value: function hack_ajax() {
