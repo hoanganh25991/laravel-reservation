@@ -6,14 +6,11 @@
         <div class="container">
             <div class="box form-step" id="form-step-1">
                 @component('reservations.header')
-                @slot('title')
-                Make a Reservation at <span class="r-name"> <a href="{{ url('') }}" target="_blank"
-                                                               id="reservation_title">@{{ outlet.name }}</a></span>
-                <p class="sub"></p>
-                @endslot
+                Reservation
                 @endcomponent
                 <div id="check-availability" class="content">
                     <div class="rid-select">
+                        <label for="outlet_id">Select an outlet</label>
                         <select name="outlet_id" id="rid" title="spize" class="form-control" :value="outlet.id">
                             {{--@foreach($outlets as $outlet)--}}
                                 {{--<option value="{{ $outlet->id }}">{{ $outlet->name }}</option>--}}
@@ -47,7 +44,7 @@
                         <div class="clear"></div>
                         <div id="calendar-box" align="center"></div>
                         <div id="dt-choice" class="cf">
-                            <label id="reservation_date">@{{ reservation.date.format('MMM D Y') }}</label>
+                            <label id="reservation_date">Available times for @{{ reservation.date.format('DD MMM Y') }}</label>
                             <input type="hidden" name="reservation_date" value="">
                             <select name="reservation_time" class="form-control">
                                 <option>N/A</option>
