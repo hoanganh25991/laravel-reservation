@@ -1055,9 +1055,9 @@ class AdminSettings {
 
 	hack_ajax(){
 		//check if not init
-		if(typeof this._hasHackAjax != 'undefined'){
+		if(this._hasHackAjax)
 			return;
-		}
+
 		this._hasHackAjax = true;
 
 		let self = this;
@@ -1095,7 +1095,13 @@ class AdminSettings {
 			path = path.substr(1);
 		}
 
-		return `${base_url}/${path}`;
+		let url = `${base_url}/${path}`;
+
+		if(url.endsWith('/')){
+			url = path.substr(1);
+		}
+		
+		return url;
 	}
 }
 

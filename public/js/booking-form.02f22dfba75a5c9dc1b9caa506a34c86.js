@@ -1034,7 +1034,9 @@ var BookingForm = function () {
 		}
 	}, {
 		key: 'url',
-		value: function url(path) {
+		value: function url() {
+			var path = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+
 			var store = window.store;
 			var state = store.getState();
 
@@ -1049,7 +1051,13 @@ var BookingForm = function () {
 				path = path.substr(1);
 			}
 
-			return base_url + '/' + path;
+			var url = base_url + '/' + path;
+
+			if (url.endsWith('/')) {
+				url = path.substr(1);
+			}
+
+			return url;
 		}
 	}, {
 		key: 'pointToFormStep',

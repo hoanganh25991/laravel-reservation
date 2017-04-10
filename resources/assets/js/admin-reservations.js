@@ -602,7 +602,7 @@ class AdminReservations {
 		}
 	}
 
-	url(path){
+	url(path = ''){
 		let store = window.store;
 		let state = store.getState();
 
@@ -617,7 +617,13 @@ class AdminReservations {
 			path = path.substr(1);
 		}
 
-		return `${base_url}/${path}`;
+		let url = `${base_url}/${path}`;
+
+		if(url.endsWith('/')){
+			url = path.substr(1);
+		}
+
+		return url;
 	}
 }
 

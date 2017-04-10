@@ -2,10 +2,10 @@
   "/mix.js": "/mix.d41d8cd98f00b204e980.js",
   "/css/reservation.css": "/css/reservation.7c6df832f562429567f07ace70e28180.css",
   "/js/calendar.js": "/js/calendar.f1b13ecf842f68e4a0fa9cead40675a0.js",
-  "/js/booking-form.js": "/js/booking-form.6c1715d419d6019ddcf7869e47850b0f.js",
+  "/js/booking-form.js": "/js/booking-form.02f22dfba75a5c9dc1b9caa506a34c86.js",
   "/js/syntax-highlight.js": "/js/syntax-highlight.e5f86eb1fd381abada02e5f0dd561e40.js",
   "/js/reservation-confirm.js": "/js/reservation-confirm.25c2e1153236259c508b89af5932c870.js",
-  "/js/admin-settings.js": "/js/admin-settings.d091ad7b71b8afeff5e2036b17d77b05.js",
-  "/js/admin-reservations.js": "/js/admin-reservations.0fe17d0642077bd4354dc3a0080ecb60.js",
+  "/js/admin-settings.js": "/js/admin-settings.5f9efd89cef8eb43851f4c684419cfed.js",
+  "/js/admin-reservations.js": "/js/admin-reservations.224bb9c706bb1ac286b7a3fa07de4c66.js",
   "/js/paypal-authorize.js": "/js/paypal-authorize.462d979d1b2e2f7a1e02a9dbab704deb.js"
 }

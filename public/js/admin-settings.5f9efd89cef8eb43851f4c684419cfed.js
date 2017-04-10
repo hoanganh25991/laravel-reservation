@@ -1060,9 +1060,8 @@ var AdminSettings = function () {
 		key: 'hack_ajax',
 		value: function hack_ajax() {
 			//check if not init
-			if (typeof this._hasHackAjax != 'undefined') {
-				return;
-			}
+			if (this._hasHackAjax) return;
+
 			this._hasHackAjax = true;
 
 			var self = this;
@@ -1102,7 +1101,13 @@ var AdminSettings = function () {
 				path = path.substr(1);
 			}
 
-			return base_url + '/' + path;
+			var url = base_url + '/' + path;
+
+			if (url.endsWith('/')) {
+				url = path.substr(1);
+			}
+
+			return url;
 		}
 	}]);
 
