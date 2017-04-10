@@ -39,7 +39,7 @@ const AJAX_BOOKING_CONDITION_VALIDATE_FAIL = 'AJAX_BOOKING_CONDITION_VALIDATE_FA
 //const CHANGE_RESERVATION_DEPOSIT = 'CHANGE_RESERVATION_DEPOSIT';
 //const AJAX_PAYMENT_REQUEST = 'AJAX_PAYMENT_REQUEST';
 
-const AJAX_PAYMENT_REQUEST_VALIDATE_FAIL = 'AJAX_PAYMENT_REQUEST_VALIDATE_FAIL';
+//const AJAX_PAYMENT_REQUEST_VALIDATE_FAIL = 'AJAX_PAYMENT_REQUEST_VALIDATE_FAIL';
 const AJAX_PAYMENT_REQUEST_FIND_RESERVATION_FAIL = 'AJAX_PAYMENT_REQUEST_FIND_RESERVATION_FAIL';
 const AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL = 'AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL';
 
@@ -626,13 +626,14 @@ class BookingForm {
 
 	updateCalendarView(available_time) {
 		let calendar = this.calendar;
+
 		if(Object.keys(available_time).length == 0)
 			return
 
-		
 		this._addCalendarHelper(calendar);
-
+		//Get out all available day
 	    let available_days = Object.keys(available_time);
+
 		calendar.day_tds.each(function() {
 			let td = $(this);
 			let td_day_str = `${td.attr('year')}-${calendar._prefix2Dec(td.attr('month'))}-${calendar._prefix2Dec(td.attr('day'))}`;
@@ -647,10 +648,8 @@ class BookingForm {
 	}
 
 	_addCalendarHelper(calendar){
-		if(typeof calendar.day_tds == 'undefined'){
-			calendar.day_tds = $('#calendar-box').find('td');
-		}
-		
+		calendar.day_tds = $('#calendar-box').find('td');
+
 		if(!calendar._prefix2Dec || !calendar._pickable || calendar._unpickable){
 			calendar._prefix2Dec = function(val) {
 				if (val < 10)
@@ -852,6 +851,11 @@ class BookingForm {
 				type: SYNC_RESERVATION,
 				reservation,
 			});
+		});
+
+		document.addEventListener('calendar-change-month', (e) => {
+			let state = store.getState();
+			this.updateCalendarView(state.available_time);
 		});
 	}
 

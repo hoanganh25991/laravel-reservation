@@ -45,7 +45,7 @@ var AJAX_BOOKING_CONDITION_VALIDATE_FAIL = 'AJAX_BOOKING_CONDITION_VALIDATE_FAIL
 //const CHANGE_RESERVATION_DEPOSIT = 'CHANGE_RESERVATION_DEPOSIT';
 //const AJAX_PAYMENT_REQUEST = 'AJAX_PAYMENT_REQUEST';
 
-var AJAX_PAYMENT_REQUEST_VALIDATE_FAIL = 'AJAX_PAYMENT_REQUEST_VALIDATE_FAIL';
+//const AJAX_PAYMENT_REQUEST_VALIDATE_FAIL = 'AJAX_PAYMENT_REQUEST_VALIDATE_FAIL';
 var AJAX_PAYMENT_REQUEST_FIND_RESERVATION_FAIL = 'AJAX_PAYMENT_REQUEST_FIND_RESERVATION_FAIL';
 var AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL = 'AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL';
 
@@ -628,11 +628,13 @@ var BookingForm = function () {
 		key: 'updateCalendarView',
 		value: function updateCalendarView(available_time) {
 			var calendar = this.calendar;
+
 			if (Object.keys(available_time).length == 0) return;
 
 			this._addCalendarHelper(calendar);
-
+			//Get out all available day
 			var available_days = Object.keys(available_time);
+
 			calendar.day_tds.each(function () {
 				var td = $(this);
 				var td_day_str = td.attr('year') + '-' + calendar._prefix2Dec(td.attr('month')) + '-' + calendar._prefix2Dec(td.attr('day'));
@@ -647,9 +649,7 @@ var BookingForm = function () {
 	}, {
 		key: '_addCalendarHelper',
 		value: function _addCalendarHelper(calendar) {
-			if (typeof calendar.day_tds == 'undefined') {
-				calendar.day_tds = $('#calendar-box').find('td');
-			}
+			calendar.day_tds = $('#calendar-box').find('td');
 
 			if (!calendar._prefix2Dec || !calendar._pickable || calendar._unpickable) {
 				calendar._prefix2Dec = function (val) {
@@ -672,6 +672,8 @@ var BookingForm = function () {
 	}, {
 		key: 'event',
 		value: function event() {
+			var _this2 = this;
+
 			this.findView();
 			var store = window.store;
 
@@ -840,6 +842,11 @@ var BookingForm = function () {
 					type: SYNC_RESERVATION,
 					reservation: reservation
 				});
+			});
+
+			document.addEventListener('calendar-change-month', function (e) {
+				var state = store.getState();
+				_this2.updateCalendarView(state.available_time);
 			});
 		}
 	}, {

@@ -149,20 +149,20 @@
 				// Set class
 				if(cls.length == 0){
 					if(
-						(today.getFullYear() == date.getFullYear()
-						&& today.getMonth() == date.getMonth()
-						&& today.getDate() > dow) ||
-						(today.getFullYear() == date.getFullYear()
-						&& today.getMonth() > date.getMonth()) ||
-						(today.getFullYear() > date.getFullYear())
+						(today.getFullYear() == mon.getFullYear()
+						&& today.getMonth() == mon.getMonth()
+						&& today.getDate() > dow)
+						||(today.getFullYear() == mon.getFullYear()
+						&& today.getMonth() > mon.getMonth())
+						||(today.getFullYear() > mon.getFullYear())
 
 					){
 						cls = "past";
 					}else if(
-						today.getDate() == date.getDate()
-						&& dow == date.getDate()
-						&& today.getMonth() == date.getMonth()
-						&& today.getFullYear() == date.getFullYear()
+						today.getDate() == mon.getDate()
+						&& dow == mon.getDate()
+						&& today.getMonth() == mon.getMonth()
+						&& today.getFullYear() == mon.getFullYear()
 					){
 						cls = "day today";
 					}else if(j % 7 == 0 || j % 7 == 6){
@@ -238,21 +238,17 @@
 			case 'th':
 				if(target.is('.sel')){
 					let action = '';
-					let day = '';
 					let shouldUpdate = true;
 
 					switch(target.attr("id")){
 						case 'last':
 							action = 'prv';
-							day = new Date(this.yp, this.mm, 1);
 							break;
 						case 'current':
 							action = 'crt';
-							day = new Date();
 							break;
 						case 'next':
 							action = 'nxt';
-							day = new Date(this.yn, this.mm, 1);
 							break;
 						default:
 							shouldUpdate = false;
@@ -261,8 +257,13 @@
 
 					if(shouldUpdate){
 						this.update_date(action);
-						this.live_date = day;
-						this.renderCalendar(day, this.events);
+						//re compute the day pick
+						let current_pick = new Date(this.yy, this.mm, 1);
+						this.live_date   = current_pick;
+
+						this.renderCalendar(current_pick, this.events);
+						//Notify back to global, for who need re-render
+						document.dispatchEvent(new CustomEvent('calendar-change-month'));
 					}
 
 				}
