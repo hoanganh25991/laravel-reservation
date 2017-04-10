@@ -47,7 +47,7 @@
                         <div class="clear"></div>
                         <div id="calendar-box" align="center"></div>
                         <div id="dt-choice" class="cf">
-                            <label id="reservation_date">@{{ reservation.date.format('MMM D Y') }}</label>
+                            <label id="reservation_date">@{{ reservation.date.format('DD MMM Y') }}</label>
                             <input type="hidden" name="reservation_date" value="">
                             <select name="reservation_time" class="form-control">
                                 <option>N/A</option>
