@@ -1021,10 +1021,31 @@ var BookingForm = function () {
 					}
 
 					if (res.statusMsg == AJAX_RESERVATION_VALIDATE_FAIL) {
-						var _msg3 = 'VALIDATE FAIL: ';
+						var info = JSON.stringify(res.data);
+						var _msg3 = 'VALIDATE FAIL: ' + info;
 
 						console.log(_msg3, res.data);
 						window.alert(_msg3);
+
+						var form_step = 'form-step-1';
+
+						try {
+							var first_key = Object.keys(res.data)[0];
+
+							var _store = window.store;
+							var _state = _store.getState();
+
+							var customer_info_keys = Object.keys(_state.customer);
+
+							if (customer_info_keys.indexOf(first_key) != -1) {
+								form_step = 'form-step-2';
+							}
+						} catch (e) {}
+
+						store.dispatch({
+							type: CHANGE_FORM_STEP,
+							form_step: form_step
+						});
 						return;
 					}
 

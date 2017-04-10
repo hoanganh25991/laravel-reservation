@@ -288,15 +288,16 @@ class Reservation extends HoiModel {
         
         $validator = Validator::make($reservation_data, [
             'outlet_id'    => ['required', 'numeric', Rule::in($allowed_outltes_id)],
+            'adult_pax'    => 'required|numeric',
+            'children_pax' => 'required|numeric',
+            'reservation_timestamp' => 'required|date_format:Y-m-d H:i:s',
+
             'salutation'   => 'required',
             'first_name'   => 'required',
             'last_name'    => 'required',
             'email'        => 'required|email',
-            'phone_country_code' => 'required|regex:/^\+*(\d{2})/',
+            'phone_country_code' => 'required|regex:/^\+\d{2,}/',
             'phone'        => 'required|regex:/\d+$/',
-            'adult_pax'    => 'required|numeric',
-            'children_pax' => 'required|numeric',
-            'reservation_timestamp' => 'required|date_format:Y-m-d H:i:s',
         ]);
 
         return $validator;

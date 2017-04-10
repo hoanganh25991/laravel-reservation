@@ -1020,10 +1020,31 @@ class BookingForm {
 				}
 
 				if(res.statusMsg == AJAX_RESERVATION_VALIDATE_FAIL){
-					let msg = 'VALIDATE FAIL: ';
+					let info = JSON.stringify(res.data);
+					let msg = 'VALIDATE FAIL: ' + info;
 
 					console.log(msg, res.data);
 					window.alert(msg);
+
+					let form_step =  'form-step-1';
+
+					try{
+						let first_key = Object.keys(res.data)[0];
+
+						let store = window.store;
+						let state = store.getState();
+
+						let customer_info_keys = Object.keys(state.customer);
+
+						if(customer_info_keys.indexOf(first_key) != -1){
+							form_step = 'form-step-2';
+						}
+					}catch(e){}
+
+					store.dispatch({
+						type: CHANGE_FORM_STEP,
+						form_step
+					});
 					return;
 				}
 
