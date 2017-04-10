@@ -15,7 +15,7 @@
                         </ul>
                     </div>
                 </div>
-                <div class="col-md-10" id="admin-step-container" style="position: relative; height: calc(100vh - 100px); overflow-y: scroll; overflow-x: hidden;">
+                <div class="col-md-10" id="admin-step-container" style="position: relative; height: 100vh; overflow-y: scroll; overflow-x: hidden;">
                     <div id="weekly_sessions_view" class="modal-content admin-step">
                         <div class="modal-header">
                             <span class="h1">Weekly Sessions View</span>
