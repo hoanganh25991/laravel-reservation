@@ -4,7 +4,7 @@
     <link href="{{ url('css/bootstrap.min.css') }}" rel="stylesheet" media="screen">
     <link href="{{ url('css/flat-ui.min.css') }}" rel="stylesheet" media="screen">
     <link href="{{ url('css/font-awesome.min.css') }}" rel="stylesheet" media="screen">
-    <link href="{{ url('css/reservation.css') }}" rel="stylesheet">
+    <link href="{{ url(substr(mix('css/reservation.css'), 1)) }}" rel="stylesheet">
     @stack('css')
 </head>
 <body>
