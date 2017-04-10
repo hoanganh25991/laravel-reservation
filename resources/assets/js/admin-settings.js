@@ -88,10 +88,6 @@ class AdminSettings {
 				case SYNC_DATA : {
 					return Object.assign(state, action.data);
 				}
-				case UPDATE_SINGLE_USER:
-					return Object.assign({}, state, {
-						settings: self.settingsReducer(state.settings, action)
-					});
 				case HIDE_USER_DIALOG:
 				case SHOW_USER_DIALOG: {
 					return Object.assign({}, state, {
@@ -468,18 +464,15 @@ class AdminSettings {
 						 * Set up user dialog content data
 						 */
 						// this.user_dialog_content = user_dialog_content
+						Object.assign(window.vue_state, {user_dialog_content});
 
 						/**
 						 * @warn Should call store for update value
 						 */
 						store.dispatch({
-							type: SHOW_USER_DIALOG,
-							user_dialog_content
+							type: SHOW_USER_DIALOG
 						});
-						self.user_dialog.modal('show');
-					}catch(e){
-						return
-					}
+					}catch(e){}
 				},
 
 				_findTrElement(e){
@@ -589,6 +582,18 @@ class AdminSettings {
 
 	initView(){
 		store.dispatch({type: INIT_VIEW});
+	}
+
+
+	userDialogContentReducer(state, action){
+		switch(action.type){
+			case SHOW_USER_DIALOG:
+			case HIDE_USER_DIALOG: {
+				return state;
+			}
+			default:
+				return state;
+		}
 	}
 
 	adminStepReducer(state, action){
