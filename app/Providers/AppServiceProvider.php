@@ -47,7 +47,8 @@ class AppServiceProvider extends ServiceProvider
          * Admin page need outlet to switch between in navigator
          */
         View::composer(['admin.navigator'], function ($view) {
-            $outlets = collect([]);
+            $outlet_id = null;
+            $outlets   = collect([]);
             /** @var ReservationUser $user */
             $user = Auth::user();
 
@@ -55,7 +56,17 @@ class AppServiceProvider extends ServiceProvider
                 $outlets = $user->outletsCanAccess();
             }
             
-            $view->with(compact('outlets'));
+            try{
+                $outlet_id = Setting::outletId();
+            }catch(\Exception $e){}
+            
+            $navigator_state = [
+                'outlet'    => [],
+                'outlet_id' => $outlet_id,
+                'outlets'   => $outlets
+            ];
+            
+            $view->with(compact('navigator_state'));
         });
 
     }

@@ -18,18 +18,22 @@
 
                     <ul class="nav navbar-nav navbar-right">
                         {{--For Outlet Select--}}
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-btn fa-sign-out"></i>Outlet</a>
+                        @verbatim
+                        <li clase="dropdown" id="outlet_select">
+                            <a href="#"><i class="fa fa-btn fa-sign-out"></i>{{ outlet.outlet_name }}</a>
 
-                            <ul class="dropdown-menu" role="menu" id="outlet_select">
-                                @verbatim
+                            <ul class="dropdown-menu">
                                 <template v-for="(outlet, outlet_index) in outlets">
-                                    <li v-on:click="_switchOutlet"><a :outlet-id="outlet.id">{{ outlet.outlet_name }}</a></li>
+                                    <li>
+                                        <a  class="dropdown-toggle" data-toggle="dropdown"
+                                            :outlet-id="outlet.id"
+                                            v-on:click="_switchOutlet">{{ outlet.outlet_name }}</a>
+                                    </li>
                                 </template>
-                                @endverbatim
                             </ul>
                         </li>
-                        <!-- Authentication Links -->
+                        @endverbatim
+                         <!-- Authentication Links -->
                         @if (Auth::guest())
                             <li><a href="{{ url('/login') }}">Login</a></li>
                             {{--<li><a href="{{ url('/register') }}">Register</a></li>--}}
@@ -39,7 +43,7 @@
                                     {{ Auth::user()->name }} <span class="caret"></span>
                                 </a>
 
-                                <ul class="dropdown-menu" role="menu">
+                                <ul class="dropdown-menu">
                                     <li><a href="{{ url('/logout') }}"><i class="fa fa-btn fa-sign-out"></i>Logout</a></li>
                                 </ul>
                             </li>
@@ -51,33 +55,53 @@
     </div><!--/.container-fluid -->
 </nav>
 <script>@php
-        $outlets_json = json_encode($outlets);
-        $admin_url    = json_encode(url('admin'));
-        echo "window.outlets = $outlets_json;";
+        $state_json = json_encode($navigator_state);
+        echo "window.navigator_state = $state_json;";
     @endphp</script>
 @push('before-body')
+<!--suppress JSUnresolvedVariable window.naviagtor_state -->
 <script>
-    /**
-     * @warn
-    * @warn
-    * @warn
-    * dangerous code
-     */
     (function(){
         //let outlets = window.outlets;
+        //console.log(window.navigator_state);
         new Vue({
             el: '#outlet_select',
-            data(){
-                return outlets;
+            data: window.navigator_state,
+            mounted(){
+                //try to resolve when init
+                this._updateOutletName();
             },
             methods: {
                 _switchOutlet(e){
+                    //console.log(e);
                     let a = e.target;
+                    //Only handle when it is A element clicked
                     if(a.tagName == 'A'){
                         let outlet_id = a.getAttribute('outlet-id');
-                        let data = {outlet_id};
+                        let data      = {outlet_id};
+                        //notify it out, who catch get data to move on
                         document.dispatchEvent(new CustomEvent('switch-outlet', {detail: data}));
+                        //update selected outlet_id
+                        Object.assign(window.navigator_state, {outlet_id});
+                        //update outlet info
+                        this._updateOutletName();
                     }
+
+
+                },
+
+                _updateOutletName(){
+                    let outlet_id = this.outlet_id;
+                    //if outlet_id resolved, update info
+                    let matched_outlets = this.outlets.filter(function(outlet){return outlet.id == outlet_id});
+                    //self pick on the first match
+                    let outlet = {};
+
+                    if(matched_outlets.length > 0){
+                        outlet = matched_outlets[0];
+                    }
+                    //assign this back to vue
+                    Object.assign(window.navigator_state, {outlet});
                 }
             }
         });
