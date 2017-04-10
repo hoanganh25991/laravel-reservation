@@ -138,11 +138,10 @@ class AdminReservations {
 				_reservationDetailDialog(e){
 					try{
 						let tr = this._findTrElement(e);
+						this._remarksAsStaffRead(tr);
+						//Clone it into reservation dialog content
 						let reservation_index  = tr.getAttribute('reservation-index');
 						let picked_reservation = this.reservations[reservation_index];
-						//Update reservations staff_read
-						picked_reservation.staff_read_state = true;
-						//Clone it into reservation dialog content
 						let dialog_reservation = Object.assign({}, picked_reservation);
 						//Diloag need data for other stuff
 						//Self update for itself
@@ -160,36 +159,56 @@ class AdminReservations {
 					}catch(e){}
 				},
 
+				_remarksAsStaffRead(tr){
+					try{
+						let reservation_index  = tr.getAttribute('reservation-index');
+						let picked_reservation = this.reservations[reservation_index];
+						//Update reservations staff_read
+						picked_reservation.staff_read_state = true;
+					}catch(e){}
+				},
+
 				_findTrElement(e){
 					let tr = e.target;
 
 					let path = [tr].concat(e.path);
 
 					let i = 0;
-					while(i < path.length){
+					let found_tr = null;
+					let is_click_on_edit_form = false;
+
+					while(i < path.length && !found_tr){
 						let tr = path[i];
 
 						/**
 						 * Click on input / select to edit info
 						 */
-						let is_click_on_edit_form =
-							tr.tagName == 'INPUT'
-							|| tr.tagName == 'TEXTAREA'
-							|| tr.tagName == 'SELECT'
-							|| tr.tagName == 'BUTTON';
-
-						if(is_click_on_edit_form){
-							return null;
+						if(!is_click_on_edit_form){
+							//try does it click on edit form
+							is_click_on_edit_form =
+								tr.tagName == 'INPUT'
+								|| tr.tagName == 'TEXTAREA'
+								|| tr.tagName == 'SELECT'
+								|| tr.tagName == 'BUTTON';
 						}
 
 						if(tr.tagName == 'TR'){
-							return tr;
+							found_tr = tr;
 						}
 
 						i++;
 					}
 
-					return null;
+					if(found_tr){
+						//click on edit form, consider as already read it
+						//has take action
+						if(is_click_on_edit_form){
+							this._remarksAsStaffRead(found_tr);
+							return null;
+						}
+					}
+
+					return found_tr;
 				},
 
 				_updateSingleReservation(){
@@ -273,7 +292,8 @@ class AdminReservations {
 							}
 
 							//Stop bubble event
-							e.stopPropagation();
+							//e.stopPropagation();
+							//let it touch to tr to resolve as read
 
 							this._updateReservations();
 						}

@@ -156,11 +156,10 @@ var AdminReservations = function () {
 					_reservationDetailDialog: function _reservationDetailDialog(e) {
 						try {
 							var tr = this._findTrElement(e);
+							this._remarksAsStaffRead(tr);
+							//Clone it into reservation dialog content
 							var reservation_index = tr.getAttribute('reservation-index');
 							var picked_reservation = this.reservations[reservation_index];
-							//Update reservations staff_read
-							picked_reservation.staff_read_state = true;
-							//Clone it into reservation dialog content
 							var dialog_reservation = Object.assign({}, picked_reservation);
 							//Diloag need data for other stuff
 							//Self update for itself
@@ -177,32 +176,51 @@ var AdminReservations = function () {
 							});
 						} catch (e) {}
 					},
+					_remarksAsStaffRead: function _remarksAsStaffRead(tr) {
+						try {
+							var reservation_index = tr.getAttribute('reservation-index');
+							var picked_reservation = this.reservations[reservation_index];
+							//Update reservations staff_read
+							picked_reservation.staff_read_state = true;
+						} catch (e) {}
+					},
 					_findTrElement: function _findTrElement(e) {
 						var tr = e.target;
 
 						var path = [tr].concat(e.path);
 
 						var i = 0;
-						while (i < path.length) {
+						var found_tr = null;
+						var is_click_on_edit_form = false;
+
+						while (i < path.length && !found_tr) {
 							var _tr = path[i];
 
 							/**
         * Click on input / select to edit info
         */
-							var is_click_on_edit_form = _tr.tagName == 'INPUT' || _tr.tagName == 'TEXTAREA' || _tr.tagName == 'SELECT' || _tr.tagName == 'BUTTON';
-
-							if (is_click_on_edit_form) {
-								return null;
+							if (!is_click_on_edit_form) {
+								//try does it click on edit form
+								is_click_on_edit_form = _tr.tagName == 'INPUT' || _tr.tagName == 'TEXTAREA' || _tr.tagName == 'SELECT' || _tr.tagName == 'BUTTON';
 							}
 
 							if (_tr.tagName == 'TR') {
-								return _tr;
+								found_tr = _tr;
 							}
 
 							i++;
 						}
 
-						return null;
+						if (found_tr) {
+							//click on edit form, consider as already read it
+							//has take action
+							if (is_click_on_edit_form) {
+								this._remarksAsStaffRead(found_tr);
+								return null;
+							}
+						}
+
+						return found_tr;
 					},
 					_updateSingleReservation: function _updateSingleReservation() {
 						var reservation_dialog_content = this.reservation_dialog_content;
@@ -282,7 +300,8 @@ var AdminReservations = function () {
 								}
 
 								//Stop bubble event
-								e.stopPropagation();
+								//e.stopPropagation();
+								//let it touch to tr to resolve as read
 
 								this._updateReservations();
 							} catch (e) {}
