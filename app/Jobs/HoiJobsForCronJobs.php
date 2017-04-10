@@ -1,6 +1,7 @@
 <?php
 namespace App\Jobs;
 
+use App\Brand;
 use App\Outlet;
 use Carbon\Carbon;
 use App\Reservation;
@@ -24,46 +25,56 @@ class HoiJobsForCronJobs {
          * Less than current
          */
         $today   = Carbon::now(Setting::timezone());
-        $outlets = Outlet::all();
 
-        $outlets->each(function(Outlet $outlet) use($today){
-            /**
-             * Explicit tell global query scope
-             * Which outlet we are
-             */
-            session(['outlet_id' => $outlet->id]);
-            $notification_config = Setting::notificationConfig();
-            $hours_before_reservation_timing_send_sms = $notification_config(Setting::HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM);
-            /**
-             * Compute reservation timestamp should sent reminder
-             */
-            $reservation_timestamp     = $today->copy()->addHours($hours_before_reservation_timing_send_sms)->addMinutes(5);
-            $reservation_timestamp_str = $reservation_timestamp->format('Y-m-d H:i:s');
+        $brands  = Brand::all();
 
-            $need_send_reminder_reservations =
-                Reservation::where([
-                    ['status', Reservation::RESERVED],
-                    ['send_sms_confirmation', Setting::SHOULD_SEND],
-                    ['reservation_timestamp', '<=', $reservation_timestamp_str]
-                ])
-                    ->get();
+        $brands->each(function(Brand $brand) use($today){
+            $brand_id = $brand->id;
+            Setting::injectBrandId($brand_id);
 
-            $need_send_reminder_reservations
-                ->each(function(Reservation $reservation){
-                    $telephone   = $reservation->full_phone_number;
-                    $message     = $reservation->confirmation_sms_message;
-                    $sender_name = Setting::smsSenderName();
+            $outlets = Outlet::all();
 
-                    $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);
+            $outlets->each(function(Outlet $outlet) use($today){
+                /**
+                 * Explicit tell global query scope
+                 * Which outlet we are
+                 */
+                //session(['outlet_id' => $outlet->id]);
+                $outlet_id = $outlet->id;
+                Setting::injectOutletId($outlet_id);
+                $notification_config = Setting::notificationConfig();
+                $hours_before_reservation_timing_send_sms = $notification_config(Setting::HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM);
+                /**
+                 * Compute reservation timestamp should sent reminder
+                 */
+                $reservation_timestamp     = $today->copy()->addHours($hours_before_reservation_timing_send_sms)->addMinutes(5);
+                $reservation_timestamp_str = $reservation_timestamp->format('Y-m-d H:i:s');
 
-                    if($success_sent){
-                        Log::info('Success send sms to reminder');
-                        event(new SentReminderSMS($reservation));
-                    }else{
-                        throw new SMSException('SMS not sent');
-                    }
-                });
+                $need_send_reminder_reservations =
+                    Reservation::where([
+                        ['status', Reservation::RESERVED],
+                        ['send_sms_confirmation', Setting::SHOULD_SEND],
+                        ['reservation_timestamp', '<=', $reservation_timestamp_str]
+                    ])
+                        ->get();
 
+                $need_send_reminder_reservations
+                    ->each(function(Reservation $reservation){
+                        $telephone   = $reservation->full_phone_number;
+                        $message     = $reservation->confirmation_sms_message;
+                        $sender_name = Setting::smsSenderName();
+
+                        $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);
+
+                        if($success_sent){
+                            Log::info('Success send sms to reminder');
+                            event(new SentReminderSMS($reservation));
+                        }else{
+                            throw new SMSException('SMS not sent');
+                        }
+                    });
+
+            });
         });
     }
 }
