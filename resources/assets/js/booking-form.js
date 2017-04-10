@@ -996,13 +996,14 @@ class BookingForm {
 					// 	type: CHANGE_RESERVATION_DEPOSIT,
 					// 	deposit: data.deposit
 					// });
-					let amount     = reservation.deposit
+					let amount     = reservation.deposit;
 					let confirm_id = reservation.confirm_id;
+					let outlet_id  = reservation.outlet_id;
 					let token      = data.paypal_token;
 
 					//noinspection ES6ModulesDependencies
 					let base_url = self.url('paypal');
-					let paypal_authorize = new PayPalAuthorize(token, {amount, confirm_id}, base_url);
+					let paypal_authorize = new PayPalAuthorize(token, {amount, confirm_id, outlet_id}, base_url);
 					
 					//self.vue.reservation.deposit = amount;
 

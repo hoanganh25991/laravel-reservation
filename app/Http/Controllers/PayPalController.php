@@ -31,21 +31,10 @@ class PayPalController extends HoiController{
     }
     
     public function initGateway(){
-        $brand_id = Setting::brandId();
-        /** @var Brand $brand */
-        $brand    = Brand::find($brand_id);
-
-        if(is_null($brand)){
-            throw new \Exception("Paypal can not find brand with id $brand_id");
-        }
-
-        $access_token = $brand->paypal_token;
-
-        if(is_null($access_token)){
-            throw new \Exception('Paypal access token not found');
-        }
-
-        $this->gateway = new Gateway([
+        //$outlet_id      = Setting::outletId();
+        $setting_config = Setting::settingsConfig();
+        $access_token   = $setting_config(Setting::PAYPAL_TOKEN);
+        $this->gateway  = new Gateway([
             'accessToken' => $access_token
         ]);
     }
@@ -67,18 +56,13 @@ class PayPalController extends HoiController{
         return $clientToken;
     }
 
-    public function testBrandIdInjected(){
-        $this->initGateway();
-
-        return "Gateway init";
-    }
-
     /**
      * Handle payment request from customer
      * Deposit required when reservation pax over threshold
      * @see App\OutletReservationSetting::DEPOSIT_THRESHOLD_PAX
      * @param ApiRequest $req
      * @return $this
+     * @throws \Exception
      */
     public function handlePayment(ApiRequest $req){
         //test end point

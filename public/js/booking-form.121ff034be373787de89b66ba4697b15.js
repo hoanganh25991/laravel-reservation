@@ -996,11 +996,12 @@ var BookingForm = function () {
 						// });
 						var amount = reservation.deposit;
 						var confirm_id = reservation.confirm_id;
+						var outlet_id = reservation.outlet_id;
 						var token = _data3.paypal_token;
 
 						//noinspection ES6ModulesDependencies
 						var base_url = self.url('paypal');
-						var paypal_authorize = new PayPalAuthorize(token, { amount: amount, confirm_id: confirm_id }, base_url);
+						var paypal_authorize = new PayPalAuthorize(token, { amount: amount, confirm_id: confirm_id, outlet_id: outlet_id }, base_url);
 
 						//self.vue.reservation.deposit = amount;
 

@@ -42,6 +42,8 @@ class OutletReservationSetting extends HoiModel{
 
     const SMS_SENDER_NAME = 'SMS_SENDER_NAME';
     const DEFAULT_SMS_SENDER_NAME = 'ALFRED';
+    
+    const PAYPAL_TOKEN = 'PAYPAL_TOKEN';
 
     /**
      * NOTIFICATION default config
