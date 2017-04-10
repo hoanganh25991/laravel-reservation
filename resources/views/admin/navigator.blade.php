@@ -1,4 +1,20 @@
-<nav class="navbar navbar-default">
+<style>
+    .open > .dropdown-menu {
+        visibility: visible;
+        opacity: 1;
+        height: auto;
+        margin-top: 9px;
+    }
+
+    .dropdown-menu {
+        display: block;
+        visibility: hidden;
+        opacity: 0;
+        margin-top: 0;
+        transition: 0.25s;
+    }
+</style>
+<nav class="navbar navbar-default" id="admin-navigator">
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-2">
@@ -19,8 +35,10 @@
                     <ul class="nav navbar-nav navbar-right">
                         {{--For Outlet Select--}}
                         @verbatim
-                        <li clase="dropdown" id="outlet_select">
-                            <a href="#"><i class="fa fa-btn fa-sign-out"></i>{{ outlet.outlet_name }}</a>
+                        <li class="dropdown" id="outlet_select">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-btn fa-sign-out"></i>{{ outlet.outlet_name }}
+                            </a>
 
                             <ul class="dropdown-menu">
                                 <template v-for="(outlet, outlet_index) in outlets">
