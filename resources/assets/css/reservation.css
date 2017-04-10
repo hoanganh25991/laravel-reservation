@@ -16,8 +16,6 @@ a:hover {
 label {
     float: left;
     display: inline;
-    width: 130px;
-    padding: 5px;
     font-size: 13px;
     font-weight: bold;
     color: #232323;
@@ -1444,7 +1442,6 @@ ul#user-options {
 #confirm-details label {
     float: left;
     display: inline-block;
-    color: #666
 }
 #confirm-details #d-title {
     width: 78px;
