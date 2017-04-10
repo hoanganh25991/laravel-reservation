@@ -97,7 +97,7 @@ class ReservationController extends HoiController{
 
                 //which means no reservations submit
                 if(is_null($validator)){
-                    $data = [];
+                    $data = ['reservations' =>  $this->fetchUpdateReservations()];
                     $code = 200;
                     $msg  = Call::AJAX_SUCCESS;
                     break;
