@@ -193,11 +193,11 @@ class PayPalController extends HoiController{
         try{
             $transaction = $paypal_controller->gateway->transaction()->find($trasaction_id);
 
-            switch($transaction->escrowStatus){
-                case Transaction::ESCROW_HOLD_PENDING:
+            switch($transaction->status){
+                case Transaction::AUTHORIZED:
                     $result = $paypal_controller->gateway->transaction()->void($trasaction_id);
                     break;
-                case Transaction::ESCROW_RELEASED:
+                case Transaction::SETTLED:
                     $result = $paypal_controller->gateway->transaction()->refund($trasaction_id);
                     break;
                 default:

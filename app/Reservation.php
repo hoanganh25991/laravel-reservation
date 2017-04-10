@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Http\Controllers\PayPalController;
 use Carbon\Carbon;
 use App\Traits\ApiUtils;
 use Illuminate\Validation\Rule;
@@ -229,7 +230,7 @@ class Reservation extends HoiModel {
              * PAID > REFUNDED
              * PAID > CHARGED
              */
-            $previous_state = $reservation->getOriginal('payment_staus');
+            $previous_state = $reservation->getOriginal('payment_status');
             //Only handle when state change
             if($previous_state == Reservation::PAYMENT_PAID){
                 $transaction_id = $reservation->payment_id;
