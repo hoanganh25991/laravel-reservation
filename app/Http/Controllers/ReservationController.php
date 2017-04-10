@@ -49,7 +49,7 @@ class ReservationController extends HoiController{
             ],
 
             'reservation' => [
-                'date' => $reservation->date,
+                'date' => $reservation->date->format('Y-m-d'),
                 'time' => $reservation->time,
                 'confirm_id' => $reservation->confirm_id
             ],

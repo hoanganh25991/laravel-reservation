@@ -16,17 +16,10 @@ class HoiJobsForCronJobs {
     use SendSMS;
 
     public function __construct(){
-        /**
-         * Fix url in console
-         */
-        /** @var \Illuminate\Routing\UrlGenerator $url */
+        //In console call, self resolve where is the root url
         if(env('APP_ENV') == 'production'){
-            $url = $this->app['url'];
-            // Force the application URL
-            $url->forceRootUrl(config('app.url'));
+            url()->forceRootUrl(config('app.url'));
         }
-
-        //echo url('what the heck');
 
         $this->sendConfirmSMS();
     }

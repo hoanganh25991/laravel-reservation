@@ -36,5 +36,5 @@
     echo "window.state = $json_state;"
 @endphp</script>
 <script src="{{ url('js/vue.min.js') }}"></script>
-<script src="{{ url(substr(mix('js/reservation-confirm.js'), 1)) }}"></script>
+<script src="{{ url_mix('js/reservation-confirm.js') }}"></script>
 @endpush

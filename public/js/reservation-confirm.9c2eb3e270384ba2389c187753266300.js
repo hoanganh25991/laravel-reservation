@@ -18,14 +18,20 @@ var ReservationConfirm = function () {
 	_createClass(ReservationConfirm, [{
 		key: 'buildVue',
 		value: function buildVue() {
+			//Show funny dialog
 			var ajax_dialog = $('#ajax-dialog');
 			ajax_dialog.modal('show');
+			console.log(window.state);
+			//Get state from server
+			var server_state = window.state || {};
 
-			var state = window.state;
-			state.reservation.date = moment(state.reservation.date, 'Y-M-D H:m:s');
+			var vue_state = Object.assign({}, server_state);
+
+			vue_state.reservation.date = moment(state.reservation.date, 'Y-M-D H:m:s');
+
 			this.vue = new Vue({
 				el: '#app',
-				data: state,
+				data: vue_state,
 				created: function created() {
 					console.log('vue created');
 				},
