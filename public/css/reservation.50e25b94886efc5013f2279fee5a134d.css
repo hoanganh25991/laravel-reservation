@@ -1455,9 +1455,6 @@ ul#user-options {
     position: relative;
     top: -1px
 }
-#confirm-details .form-control {
-    width: 300px
-}
 #confirm-details .form-set {
     float: left;
     width: 270px
@@ -1510,12 +1507,11 @@ ul#user-options {
     height: 80px
 }
 #confirm-details .note {
-    width: 280px;
     font-size: 10px;
-    margin-left: 31%;
     line-height: 1.3em;
     margin-top: 5px;
-    color: #444
+    color: #999;
+    text-align: center;
 }
 #confirm-details #agree {
     margin: 0 auto;
