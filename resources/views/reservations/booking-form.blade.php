@@ -7,13 +7,13 @@
             <div class="box form-step" id="form-step-1">
                 @component('reservations.header')
                 @slot('title')
-                Make a Reservation at <span class="r-name"> <a href="{{ url('') }}" target="_blank"
+                Reservation at <span class="r-name"> <a href="{{ url('') }}" target="_blank"
                                                                id="reservation_title">@{{ outlet.name }}</a></span>
-                <p class="sub"></p>
                 @endslot
                 @endcomponent
                 <div id="check-availability" class="content">
                     <div class="rid-select">
+                        <label for="outlet_id">Select an outlet</label>
                         <select name="outlet_id" id="rid" title="spize" class="form-control" :value="outlet.id">
                             {{--@foreach($outlets as $outlet)--}}
                                 {{--<option value="{{ $outlet->id }}">{{ $outlet->name }}</option>--}}
