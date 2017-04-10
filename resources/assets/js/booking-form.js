@@ -179,17 +179,8 @@ class BookingForm {
 		}
 	}
 
-	defaultState(){
-		let server_state = {};
-		// if(window.booking_form_state){
-		// 	server_state = window.booking_form_state;
-		// }
-		if(window.state){
-			server_state = window.state;
-		}
-
-
-		let frontend_state = {
+	getFrontendState(){
+		let state =  {
 			init_view: false,
 			outlet: {},
 			overall_min_pax: 2,
@@ -217,43 +208,52 @@ class BookingForm {
 			form_step: 'form-step-1',
 			customer: {
 				salutation: 'Mr.',
-				first_name: 'Anh',
-				last_name : 'Le Hoang',
-				email: 'lehoanganh25991@gmail.com',
-				phone_country_code: '+84',
-				phone: '903865657',
-				remarks: 'hello world'
 			},
-			// customer: {
-			// 	salutation: 'Mr.',
-			// },
 			pax_over: "block"
 		};
+
+		return state;
+	}
+
+	defaultState(){
+		let server_state = window.state || {};
+
+		let frontend_state = this.getFrontendState();
 		
 		let state = Object.assign(frontend_state, server_state);
 
-		this.state = state;
-
-		return this.state;
-	}
-
-	getVueState(){
-		if(typeof window.vue_state == 'undefined'){
-			window.vue_state = Object.assign({}, store.getState());
+		if(state.base_url && state.base_url.includes('reservation.dev') || state.base_url .includes('localhost')){
+			state = Object.assign(state, {
+				customer: {
+					salutation: 'Mr.',
+					first_name: 'Anh',
+					last_name : 'Le Hoang',
+					email: 'lehoanganh25991@gmail.com',
+					phone_country_code: '+84',
+					phone: '903865657',
+					remarks: 'hello world'
+				},
+			});
 		}
 
-		return window.vue_state;
+		return state;
+	}
+
+	buildVueState(){
+		let vue_state = Object.assign({}, store.getState());
+
+		return vue_state;
 	}
 
 	buildVue(){
-		let vue_state = this.getVueState();
+		window.vue_state = this.buildVueState();
 
-		// let form_vue = new Vue({
+		let sekf = this;
+
 		this.vue = new Vue({
 			el: '#form-step-container',
-			data: vue_state
+			data: window.vue_state
 		});
-		// this.form_vue = form_vue;
 	}
 
 	paxOverReducer(state, action){
@@ -265,8 +265,6 @@ class BookingForm {
 				return state;
 		}
 	}
-
-
 
 	customerReducer(state, action){
 		switch(action.type){
@@ -515,8 +513,7 @@ class BookingForm {
 		store.subscribe(()=>{
 			let state    = store.getState();
 			//update this way for vue see it
-			let vue_state = self.getVueState();
-			Object.assign(vue_state, state);
+			Object.assign(window.vue_state, state);
 
 			//debug
 			let prestate = store.getPrestate();

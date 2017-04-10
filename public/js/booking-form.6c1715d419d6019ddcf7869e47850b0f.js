@@ -176,17 +176,9 @@ var BookingForm = function () {
 			};
 		}
 	}, {
-		key: 'defaultState',
-		value: function defaultState() {
-			var server_state = {};
-			// if(window.booking_form_state){
-			// 	server_state = window.booking_form_state;
-			// }
-			if (window.state) {
-				server_state = window.state;
-			}
-
-			var frontend_state = {
+		key: 'getFrontendState',
+		value: function getFrontendState() {
+			var state = {
 				init_view: false,
 				outlet: {},
 				overall_min_pax: 2,
@@ -213,46 +205,56 @@ var BookingForm = function () {
 				has_selected_day: false,
 				form_step: 'form-step-1',
 				customer: {
-					salutation: 'Mr.',
-					first_name: 'Anh',
-					last_name: 'Le Hoang',
-					email: 'lehoanganh25991@gmail.com',
-					phone_country_code: '+84',
-					phone: '903865657',
-					remarks: 'hello world'
+					salutation: 'Mr.'
 				},
-				// customer: {
-				// 	salutation: 'Mr.',
-				// },
 				pax_over: "block"
 			};
 
+			return state;
+		}
+	}, {
+		key: 'defaultState',
+		value: function defaultState() {
+			var server_state = window.state || {};
+
+			var frontend_state = this.getFrontendState();
+
 			var state = Object.assign(frontend_state, server_state);
 
-			this.state = state;
+			if (state.base_url && state.base_url.includes('reservation.dev') || state.base_url.includes('localhost')) {
+				state = Object.assign(state, {
+					customer: {
+						salutation: 'Mr.',
+						first_name: 'Anh',
+						last_name: 'Le Hoang',
+						email: 'lehoanganh25991@gmail.com',
+						phone_country_code: '+84',
+						phone: '903865657',
+						remarks: 'hello world'
+					}
+				});
+			}
 
-			return this.state;
+			return state;
 		}
 	}, {
 		key: 'buildVueState',
-		value: function getVueState() {
-			if (typeof window.vue_state == 'undefined') {
-				window.vue_state = Object.assign({}, store.getState());
-			}
+		value: function buildVueState() {
+			var vue_state = Object.assign({}, store.getState());
 
-			return window.vue_state;
+			return vue_state;
 		}
 	}, {
 		key: 'buildVue',
 		value: function buildVue() {
-			var vue_state = this.getVueState();
+			window.vue_state = this.buildVueState();
 
-			// let form_vue = new Vue({
+			var sekf = this;
+
 			this.vue = new Vue({
 				el: '#form-step-container',
-				data: vue_state
+				data: window.vue_state
 			});
-			// this.form_vue = form_vue;
 		}
 	}, {
 		key: 'paxOverReducer',
@@ -514,8 +516,7 @@ var BookingForm = function () {
 			store.subscribe(function () {
 				var state = store.getState();
 				//update this way for vue see it
-				var vue_state = self.buildVueState();
-				Object.assign(vue_state, state);
+				Object.assign(window.vue_state, state);
 
 				//debug
 				var prestate = store.getPrestate();

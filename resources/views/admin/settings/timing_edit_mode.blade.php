@@ -33,10 +33,15 @@
                    v-model="timing['last_arrival_time']">
         </td>
         <td>
-            <input type="number"
-                   style="width: 40px"
-                   :id="'timing_' + timing.id + 'interval_minutes'"
-                   v-model="timing['interval_minutes']">
+            <select v-model="timing['interval_minutes']"
+                    style="width: 40px"
+                    :id="'timing_' + timing.id + 'interval_minutes'"
+            >
+                <option value="15">15</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="45">45</option>
+            </select>
         </td>
         <td>
             <input type="number"

@@ -798,7 +798,7 @@ class AdminSettings {
 				/**
 				 * Guest next admin step
 				 */
-				let next_admin_step = this.admin_step + '_view';
+				let next_admin_step = state.admin_step + '_view';
 				/**
 				 * Check if guest is right
 				 */

@@ -727,8 +727,6 @@ var AdminSettings = function () {
 	}, {
 		key: 'view',
 		value: function view() {
-			var _this = this;
-
 			var store = window.store;
 			var self = this;
 
@@ -801,7 +799,7 @@ var AdminSettings = function () {
 					/**
       * Guest next admin step
       */
-					var next_admin_step = _this.admin_step + '_view';
+					var next_admin_step = state.admin_step + '_view';
 					/**
       * Check if guest is right
       */
