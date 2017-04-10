@@ -1,4 +1,4 @@
-<h1>Pay with paypal</h1>
+<h3 class="text-danger">Pay with paypal</h3>
 <script src="https://www.paypalobjects.com/api/button.js?"
         data-merchant="braintree"
         data-id="paypal-button"

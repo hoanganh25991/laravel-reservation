@@ -45,14 +45,14 @@
         <tr v-show="reservation.payment_status == 100">
             <td><label>Deposit Paid</label></td>
             <td>
-                <p>$ @{{ reservation.deposit }}</p>
-                <p>Your deposit will be returned when you arrive for your reservation</p>
+                <p class="h4">$ @{{ reservation.deposit }}</p>
+                <p class="h5"><strong>Your deposit will be returned when you arrive for your reservation</strong></p>
             </td>
         </tr>
         <tr v-show="reservation.payment_status == 25">
-        {{--<tr>--}}
             <td><label>Deposit Required</label></td>
             <td>
+                <p class="h4 text-danger">$ @{{ reservation.deposit }}</p>
                 @include('paypal.authorize')
             </td>
         </tr>
