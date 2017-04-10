@@ -299,6 +299,10 @@ class AdminSettings {
 				_updateSpecialSession(){
 					let vue = this;
 
+					//noinspection JSUnresolvedVariable
+					this._resolveTimingArrivalTime(vue.special_sessions);
+
+					//noinspection JSUnresolvedVariable
 					let action = {
 						type             : AJAX_UPDATE_SESSIONS,
 						sessions         : vue.special_sessions,
