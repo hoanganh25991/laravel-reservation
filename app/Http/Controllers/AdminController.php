@@ -20,9 +20,16 @@ class AdminController extends HoiController {
     public function __construct(){}
 
     /**
+     * @param ApiRequest $req
      * @return $this
      */
-    public function getDashboard(){
+    public function getDashboard(ApiRequest $req){
+        $state = $this->dashboardState();
+
+        return view('admin.index')->with(compact('state'));
+    }
+
+    private function dashboardState(){
         /** @var ReservationUser $user */
         $user     = Auth::user();
         $outlets  = $user->outletsCanAccess();
@@ -34,7 +41,7 @@ class AdminController extends HoiController {
             'user'            => $user,
         ];
 
-        return view('admin.index')->with(compact('state'));
+        return $state;
     }
 
     /**
@@ -173,14 +180,10 @@ class AdminController extends HoiController {
     }
 
     public function resolveOutletIdToInject(){
-        /**
-         * Pull from session means get & delete
-         */
-        //$outlet_id = session()->pull('outlet_id');
         if(!is_null(Setting::$outlet_id)){
             return;
         }
-
+        
         /** @var ReservationUser $user */
         $user = Auth::user();
         if(is_null($user)){

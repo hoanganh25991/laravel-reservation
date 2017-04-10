@@ -75,33 +75,15 @@
         methods: {
             _goToAdminReservations(){
                 let vue = this;
+
                 Toast.show();
 
-                let url = this._url('admin');
-                let data = {
-                    outlet_id: this.selected_outlet
-                };
+                //noinspection JSUnresolvedVariable
+                let outlet_id = vue.selected_outlet;
 
-                $.ajax({
-                    url,
-                    method: 'POST',
-                    data: JSON.stringify(data),
-                    success(res){
-                        if(res.statusMsg == AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS){
+                let redirect_url = `admin/reservations?outlet_id=${outlet_id}`;
 
-                            window.location.href = vue._url('admin/reservations');
-//                            break;
-                        }
-
-                        if(res.statusMsg == AJAX_UPDATE_SCOPE_OUTLET_ID_ERROR){
-                            console.log(res);
-//                            break;
-                        }
-                    },
-                    complete(res){
-                        console.log(res);
-                    }
-                });
+                window.location.href = vue._url(redirect_url);
             },
 
             _url(path){

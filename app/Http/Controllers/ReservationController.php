@@ -82,7 +82,7 @@ class ReservationController extends HoiController{
                 $reservations = $req->json('reservations');
 
                 $validator = null;
-                
+
                 foreach($reservations as $reservation_data){
                     $validator = Reservation::validateOnCRUD($reservation_data);
 
@@ -94,7 +94,7 @@ class ReservationController extends HoiController{
                     $reservation->fill($reservation_data);
                     $reservation->save();
                 }
-                
+
                 //which means no reservations submit
                 if(is_null($validator)){
                     $data = [];
@@ -110,7 +110,7 @@ class ReservationController extends HoiController{
                     $msg  = Call::AJAX_VALIDATE_FAIL;
                     break;
                 }
-            
+
                 //everything is fine
                 $data = $this->fetchUpdateReservations();
                 $code = 200;
