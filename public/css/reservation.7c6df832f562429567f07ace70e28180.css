@@ -1024,12 +1024,8 @@ ul#user-options {
     font-size: 12px
 }
 .container .box {
-    width: 500px;
+    width: 100%;
     margin: 0 auto;
-    background: #fdfdfd;
-    border: 1px solid #d9d9d9;
-    border-radius: 0 0 4px 4px;
-    border-radius: 4px;
     position: relative;
     padding: 0 0 10px
 }
@@ -2248,7 +2244,6 @@ ul#user-options {
 #form-step-container .form-step {
     position: absolute;
     top: 0;
-    left: calc(50vw - 250px);
     transition: all 0.5s ease-in-out;
     transform: scale(0,0);
 }
