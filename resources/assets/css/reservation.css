@@ -1352,6 +1352,7 @@ ul#user-options {
     z-index: 99
 }
 .agree-box .checkbox .agree-check {
+    width: auto;
     display: inline-block;
     vertical-align: top;
     outline: none;
