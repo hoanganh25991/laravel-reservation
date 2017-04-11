@@ -1816,7 +1816,6 @@ ul#user-options {
     color: #fff
 }
 .calendarhead .arrow {
-    padding: 9px 0;
     text-align: center;
     font-weight: bold;
     font-size: 25px
@@ -1825,8 +1824,6 @@ ul#user-options {
     font-size: 10px
 }
 .calendarhead .arrow:hover {
-    background: #303535;
-    background: #fbfbfb;
     color: #303535
 }
 .calendar {
