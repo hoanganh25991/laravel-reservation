@@ -2,14 +2,15 @@
 
 namespace App;
 
-use App\Http\Controllers\PayPalController;
 use Carbon\Carbon;
 use App\Traits\ApiUtils;
+use App\Traits\ShortenUrl;
 use Illuminate\Validation\Rule;
 use App\Events\ReservationReserved;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\Eloquent\Builder;
+use App\Http\Controllers\PayPalController;
 use App\OutletReservationSetting as Setting;
 
 /**
@@ -461,8 +462,14 @@ class Reservation extends HoiModel {
      */
     public function getConfirmComingUrlAttribute(){
         $confirm_id = $this->confirm_id;
+        $url        = route('reservation_confirm', compact('confirm_id'));
+        $short_url  = ShortenUrl::make($url);
 
-        return route('reservation_confirm', compact('confirm_id'));;
+        if(!is_null($short_url)){
+            $url    = $short_url;
+        }
+
+        return $url;
     }
     
     /**
