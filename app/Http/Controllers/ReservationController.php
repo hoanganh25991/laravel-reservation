@@ -6,6 +6,7 @@ use App\Reservation;
 use App\Traits\ApiResponse;
 use App\Http\Requests\ApiRequest;
 use App\Libraries\HoiAjaxCall as Call;
+use App\OutletReservationSetting as Setting;
 
 class ReservationController extends HoiController{
     
@@ -25,7 +26,7 @@ class ReservationController extends HoiController{
         if(is_null($reservation)){
             return redirect('');
         }
-       
+        
         $state = $this->buildAppState($reservation);
         
         return view('reservations.confirm-page')->with(compact('state'));
@@ -36,6 +37,11 @@ class ReservationController extends HoiController{
     }
 
     public function buildAppState(Reservation $reservation){
+        //Should try better way to do this
+        $outlet_id = $reservation->outlet_id;
+        Setting::injectOutletId($outlet_id);
+
+        $paypal_token = (new PayPalController)->generateToken();
 
         $state = [
             'outlet' => [
@@ -48,11 +54,7 @@ class ReservationController extends HoiController{
                 'children' => $reservation->children_pax
             ],
 
-            'reservation' => [
-                'date' => $reservation->date->format('Y-m-d'),
-                'time' => $reservation->time,
-                'confirm_id' => $reservation->confirm_id
-            ],
+            'reservation' => $reservation,
 
             'customer' => [
                 'salutation' => $reservation->salutation,
@@ -62,7 +64,11 @@ class ReservationController extends HoiController{
                 'phone_country_code' => $reservation->phone_country_code,
                 'phone'      => $reservation->phone,
                 'remarks'    => $reservation->customer_remarks
-            ]
+            ],
+            
+            'paypal_token'   => $paypal_token,
+            
+            'paypal_url'     => url('paypal'),
         ];
         
         return $state;

@@ -14,10 +14,7 @@
                     <h4 class="modal-title">Searching for available time</h4>
                 </div>
                 <div class="modal-body center">
-                    {{--<div style="width: 100px; display: inline-block">--}}
                     <div style="width: 184px; display: inline-block">
-                        {{--<img src="{{ url('images/gears.svg') }}">--}}
-                        {{--<img src="{{ url('images/hourglass.svg') }}">--}}
                         <img src="{{ url('images/gear.svg') }}">
                     </div>
                 </div>

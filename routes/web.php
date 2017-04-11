@@ -34,6 +34,9 @@ Route::any('reservations/{confirm_id}', 'ReservationController@getConfirmPage')-
  * Handle paypal
  */
 Route::any('{brand_id}/paypal', 'PayPalController@handlePayment')->where('brand_id', '[0-9]+');
+//Paypal now belongs to outlet config
+//Don't need to sub under brand_id
+Route::any('paypal', 'PayPalController@handlePayment')->where('brand_id', '[0-9]+');
 
 /**
  * Handle admin page
