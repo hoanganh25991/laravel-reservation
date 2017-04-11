@@ -375,10 +375,14 @@ ul#user-options {
     overflow: none
 }
 .modal-content {
-    top: 50%
+    top: 50%;
+    background-color: transparent;
+    border: 0px;
+    -webkit-box-shadow: 0 0px 0px rgba(0,0,0,0);
+    box-shadow: 0 0px 0px rgba(0,0,0,0);
 }
 .modal-content .error {
-    color: #df0024
+    color: #df0024;
 }
 .modal-title {
     padding: 0
@@ -2077,9 +2081,8 @@ ul#user-options {
     z-index: 9999
 }
 .calendar td.past {
-    color: #d3d3d3;
     background: #fbfbfb;
-    color: #e1e1e1
+    color: #f0f0f0;
 }
 .calendar td.past .dropdown .dropdown-toggle,
 .calendar td.past .dropdown .dropdown-menu {
