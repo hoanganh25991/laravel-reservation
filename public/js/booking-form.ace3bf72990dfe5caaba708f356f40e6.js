@@ -19,7 +19,7 @@ var CHANGE_AVAILABLE_TIME = 'CHANGE_AVAILABLE_TIME';
 
 var PAX_OVER = 'PAX_OVER';
 var AJAX_CALL = 'AJAX_CALL';
-var DIALOG_SHOW_HIDE = 'DIALOG_SHOW';
+var DIALOG_SHOW = 'DIALOG_SHOW';
 var DIALOG_HAS_DATA = 'DIALOG_HAS_DATA';
 var DIALOG_HIDDEN = 'DIALOG_HIDDEN';
 var DIALOG_EXCEED_MIN_EXIST_TIME = 'DIALOG_EXCEED_MIN_EXIST_TIME';
@@ -127,10 +127,8 @@ var BookingForm = function () {
 						return Object.assign({}, state, {
 							ajax_call: self.ajaxCallReducer(state.ajax_call, action)
 						});
-					case DIALOG_SHOW_HIDE:
+					case DIALOG_SHOW:
 					case DIALOG_HAS_DATA:
-					case DIALOG_EXCEED_MIN_EXIST_TIME:
-					case DIALOG_HIDDEN:
 						return Object.assign({}, state, {
 							dialog: self.dialogReducer(state.dialog, action)
 						});
@@ -192,15 +190,7 @@ var BookingForm = function () {
 					time: '',
 					agree_term_condition: false
 				},
-				dialog: {
-					show: false,
-					stop: {
-						has_data: false,
-						exceed_min_exist_time: false
-					},
-					min_exist_time: 690 //ms
-					//min_exist_time: 5000 //ms
-				},
+				dialog: {},
 				available_time: {},
 				ajax_call: 0,
 				has_selected_day: false,
@@ -395,24 +385,9 @@ var BookingForm = function () {
 		key: 'dialogReducer',
 		value: function dialogReducer(state, action) {
 			switch (action.type) {
-				case DIALOG_SHOW_HIDE:
-					return Object.assign({}, state, {
-						show: action.show
-					});
+				case DIALOG_SHOW:
 				case DIALOG_HAS_DATA:
-					state.stop.has_data = action.dialog_has_data;
-					return JSON.parse(JSON.stringify(state));
-				case DIALOG_EXCEED_MIN_EXIST_TIME:
-					state.stop.exceed_min_exist_time = action.exceed_min_exist_time;
-					return JSON.parse(JSON.stringify(state));
-				case DIALOG_HIDDEN:
-					return Object.assign({}, state, {
-						show: false,
-						stop: {
-							has_data: false,
-							exceed_min_exist_time: false
-						}
-					});
+					return state;
 				default:
 					return state;
 			}
@@ -498,16 +473,6 @@ var BookingForm = function () {
 					self.ajax_dialog.modal('hide');
 				}
 
-				var is_dialog_hide_self_loop = last_action == DIALOG_SHOW_HIDE && state.dialog.show == false;
-				var dialog_has_data_reach_exist_time = state.dialog.stop.has_data == true && state.dialog.stop.exceed_min_exist_time == true;
-				var should_hide_dialog = !is_dialog_hide_self_loop && dialog_has_data_reach_exist_time;
-				if (should_hide_dialog) {
-					store.dispatch({
-						type: DIALOG_SHOW_HIDE,
-						show: false
-					});
-				}
-
 				var has_pax_over_dependency = last_action == CHANGE_ADULT_PAX || last_action == CHANGE_CHILDREN_PAX;
 
 				var pax_over_below = state.pax.adult + state.pax.children < state.overall_min_pax;
@@ -554,6 +519,7 @@ var BookingForm = function () {
 
 			store.subscribe(function () {
 				var state = store.getState();
+				var last_action = store.getLastAction();
 				//update this way for vue see it
 				Object.assign(window.vue_state, state);
 
@@ -577,6 +543,14 @@ var BookingForm = function () {
 				if (form_step_change) {
 					console.info('pointToFormStep');
 					_this.pointToFormStep();
+				}
+
+				if (last_action == DIALOG_SHOW) {
+					_this.ajax_dialog.modal('show');
+				}
+
+				if (last_action == DIALOG_HAS_DATA) {
+					_this.ajax_dialog.modal('hide');
 				}
 			});
 		}
@@ -849,20 +823,22 @@ var BookingForm = function () {
 				store.dispatch({ type: CHANGE_CUSTOMER_REMARKS, remarks: remarks });
 			});
 
-			this.ajax_dialog.on('hidden.bs.modal', function () {
-				store.dispatch({ type: DIALOG_HIDDEN });
-			});
+			// this.ajax_dialog
+			//     .on('hidden.bs.modal', function(){
+			// 	    store.dispatch({type: DIALOG_HIDDEN});
+			//     });
 
-			this.ajax_dialog.on('shown.bs.modal', function () {
-				var state = store.getState();
-				var timeId = setTimeout(function () {
-					var state = store.getState();
-					if (state.dialog.show == true) {
-						store.dispatch({ type: DIALOG_EXCEED_MIN_EXIST_TIME, exceed_min_exist_time: true });
-					}
-					clearTimeout(timeId);
-				}, state.dialog.min_exist_time);
-			});
+			// this.ajax_dialog
+			//     .on('shown.bs.modal', function(){
+			// 	    let state = store.getState();
+			// 	    let timeId = setTimeout(function(){
+			// 		    let state = store.getState();
+			// 		    if(state.dialog.show == true){
+			// 			    store.dispatch({type: DIALOG_EXCEED_MIN_EXIST_TIME, exceed_min_exist_time: true});
+			// 		    }
+			// 		    clearTimeout(timeId);
+			// 	    }, state.dialog.min_exist_time);
+			//     });
 
 			/**
     * Handle payment success
@@ -896,7 +872,7 @@ var BookingForm = function () {
 			var state = store.getState();
 			var self = this;
 
-			store.dispatch({ type: DIALOG_SHOW_HIDE, show: true });
+			store.dispatch({ type: DIALOG_SHOW, show: true });
 
 			var data = {
 				outlet_id: state.outlet.id,
