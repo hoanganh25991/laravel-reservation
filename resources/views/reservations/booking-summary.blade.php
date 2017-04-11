@@ -5,24 +5,19 @@
 @endslot
 @endcomponent
 <div id="reservation-details" class="content legend">
-    <h6 class="r-title">Reservation Summary</h6>
-    <p>
+    <h6 class="r-title">Reservation @{{ reservation.confirm_id }}</h6>
+    <p class="r-title">>
         <label>An SMS has been sent to your mobile phone</label>
     </p>
     <table id="r-rsrve-info">
         <tbody>
         <tr>
             <td><label>Date &amp; Time</label></td>
-            <td>@{{ reservation.date.format('MMM D Y') }}, @{{ reservation.time }}</td>
+            <td>@{{ reservation.date.format('MMM D Y') }} at @{{ reservation.time }}</td>
         </tr>
         <tr>
-            <td><label>People</label></td>
-            <td>@{{ pax.adult }} Adults</td>
-            <td>@{{ pax.children }} Children</td>
-        </tr>
-        <tr>
-            <td><label>Confirmation ID</label></td>
-            <td>@{{ reservation.confirm_id }}</td>
+            <td><label>Pax</label></td>
+            <td>@{{ pax.adult }} Adults<br/>@{{ pax.children }} Children</td>
         </tr>
         </tbody>
     </table>
@@ -48,14 +43,14 @@
         <tr v-show="reservation.payment_status == 100">
             <td><label>Deposit Paid</label></td>
             <td>
-                <p class="h4">$ @{{ reservation.deposit }}</p>
-                <p class="h5"><strong>Your deposit will be returned when you arrive for your reservation</strong></p>
+                <p class="h6">$ @{{ reservation.deposit }}</p>
+                <p class="h6"><strong>Your deposit will be returned when you arrive for your reservation</strong></p>
             </td>
         </tr>
         <tr v-show="reservation.payment_status == 25">
             <td><label>Deposit Required</label></td>
             <td>
-                <p class="h4 text-danger">$ @{{ reservation.deposit }}</p>
+                <p class="h6 text-danger">$ @{{ reservation.deposit }}</p>
                 @include('paypal.authorize')
             </td>
         </tr>

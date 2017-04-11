@@ -2182,8 +2182,9 @@ ul#user-options {
     color: #303535
 }
 #calendar-box {
-    margin: 0 0 25px;
+    margin: 0 auto;
     height: 300px;
+    width: 90%;
 }
 #calendar {
     background: #dedede;
