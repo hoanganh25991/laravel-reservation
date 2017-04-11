@@ -1,4 +1,4 @@
-<span class="text-danger">Your reservation will not be confirmed unless<br/>a deposit is made.<br/>Click PayPal button below to make a deposit.</span>
+<span class="text-danger">Click PayPal button below to make a deposit.</span>
 <script src="https://www.paypalobjects.com/api/button.js?"
         data-merchant="braintree"
         data-id="paypal-button"

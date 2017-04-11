@@ -5,8 +5,13 @@
 @endslot
 @endcomponent
 <div id="reservation-details" class="content legend">
-    <h6 class="r-title">Reservation No. <strong>@{{ reservation.confirm_id }}</strong></h6>
-    <p class="r-title">
+    <h6 v-show="reservation.payment_status == 25" class="r-title">Reservation Summary</h6>
+    <p v-show="reservation.payment_status == 25" class="r-title">
+        <label class="text-danger">Your reservation will not be confirmed unless a deposit is made.</label>
+    </p>
+
+    <h6 v-show="reservation.payment_status != 25" class="r-title">Reservation No. <strong>@{{ reservation.confirm_id }}</strong></h6>
+    <p v-show="reservation.payment_status != 25" class="r-title">
         <label>An SMS has been sent to your mobile phone.</label>
     </p>
     <table id="r-rsrve-info">
