@@ -262,8 +262,14 @@ class BookingForm {
 			data: window.vue_state,
 			computed: {},
 			methods: {
-				_checkEmpty(obj){
-					let empty_keys = Object.values(obj).filter(value => {
+				_checkEmpty(obj, except_keys = []){
+					let empty_keys = Object.keys(obj).filter(key => {
+						if(except_keys.indexOf(key) != -1){
+							return false;
+						}
+
+						let value = obj[key];
+
 						let isNumber = !isNaN(parseFloat(value)) && isFinite(value);
 
 						if(isNumber){
@@ -282,7 +288,7 @@ class BookingForm {
 				},
 
 				not_allowed_move_to_form_step_3(){
-					let has_empty_keys = this._checkEmpty(this.customer);
+					let has_empty_keys = this._checkEmpty(this.customer, ['remarks']);
 					return has_empty_keys;
 				}
 			}

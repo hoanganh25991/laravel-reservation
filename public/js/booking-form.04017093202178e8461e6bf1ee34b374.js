@@ -264,7 +264,15 @@ var BookingForm = function () {
 				computed: {},
 				methods: {
 					_checkEmpty: function _checkEmpty(obj) {
-						var empty_keys = Object.values(obj).filter(function (value) {
+						var except_keys = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+
+						var empty_keys = Object.keys(obj).filter(function (key) {
+							if (except_keys.indexOf(key) != -1) {
+								return false;
+							}
+
+							var value = obj[key];
+
 							var isNumber = !isNaN(parseFloat(value)) && isFinite(value);
 
 							if (isNumber) {
@@ -281,7 +289,7 @@ var BookingForm = function () {
 						return has_empty_keys;
 					},
 					not_allowed_move_to_form_step_3: function not_allowed_move_to_form_step_3() {
-						var has_empty_keys = this._checkEmpty(this.customer);
+						var has_empty_keys = this._checkEmpty(this.customer, ['remarks']);
 						return has_empty_keys;
 					}
 				}
