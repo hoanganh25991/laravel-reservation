@@ -1255,7 +1255,6 @@ ul#user-options {
     margin: 10px auto 0;
     white-space: nowrap;
     display: block;
-    width: auto;
     text-align: center;
     position: relative
 }
@@ -1272,15 +1271,8 @@ ul#user-options {
     font-size: 14px
 }
 #check-availability .datetime #dt-choice select {
-    width: 150px;
     color: #333;
-    padding: 7px 5px;
-    line-height: 4em;
-    height: 35px;
-    font-weight: bold;
-    display: inline;
     float: none;
-    font-size: 14px
 }
 #check-availability .datetime #dt-choice #sel-time {
     width: 150px;
@@ -1348,7 +1340,7 @@ ul#user-options {
     color: #bfbfbf
 }
 .agree-box {
-    margin: 10px auto;
+    margin: 25px auto;
     padding: 0 10px;
     border: 1px dashed #bbb;
     background: #fff;
@@ -1360,7 +1352,6 @@ ul#user-options {
     z-index: 99
 }
 .agree-box .checkbox .agree-check {
-    width: auto;
     display: inline-block;
     vertical-align: top;
     outline: none;
