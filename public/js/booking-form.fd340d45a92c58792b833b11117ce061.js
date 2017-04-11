@@ -551,7 +551,7 @@ var BookingForm = function () {
 			store.dispatch(action);
 		}
 	}, {
-		key: '_findView',
+		key: 'findView',
 		value: function findView() {
 			if (typeof this._hasRunFindView == 'undefined') {
 				this._hasRunFindView = true;

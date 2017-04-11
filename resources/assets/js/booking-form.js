@@ -219,7 +219,7 @@ class BookingForm {
 		let server_state = window.state || {};
 
 		let frontend_state = this.getFrontendState();
-		
+
 		let state = Object.assign(frontend_state, server_state);
 
 		if(state.base_url && state.base_url.includes('reservation.dev') || state.base_url .includes('localhost')){
@@ -462,9 +462,9 @@ class BookingForm {
 
 			let pax_over_below =(state.pax.adult + state.pax.children) < state.overall_min_pax;
 			let pax_over_over =(state.pax.adult + state.pax.children)  > state.overall_max_pax;
-			
+
 			let is_pax_over = has_pax_over_dependency && (pax_over_below || pax_over_over);
-			
+
 			if(is_pax_over){
 				// store.dispatch({type: PAX_OVER});
 				window.alert(`Total number of people should be between ${state.overall_min_pax} - ${state.overall_max_pax} `);
@@ -532,8 +532,8 @@ class BookingForm {
 			 * Form step change
 			 */
 			let form_step_change = (prestate.form_step != state.form_step)
-									|| (prestate.init_view == false
-										&& state.form_step == 'form-step-1');
+				|| (prestate.init_view == false
+				&& state.form_step == 'form-step-1');
 			if(form_step_change){
 				console.info('pointToFormStep');
 				this.pointToFormStep();
@@ -592,23 +592,23 @@ class BookingForm {
 	updateSelectView(available_time) {
 		let state = store.getState();
 		let reservation_date = state.reservation.date;
-	    let selected_day_str = reservation_date.format('YYYY-MM-DD');
+		let selected_day_str = reservation_date.format('YYYY-MM-DD');
 
-	    let available_time_on_selected_day = available_time[selected_day_str];
-	    if (typeof available_time_on_selected_day == 'undefined'){
+		let available_time_on_selected_day = available_time[selected_day_str];
+		if (typeof available_time_on_selected_day == 'undefined'){
 			// console.info('No available time on select day');
-		    // return;
-		    available_time_on_selected_day = [];
-	    }
+			// return;
+			available_time_on_selected_day = [];
+		}
 
 		if (available_time_on_selected_day.length == 0) {
-	        let default_time = {
-	            time: 'N/A',
-	            session_name: ''
-	        };
+			let default_time = {
+				time: 'N/A',
+				session_name: ''
+			};
 
-	        available_time_on_selected_day.push(default_time);
-	    }
+			available_time_on_selected_day.push(default_time);
+		}
 
 		let time_select = this.time_select;
 
@@ -632,7 +632,7 @@ class BookingForm {
 
 		this._addCalendarHelper(calendar);
 		//Get out all available day
-	    let available_days = Object.keys(available_time);
+		let available_days = Object.keys(available_time);
 
 		calendar.day_tds.each(function() {
 			let td = $(this);
@@ -762,18 +762,18 @@ class BookingForm {
 						store.dispatch({type: AJAX_CALL, ajax_call: 1});
 					}
 				});
-				
+
 
 			});
 		/**
 		 * Handle customer change info
 		 */
 		this.customer_salutation_select
-			.addEventListener('change', function(){
-				//binding in this way to get out this as email input
-				let salutation = this.selectedOptions[0].value;
-				store.dispatch({type: CHANGE_CUSTOMER_SALUTATION, salutation});
-			});
+		    .addEventListener('change', function(){
+			    //binding in this way to get out this as email input
+			    let salutation = this.selectedOptions[0].value;
+			    store.dispatch({type: CHANGE_CUSTOMER_SALUTATION, salutation});
+		    });
 
 		this.customer_firt_name_input
 		    .addEventListener('change', function(){
@@ -818,21 +818,21 @@ class BookingForm {
 		    });
 
 		this.ajax_dialog
-			.on('hidden.bs.modal', function(){
-				store.dispatch({type: DIALOG_HIDDEN});
-			});
+		    .on('hidden.bs.modal', function(){
+			    store.dispatch({type: DIALOG_HIDDEN});
+		    });
 
 		this.ajax_dialog
-			.on('shown.bs.modal', function(){
-				let state = store.getState();
-				let timeId = setTimeout(function(){
-					let state = store.getState();
-					if(state.dialog.show == true){
-						store.dispatch({type: DIALOG_EXCEED_MIN_EXIST_TIME, exceed_min_exist_time: true});
-					}
-					clearTimeout(timeId);
-				}, state.dialog.min_exist_time);
-			});
+		    .on('shown.bs.modal', function(){
+			    let state = store.getState();
+			    let timeId = setTimeout(function(){
+				    let state = store.getState();
+				    if(state.dialog.show == true){
+					    store.dispatch({type: DIALOG_EXCEED_MIN_EXIST_TIME, exceed_min_exist_time: true});
+				    }
+				    clearTimeout(timeId);
+			    }, state.dialog.min_exist_time);
+		    });
 
 		/**
 		 * Handle payment success
@@ -867,7 +867,7 @@ class BookingForm {
 
 		store.dispatch({type: DIALOG_SHOW_HIDE, show: true});
 
-		
+
 		let data = {
 			outlet_id: state.outlet.id,
 			adult_pax: state.pax.adult,
@@ -915,7 +915,7 @@ class BookingForm {
 					// });
 					//update reservation
 					Object.assign(vue_state, {reservation});
-					
+
 					store.dispatch({
 						type: SYNC_RESERVATION,
 						reservation,
@@ -987,7 +987,7 @@ class BookingForm {
 					// });
 					//update reservation
 					Object.assign(vue_state, {reservation});
-					
+
 					store.dispatch({
 						type: SYNC_RESERVATION,
 						reservation,
@@ -995,7 +995,7 @@ class BookingForm {
 
 					let data = res.data;
 					let msg = 'REQUIRED DEPOSIT, payment amount: ';
-					
+
 					// store.dispatch({
 					// 	type: CHANGE_RESERVATION_DEPOSIT,
 					// 	deposit: data.deposit
@@ -1008,11 +1008,11 @@ class BookingForm {
 					//noinspection ES6ModulesDependencies
 					let base_url = self.url('paypal');
 					let paypal_authorize = new PayPalAuthorize(token, {amount, confirm_id, outlet_id}, base_url);
-					
+
 					//self.vue.reservation.deposit = amount;
 
 					//$('#paypal-dialog').modal('show');
-					
+
 					console.log(msg, res.data);
 					//window.alert(msg);
 					//store.dispatch({type: PAX_OVER});
@@ -1104,4 +1104,3 @@ class BookingForm {
 }
 
 let bookingForm = new BookingForm();
-
