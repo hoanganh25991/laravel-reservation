@@ -5,9 +5,9 @@
 @endslot
 @endcomponent
 <div id="reservation-details" class="content legend">
-    <h6 class="r-title">Reservation @{{ reservation.confirm_id }}</h6>
-    <p class="r-title">>
-        <label>An SMS has been sent to your mobile phone</label>
+    <h6 class="r-title">Reservation No. <strong>@{{ reservation.confirm_id }}</strong></h6>
+    <p class="r-title">
+        <label>An SMS has been sent to your mobile phone.</label>
     </p>
     <table id="r-rsrve-info">
         <tbody>
@@ -38,14 +38,14 @@
         <tr v-show="reservation.payment_status == 100">
             <td><label>Deposit Paid</label></td>
             <td>
-                <p class="h6">$ @{{ reservation.deposit }}</p>
+                <p class="h5">$ @{{ reservation.deposit }}</p>
                 <p class="h6"><strong>Your deposit will be returned when you arrive for your reservation</strong></p>
             </td>
         </tr>
         <tr v-show="reservation.payment_status == 25">
             <td><label>Deposit Required</label></td>
             <td>
-                <p class="h6 text-danger">$ @{{ reservation.deposit }}</p>
+                <p class="h5 text-danger">$ @{{ reservation.deposit }}</p>
                 @include('paypal.authorize')
             </td>
         </tr>
