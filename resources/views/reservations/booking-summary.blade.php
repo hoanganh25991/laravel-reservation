@@ -5,20 +5,23 @@
 @endslot
 @endcomponent
 <div id="reservation-details" class="content legend">
-    <h6 class="r-title">Your Reservation Information</h6>
+    <h6 class="r-title">Reservation Summary</h6>
+    <p>
+        <label>An SMS has been sent to your mobile phone</label>
+    </p>
     <table id="r-rsrve-info">
         <tbody>
         <tr>
-            <td><label>Date &amp; Time:</label></td>
+            <td><label>Date &amp; Time</label></td>
             <td>@{{ reservation.date.format('MMM D Y') }}, @{{ reservation.time }}</td>
         </tr>
         <tr>
-            <td><label>People:</label></td>
+            <td><label>People</label></td>
             <td>@{{ pax.adult }} Adults</td>
             <td>@{{ pax.children }} Children</td>
         </tr>
         <tr>
-            <td><label>Confirmation ID:</label></td>
+            <td><label>Confirmation ID</label></td>
             <td>@{{ reservation.confirm_id }}</td>
         </tr>
         </tbody>
@@ -27,20 +30,20 @@
     <table id="r-dnr-info">
         <tbody>
         <tr>
-            <td><label>Name:</label></td>
+            <td><label>Name</label></td>
             <td>@{{ customer.first_name }} @{{ customer.last_name }}</td>
         </tr>
         <tr>
-            <td><label>Phone Number:</label></td>
+            <td><label>Phone Number</label></td>
             <td>@{{ customer.phone_country_code }} @{{ customer.phone }}</td>
         </tr>
         <tr>
-            <td><label>Email:</label></td>
+            <td><label>Email</label></td>
             <td>@{{ customer.email }}</td>
         </tr>
         <tr>
-            <td><label>Special Request:</label></td>
-            <td><p>@{{ customer.remarks }}</p></td>
+            <td><label>Special Request</label></td>
+            <td>@{{ customer.remarks }}</td>
         </tr>
         <tr v-show="reservation.payment_status == 100">
             <td><label>Deposit Paid</label></td>

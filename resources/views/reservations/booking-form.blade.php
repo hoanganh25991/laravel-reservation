@@ -56,7 +56,7 @@
                         <div class="agree-box cf">
                             <div class="checkbox cf">
                                 <label for="agree_box">I acknowledge that this is a waitlisted reservation and is
-                                    subjected to the restaurant's confirmation.</label>
+                                    subjected to the restaurant's confirmation. I understand that the restaurant will hold my table for a maximum of 15 minutes.</label>
                                 <input id="agree_box" type="checkbox" name="agree_box" v-model="reservation.agree_term_condition"
                                        class="form-control agree-check">
                             </div>
@@ -107,7 +107,7 @@
 
                         <div class="form-group">
                             <input type="email" class="form-control login-field" name="email" id="booking-email"
-                                   :value="customer.email" placeholder="Enter Email Address">
+                                   :value="customer.email" placeholder="Email Address">
                             <label class="login-field-icon fa fa-envelope" for="booking-email"></label>
                         </div>
 
@@ -120,8 +120,8 @@
                         </div>
 
                         <div class="form-group">
-                            <textarea class="form-control login-field" placeholder="Special Requests (maximum 85 characters)"
-                                        name="remarks" id="booking-remarks" :value="customer.remarks" maxlength="85"></textarea>
+                            <textarea class="form-control login-field" placeholder="Special Requests"
+                                        name="remarks" id="booking-remarks" :value="customer.remarks"></textarea>
                             <p class="note">Special requests are not guaranteed and are subject to availability and restaurant discretion.</p>
                         </div>
                     </div>
@@ -143,9 +143,10 @@
         <div class="modal fade" id="ajax-dialog">
             <div class="modal-dialog modal-sm">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                    aria-hidden="true">&times;</span></button>
+                    <div class="modal-header" style="display: none;">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                         <h4 class="modal-title">Checking reservation...</h4>
                     </div>
                     <div class="modal-body center">
@@ -156,8 +157,7 @@
                             <img src="{{ url('images/gear.svg') }}">
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <hr>
+                    <div class="modal-footer" style="display: none;">
                     </div>
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
