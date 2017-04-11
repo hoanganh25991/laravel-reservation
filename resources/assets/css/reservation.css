@@ -1248,10 +1248,10 @@ ul#user-options {
     width: 75px
 }
 #check-availability .datetime {
-    width: 75%;
     margin: 20px auto 20px
 }
 #check-availability .datetime #dt-choice {
+    width: 75%;    
     margin: 10px auto 0;
     white-space: nowrap;
     display: block;
@@ -1352,7 +1352,7 @@ ul#user-options {
     padding: 0 10px;
     border: 1px dashed #bbb;
     background: #fff;
-    width: auto
+    width: 75%;
 }
 .agree-box .checkbox {
     padding-top: 0;
