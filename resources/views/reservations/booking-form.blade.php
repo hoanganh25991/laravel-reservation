@@ -47,7 +47,7 @@
                         <div class="clear"></div>
                         <div id="calendar-box" align="center"></div>
                         <div id="dt-choice" class="cf">
-                            <label id="reservation_date">@{{ reservation.date.format('DD MMM Y') }}</label>
+                            <label id="reservation_date">Select a booking time on @{{ reservation.date.format('DD MMM Y') }}</label>
                             <input type="hidden" name="reservation_date" value="">
                             <select name="reservation_time" class="form-control">
                                 <option>N/A</option>
@@ -85,21 +85,24 @@
                 @endcomponent
                 <div id="confirm-details" class="content">
                     <div class="form-groups login-form">
-                        <select id="d-title" class="form-control login-field" name="salutation" :value="customer.salutation">
-                            <option value="Mr.">Mr.</option>
-                            <option value="Ms.">Ms.</option>
-                            <option value="Mrs.">Mrs.</option>
-                            <option value="Mdm.">Mdm.</option>
-                        </select>
+                        <div class="form-group">
+                            <select id="d-title" class="form-control login-field" name="salutation" :value="customer.salutation">
+                                <option value="Mr.">Mr.</option>
+                                <option value="Ms.">Ms.</option>
+                                <option value="Mrs.">Mrs.</option>
+                                <option value="Mdm.">Mdm.</option>
+                            </select>
+                        </div>
+
                         <div class="form-group">
                             <input type="text" class="form-control d-name name_check login-field" name="first_name"
-                                :value="customer.first_name"
-                                placeholder="First Name" title="First Name">&nbsp;
+                                :value="customer.first_name" placeholder="First Name" title="First Name">
+                            <label class="login-field-icon fa fa-user" for="first_name"></label>
                         </div>
                         <div class="form-group">
                             <input type="text" class="form-control d-name name_check login-field" name="last_name"
-                                :value="customer.last_name"
-                                placeholder="Last Name" title="Last Name">
+                                :value="customer.last_name" placeholder="Last Name" title="Last Name">
+                            <label class="login-field-icon fa fa-user" for="last_name"></label>
                         </div>
 
                         <div class="form-group">
