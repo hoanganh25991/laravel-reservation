@@ -63,8 +63,8 @@
                         </div>
                     </div>
                     <div class="form-actions cf bottom_room">
-                        <button class="btn-form-next btn btn-block btn-primary" destination="form-step-2" :disabled="not_allowed_move_to_form_step_2">Next
-                        </button>
+                        <button class="btn-form-next btn btn-block btn-primary" destination="form-step-2"
+                                :disabled="not_allowed_move_to_form_step_2()">Next</button>
                     </div>
                 </div>
                 @include('reservations.footer')
@@ -124,8 +124,10 @@
                     </div>
 
                     <div class="form-actions cf bottom_room">
-                        <button class="btn-form-next btn btn-primary pull-right" destination="form-step-3" :disabled="not_allowed_move_to_form_step_3">Next</button>
                         <button class="btn-form-next btn btn-primary pull-left" destination="form-step-1">Back</button>
+
+                        <button class="btn-form-next btn btn-primary pull-right" destination="form-step-3"
+                                :disabled="not_allowed_move_to_form_step_3()">Next</button>
                     </div>
                 </div>
                 @include('reservations.footer')

@@ -46,8 +46,8 @@ var AJAX_BOOKING_CONDITION_VALIDATE_FAIL = 'AJAX_BOOKING_CONDITION_VALIDATE_FAIL
 //const AJAX_PAYMENT_REQUEST = 'AJAX_PAYMENT_REQUEST';
 
 //const AJAX_PAYMENT_REQUEST_VALIDATE_FAIL = 'AJAX_PAYMENT_REQUEST_VALIDATE_FAIL';
-var AJAX_PAYMENT_REQUEST_FIND_RESERVATION_FAIL = 'AJAX_PAYMENT_REQUEST_FIND_RESERVATION_FAIL';
-var AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL = 'AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL';
+//const AJAX_PAYMENT_REQUEST_FIND_RESERVATION_FAIL = 'AJAX_PAYMENT_REQUEST_FIND_RESERVATION_FAIL';
+//const AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL = 'AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL';
 
 // const AJAX_PAYMENT_REQUEST_SUCCESS = 'AJAX_PAYMENT_REQUEST_SUCCESS';
 
@@ -208,9 +208,7 @@ var BookingForm = function () {
 				customer: {
 					salutation: 'Mr.'
 				},
-				pax_over: "block",
-				not_allowed_move_to_form_step_2: true,
-				not_allowed_move_to_form_step_3: true
+				pax_over: "block"
 			};
 
 			return state;
@@ -257,10 +255,30 @@ var BookingForm = function () {
 			this.vue = new Vue({
 				el: '#form-step-container',
 				data: window.vue_state,
-				computed: {
+				computed: {},
+				methods: {
 					not_allowed_move_to_form_step_2: function not_allowed_move_to_form_step_2() {
-						console.log('re compute');
-						return !(this.reservation.time && this.reservation.agree_term_condition);
+						var _this = this;
+
+						var empty_keys = Object.keys(this.reservation).filter(function (key) {
+							var val = _this.reservation[key];
+
+							//need to self check, bcs number 0 is allowed
+							if (val == '' || typeof val == 'undefined') {
+								return true;
+							}
+
+							return false;
+						});
+
+						return empty_keys.length > 0;
+					},
+					not_allowed_move_to_form_step_3: function not_allowed_move_to_form_step_3() {
+						var empty_keys = Object.keys(this.customer).filter(function (key) {
+							return !key;
+						});
+
+						return empty_keys.length > 0;
 					}
 				}
 			});
@@ -507,7 +525,7 @@ var BookingForm = function () {
 	}, {
 		key: 'view',
 		value: function view() {
-			var _this = this;
+			var _this2 = this;
 
 			this.findView();
 			var store = window.store;
@@ -537,8 +555,8 @@ var BookingForm = function () {
      */
 				var available_time_change = prestate.available_time != state.available_time;
 				if (available_time_change) {
-					_this.updateSelectView(state.available_time);
-					_this.updateCalendarView(state.available_time);
+					_this2.updateSelectView(state.available_time);
+					_this2.updateCalendarView(state.available_time);
 				}
 				/**
      * Form step change
@@ -546,7 +564,7 @@ var BookingForm = function () {
 				var form_step_change = prestate.form_step != state.form_step || prestate.init_view == false && state.form_step == 'form-step-1';
 				if (form_step_change) {
 					console.info('pointToFormStep');
-					_this.pointToFormStep();
+					_this2.pointToFormStep();
 				}
 			});
 		}
@@ -681,7 +699,7 @@ var BookingForm = function () {
 	}, {
 		key: 'event',
 		value: function event() {
-			var _this2 = this;
+			var _this3 = this;
 
 			this.findView();
 			var store = window.store;
@@ -855,7 +873,7 @@ var BookingForm = function () {
 
 			document.addEventListener('calendar-change-month', function (e) {
 				var state = store.getState();
-				_this2.updateCalendarView(state.available_time);
+				_this3.updateCalendarView(state.available_time);
 			});
 		}
 	}, {

@@ -40,8 +40,8 @@ const AJAX_BOOKING_CONDITION_VALIDATE_FAIL = 'AJAX_BOOKING_CONDITION_VALIDATE_FA
 //const AJAX_PAYMENT_REQUEST = 'AJAX_PAYMENT_REQUEST';
 
 //const AJAX_PAYMENT_REQUEST_VALIDATE_FAIL = 'AJAX_PAYMENT_REQUEST_VALIDATE_FAIL';
-const AJAX_PAYMENT_REQUEST_FIND_RESERVATION_FAIL = 'AJAX_PAYMENT_REQUEST_FIND_RESERVATION_FAIL';
-const AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL = 'AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL';
+//const AJAX_PAYMENT_REQUEST_FIND_RESERVATION_FAIL = 'AJAX_PAYMENT_REQUEST_FIND_RESERVATION_FAIL';
+//const AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL = 'AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL';
 
 // const AJAX_PAYMENT_REQUEST_SUCCESS = 'AJAX_PAYMENT_REQUEST_SUCCESS';
 
@@ -211,8 +211,6 @@ class BookingForm {
 				salutation: 'Mr.',
 			},
 			pax_over: "block",
-			not_allowed_move_to_form_step_2: true,
-			not_allowed_move_to_form_step_3: true,
 		};
 
 		return state;
@@ -256,10 +254,27 @@ class BookingForm {
 		this.vue = new Vue({
 			el: '#form-step-container',
 			data: window.vue_state,
-			computed: {
-				not_allowed_move_to_form_step_2: function(){
-					console.log('re compute');
-					return !(this.reservation.time && this.reservation.agree_term_condition);
+			computed: {},
+			methods: {
+				not_allowed_move_to_form_step_2(){
+					let empty_keys = Object.keys(this.reservation).filter(key => {
+						let val = this.reservation[key];
+
+						//need to self check, bcs number 0 is allowed
+						if(val == '' || typeof val == 'undefined'){
+							return true;
+						}
+
+						return false;
+					});
+
+					return empty_keys.length > 0;
+				},
+
+				not_allowed_move_to_form_step_3(){
+					let empty_keys = Object.keys(this.customer).filter(key => !key);
+
+					return empty_keys.length > 0;
 				}
 			}
 		});

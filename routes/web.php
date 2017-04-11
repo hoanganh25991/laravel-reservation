@@ -9,6 +9,7 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
+use App\OutletReservationSetting as Setting;
 
 
 
@@ -59,8 +60,9 @@ Route::group(['middleware' => 'administrator'], function (){
  * Currently only support frontend call
  */
 Route::group(['prefix' => 'api','middleware' => 'api'], function (){
-    Route::get('outlets', 'OutletController@fetchAllOutlet');
-    Route::post('outlets', 'OutletController@fetchAllOutlet');
+    Setting::injectBrandId(1);
+    Route::any('', 'BookingController@getBookingForm');
+    Route::any('outlets', 'OutletController@fetchAllOutlet');
 });
 
 
