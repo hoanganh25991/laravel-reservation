@@ -16,10 +16,8 @@ a:hover {
 label {
     float: left;
     display: inline;
-    font-size: 13px;
     font-weight: bold;
-    color: #232323;
-    /*white-space: nowrap*/
+    color: #7e7e7e;
 }
 input {
     width: 290px
@@ -1167,7 +1165,7 @@ ul#user-options {
     text-align: center;
     margin: 20px auto;
     border: 0;
-    width: 330px;
+    width: 75%;
     bottom: 0
 }
 .content form .form-actions button {
@@ -1208,11 +1206,11 @@ ul#user-options {
     margin: 0 0 20px
 }
 #check-availability .rid-select {
-    width: 330px;
+    width: 75%;
     margin: 0 auto 20px
 }
 #check-availability .selectors {
-    width: 330px;
+    width: 75%;
     margin: 0 auto;
     text-align: left;
     white-space: nowrap
@@ -1250,7 +1248,7 @@ ul#user-options {
     width: 75px
 }
 #check-availability .datetime {
-    width: 330px;
+    width: 75%;
     margin: 20px auto 20px
 }
 #check-availability .datetime #dt-choice {
@@ -2215,14 +2213,14 @@ ul#user-options {
 #calendar {
     background: #dedede;
     background: #fff;
-    width: 330px;
+    width: 75%;
     color: #2e2e2e
 }
 .bottom_room {
     text-align: center;
     margin: 20px auto;
     border: 0;
-    width: 330px;
+    width: 75%;
     bottom: 0;
 }
 /*#confirm-details .small-input{*/
@@ -2231,7 +2229,7 @@ ul#user-options {
 /*}*/
 
 /*#confirm-details {*/
-    /*width: 330px;*/
+    /*width: 75%;*/
     /*margin: 0 auto 20px;*/
 /*}*/
 #form-step-container .form-step {
