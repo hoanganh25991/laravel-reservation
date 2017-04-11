@@ -47,14 +47,14 @@
                         <div class="clear"></div>
                         <div id="calendar-box" align="center"></div>
                         <div id="dt-choice" class="cf">
-                            <label id="reservation_date">Select a booking time on @{{ reservation.date.format('DD MMM Y') }}</label>
+                            <label id="reservation_date">Booking time on @{{ reservation.date.format('DD MMM Y') }}</label>
                             <input type="hidden" name="reservation_date" value="">
                             <select name="reservation_time" class="form-control">
                                 <option>N/A</option>
                             </select>
                         </div>
                         <div class="agree-box cf">
-                            <div class="checkbox cf">
+                            <div class="checkbox cf" style="padding-left: 5px;">
                                 <label for="agree_box">I acknowledge that this is a waitlisted reservation and is
                                     subjected to the restaurant's confirmation. I understand that the restaurant will hold my table for a maximum of 15 minutes.</label>
                                 <input id="agree_box" type="checkbox" name="agree_box" v-model="reservation.agree_term_condition"

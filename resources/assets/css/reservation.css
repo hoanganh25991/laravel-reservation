@@ -1165,7 +1165,7 @@ ul#user-options {
     text-align: center;
     margin: 20px auto;
     border: 0;
-    width: 75%;
+    width: 80%;
     bottom: 0
 }
 .content form .form-actions button {
@@ -1206,11 +1206,11 @@ ul#user-options {
     margin: 0 0 20px
 }
 #check-availability .rid-select {
-    width: 75%;
+    width: 80%;
     margin: 0 auto 20px
 }
 #check-availability .selectors {
-    width: 75%;
+    width: 80%;
     margin: 0 auto;
     text-align: left;
     white-space: nowrap
@@ -1244,7 +1244,7 @@ ul#user-options {
     margin: 20px auto 20px
 }
 #check-availability .datetime #dt-choice {
-    width: 75%;    
+    width: 80%;    
     margin: 10px auto 0;
     white-space: nowrap;
     display: block;
@@ -1337,7 +1337,7 @@ ul#user-options {
     padding: 0 10px;
     border: 1px dashed #bbb;
     background: #fff;
-    width: 75%;
+    width: 80%;
 }
 .agree-box .checkbox {
     padding-top: 0;
@@ -1416,7 +1416,7 @@ ul#user-options {
     background: #eaeaea
 }
 #confirm-details {
-    width: 75%;
+    width: 80%;
     padding: 20px 0px;
     margin: 0 auto
 }
@@ -1831,7 +1831,6 @@ ul#user-options {
     position: absolute
 }
 .calendar th {
-    width: 37px;
     height: 20px;
     font-size: 14px;
     font-weight: bold;
@@ -1850,7 +1849,6 @@ ul#user-options {
     border: solid thin #dfdfdf;
     border: solid thin #ccc;
     height: 35px;
-    width: 35px;
     font-size: 16px;
     font-size: 12px;
     text-align: center
@@ -2197,7 +2195,7 @@ ul#user-options {
     margin: 20px auto;
     border: 0;
     bottom: 0;
-    width: 75%
+    width: 80%
 }
 
 #form-step-container .form-step {
