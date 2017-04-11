@@ -17,7 +17,7 @@
     <table id="r-rsrve-info">
         <tbody>
         <tr>
-            <td><label>Date &amp; Time</label></td>
+            <td style="width: 40%"><label>Date &amp; Time</label></td>
             <td>@{{ reservation.date.format('MMM D Y') }} at @{{ reservation.time }}</td>
         </tr>
         <tr>
@@ -44,13 +44,13 @@
             <td><label>Deposit Paid</label></td>
             <td>
                 <p class="h5">$@{{ reservation.deposit }}</p>
-                <p class="h6">Your deposit will be returned when you arrive for your reservation</p>
+                Your deposit will be returned when you arrive for your reservation
             </td>
         </tr>
         <tr v-show="reservation.payment_status == 25">
             <td><label>Deposit Required</label></td>
             <td>
-                <p class="h5 text-danger">$ @{{ reservation.deposit }}</p>
+                <p class="h5 text-danger">$@{{ reservation.deposit }}</p>
                 @include('paypal.authorize')
             </td>
         </tr>
