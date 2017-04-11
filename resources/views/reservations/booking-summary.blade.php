@@ -17,14 +17,14 @@
         </tr>
         <tr>
             <td><label>Pax</label></td>
-            <td>@{{ pax.adult }} Adults<br/>@{{ pax.children }} Children</td>
+            <td>@{{ pax.adult }} Adults, @{{ pax.children }} Children</td>
         </tr>
         <tr>
             <td><label>Name</label></td>
             <td>@{{ customer.first_name }} @{{ customer.last_name }}</td>
         </tr>
         <tr>
-            <td><label>Phone Number</label></td>
+            <td><label>Contact Number</label></td>
             <td>@{{ customer.phone_country_code }} @{{ customer.phone }}</td>
         </tr>
         <tr>
@@ -38,8 +38,8 @@
         <tr v-show="reservation.payment_status == 100">
             <td><label>Deposit Paid</label></td>
             <td>
-                <p class="h5">$ @{{ reservation.deposit }}</p>
-                <p class="h6"><strong>Your deposit will be returned when you arrive for your reservation</strong></p>
+                <p class="h5">$@{{ reservation.deposit }}</p>
+                <p class="h6">Your deposit will be returned when you arrive for your reservation</p>
             </td>
         </tr>
         <tr v-show="reservation.payment_status == 25">
