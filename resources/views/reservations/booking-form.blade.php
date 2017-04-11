@@ -57,13 +57,13 @@
                             <div class="checkbox cf">
                                 <label for="agree_box">I acknowledge that this is a waitlisted reservation and is
                                     subjected to the restaurant's confirmation.</label>
-                                <input id="agree_box" type="checkbox" name="agree_box" value="1"
-                                       class="form-control agree-check" required>
+                                <input id="agree_box" type="checkbox" name="agree_box" v-model="reservation.agree_term_condition"
+                                       class="form-control agree-check">
                             </div>
                         </div>
                     </div>
                     <div class="form-actions cf bottom_room">
-                        <button class="btn-form-next btn btn-block btn-primary" destination="form-step-2">Next
+                        <button class="btn-form-next btn btn-block btn-primary" destination="form-step-2" :disabled="not_allowed_move_to_form_step_2">Next
                         </button>
                     </div>
                 </div>
@@ -124,7 +124,7 @@
                     </div>
 
                     <div class="form-actions cf bottom_room">
-                        <button class="btn-form-next btn btn-primary pull-right" destination="form-step-3">Next</button>
+                        <button class="btn-form-next btn btn-primary pull-right" destination="form-step-3" :disabled="not_allowed_move_to_form_step_3">Next</button>
                         <button class="btn-form-next btn btn-primary pull-left" destination="form-step-1">Back</button>
                     </div>
                 </div>

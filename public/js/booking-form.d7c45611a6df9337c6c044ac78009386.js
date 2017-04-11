@@ -189,7 +189,8 @@ var BookingForm = function () {
 				},
 				reservation: {
 					date: moment(),
-					time: ''
+					time: '',
+					agree_term_condition: false
 				},
 				dialog: {
 					show: false,
@@ -207,7 +208,9 @@ var BookingForm = function () {
 				customer: {
 					salutation: 'Mr.'
 				},
-				pax_over: "block"
+				pax_over: "block",
+				not_allowed_move_to_form_step_2: true,
+				not_allowed_move_to_form_step_3: true
 			};
 
 			return state;
@@ -249,11 +252,17 @@ var BookingForm = function () {
 		value: function buildVue() {
 			window.vue_state = this.buildVueState();
 
-			var sekf = this;
+			var self = this;
 
 			this.vue = new Vue({
 				el: '#form-step-container',
-				data: window.vue_state
+				data: window.vue_state,
+				computed: {
+					not_allowed_move_to_form_step_2: function not_allowed_move_to_form_step_2() {
+						console.log('re compute');
+						return !(this.reservation.time && this.reservation.agree_term_condition);
+					}
+				}
 			});
 		}
 	}, {

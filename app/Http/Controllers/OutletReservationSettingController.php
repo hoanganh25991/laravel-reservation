@@ -18,6 +18,8 @@ class OutletReservationSettingController extends Controller {
     public function update(ApiRequest $req){
         $data = json_decode($req->getContent(), JSON_NUMERIC_CHECK);
         $action_type = $data['type'];
+        
+        $outlet_id = Setting::outletId();
 
         switch($action_type){
             //Handle buffer config
@@ -27,10 +29,13 @@ class OutletReservationSettingController extends Controller {
                 foreach($buffer as $key => $value){
                     $config =
                         Setting::findOrNew([
+                            ['outlet_id', $outlet_id],
                             ['setting_group', Setting::BUFFER_GROUP],
-                            ['setting_key', $key]
+                            ['setting_key', $key],
                         ]);
-
+                    $config->outlet_id     = $outlet_id;
+                    $config->setting_group = Setting::BUFFER_GROUP;
+                    $config->setting_key   = $key;
                     $config->setting_value = $value;
                     $config->save();
                 }
@@ -46,10 +51,14 @@ class OutletReservationSettingController extends Controller {
                 foreach($notification as $key => $value){
                     $config =
                         Setting::findOrNew([
+                            ['outlet_id', $outlet_id],
                             ['setting_group', Setting::NOTIFICATION_GROUP],
                             ['setting_key', $key]
                         ]);
 
+                    $config->outlet_id     = $outlet_id;
+                    $config->setting_group = Setting::NOTIFICATION_GROUP;
+                    $config->setting_key   = $key;
                     $config->setting_value = $value;
                     $config->save();
                 }
@@ -65,10 +74,14 @@ class OutletReservationSettingController extends Controller {
                 foreach($settings as $key => $value){
                     $config =
                         Setting::findOrNew([
+                            ['outlet_id', $outlet_id],
                             ['setting_group', Setting::SETTINGS_GROUP],
                             ['setting_key', $key]
                         ]);
 
+                    $config->outlet_id     = $outlet_id;
+                    $config->setting_group = Setting::SETTINGS_GROUP;
+                    $config->setting_key   = $key;
                     $config->setting_value = $value;
                     $config->save();
                 }
@@ -99,10 +112,14 @@ class OutletReservationSettingController extends Controller {
                 foreach($settings as $key => $value){
                     $config =
                         Setting::findOrNew([
+                            ['outlet_id', $outlet_id],
                             'setting_group' => Setting::DEPOSIT_GROUP,
                             'setting_key'   => $key
                         ]);
 
+                    $config->outlet_id     = $outlet_id;
+                    $config->setting_group = Setting::DEPOSIT_GROUP;
+                    $config->setting_key   = $key;
                     $config->setting_value = $value;
                     $config->save();
                 }

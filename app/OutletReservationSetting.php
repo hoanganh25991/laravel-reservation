@@ -12,6 +12,7 @@ use App\OutletReservationSetting as Setting;
  * @property mixed $outlet_id
  * @property mixed $setting_key
  * @property mixed $setting_value
+ * @property int   $setting_group
  * @see App\OutletReservationSetting::outletId
  */
 class OutletReservationSetting extends HoiModel{
@@ -160,7 +161,7 @@ class OutletReservationSetting extends HoiModel{
          */
         static::saving(function(Setting $setting){
             $setting_key = $setting->setting_key;
-            $allowed     = in_array($setting_key, Setting::allowedChangeSettingKeys());
+            $allowed     = Setting::allowedChangeSettingKeys()->contains($setting_key);
 
             if(!$allowed){
                 return false;
@@ -177,7 +178,7 @@ class OutletReservationSetting extends HoiModel{
      * @return array
      */
     public static function allowedChangeSettingKeys(){
-        return [
+        $keys = [
             //for buffer
             Setting::MAX_DAYS_IN_ADVANCE,
             Setting::MIN_HOURS_IN_ADVANCE_SLOT_TIME,
@@ -197,6 +198,8 @@ class OutletReservationSetting extends HoiModel{
             Setting::OVERALL_MIN_PAX,
             Setting::OVERALL_MAX_PAX,
         ];
+
+        return collect($keys);
     }
 
     /**
@@ -209,7 +212,7 @@ class OutletReservationSetting extends HoiModel{
         $config = Setting::where($condition)->first();
         
         if(is_null($config)){
-            $config = new Setting($condition);
+            $config    = new Setting();
         }
         
         return $config;

@@ -684,7 +684,7 @@ var AdminSettings = function () {
 			var date_str = today.format('YYYY-MM-DD');
 
 			var dump_special_session = {
-				"id": this._randomId(),
+				//"id": this._randomId(),
 				"outlet_id": outlet_id,
 				"session_name": "Special session",
 				"on_mondays": null,
