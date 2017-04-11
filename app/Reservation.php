@@ -554,10 +554,10 @@ class Reservation extends HoiModel {
      */
     public function getSMSMessageOnReservedAttribute(){
         //send out an SMS
-        $date_str = $this->date->format('M d Y');
+        $date_str = $this->date->format('d M Y');
         $time_str = $this->date->format('H:i');
 
-        return "Your reservation at $this->outlet_name on $date_str at $time_str has been received. Reservation code: $this->confirm_id";
+        return "Your reservation at $this->outlet_name on $date_str at $time_str has been received. Reservation No. $this->confirm_id";
     }
 
     /**
@@ -576,7 +576,7 @@ class Reservation extends HoiModel {
 
         $msg  = "You are $hours_before hours from your $sender_name reservation! ";
         $msg .= "$this->adult_pax adults $this->children_pax children at $time_str at $this->outlet_name. ";
-        $msg .= "Confirm you are coming: $this->confirm_coming_url";
+        $msg .= "Please confirm that you are coming $this->confirm_coming_url";
 
         return $msg;
     }
