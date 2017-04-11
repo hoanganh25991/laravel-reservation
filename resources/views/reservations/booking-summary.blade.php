@@ -19,11 +19,6 @@
             <td><label>Pax</label></td>
             <td>@{{ pax.adult }} Adults<br/>@{{ pax.children }} Children</td>
         </tr>
-        </tbody>
-    </table>
-
-    <table id="r-dnr-info">
-        <tbody>
         <tr>
             <td><label>Name</label></td>
             <td>@{{ customer.first_name }} @{{ customer.last_name }}</td>
