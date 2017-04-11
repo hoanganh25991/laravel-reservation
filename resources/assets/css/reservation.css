@@ -1153,7 +1153,6 @@ ul#user-options {
     height: auto
 }
 .content .r-title {
-    width: 85%;
     padding: 10px 20px;
     color: #666;
     line-height: 18px
@@ -1603,7 +1602,6 @@ ul#user-options {
     vertical-align: top
 }
 #reservation-details table tr td label {
-    color: #888;
     padding: 3px 0;
     margin: 0
 }
@@ -1620,7 +1618,6 @@ ul#user-options {
     border: 1px solid #eee
 }
 #reservation-details table tr td+td {
-    /*width: 90%;*/
     text-align: left;
     color: #292f33;
     vertical-align: middle

@@ -1,4 +1,4 @@
-<span class="text-danger">Click PayPal button below to make a deposit.</span>
+<label class="text-danger">Click PayPal button below to make a deposit</label>
 <script src="https://www.paypalobjects.com/api/button.js?"
         data-merchant="braintree"
         data-id="paypal-button"

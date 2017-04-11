@@ -17,7 +17,7 @@
     <table id="r-rsrve-info">
         <tbody>
         <tr>
-            <td style="width: 40%"><label>Date &amp; Time</label></td>
+            <td style="width: 40%;"><label>Date &amp; Time</label></td>
             <td>@{{ reservation.date.format('MMM D Y') }} at @{{ reservation.time }}</td>
         </tr>
         <tr>
