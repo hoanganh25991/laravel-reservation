@@ -2,7 +2,7 @@
 <html>
 <head>
     <link href="{{ url('css/bootstrap.min.css') }}" rel="stylesheet" media="screen">
-    <link href="{{ url('css/flat-ui.min.css') }}" rel="stylesheet" media="screen">
+    {{--<link href="{{ url('css/flat-ui.min.css') }}" rel="stylesheet" media="screen">--}}
     <link href="{{ url('css/font-awesome.min.css') }}" rel="stylesheet" media="screen">
     <link href="{{ url_mix('css/reservation.css') }}" rel="stylesheet">
     <style>
