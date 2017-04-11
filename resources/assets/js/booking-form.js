@@ -209,6 +209,12 @@ class BookingForm {
 			form_step: 'form-step-1',
 			customer: {
 				salutation: 'Mr.',
+				first_name: '',
+				last_name : '',
+				email: '',
+				phone_country_code: '+65',
+				phone: '',
+				remarks: ''
 			},
 			pax_over: "block",
 		};
@@ -256,25 +262,28 @@ class BookingForm {
 			data: window.vue_state,
 			computed: {},
 			methods: {
-				not_allowed_move_to_form_step_2(){
-					let empty_keys = Object.keys(this.reservation).filter(key => {
-						let val = this.reservation[key];
+				_checkEmpty(obj){
+					let empty_keys = Object.values(obj).filter(value => {
+						let isNumber = !isNaN(parseFloat(value)) && isFinite(value);
 
-						//need to self check, bcs number 0 is allowed
-						if(val == '' || typeof val == 'undefined'){
-							return true;
+						if(isNumber){
+							return false;
 						}
 
-						return false;
+						return !value;
 					});
 
 					return empty_keys.length > 0;
 				},
 
-				not_allowed_move_to_form_step_3(){
-					let empty_keys = Object.keys(this.customer).filter(key => !key);
+				not_allowed_move_to_form_step_2(){
+					let has_empty_keys = this._checkEmpty(this.reservation);
+					return has_empty_keys;
+				},
 
-					return empty_keys.length > 0;
+				not_allowed_move_to_form_step_3(){
+					let has_empty_keys = this._checkEmpty(this.customer);
+					return has_empty_keys;
 				}
 			}
 		});

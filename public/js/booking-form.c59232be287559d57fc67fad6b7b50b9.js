@@ -206,7 +206,13 @@ var BookingForm = function () {
 				has_selected_day: false,
 				form_step: 'form-step-1',
 				customer: {
-					salutation: 'Mr.'
+					salutation: 'Mr.',
+					first_name: '',
+					last_name: '',
+					email: '',
+					phone_country_code: '+65',
+					phone: '',
+					remarks: ''
 				},
 				pax_over: "block"
 			};
@@ -257,28 +263,26 @@ var BookingForm = function () {
 				data: window.vue_state,
 				computed: {},
 				methods: {
-					not_allowed_move_to_form_step_2: function not_allowed_move_to_form_step_2() {
-						var _this = this;
+					_checkEmpty: function _checkEmpty(obj) {
+						var empty_keys = Object.values(obj).filter(function (value) {
+							var isNumber = !isNaN(parseFloat(value)) && isFinite(value);
 
-						var empty_keys = Object.keys(this.reservation).filter(function (key) {
-							var val = _this.reservation[key];
-
-							//need to self check, bcs number 0 is allowed
-							if (val == '' || typeof val == 'undefined') {
-								return true;
+							if (isNumber) {
+								return false;
 							}
 
-							return false;
+							return !value;
 						});
 
 						return empty_keys.length > 0;
 					},
+					not_allowed_move_to_form_step_2: function not_allowed_move_to_form_step_2() {
+						var has_empty_keys = this._checkEmpty(this.reservation);
+						return has_empty_keys;
+					},
 					not_allowed_move_to_form_step_3: function not_allowed_move_to_form_step_3() {
-						var empty_keys = Object.keys(this.customer).filter(function (key) {
-							return !key;
-						});
-
-						return empty_keys.length > 0;
+						var has_empty_keys = this._checkEmpty(this.customer);
+						return has_empty_keys;
 					}
 				}
 			});
@@ -525,7 +529,7 @@ var BookingForm = function () {
 	}, {
 		key: 'view',
 		value: function view() {
-			var _this2 = this;
+			var _this = this;
 
 			this.findView();
 			var store = window.store;
@@ -555,8 +559,8 @@ var BookingForm = function () {
      */
 				var available_time_change = prestate.available_time != state.available_time;
 				if (available_time_change) {
-					_this2.updateSelectView(state.available_time);
-					_this2.updateCalendarView(state.available_time);
+					_this.updateSelectView(state.available_time);
+					_this.updateCalendarView(state.available_time);
 				}
 				/**
      * Form step change
@@ -564,7 +568,7 @@ var BookingForm = function () {
 				var form_step_change = prestate.form_step != state.form_step || prestate.init_view == false && state.form_step == 'form-step-1';
 				if (form_step_change) {
 					console.info('pointToFormStep');
-					_this2.pointToFormStep();
+					_this.pointToFormStep();
 				}
 			});
 		}
@@ -699,7 +703,7 @@ var BookingForm = function () {
 	}, {
 		key: 'event',
 		value: function event() {
-			var _this3 = this;
+			var _this2 = this;
 
 			this.findView();
 			var store = window.store;
@@ -873,7 +877,7 @@ var BookingForm = function () {
 
 			document.addEventListener('calendar-change-month', function (e) {
 				var state = store.getState();
-				_this3.updateCalendarView(state.available_time);
+				_this2.updateCalendarView(state.available_time);
 			});
 		}
 	}, {
