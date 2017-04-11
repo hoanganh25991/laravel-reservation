@@ -237,7 +237,10 @@ var BookingForm = function () {
 	}, {
 		key: 'buildVueState',
 		value: function buildVueState() {
-			var vue_state = Object.assign({}, store.getState());
+			var vue_state = Object.assign({}, store.getState(), {
+				//consider availabe_time as empty, don't what this out
+				available_time: {}
+			});
 
 			return vue_state;
 		}
@@ -521,7 +524,10 @@ var BookingForm = function () {
 				var state = store.getState();
 				var last_action = store.getLastAction();
 				//update this way for vue see it
-				Object.assign(window.vue_state, state);
+				Object.assign(window.vue_state, state, {
+					//don't let vue what this
+					available_time: {}
+				});
 
 				//debug
 				var prestate = store.getPrestate();
