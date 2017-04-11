@@ -1442,11 +1442,8 @@ ul#user-options {
     display: inline-block;
 }
 #confirm-details #d-title {
-    width: 78px;
-    width: 90px;
+    width: 100px;
     display: inline;
-    margin: 0 5px;
-    margin-left: 30px;
     position: relative;
     top: -1px
 }
@@ -1484,18 +1481,15 @@ ul#user-options {
     color: #666
 }
 #confirm-details .d-name {
-    width: 146px;
     display: inline
 }
 #confirm-details #phone-area {
     width: 70px;
     display: inline-block;
-    margin: 0 0 15px
 }
 #confirm-details #telephone {
-    width: 225px;
+    width: calc(100% - 74px);
     display: inline-block;
-    margin: 0 0 15px
 }
 #confirm-details #message {
     width: 300px;
