@@ -1566,9 +1566,6 @@ ul#user-options {
     font-size: 11px;
     white-space: normal
 }
-#confirm-details .form-actions {
-    margin: 20px auto 0
-}
 #confirm-details .forgot_form {
     margin: 20px auto
 }
@@ -2206,7 +2203,6 @@ ul#user-options {
     text-align: center;
     margin: 20px auto;
     border: 0;
-    width: 75%;
     bottom: 0;
 }
 /*#confirm-details .small-input{*/

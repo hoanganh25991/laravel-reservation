@@ -97,18 +97,18 @@
                         <div class="form-group">
                             <input type="text" class="form-control d-name name_check login-field" name="first_name"
                                 :value="customer.first_name" placeholder="First Name" title="First Name">
-                            <label class="login-field-icon fa fa-user" for="first_name"></label>
+                            <label class="login-field-icon fa fa-user" style="top: 12px;" for="first_name"></label>
                         </div>
                         <div class="form-group">
                             <input type="text" class="form-control d-name name_check login-field" name="last_name"
                                 :value="customer.last_name" placeholder="Last Name" title="Last Name">
-                            <label class="login-field-icon fa fa-user" for="last_name"></label>
+                            <label class="login-field-icon fa fa-user" style="top: 12px;" for="last_name"></label>
                         </div>
 
                         <div class="form-group">
                             <input type="email" class="form-control login-field" name="email" id="booking-email"
                                    :value="customer.email" placeholder="Email Address">
-                            <label class="login-field-icon fa fa-envelope" for="booking-email"></label>
+                            <label class="login-field-icon fa fa-envelope" style="top: 12px;" for="booking-email"></label>
                         </div>
 
                         <div class="form-group">
@@ -116,7 +116,7 @@
                                 :value="customer.phone_country_code" placeholder="+65" title="Area Code">
                             <input type="tel" class="form-control login-field mobile_check" name="phone" id="telephone"
                                    :value="customer.phone" placeholder="Phone Number" title="Phone Number">
-                            <label class="login-field-icon fa fa-mobile" for="telephone"></label>
+                            <label class="login-field-icon fa fa-mobile" style="top: 12px;" for="telephone"></label>
                         </div>
 
                         <div class="form-group">
@@ -127,9 +127,8 @@
                     </div>
 
                     <div class="form-actions cf bottom_room">
-                        <button class="btn-form-next btn btn-primary pull-left" destination="form-step-1">Back</button>
-
-                        <button class="btn-form-next btn btn-primary pull-right" destination="form-step-3"
+                        <button class="btn-form-next btn btn-block btn-primary pull-left" style="width:48%" destination="form-step-1">Back</button>
+                        <button class="btn-form-next btn btn-block btn-primary pull-right" style="width:48%" destination="form-step-3"
                                 :disabled="not_allowed_move_to_form_step_3()">Next</button>
                     </div>
                 </div>
