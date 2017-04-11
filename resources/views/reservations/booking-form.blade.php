@@ -112,11 +112,11 @@
                         </div>
 
                         <div class="form-group">
-                            <input type="text" id="phone-area" class="form-control contry_check" name="phone_country_code"
-                                :value="customer.phone_country_code" placeholder="+65" title="Area Code">
-                            <input type="tel" class="form-control login-field mobile_check" name="phone" id="telephone"
-                                   :value="customer.phone" placeholder="Phone Number" title="Phone Number">
-                            <label class="login-field-icon fa fa-mobile" style="top: 12px;" for="telephone"></label>
+                            <input type="text" id="phone-area" class="form-control login-field" name="phone_country_code"
+                                :value="customer.phone_country_code" placeholder="+65" title="Country Code">
+                            <input type="tel" class="form-control login-field" name="phone" id="telephone"
+                                   :value="customer.phone" placeholder="Mobile Number" title="Mobile Number">
+                            <label class="login-field-icon fa fa-phone" style="top: 12px;" for="telephone"></label>
                         </div>
 
                         <div class="form-group">
