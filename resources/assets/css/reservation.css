@@ -1416,7 +1416,8 @@ ul#user-options {
     background: #eaeaea
 }
 #confirm-details {
-    padding: 10px 20px;
+    width: 75%;
+    padding: 20px 0px;
     margin: 0 auto
 }
 #confirm-details .btn-facebook {
@@ -2195,16 +2196,9 @@ ul#user-options {
     margin: 20px auto;
     border: 0;
     bottom: 0;
+    width: 75%
 }
-/*#confirm-details .small-input{*/
-    /*width: 90px;*/
-    /*display: inline;*/
-/*}*/
 
-/*#confirm-details {*/
-    /*width: 75%;*/
-    /*margin: 0 auto 20px;*/
-/*}*/
 #form-step-container .form-step {
     position: absolute;
     top: 0;
