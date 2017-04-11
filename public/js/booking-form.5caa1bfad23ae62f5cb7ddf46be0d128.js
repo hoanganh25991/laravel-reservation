@@ -400,10 +400,6 @@ var BookingForm = function () {
 		value: function availableTimeReducer(state, action) {
 			switch (action.type) {
 				case CHANGE_AVAILABLE_TIME:
-					if (Array.isArray(action.available_time)) {
-						action.available_time = {};
-					}
-					// return Object.assign({}, state, action.available_time);
 					return action.available_time;
 				default:
 					return state;
@@ -517,7 +513,7 @@ var BookingForm = function () {
 			if (!pre) {
 				var body = document.querySelector('body');
 				pre = document.createElement('pre');
-				body.appendChild(pre);
+				//body.appendChild(pre);
 			}
 
 			store.subscribe(function () {
@@ -531,7 +527,10 @@ var BookingForm = function () {
 
 				//debug
 				var prestate = store.getPrestate();
-				pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));
+
+				if (state.base_url && state.base_url.includes('reservation.dev') || state.base_url.includes('localhost')) {
+					pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));
+				}
 
 				/**
      * Available time change

@@ -219,7 +219,7 @@ class BookingForm {
 
 		let state = Object.assign(frontend_state, server_state);
 
-		if(state.base_url && state.base_url.includes('reservation.dev') || state.base_url .includes('localhost')){
+		if(state.base_url && state.base_url.includes('reservation.dev') || state.base_url.includes('localhost')){
 			state = Object.assign(state, {
 				customer: {
 					salutation: 'Mr.',
@@ -392,10 +392,6 @@ class BookingForm {
 	availableTimeReducer(state, action){
 		switch(action.type){
 			case CHANGE_AVAILABLE_TIME:
-				if(Array.isArray(action.available_time)){
-					action.available_time = {};
-				}
-				// return Object.assign({}, state, action.available_time);
 				return action.available_time;
 			default:
 				return state;
@@ -514,7 +510,7 @@ class BookingForm {
 		if(!pre){
 			let body = document.querySelector('body');
 			pre = document.createElement('pre');
-			body.appendChild(pre);
+			//body.appendChild(pre);
 		}
 
 		store.subscribe(()=>{
@@ -528,7 +524,10 @@ class BookingForm {
 
 			//debug
 			let prestate = store.getPrestate();
-			pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));
+
+			if(state.base_url && state.base_url.includes('reservation.dev') || state.base_url.includes('localhost')){
+				pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));
+			}
 
 			/**
 			 * Available time change
