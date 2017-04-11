@@ -15,7 +15,7 @@
                 </div>
                 <div class="modal-body center">
                     <div style="width: 184px; display: inline-block">
-                        <img src="{{ url('images/gear.svg') }}">
+                        <img src="{{ url('images/ring.svg') }}">
                     </div>
                 </div>
                 <div class="modal-footer">

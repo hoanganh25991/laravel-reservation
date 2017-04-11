@@ -149,14 +149,9 @@
                         <h4 class="modal-title">Checking reservation...</h4>
                     </div>
                     <div class="modal-body center">
-                        {{--<div style="width: 100px; display: inline-block">--}}
-                        <div style="width: 184px; display: inline-block">
-                            {{--<img src="{{ url('images/gears.svg') }}">--}}
-                            {{--<img src="{{ url('images/hourglass.svg') }}">--}}
-                            <img src="{{ url('images/gear.svg') }}">
+                        <div style="width: 140px; display: inline-block">
+                            <img src="{{ url('images/ring.svg') }}">
                         </div>
-                    </div>
-                    <div class="modal-footer" style="display: none;">
                     </div>
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
