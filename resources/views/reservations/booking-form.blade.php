@@ -95,12 +95,12 @@
                         </div>
 
                         <div class="form-group">
-                            <input type="text" class="form-control d-name name_check login-field" name="first_name"
+                            <input type="text" class="form-control d-name name_check login-field" name="firstname"
                                 :value="customer.first_name" placeholder="First Name" title="First Name">
                             <label class="login-field-icon fa fa-user" style="top: 12px;" for="first_name"></label>
                         </div>
                         <div class="form-group">
-                            <input type="text" class="form-control d-name name_check login-field" name="last_name"
+                            <input type="text" class="form-control d-name name_check login-field" name="lastname"
                                 :value="customer.last_name" placeholder="Last Name" title="Last Name">
                             <label class="login-field-icon fa fa-user" style="top: 12px;" for="last_name"></label>
                         </div>
