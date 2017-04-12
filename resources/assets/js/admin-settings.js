@@ -158,7 +158,26 @@ class AdminSettings {
 				self.view();
 				self.listener();
 			},
-			updated(){},
+			updated(){
+				/**
+				 * @warn bad code here
+				 * should have better way to detect when DOM mounted
+				 */
+				console.time('$ bind time-picker');
+				$('.jonthornton-time').timepicker({
+					//selectOnBlur: true,
+					step: 30,
+					disableTextInput: true
+				})
+				.on('change', function(){
+					let $i = $(this);
+					let i  = $i[0];
+					let value = $i.val();
+
+					i.dispatchEvent(new CustomEvent('$change', {detail: {value}}));
+				});
+				console.timeEnd('$ bind time-picker');
+			},
 			methods: {
 				_askRecomputeWeeklyView(){
 

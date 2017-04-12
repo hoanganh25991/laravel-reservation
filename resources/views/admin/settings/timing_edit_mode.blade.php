@@ -1,6 +1,6 @@
 @verbatim
 <template v-for="(timing, timing_index) in session.timings"
-    v-on:mounted="_timingsMounted"
+
 >
     <tr>
         <td>
@@ -118,7 +118,7 @@
             $('.jonthornton-time').timepicker({
                 //selectOnBlur: true,
                 step: 30,
-                //disableTextInput: true
+                disableTextInput: true
             })
             .on('change', function(){
                 let $i = $(this);

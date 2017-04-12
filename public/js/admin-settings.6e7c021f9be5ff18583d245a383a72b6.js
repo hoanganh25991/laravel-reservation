@@ -171,7 +171,25 @@ var AdminSettings = function () {
 					self.view();
 					self.listener();
 				},
-				updated: function updated() {},
+				updated: function updated() {
+					/**
+      * @warn bad code here
+      * should have better way to detect when DOM mounted
+      */
+					console.time('$ bind time-picker');
+					$('.jonthornton-time').timepicker({
+						//selectOnBlur: true,
+						step: 30,
+						disableTextInput: true
+					}).on('change', function () {
+						var $i = $(this);
+						var i = $i[0];
+						var value = $i.val();
+
+						i.dispatchEvent(new CustomEvent('$change', { detail: { value: value } }));
+					});
+					console.timeEnd('$ bind time-picker');
+				},
 
 				methods: {
 					_askRecomputeWeeklyView: function _askRecomputeWeeklyView() {},
