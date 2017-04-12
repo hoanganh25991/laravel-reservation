@@ -582,15 +582,15 @@ class Reservation extends HoiModel {
         $sender_name  = Setting::smsSenderName();
         $time_str     = $this->date->format('H:i');
 
-        $msg  = "You are $hours_before hours from your $sender_name reservation!";
+        $msg  = "You are $hours_before hours from your $sender_name reservation";
 
         //how many pax
         if ($this->adult_pax > 0 && $this->children_pax > 0)
-            $msg .= " For $this->adult_pax adults, $this->children_pax children";
+            $msg .= " for $this->adult_pax adults, $this->children_pax children";
         else if ($this->children_pax > 0)
-            $msg .= " For $this->children_pax children";
+            $msg .= " for $this->children_pax children";
         else
-            $msg .= " For $this->adult_pax adults";
+            $msg .= " for $this->adult_pax adults";
 
         $msg .= " at $time_str at $this->outlet_name.";
         $msg .= " Please confirm that you are coming $this->confirm_coming_url";
