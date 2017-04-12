@@ -38,7 +38,7 @@ use App\OutletReservationSetting as Setting;
  * @property string $outlet_name
  * 
  * @property string $confirm_coming_url
- * @see Reservation::getConfirmCommingUrlAttribute
+ * @see Reservation::getConfirmComingUrlAttribute
  * 
  * @property mixed $outlet_id
  * 

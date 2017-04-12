@@ -25,7 +25,6 @@ class ShortenUrl {
             CURLOPT_HTTPHEADER => array(
                 "cache-control: no-cache",
                 "content-type: application/json",
-                "postman-token: 622a5e64-2dbf-5436-6905-cb438a0a2b71"
             ),
         ));
 
