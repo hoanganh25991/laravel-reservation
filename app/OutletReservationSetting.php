@@ -287,7 +287,12 @@ class OutletReservationSetting extends HoiModel{
         if(!is_numeric($outlet_id)){
             throw new \Exception('outlet id to inject MUST BE A NUMBER');
         }
-        
+        //HAVE TO RESET all config when outlet_id changed;
+        //Better if recheck, then update
+        if(Setting::$outlet_id != $outlet_id){
+            Setting::$all_config = null;
+        }
+
         Setting::$outlet_id = $outlet_id;
     }
 

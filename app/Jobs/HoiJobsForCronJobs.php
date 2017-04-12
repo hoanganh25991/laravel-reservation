@@ -71,13 +71,20 @@ class HoiJobsForCronJobs {
 
                         $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);
 
-                        if($success_sent){
+                        if($success_sent === true){
                             Log::info('Success send sms to reminder');
                             event(new SentReminderSMS($reservation));
                         }else{
-                            throw new SMSException('SMS not sent');
+                            $error_info = $success_sent;
+                            //throw new SMSException("SMS not sent $error_info");
+                            //echo $error_info;
+                            Log::info($error_info);
                         }
                     });
+                
+                //This is HARD
+                //Reset config for next call
+                //Setting::$all_config = null;
 
             });
         });

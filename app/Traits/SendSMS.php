@@ -52,6 +52,7 @@ trait SendSMS{
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);   //don't verify SSL server
         $response = curl_exec($ch);
 
         //Decode the json object you retrieved when you ran the request.
@@ -72,7 +73,7 @@ trait SendSMS{
         if($sent_message['status'] == 0){
             return true;
         }else{
-            return false;
+            return $response;
         }
     }
 
