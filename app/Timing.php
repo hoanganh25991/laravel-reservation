@@ -38,7 +38,7 @@ class Timing extends HoiModel {
      * Interval minute for user pick time
      * Must follow these value
      */
-    const INTERVAL_MINUTE_STEPS = [15, 20, 30, 45];
+    const INTERVAL_MINUTE_STEPS = [15, 30, 60];
 
     /**
      * First arrival time & last arrival time pick steps

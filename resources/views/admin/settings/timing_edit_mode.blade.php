@@ -42,9 +42,8 @@
                     :id="'timing_' + timing.id + 'interval_minutes'"
             >
                 <option value="15">15</option>
-                <option value="20">20</option>
                 <option value="30">30</option>
-                <option value="45">45</option>
+                <option value="60">60</option>
             </select>
         </td>
         <td>

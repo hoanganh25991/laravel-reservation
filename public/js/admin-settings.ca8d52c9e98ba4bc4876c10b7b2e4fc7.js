@@ -563,6 +563,7 @@ var AdminSettings = function () {
 						}
 					},
 					_resolveTimingArrivalTime: function _resolveTimingArrivalTime(sessions) {
+						return;
 						sessions.forEach(function (session) {
 							session.timings.forEach(function (timing) {
 								if (timing.first_arrival_time.split(':').length == 2) {

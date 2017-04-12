@@ -570,6 +570,7 @@ class AdminSettings {
 				},
 
 				_resolveTimingArrivalTime(sessions){
+					return;
 					sessions.forEach(session => {
 						session
 							.timings
