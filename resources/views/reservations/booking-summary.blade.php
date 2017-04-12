@@ -23,7 +23,7 @@
             </tr>
             <tr>
                 <td style="width: 40%;"><label>Date &amp; Time</label></td>
-                <td>@{{ reservation.date.format('MMM D Y') }} at @{{ reservation.time }}</td>
+                <td>@{{ reservation.date.format('D MMM Y') }} at @{{ reservation.time }}</td>
             </tr>
             <tr>
                 <td><label>Pax</label></td>

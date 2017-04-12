@@ -120,6 +120,7 @@ class Reservation extends HoiModel {
         'confirm_id',
         'send_confirmation_by_timestamp',
         'deposit',
+        'time',
     ];
 
     /**

@@ -156,5 +156,6 @@ Route::get('test', function (App\Http\Controllers\BookingController $c, App\Http
 
     $r = App\Reservation::find(117);
 
-    return $r->confirm_coming_url;
+    //return $r->confirm_coming_url;
+    return $r->toJson();
 });
