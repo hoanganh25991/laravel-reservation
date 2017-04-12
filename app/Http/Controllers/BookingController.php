@@ -565,7 +565,7 @@ class BookingController extends HoiController {
          * Base on that frontend client render
          */
         $state = [
-            'base_url'        => $req->url(),
+            'base_url'        => url()->current(),
             'outlet'          => $outlet,
             'outlets'         => $outlets,
             'overall_min_pax' => $overall_min_pax,

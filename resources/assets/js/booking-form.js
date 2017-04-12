@@ -217,10 +217,25 @@ class BookingForm {
 
 		let frontend_state = this.getFrontendState();
 
-		let state = Object.assign(frontend_state, server_state);
+		let _state = Object.assign(frontend_state, server_state);
+		
+		//self compute for better user experience, recompute pax
+		let pax = {};
+		if(typeof _state.overall_min_pax != 'undefined'){
+			let half = Math.ceil(_state.overall_min_pax / 2);
+			let remain = _state.overall_min_pax - half;
 
-		if(state.base_url && state.base_url.includes('reservation.dev') || state.base_url.includes('localhost')){
-			state = Object.assign(state, {
+			pax = {
+				adult: half,
+				children: remain
+			}
+		}
+		
+		_state = Object.assign(_state, {pax});
+		
+		//faster for dev env
+		if(_state.base_url && _state.base_url.includes('reservation.dev') || _state.base_url.includes('localhost')){
+			_state = Object.assign(_state, {
 				customer: {
 					salutation: 'Mr.',
 					first_name: 'Anh',
@@ -233,13 +248,21 @@ class BookingForm {
 			});
 		}
 
-		return state;
+		return _state;
 	}
 
 	buildVueState(){
 		let vue_state = Object.assign({}, store.getState(), {
 			//consider availabe_time as empty, don't what this out
 			available_time: {}
+		});
+
+		//dynamic resize select box pax
+		//by self re-create select box
+		let current_max = vue_state.overall_max_pax;
+		vue_state = Object.assign(vue_state, {
+			adult_max_pax: current_max,
+			children_max_pax: current_max
 		});
 
 		return vue_state;
@@ -289,6 +312,39 @@ class BookingForm {
 				not_allowed_move_to_form_step_3(){
 					let has_empty_keys = this._checkEmpty(this.customer, ['remarks']);
 					return has_empty_keys;
+				},
+
+				_updatePaxSelectBox(state, updated_pax_name){
+					console.log('dynamicly recompute pax');
+					//console.log(state.pax.adult);
+					let max_pax      = state.overall_max_pax
+					let adult_pax    = state.pax.adult;
+					let children_pax = state.pax.children;
+
+					switch(updated_pax_name){
+						case 'adult':{
+							let children_max_pax  = max_pax - adult_pax;
+							this.children_max_pax = children_max_pax;
+							if(children_max_pax < children_pax){
+								store.dispatch({
+									type: CHANGE_CHILDREN_PAX,
+									chidren_pax: children_max_pax
+								})
+							}
+							break;
+						}
+						case 'children': {
+							let adult_max_pax  = max_pax - children_pax;
+							this.adult_max_pax = adult_max_pax;
+							if(adult_max_pax < adult_pax){
+								store.dispatch({
+									type: CHANGE_ADULT_PAX,
+									adult_pax: adult_max_pax
+								})
+							}
+							break;
+						}
+					}
 				}
 			}
 		});
@@ -465,14 +521,28 @@ class BookingForm {
 				self.ajax_dialog.modal('hide');
 			}
 
+			/**
+			 * Update select pax
+			 */
+			if(last_action == CHANGE_ADULT_PAX){
+				//Ask vue update
+				self.vue._updatePaxSelectBox(state, 'adult');
+			}
+
+			if(last_action == CHANGE_CHILDREN_PAX){
+				self.vue._updatePaxSelectBox(state, 'children');
+			}
+
 			let has_pax_over_dependency =
 				(last_action == CHANGE_ADULT_PAX
 				|| last_action == CHANGE_CHILDREN_PAX);
 
-			let pax_over_below =(state.pax.adult + state.pax.children) < state.overall_min_pax;
-			let pax_over_over =(state.pax.adult + state.pax.children)  > state.overall_max_pax;
 
-			let is_pax_over = has_pax_over_dependency && (pax_over_below || pax_over_over);
+
+			let pax_over_max =(state.pax.adult + state.pax.children) < state.overall_min_pax;
+			let pax_over_min =(state.pax.adult + state.pax.children)  > state.overall_max_pax;
+
+			let is_pax_over = has_pax_over_dependency && (pax_over_max || pax_over_min);
 
 			if(is_pax_over){
 				// store.dispatch({type: PAX_OVER});

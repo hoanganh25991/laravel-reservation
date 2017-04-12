@@ -216,10 +216,25 @@ var BookingForm = function () {
 
 			var frontend_state = this.getFrontendState();
 
-			var state = Object.assign(frontend_state, server_state);
+			var _state = Object.assign(frontend_state, server_state);
 
-			if (state.base_url && state.base_url.includes('reservation.dev') || state.base_url.includes('localhost')) {
-				state = Object.assign(state, {
+			//self compute for better user experience, recompute pax
+			var pax = {};
+			if (typeof _state.overall_min_pax != 'undefined') {
+				var half = Math.ceil(_state.overall_min_pax / 2);
+				var remain = _state.overall_min_pax - half;
+
+				pax = {
+					adult: half,
+					children: remain
+				};
+			}
+
+			_state = Object.assign(_state, { pax: pax });
+
+			//faster for dev env
+			if (_state.base_url && _state.base_url.includes('reservation.dev') || _state.base_url.includes('localhost')) {
+				_state = Object.assign(_state, {
 					customer: {
 						salutation: 'Mr.',
 						first_name: 'Anh',
@@ -232,7 +247,7 @@ var BookingForm = function () {
 				});
 			}
 
-			return state;
+			return _state;
 		}
 	}, {
 		key: 'buildVueState',
@@ -240,6 +255,14 @@ var BookingForm = function () {
 			var vue_state = Object.assign({}, store.getState(), {
 				//consider availabe_time as empty, don't what this out
 				available_time: {}
+			});
+
+			//dynamic resize select box pax
+			//by self re-create select box
+			var current_max = vue_state.overall_max_pax;
+			vue_state = Object.assign(vue_state, {
+				adult_max_pax: current_max,
+				children_max_pax: current_max
 			});
 
 			return vue_state;
@@ -290,6 +313,40 @@ var BookingForm = function () {
 					not_allowed_move_to_form_step_3: function not_allowed_move_to_form_step_3() {
 						var has_empty_keys = this._checkEmpty(this.customer, ['remarks']);
 						return has_empty_keys;
+					},
+					_updatePaxSelectBox: function _updatePaxSelectBox(state, updated_pax_name) {
+						console.log('dynamicly recompute pax');
+						//console.log(state.pax.adult);
+						var max_pax = state.overall_max_pax;
+						var adult_pax = state.pax.adult;
+						var children_pax = state.pax.children;
+
+						switch (updated_pax_name) {
+							case 'adult':
+								{
+									var children_max_pax = max_pax - adult_pax;
+									this.children_max_pax = children_max_pax;
+									if (children_max_pax < children_pax) {
+										store.dispatch({
+											type: CHANGE_CHILDREN_PAX,
+											chidren_pax: children_max_pax
+										});
+									}
+									break;
+								}
+							case 'children':
+								{
+									var adult_max_pax = max_pax - children_pax;
+									this.adult_max_pax = adult_max_pax;
+									if (adult_max_pax < adult_pax) {
+										store.dispatch({
+											type: CHANGE_ADULT_PAX,
+											adult_pax: adult_max_pax
+										});
+									}
+									break;
+								}
+						}
 					}
 				}
 			});
@@ -478,12 +535,24 @@ var BookingForm = function () {
 					self.ajax_dialog.modal('hide');
 				}
 
+				/**
+     * Update select pax
+     */
+				if (last_action == CHANGE_ADULT_PAX) {
+					//Ask vue update
+					self.vue._updatePaxSelectBox(state, 'adult');
+				}
+
+				if (last_action == CHANGE_CHILDREN_PAX) {
+					self.vue._updatePaxSelectBox(state, 'children');
+				}
+
 				var has_pax_over_dependency = last_action == CHANGE_ADULT_PAX || last_action == CHANGE_CHILDREN_PAX;
 
-				var pax_over_below = state.pax.adult + state.pax.children < state.overall_min_pax;
-				var pax_over_over = state.pax.adult + state.pax.children > state.overall_max_pax;
+				var pax_over_max = state.pax.adult + state.pax.children < state.overall_min_pax;
+				var pax_over_min = state.pax.adult + state.pax.children > state.overall_max_pax;
 
-				var is_pax_over = has_pax_over_dependency && (pax_over_below || pax_over_over);
+				var is_pax_over = has_pax_over_dependency && (pax_over_max || pax_over_min);
 
 				if (is_pax_over) {
 					// store.dispatch({type: PAX_OVER});
@@ -1059,9 +1128,9 @@ var BookingForm = function () {
 							var first_key = Object.keys(res.data)[0];
 
 							var _store = window.store;
-							var _state = _store.getState();
+							var _state2 = _store.getState();
 
-							var customer_info_keys = Object.keys(_state.customer);
+							var customer_info_keys = Object.keys(_state2.customer);
 
 							if (customer_info_keys.indexOf(first_key) != -1) {
 								form_step = 'form-step-2';

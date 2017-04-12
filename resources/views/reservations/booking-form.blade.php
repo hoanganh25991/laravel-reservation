@@ -27,8 +27,9 @@
                     <div class="selectors cf" :style="'display: ' + pax_over">
                         <div id="adults-wrap">
                             <label for="adults">Adults</label>
-                            <select name="adult_pax" class="form-control" :value="pax.adult">
-                                <template v-for="n in overall_max_pax + 1">
+                            <select name="adult_pax" class="form-control" :value="pax.adult"
+                            >
+                                <template v-for="n in adult_max_pax + 1">
                                     <option :value="n - 1">{{ n - 1 }}</option>
                                 </template>
                             </select>
@@ -36,7 +37,7 @@
                         <div id="children-wrap">
                             <label for="children">Children</label>
                             <select name="children_pax" class="form-control" :value="pax.children">
-                                <template v-for="n in overall_max_pax + 1">
+                                <template v-for="n in children_max_pax + 1">
                                     <option :value="n - 1">{{ n - 1 }}</option>
                                 </template>
                             </select>
