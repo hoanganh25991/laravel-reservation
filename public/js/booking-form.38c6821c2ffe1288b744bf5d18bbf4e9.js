@@ -595,8 +595,8 @@ var BookingForm = function () {
 			this.customer_phone_country_code_input = document.querySelector('input[name="phone_country_code"]');
 			this.customer_salutation_select = document.querySelector('select[name="salutation"]');
 			this.customer_remarks_textarea = document.querySelector('textarea[name="remarks"]');
-			this.customer_firt_name_input = document.querySelector('input[name="first_name"]');
-			this.customer_last_name_input = document.querySelector('input[name="last_name"]');
+			this.customer_firt_name_input = document.querySelector('input[name="firstname"]');
+			this.customer_last_name_input = document.querySelector('input[name="lastname"]');
 			this.customer_email_input = document.querySelector('input[name="email"]');
 			this.customer_phone_input = document.querySelector('input[name="phone"]');
 
