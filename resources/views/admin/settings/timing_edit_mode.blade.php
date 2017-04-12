@@ -1,5 +1,7 @@
 @verbatim
-<template v-for="(timing, timing_index) in session.timings">
+<template v-for="(timing, timing_index) in session.timings"
+    v-on:mounted="_timingsMounted"
+>
     <tr>
         <td>
             <label class="switch">
@@ -7,7 +9,8 @@
                        :session-id="session.id"
                        :timing-index="timing_index"
                        v-on:click="_updateTimingDisabled"
-                       :checked="!timing['disabled']">
+                       :checked="!timing['disabled']"
+                >
                 <div class="slider round"></div>
             </label>
         </td>
@@ -15,22 +18,23 @@
             <input type="text"
                    style="width: 60px"
                    :id="'timing_' + timing.id + 'timing_name'"
-                   :value="timing.timing_name"
                    v-model="timing['timing_name']">
         </td>
         <td>
-            <input type="time"
+            <input type="text" class="jonthornton-time" data-time-format="H:i:s"
                    style="width: 65px; height: 20px"
                    :id="'timing_' + timing.id + 'first_arrival_time'"
-                   :value="timing.first_arrival_time"
-                   v-model="timing['first_arrival_time']">
+                   v-model="timing['first_arrival_time']"
+                   v-on:$change="_updateSingleTimingArrival(timing, 'first_arrival_time', $event)"
+            >
         </td>
         <td>
-            <input type="time"
+            <input type="text" class="jonthornton-time" data-time-format="H:i:s"
                    style="width: 65px; height: 20px"
                    :id="'timing_' + timing.id + 'last_arrival_time'"
-                   :value="timing.last_arrival_time"
-                   v-model="timing['last_arrival_time']">
+                   v-model="timing['last_arrival_time']"
+                   v-on:$change="_updateSingleTimingArrival(timing, 'last_arrival_time', $event)"
+            >
         </td>
         <td>
             <select v-model="timing['interval_minutes']"
@@ -80,7 +84,6 @@
         </td>
         <td>
             <input type="checkbox"
-                   :checked="(timing.children_allowed == 1) ? 'checked' : false"
                    :id="'timing_' + timing.id + 'children_allowed'"
                    v-model="timing['children_allowed']">
             <label style="width: 12px"
@@ -105,3 +108,25 @@
     </tr>
 </template>
 @endverbatim
+@push('css')
+    <link href="{{ url('css/jquery.timepicker.min.css') }}" rel="stylesheet"/>
+@endpush
+@push('script')
+    <script src="{{ url('js/jquery.timepicker.min.js') }}"></script>
+    <script>
+        document.addEventListener('vue-mounted', function(){
+            $('.jonthornton-time').timepicker({
+                //selectOnBlur: true,
+                step: 30,
+                //disableTextInput: true
+            })
+            .on('change', function(){
+                let $i = $(this);
+                let i  = $i[0];
+                let value = $i.val();
+
+                i.dispatchEvent(new CustomEvent('$change', {detail: {value}}));
+            });
+        });
+    </script>
+@endpush

@@ -203,6 +203,18 @@ var AdminSettings = function () {
 							return;
 						}
 					},
+					_updateSingleTimingArrival: function _updateSingleTimingArrival(timing, timing_property, event) {
+						//It quite weird that, vue can't see update value from
+						//another time picker set value for input
+						//console.log('see timing updated', timing, timing_property, event);
+						var data = event.detail;
+						//@see timing_edit_mode.blade.php, jquery at script show
+						// which data handled file
+						timing[timing_property] = data.value;
+					},
+					_timingsMounted: function _timingsMounted() {
+						console.log('see timings mounted');
+					},
 					_deleteTiming: function _deleteTiming(e) {
 						// console.log(e.target);
 						console.log('see delete timing');
@@ -621,7 +633,7 @@ var AdminSettings = function () {
 			var outlet_id = state.outlet_id;
 
 			var dump_session = {
-				"id": this._randomId(),
+				"id": null,
 				"outlet_id": outlet_id,
 				"session_name": "Lunch time",
 				"on_mondays": 1,
@@ -633,8 +645,8 @@ var AdminSettings = function () {
 				"on_sundays": 1,
 				"one_off": 0,
 				"one_off_date": null,
-				"first_arrival_time": "05:00:00",
-				"last_arrival_time": "12:00:00",
+				"first_arrival_time": "10:00:00",
+				"last_arrival_time": "13:00:00",
 				"timings": [this._dumpTiming()]
 			};
 
@@ -644,12 +656,12 @@ var AdminSettings = function () {
 		key: '_dumpTiming',
 		value: function _dumpTiming() {
 			var dump_timing = {
-				"id": this._randomId(),
-				"session_id": 2,
-				"timing_name": "12-16",
-				"disabled": true,
-				"first_arrival_time": "05:00:00",
-				"last_arrival_time": "08:00:00",
+				"id": null,
+				"session_id": null,
+				"timing_name": "timing x",
+				"disabled": false,
+				"first_arrival_time": "10:00:00",
+				"last_arrival_time": "11:00:00",
 				"interval_minutes": 30,
 				"capacity_1": 1,
 				"capacity_2": 1,
@@ -684,7 +696,7 @@ var AdminSettings = function () {
 			var date_str = today.format('YYYY-MM-DD');
 
 			var dump_special_session = {
-				//"id": this._randomId(),
+				"id": null,
 				"outlet_id": outlet_id,
 				"session_name": "Special session",
 				"on_mondays": null,

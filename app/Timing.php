@@ -139,7 +139,7 @@ class Timing extends HoiModel {
      */
     public static function validateOnCRUD($timing_data){
         $validator = Validator::make($timing_data, [
-            "session_id"         => 'required|numeric',
+            //"session_id"         => 'required|numeric',
             "timing_name"        => 'required',
             "disabled"           => 'required|boolean',
             "first_arrival_time" => 'bail|required|date_format:H:i:s|arrival_time',

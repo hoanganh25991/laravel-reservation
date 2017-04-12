@@ -88,6 +88,10 @@
             mounted(){
                 //try to resolve when init
                 this._updateOutletName();
+                //please don't fire vue-mounted here
+                //current there are 2 vue on page
+                //you, the navigator
+                //other in main page
             },
             methods: {
                 _switchOutlet(e){
