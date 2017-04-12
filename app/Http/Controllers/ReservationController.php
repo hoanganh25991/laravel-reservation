@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Outlet;
 use App\Reservation;
 use App\Traits\ApiResponse;
 use App\Http\Requests\ApiRequest;
@@ -11,8 +12,19 @@ use App\OutletReservationSetting as Setting;
 class ReservationController extends HoiController{
     
     use ApiResponse;
+
+    public function resolveBrandIdOutletId(Reservation $reservation){
+        //Should try better way to do this
+        $outlet_id = $reservation->outlet_id;
+        Setting::injectOutletId($outlet_id);
+
+        $outlet    = Outlet::find($outlet_id);
+        $brand_id  = $outlet->brand_id;
+        Setting::injectBrandId($brand_id);
+    }
     
     public function getConfirmPage(ApiRequest $req, Reservation $reservation){
+        $this->resolveBrandIdOutletId($reservation);
         /**
          * Customer confirm resrevation
          */
@@ -37,9 +49,7 @@ class ReservationController extends HoiController{
     }
 
     public function buildAppState(Reservation $reservation){
-        //Should try better way to do this
-        $outlet_id = $reservation->outlet_id;
-        Setting::injectOutletId($outlet_id);
+
 
         $paypal_token = (new PayPalController)->generateToken();
 

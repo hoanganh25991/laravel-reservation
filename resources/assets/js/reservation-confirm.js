@@ -18,7 +18,7 @@ class ReservationConfirm{
 		//locall vue state
 		window.vue_state = Object.assign({}, server_state);
 		//
-		window.vue_state.reservation.date = moment(server_state.reservation.date, 'Y-M-D H:m:s');
+		window.vue_state.reservation.date = moment(server_state.reservation.reservation_timestamp, 'Y-M-D H:m:s');
 
 		this.vue = new Vue({
 			el: '#app',
