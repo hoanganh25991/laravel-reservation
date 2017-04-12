@@ -1159,6 +1159,9 @@ ul#user-options {
     color: #000;
     height: auto
 }
+.r-title {
+    text-align: center;
+}
 .content .r-title {
     color: #666;
 }
@@ -1605,7 +1608,8 @@ ul#user-options {
 }
 #reservation-details table tr td label {
     padding: 3px 0;
-    margin: 0
+    margin: 0;
+    text-align: left;
 }
 #reservation-details table tr td .edit {
     color: #232323;
