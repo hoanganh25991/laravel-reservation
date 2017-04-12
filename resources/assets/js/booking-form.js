@@ -184,7 +184,7 @@ class BookingForm {
 			overall_min_pax: 2,
 			overall_max_pax: 20,
 			pax: {
-				adult: 1,
+				adult: 0,
 				children: 0
 			},
 			reservation: {
@@ -220,18 +220,18 @@ class BookingForm {
 		let _state = Object.assign(frontend_state, server_state);
 		
 		//self compute for better user experience, recompute pax
-		let pax = {};
-		if(typeof _state.overall_min_pax != 'undefined'){
-			let half = Math.ceil(_state.overall_min_pax / 2);
-			let remain = _state.overall_min_pax - half;
-
-			pax = {
-				adult: half,
-				children: remain
-			}
-		}
-		
-		_state = Object.assign(_state, {pax});
+		// let pax = {};
+		// if(typeof _state.overall_min_pax != 'undefined'){
+		// 	let half = Math.ceil(_state.overall_min_pax / 2);
+		// 	let remain = _state.overall_min_pax - half;
+		//
+		// 	pax = {
+		// 		adult: half,
+		// 		children: remain
+		// 	}
+		// }
+		//
+		// _state = Object.assign(_state, {pax});
 		
 		//faster for dev env
 		if(_state.base_url && _state.base_url.includes('reservation.dev') || _state.base_url.includes('localhost')){
@@ -306,7 +306,12 @@ class BookingForm {
 
 				not_allowed_move_to_form_step_2(){
 					let has_empty_keys = this._checkEmpty(this.reservation);
-					return has_empty_keys;
+
+					let total_pax = this.pax.adult + this.pax.children;
+
+					let out_range = (total_pax < this.overall_min_pax) || (total_pax > this.overall_max_pax);
+
+					return has_empty_keys || out_range;
 				},
 
 				not_allowed_move_to_form_step_3(){
@@ -546,7 +551,8 @@ class BookingForm {
 
 			if(is_pax_over){
 				// store.dispatch({type: PAX_OVER});
-				window.alert(`Total number of people should be between ${state.overall_min_pax} - ${state.overall_max_pax} `);
+				//window.alert(`Total number of people should be between ${state.overall_min_pax} - ${state.overall_max_pax} `);
+				window.alert(`There is a minimum pax of ${state.overall_min_pax} for reservation at this outlet`);
 			}
 
 			if(prestate.has_selected_day == false && state.has_selected_day == true){
