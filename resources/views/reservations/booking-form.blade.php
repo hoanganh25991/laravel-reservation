@@ -47,14 +47,14 @@
                         <div class="clear"></div>
                         <div id="calendar-box" align="center"></div>
                         <div id="dt-choice" class="cf">
-                            <label id="reservation_date">Select a booking time on @{{ reservation.date.format('DD MMM Y') }}</label>
+                            <label id="reservation_date">Booking time on @{{ reservation.date.format('DD MMM Y') }}</label>
                             <input type="hidden" name="reservation_date" value="">
                             <select name="reservation_time" class="form-control">
                                 <option>N/A</option>
                             </select>
                         </div>
                         <div class="agree-box cf">
-                            <div class="checkbox cf">
+                            <div class="checkbox cf" style="padding-left: 5px;">
                                 <label for="agree_box">I acknowledge that this is a waitlisted reservation and is
                                     subjected to the restaurant's confirmation. I understand that the restaurant will hold my table for a maximum of 15 minutes.</label>
                                 <input id="agree_box" type="checkbox" name="agree_box" v-model="reservation.agree_term_condition"
@@ -112,11 +112,11 @@
                         </div>
 
                         <div class="form-group">
-                            <input type="text" id="phone-area" class="form-control contry_check" name="phone_country_code"
-                                :value="customer.phone_country_code" placeholder="+65" title="Area Code">
-                            <input type="tel" class="form-control login-field mobile_check" name="phone" id="telephone"
-                                   :value="customer.phone" placeholder="Phone Number" title="Phone Number">
-                            <label class="login-field-icon fa fa-mobile" style="top: 12px;" for="telephone"></label>
+                            <input type="text" id="phone-area" class="form-control login-field" name="phone_country_code"
+                                :value="customer.phone_country_code" placeholder="+65" title="Country Code">
+                            <input type="tel" class="form-control login-field" name="phone" id="telephone"
+                                   :value="customer.phone" placeholder="Mobile Number" title="Mobile Number">
+                            <label class="login-field-icon fa fa-phone" style="top: 12px;" for="telephone"></label>
                         </div>
 
                         <div class="form-group">
@@ -142,21 +142,10 @@
         <div class="modal fade" id="ajax-dialog">
             <div class="modal-dialog modal-sm">
                 <div class="modal-content">
-                    <div class="modal-header" style="display: none;">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <h4 class="modal-title">Checking reservation...</h4>
-                    </div>
                     <div class="modal-body center">
-                        {{--<div style="width: 100px; display: inline-block">--}}
-                        <div style="width: 184px; display: inline-block">
-                            {{--<img src="{{ url('images/gears.svg') }}">--}}
-                            {{--<img src="{{ url('images/hourglass.svg') }}">--}}
-                            <img src="{{ url('images/gear.svg') }}">
+                        <div style="width: 140px; display: inline-block; margin-top: 85%;">
+                            <img src="{{ url('images/ring.svg') }}">
                         </div>
-                    </div>
-                    <div class="modal-footer" style="display: none;">
                     </div>
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
