@@ -87,7 +87,7 @@
                                             <div v-show="reservation.payment_status == 100">
                                                 <button action="refund" :reservation-index='reservation_index'  class="bg-info"
                                                     v-on:click="_updateReservationPayment"
-                                                >Refund</button>
+                                                >Void</button>
                                                 <button action="charge" :reservation-index='reservation_index' class="bg-danger"
                                                     v-on:click="_updateReservationPayment"
                                                 >Charge</button>
