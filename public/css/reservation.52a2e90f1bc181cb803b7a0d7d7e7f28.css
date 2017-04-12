@@ -1160,9 +1160,7 @@ ul#user-options {
     height: auto
 }
 .content .r-title {
-    padding: 10px 20px;
     color: #666;
-    line-height: 18px
 }
 .content .info {
     text-align: center;
@@ -1585,9 +1583,6 @@ ul#user-options {
 #confirm-details .forgot_form label {
     white-space: nowrap;
     width: 200px
-}
-#reservation-details .r-title {
-    padding: 0 40px 5px
 }
 #reservation-details #r-rsrve-info {
     position: relative
