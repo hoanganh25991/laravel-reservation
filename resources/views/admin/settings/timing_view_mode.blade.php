@@ -1,6 +1,6 @@
 @verbatim
 <template v-for="timing in session.timings">
-    <tr v-show="!timing.disabled">
+    <tr :style="timing.disabled ? 'color:#ddd' : ''">
         <td></td>
         <td>{{ timing.timing_name }}</td>
         <td>{{ timing.first_arrival_time }}</td>
