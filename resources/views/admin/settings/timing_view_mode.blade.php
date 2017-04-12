@@ -1,14 +1,7 @@
 @verbatim
 <template v-for="timing in session.timings">
-    <tr>
-        <td>
-            <label class="switch">{{ timing.disabled }}
-                <input type="checkbox"
-                       disabled
-                       :checked="!timing['disabled']">
-                <div class="slider round"></div>
-            </label>
-        </td>
+    <tr v-show="!timing.disabled">
+        <td></td>
         <td>{{ timing.timing_name }}</td>
         <td>{{ timing.first_arrival_time }}</td>
         <td>{{ timing.last_arrival_time }}</td>

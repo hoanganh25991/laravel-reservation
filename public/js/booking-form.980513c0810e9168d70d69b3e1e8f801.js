@@ -272,6 +272,12 @@ var BookingForm = function () {
 								return false;
 							}
 
+							if (key == 'time' && value == 'N/A') {
+								//this is the false case
+								//no data select
+								return true;
+							}
+
 							return !value;
 						});
 
