@@ -383,11 +383,7 @@ ul#user-options {
     overflow: none
 }
 .modal-content {
-    top: 50%;
-    background-color: transparent;
-    border: 0px;
-    -webkit-box-shadow: 0 0px 0px rgba(0,0,0,0);
-    box-shadow: 0 0px 0px rgba(0,0,0,0);
+    top: 50%
 }
 .modal-content .error {
     color: #df0024;
@@ -410,6 +406,13 @@ ul#user-options {
 .modal-footer {
     color: #343434;
     border: 0
+}
+#ajax-dialog .modal-content {
+    top: 50%;
+    background-color: transparent;
+    border: 0px;
+    -webkit-box-shadow: 0 0px 0px rgba(0,0,0,0);
+    box-shadow: 0 0px 0px rgba(0,0,0,0);
 }
 #choose-alternative-box,
 #notice-box {
