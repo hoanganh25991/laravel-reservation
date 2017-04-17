@@ -538,38 +538,14 @@ class BookingController extends HoiController {
         }
 
         //Handle get
-        $outlet  = [];
         $outlets = Outlet::all();
-        $overall_min_pax = Setting::DEFAULT_OVERALL_MIN_PAX;
-        $overall_max_pax = Setting::DEFAULT_OVERALL_MAX_PAX;
-
-        /**
-         * Self pick the first one
-         */
-        $outlet_x = $outlets->first();
-
-        if($outlet_x){
-            Setting::injectOutletId($outlet_x->id);
-            $setting_config  = Setting::settingsConfig();
-            $overall_min_pax = $setting_config(Setting::OVERALL_MIN_PAX);
-            $overall_max_pax = $setting_config(Setting::OVERALL_MAX_PAX);
-
-            $outlet = [
-                'id'   => $outlet_x->id,
-                'name' => $outlet_x->outlet_name
-            ];
-        }
-
         /**
          * Server state
          * Base on that frontend client render
          */
         $state = [
             'base_url'        => url()->current(),
-            'outlet'          => $outlet,
             'outlets'         => $outlets,
-            'overall_min_pax' => $overall_min_pax,
-            'overall_max_pax' => $overall_max_pax,
         ];
 
         return view('reservations.booking-form', compact('state'));

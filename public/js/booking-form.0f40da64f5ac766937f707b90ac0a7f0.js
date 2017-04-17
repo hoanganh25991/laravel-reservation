@@ -584,7 +584,7 @@ var BookingForm = function () {
 		value: function view() {
 			var _this = this;
 
-			this.findView();
+			this._findView();
 			var store = window.store;
 			var self = this;
 			/**
@@ -650,7 +650,7 @@ var BookingForm = function () {
 			store.dispatch(action);
 		}
 	}, {
-		key: 'findView',
+		key: '_findView',
 		value: function findView() {
 			if (typeof this._hasRunFindView == 'undefined') {
 				this._hasRunFindView = true;
@@ -773,7 +773,7 @@ var BookingForm = function () {
 		value: function event() {
 			var _this2 = this;
 
-			this.findView();
+			this._findView();
 			var store = window.store;
 
 			var outlet_select = this.outlet_select;

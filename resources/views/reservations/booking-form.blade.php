@@ -1,65 +1,53 @@
 @extends('layouts.app')
 
 @section('content')
-    {{--<form id="booking-form">--}}
     <div id="form-step-container">
+        @verbatim
         <div class="container">
             <div class="box form-step" id="form-step-1">
-                @component('reservations.header')
-                @slot('title')
-                Reservation at <span class="r-name"> <a href="{{ url('') }}" target="_blank"
-                                                               id="reservation_title">@{{ outlet.name }}</a></span>
-                @endslot
-                @endcomponent
                 <div id="check-availability" class="content">
                     <div class="rid-select">
                         <label for="outlet_id">Select an outlet</label>
-                        <select name="outlet_id" id="rid" title="spize" class="form-control" :value="outlet.id">
-                            {{--@foreach($outlets as $outlet)--}}
-                                {{--<option value="{{ $outlet->id }}">{{ $outlet->name }}</option>--}}
-                            {{--@endforeach--}}
+                        <select name="outlet_id" id="rid" title="spize" class="form-control" v-model="selected_outlet_id">
                             <template v-for="(outlet, outlet_index) in outlets">
-                                <option :value="outlet.id">@{{ outlet.outlet_name }}</option>
+                                <option :value="outlet.id">{{ outlet.outlet_name }}</option>
                             </template>
                         </select>
                     </div>
-                    @verbatim
                     <div class="selectors cf" :style="'display: ' + pax_over">
                         <div id="adults-wrap">
                             <label for="adults">Adults</label>
-                            <select name="adult_pax" class="form-control" :value="pax.adult"
-                            >
-                                <template v-for="n in adult_max_pax + 1">
-                                    <option :value="n - 1">{{ n - 1 }}</option>
+                            <select name="adult_pax" class="form-control" v-model="reservation.adult_pax" >
+                                <template v-for="n in 20">
+                                    <option :value="n">{{ n }}</option>
                                 </template>
                             </select>
                         </div>
                         <div id="children-wrap">
                             <label for="children">Children</label>
-                            <select name="children_pax" class="form-control" :value="pax.children">
-                                <template v-for="n in children_max_pax + 1">
-                                    <option :value="n - 1">{{ n - 1 }}</option>
+                            <select name="children_pax" class="form-control" v-model="reservation.children_pax">
+                                <template v-for="n in 20">
+                                    <option :value="n">{{ n }}</option>
                                 </template>
                             </select>
                         </div>
                     </div>
-                    @endverbatim
                     <div class="datetime cf">
                         <div class="clear"></div>
                         <div id="calendar-box" align="center"></div>
                         <div id="dt-choice" class="cf">
-                            <label id="reservation_date">Booking time on @{{ reservation.date.format('DD MMM Y') }}</label>
-                            <input type="hidden" name="reservation_date" value="">
-                            <select name="reservation_time" class="form-control">
-                                <option>N/A</option>
+                            <label>Booking time on {{ reservation.date.format('DD MMM Y') }}</label>
+                            <select v-model="reservation.time" class="form-control">
+                                <template v-for="(time, time_index) in available_time_on_reservation_date">
+                                    <option :value="time.time">{{ time.session_name }} {{ time.time }}</option>
+                                </template>
                             </select>
                         </div>
                         <div class="agree-box cf">
                             <div class="checkbox cf" style="padding-left: 5px;">
-                                <label for="agree_box">I acknowledge that this is a waitlisted reservation and is
-                                    subjected to the restaurant's confirmation. I understand that the restaurant will hold my table for a maximum of 15 minutes.</label>
-                                <input id="agree_box" type="checkbox" name="agree_box" v-model="reservation.agree_term_condition"
-                                       class="form-control agree-check">
+                                <label for="agree_box">I acknowledge that this is a waitlisted reservation and is subjected to the restaurant's confirmation.
+                                    I understand that the restaurant will hold my table for a maximum of 15 minutes.</label>
+                                <input id="agree_box" type="checkbox" v-model="reservation.agree_term_condition" class="form-control agree-check">
                             </div>
                         </div>
                     </div>
@@ -68,26 +56,15 @@
                                 :disabled="not_allowed_move_to_form_step_2()">Next</button>
                     </div>
                 </div>
+                @endverbatim
                 @include('reservations.footer')
+                @verbatim
             </div>{{--box--}}
             <div class="box form-step" id="form-step-2">
-                @component('reservations.header')
-                @slot('title')
-                Confirm Diner Details
-                <p class="sub">
-                    We have a table for you at <br>
-                    <span class="field" name="outlet_name">@{{ outlet.name }}</span> for <span class="field bloc"
-                                                                                               name="pax_size">@{{ Number(pax.adult) + Number(pax.children) }}
-                        people</span>
-                    <br> at <span class="field  bloc" name="time">@{{ reservation.time }}</span> on <span
-                            class="field  bloc" name="date">@{{ reservation.date.format('MMM D Y') }}</span>
-                </p>
-                @endslot
-                @endcomponent
                 <div id="confirm-details" class="content">
                     <div class="form-groups login-form">
                         <div class="form-group">
-                            <select id="d-title" class="form-control login-field" name="salutation" :value="customer.salutation">
+                            <select class="form-control login-field" v-model="reservation.salutation">
                                 <option value="Mr.">Mr.</option>
                                 <option value="Ms.">Ms.</option>
                                 <option value="Mrs.">Mrs.</option>
@@ -97,32 +74,32 @@
 
                         <div class="form-group">
                             <input type="text" class="form-control d-name name_check login-field" name="firstname"
-                                :value="customer.first_name" placeholder="First Name" title="First Name">
+                                   v-model="reservation.first_name" placeholder="First Name" title="First Name">
                             <label class="login-field-icon fa fa-user" style="top: 12px;" for="first_name"></label>
                         </div>
                         <div class="form-group">
                             <input type="text" class="form-control d-name name_check login-field" name="lastname"
-                                :value="customer.last_name" placeholder="Last Name" title="Last Name">
+                                   v-model="reservation.last_name" placeholder="Last Name" title="Last Name">
                             <label class="login-field-icon fa fa-user" style="top: 12px;" for="last_name"></label>
                         </div>
 
                         <div class="form-group">
                             <input type="email" class="form-control login-field" name="email" id="booking-email"
-                                   :value="customer.email" placeholder="Email Address">
+                                   v-model="reservation.email" placeholder="Email Address">
                             <label class="login-field-icon fa fa-envelope" style="top: 12px;" for="booking-email"></label>
                         </div>
 
                         <div class="form-group">
                             <input type="text" id="phone-area" class="form-control login-field" name="phone_country_code"
-                                :value="customer.phone_country_code" placeholder="+65" title="Country Code">
+                                   v-model="reservation.phone_country_code" placeholder="+65" title="Country Code">
                             <input type="tel" class="form-control login-field" name="phone" id="telephone"
-                                   :value="customer.phone" placeholder="Mobile Number" title="Mobile Number">
+                                   v-model="reservation.phone" placeholder="Mobile Number" title="Mobile Number">
                             <label class="login-field-icon fa fa-phone" style="top: 12px;" for="telephone"></label>
                         </div>
 
                         <div class="form-group">
-                            <textarea class="form-control login-field" placeholder="Special Requests"
-                                        name="remarks" id="booking-remarks" :value="customer.remarks"></textarea>
+                            <textarea class="form-control login-field" placeholder="Special Requests" name="customer_remarks"
+                                      v-model="reservation.customer_remarks"></textarea>
                             <p class="note">Special requests are not guaranteed and are subject to availability and restaurant discretion.</p>
                         </div>
                     </div>
@@ -133,45 +110,31 @@
                                 :disabled="not_allowed_move_to_form_step_3()">Next</button>
                     </div>
                 </div>
+                @endverbatim
                 @include('reservations.footer')
+                @verbatim
             </div><!-- /box -->
             <div class="box form-step" id="form-step-3">
+                @endverbatim
                 @include('reservations.booking-summary')
+                @verbatim
             </div>
         </div>
-        {{--modal--}}
+        {{--dialog modal--}}
         <div class="modal fade" id="ajax-dialog">
             <div class="modal-dialog modal-sm">
                 <div class="modal-content">
                     <div class="modal-body center">
                         <div style="width: 140px; display: inline-block; margin-top: 85%;">
+                            @endverbatim
                             <img src="{{ url('images/ring.svg') }}">
+                            @verbatim
                         </div>
                     </div>
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
         </div><!-- /.modal -->
-        {{--modal--}}
-        <div class="modal fade" id="paypal-dialog">
-            <div class="modal-dialog modal-sm">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                    aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">Deposit Payment Require</h4>
-                    </div>
-                    @verbatim
-                    <div class="modal-body center">
-                        <p><span class="h4">Amount of money</span> {{ reservation.deposit }}</p>
-                    </div>
-                    @endverbatim
-                    <div class="modal-footer">
-                        <hr>
-                        {{--@include('paypal.authorize')--}}
-                    </div>
-                </div><!-- /.modal-content -->
-            </div><!-- /.modal-dialog -->
-        </div><!-- /.modal -->
+        @endverbatim
     </div>
     @include('debug.redux-state')
 @endsection

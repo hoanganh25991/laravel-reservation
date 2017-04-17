@@ -47,6 +47,7 @@ const AJAX_BOOKING_CONDITION_VALIDATE_FAIL = 'AJAX_BOOKING_CONDITION_VALIDATE_FA
 
 class BookingForm {
 	/** @namespace res.statusMsg */
+	/** @namespace res.responseJSON */
 	/** @namespace action.adult_pax */
 	/** @namespace action.children_pax */
 	/** @namespace action.dialog_has_data */
@@ -62,31 +63,8 @@ class BookingForm {
 
 		this.buildVue();
 
-		this.event();
-
-		this.listener();
-
-		this.view();
-
+		// init view
 		this.initView();
-
-
-		BookingForm.logObjectAssignPerformance();
-	}
-
-	static logObjectAssignPerformance(){
-		let o_assign = Object.assign;
-
-		Object.assign = function(...args){
-			if(Object.keys(args[0]).length > 0){
-				console.time('obj assign');
-				o_assign.apply(Object, args);
-				console.timeEnd('obj assign');
-			}
-
-			return o_assign.apply(Object, args);
-
-		}
 	}
 
 	buildRedux(){
@@ -219,20 +197,6 @@ class BookingForm {
 
 		let _state = Object.assign(frontend_state, server_state);
 		
-		//self compute for better user experience, recompute pax
-		// let pax = {};
-		// if(typeof _state.overall_min_pax != 'undefined'){
-		// 	let half = Math.ceil(_state.overall_min_pax / 2);
-		// 	let remain = _state.overall_min_pax - half;
-		//
-		// 	pax = {
-		// 		adult: half,
-		// 		children: remain
-		// 	}
-		// }
-		//
-		// _state = Object.assign(_state, {pax});
-		
 		//faster for dev env
 		if(_state.base_url && _state.base_url.includes('reservation.dev') || _state.base_url.includes('localhost')){
 			_state = Object.assign(_state, {
@@ -277,6 +241,13 @@ class BookingForm {
 			el: '#form-step-container',
 			data: window.vue_state,
 			computed: {},
+			mounted(){
+				this.event();
+				this.view();
+				this.listener();
+
+
+			},
 			methods: {
 				_checkEmpty(obj, except_keys = []){
 					let empty_keys = Object.keys(obj).filter(key => {
@@ -501,277 +472,8 @@ class BookingForm {
 		}
 	}
 
-	listener(){
-		let store = window.store;
-		let self = this;
-		store.subscribe(()=>{
-			// if(store.SELF_DISPATCH_FLAG == true){
-			// 	store.SELF_DISPATCH_FLAG = false;
-			// 	return;
-			// }
-
-			let state       = store.getState();
-			let prestate    = store.getPrestate();
-			let last_action = store.getLastAction();
-
-			if(prestate.ajax_call < state.ajax_call){
-				self.ajaxCall();
-			}
-
-			if(prestate.dialog.show == false && state.dialog.show == true){
-				self.ajax_dialog.modal('show');
-			}
-
-			if(prestate.dialog.show == true && state.dialog.show == false){
-				self.ajax_dialog.modal('hide');
-			}
-
-			/**
-			 * Update select pax
-			 */
-			if(last_action == CHANGE_ADULT_PAX){
-				//Ask vue update
-				self.vue._updatePaxSelectBox(state, 'adult');
-			}
-
-			if(last_action == CHANGE_CHILDREN_PAX){
-				self.vue._updatePaxSelectBox(state, 'children');
-			}
-
-			let has_pax_over_dependency =
-				(last_action == CHANGE_ADULT_PAX
-				|| last_action == CHANGE_CHILDREN_PAX);
-
-
-
-			let pax_over_max =(state.pax.adult + state.pax.children) < state.overall_min_pax;
-			let pax_over_min =(state.pax.adult + state.pax.children)  > state.overall_max_pax;
-
-			let is_pax_over = has_pax_over_dependency && (pax_over_max || pax_over_min);
-
-			if(is_pax_over){
-				// store.dispatch({type: PAX_OVER});
-				//window.alert(`Total number of people should be between ${state.overall_min_pax} - ${state.overall_max_pax} `);
-				window.alert(`There is a minimum pax of ${state.overall_min_pax} for reservation at this outlet`);
-			}
-
-			if(prestate.has_selected_day == false && state.has_selected_day == true){
-				store.dispatch({type: AJAX_CALL, ajax_call: 1});
-			}
-
-			let has_ajax_dependency =
-				last_action == CHANGE_ADULT_PAX
-				|| last_action == CHANGE_CHILDREN_PAX
-				|| last_action == CHANGE_OUTLET
-				|| last_action == CHANGE_RESERVATION_DATE;
-
-			let has_query_condition_change =
-				state.has_selected_day
-				&& (prestate.pax.adult != state.pax.adult
-				||prestate.pax.children != state.pax.children
-				||prestate.outlet.id != state.outlet.id
-				||prestate.reservation.date != state.reservation.date);
-
-			let should_call_ajax = has_ajax_dependency && has_query_condition_change;
-			if(should_call_ajax){
-				store.dispatch({type: AJAX_CALL, ajax_call: 1});
-			}
-
-
-		});
-	}
-
-	view(){
-		this.findView();
-		let store = window.store;
-		let self = this;
-		/**
-		 * Debug state
-		 */
-		let pre = document.querySelector('#redux-state');
-		if(!pre){
-			let body = document.querySelector('body');
-			pre = document.createElement('pre');
-			//body.appendChild(pre);
-		}
-
-		store.subscribe(()=>{
-			let state    = store.getState();
-			let last_action = store.getLastAction();
-			//update this way for vue see it
-			Object.assign(window.vue_state, state,  {
-				//don't let vue what this
-				available_time: {}
-			});
-
-			//debug
-			let prestate = store.getPrestate();
-
-			if(state.base_url && state.base_url.includes('reservation.dev') || state.base_url.includes('localhost')){
-				pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));
-			}
-
-			/**
-			 * Available time change
-			 * @type {boolean}
-			 */
-			let available_time_change = (prestate.available_time != state.available_time);
-			if(available_time_change){
-				this.updateSelectView(state.available_time);
-				this.updateCalendarView(state.available_time);
-			}
-			/**
-			 * Form step change
-			 */
-			let form_step_change = (prestate.form_step != state.form_step)
-				|| (prestate.init_view == false
-				&& state.form_step == 'form-step-1');
-			if(form_step_change){
-				console.info('pointToFormStep');
-				this.pointToFormStep();
-			}
-
-			if(last_action == DIALOG_SHOW){
-				this.ajax_dialog.modal('show');
-			}
-
-			if(last_action == DIALOG_HAS_DATA){
-				this.ajax_dialog.modal('hide');
-			}
-		});
-
-
-	}
-
-	initView(){
-		let action = {
-			type: 'INIT_VIEW'
-		}
-
-		store.dispatch(action);
-	}
-
-	findView(){
-		if(typeof this._hasRunFindView == 'undefined'){
-			this._hasRunFindView = true;
-		}else{
-			console.info('_findView has run');
-			return;
-		}
-
-
-		this.calendar = $('#calendar-box').Calendar();
-
-		this.adult_pax_select = document.querySelector('select[name="adult_pax"]');
-		this.children_pax_select = document.querySelector('select[name="children_pax"]');
-
-		this.ajax_dialog = $('#ajax-dialog');
-
-		this.outlet_select = document.querySelector('select[name="outlet_id"]');
-
-		this.time_select = document.querySelector('select[name="reservation_time"]');
-
-		/**
-		 * Customer info
-		 */
-		this.customer_phone_country_code_input = document.querySelector('input[name="phone_country_code"]');
-		this.customer_salutation_select = document.querySelector('select[name="salutation"]');
-		this.customer_remarks_textarea  = document.querySelector('textarea[name="remarks"]');
-		this.customer_firt_name_input   = document.querySelector('input[name="firstname"]');
-		this.customer_last_name_input   = document.querySelector('input[name="lastname"]');
-		this.customer_email_input       = document.querySelector('input[name="email"]');
-		this.customer_phone_input       = document.querySelector('input[name="phone"]');
-
-		/**
-		 * Swap view
-		 */
-		this.form_step_container = document.querySelector('#form-step-container');
-		this.btn_form_nexts      = document.querySelectorAll('button.btn-form-next');
-	}
-
-	updateSelectView(available_time) {
-		let state = store.getState();
-		let reservation_date = state.reservation.date;
-		let selected_day_str = reservation_date.format('YYYY-MM-DD');
-
-		let available_time_on_selected_day = available_time[selected_day_str];
-		if (typeof available_time_on_selected_day == 'undefined'){
-			// console.info('No available time on select day');
-			// return;
-			available_time_on_selected_day = [];
-		}
-
-		if (available_time_on_selected_day.length == 0) {
-			let default_time = {
-				time: 'N/A',
-				session_name: ''
-			};
-
-			available_time_on_selected_day.push(default_time);
-		}
-
-		let time_select = this.time_select;
-
-		let newInnerHtml = available_time_on_selected_day.reduce((carry, time) => {
-			let option = `<option value="${time.time}">${time.session_name} ${time.time}</option>`;
-			carry += option;
-
-			return carry;
-		}, '');
-
-		// requestAnimationFrame(()=>{time_select.innerHTML = newInnerHtml;});
-		time_select.innerHTML = newInnerHtml;
-		store.dispatch({type: CHANGE_RESERVATION_TIME, time: time_select.selectedOptions[0].value});
-	}
-
-	updateCalendarView(available_time) {
-		let calendar = this.calendar;
-
-		if(Object.keys(available_time).length == 0)
-			return
-
-		this._addCalendarHelper(calendar);
-		//Get out all available day
-		let available_days = Object.keys(available_time);
-
-		calendar.day_tds.each(function() {
-			let td = $(this);
-			let td_day_str = `${td.attr('year')}-${calendar._prefix2Dec(td.attr('month'))}-${calendar._prefix2Dec(td.attr('day'))}`;
-
-			if (available_days.includes(td_day_str)) {
-				calendar._pickable(td);
-			} else {
-				calendar._unpickable(td);
-			}
-		});
-
-	}
-
-	_addCalendarHelper(calendar){
-		calendar.day_tds = $('#calendar-box').find('td');
-
-		if(!calendar._prefix2Dec || !calendar._pickable || calendar._unpickable){
-			calendar._prefix2Dec = function(val) {
-				if (val < 10)
-					return `0${val}`;
-
-				return val;
-			}
-
-			calendar._pickable = function(td){
-				td.removeClass('past');
-				td.addClass('day');
-			}
-
-			calendar._unpickable = function(td){
-				td.removeClass('day');
-				td.addClass('past');
-			}
-		}
-	}
-
 	event(){
-		this.findView();
+		this._findView();
 		let store = window.store;
 
 		let outlet_select = this.outlet_select;
@@ -959,6 +661,222 @@ class BookingForm {
 		});
 	}
 
+	view(){
+		this._findView();
+		let store = window.store;
+		let self = this;
+		/**
+		 * Debug state
+		 */
+		let pre = document.querySelector('#redux-state');
+		if(!pre){
+			let body = document.querySelector('body');
+			pre = document.createElement('pre');
+			//body.appendChild(pre);
+		}
+
+		store.subscribe(()=>{
+			let state    = store.getState();
+			let last_action = store.getLastAction();
+			//update this way for vue see it
+			Object.assign(window.vue_state, state,  {
+				//don't let vue what this
+				available_time: {}
+			});
+
+			//debug
+			let prestate = store.getPrestate();
+
+			if(state.base_url && state.base_url.includes('reservation.dev') || state.base_url.includes('localhost')){
+				pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));
+			}
+
+			/**
+			 * Available time change
+			 * @type {boolean}
+			 */
+			let available_time_change = (prestate.available_time != state.available_time);
+			if(available_time_change){
+				this.updateSelectView(state.available_time);
+				this.updateCalendarView(state.available_time);
+			}
+			/**
+			 * Form step change
+			 */
+			let form_step_change = (prestate.form_step != state.form_step)
+				|| (prestate.init_view == false
+				&& state.form_step == 'form-step-1');
+			if(form_step_change){
+				console.info('pointToFormStep');
+				this.pointToFormStep();
+			}
+
+			if(last_action == DIALOG_SHOW){
+				this.ajax_dialog.modal('show');
+			}
+
+			if(last_action == DIALOG_HAS_DATA){
+				this.ajax_dialog.modal('hide');
+			}
+		});
+
+
+	}
+
+	listener(){
+		let store = window.store;
+		let self = this;
+		store.subscribe(()=>{
+			// if(store.SELF_DISPATCH_FLAG == true){
+			// 	store.SELF_DISPATCH_FLAG = false;
+			// 	return;
+			// }
+
+			let state       = store.getState();
+			let prestate    = store.getPrestate();
+			let last_action = store.getLastAction();
+
+			if(prestate.ajax_call < state.ajax_call){
+				self.ajaxCall();
+			}
+
+			if(prestate.dialog.show == false && state.dialog.show == true){
+				self.ajax_dialog.modal('show');
+			}
+
+			if(prestate.dialog.show == true && state.dialog.show == false){
+				self.ajax_dialog.modal('hide');
+			}
+
+			/**
+			 * Update select pax
+			 */
+			if(last_action == CHANGE_ADULT_PAX){
+				//Ask vue update
+				self.vue._updatePaxSelectBox(state, 'adult');
+			}
+
+			if(last_action == CHANGE_CHILDREN_PAX){
+				self.vue._updatePaxSelectBox(state, 'children');
+			}
+
+			let has_pax_over_dependency =
+				(last_action == CHANGE_ADULT_PAX
+				|| last_action == CHANGE_CHILDREN_PAX);
+
+
+
+			let pax_over_max =(state.pax.adult + state.pax.children) < state.overall_min_pax;
+			let pax_over_min =(state.pax.adult + state.pax.children)  > state.overall_max_pax;
+
+			let is_pax_over = has_pax_over_dependency && (pax_over_max || pax_over_min);
+
+			if(is_pax_over){
+				// store.dispatch({type: PAX_OVER});
+				//window.alert(`Total number of people should be between ${state.overall_min_pax} - ${state.overall_max_pax} `);
+				window.alert(`There is a minimum pax of ${state.overall_min_pax} for reservation at this outlet`);
+			}
+
+			if(prestate.has_selected_day == false && state.has_selected_day == true){
+				store.dispatch({type: AJAX_CALL, ajax_call: 1});
+			}
+
+			let has_ajax_dependency =
+				last_action == CHANGE_ADULT_PAX
+				|| last_action == CHANGE_CHILDREN_PAX
+				|| last_action == CHANGE_OUTLET
+				|| last_action == CHANGE_RESERVATION_DATE;
+
+			let has_query_condition_change =
+				state.has_selected_day
+				&& (prestate.pax.adult != state.pax.adult
+				||prestate.pax.children != state.pax.children
+				||prestate.outlet.id != state.outlet.id
+				||prestate.reservation.date != state.reservation.date);
+
+			let should_call_ajax = has_ajax_dependency && has_query_condition_change;
+			if(should_call_ajax){
+				store.dispatch({type: AJAX_CALL, ajax_call: 1});
+			}
+
+
+		});
+	}
+
+
+
+	initView(){
+		let action = {
+			type: 'INIT_VIEW'
+		}
+
+		store.dispatch(action);
+	}
+
+	_findView(){
+		if(this._hasRunFindView){
+			return;
+		}
+		// Run only one time
+		this._hasRunFindView = true;
+
+		// For update calendar
+		this.calendar = $('#calendar-box').Calendar();
+
+		// Ajax dialog
+		this.ajax_dialog = $('#ajax-dialog');
+
+		// Change form step
+		this.form_step_container = document.querySelector('#form-step-container');
+		this.btn_form_nexts      = document.querySelectorAll('button.btn-form-next');
+	}
+
+	updateCalendarView(available_time) {
+		let calendar = this.calendar;
+
+		if(Object.keys(available_time).length == 0)
+			return
+
+		this._addCalendarHelper(calendar);
+		//Get out all available day
+		let available_days = Object.keys(available_time);
+
+		calendar.day_tds.each(function() {
+			let td = $(this);
+			let td_day_str = `${td.attr('year')}-${calendar._prefix2Dec(td.attr('month'))}-${calendar._prefix2Dec(td.attr('day'))}`;
+
+			if (available_days.includes(td_day_str)) {
+				calendar._pickable(td);
+			} else {
+				calendar._unpickable(td);
+			}
+		});
+
+	}
+
+	_addCalendarHelper(calendar){
+		calendar.day_tds = $('#calendar-box').find('td');
+
+		if(!calendar._prefix2Dec || !calendar._pickable || calendar._unpickable){
+			calendar._prefix2Dec = function(val) {
+				if (val < 10)
+					return `0${val}`;
+
+				return val;
+			}
+
+			calendar._pickable = function(td){
+				td.removeClass('past');
+				td.addClass('day');
+			}
+
+			calendar._unpickable = function(td){
+				td.removeClass('day');
+				td.addClass('past');
+			}
+		}
+	}
+
 	ajaxCall(){
 		// console.info('ajax call');
 		let store = window.store;
@@ -1005,15 +923,8 @@ class BookingForm {
 				console.log(res);
 				//noinspection JSValidateTypes
 				if(res.statusMsg == AJAX_RESERVATION_SUCCESS_CREATE){
-					// let data = res.data;
-					// let {confirm_id} = data;
 					let reservation = res.data.reservation;
-					// let {confirm_id} = reservation;
-					// store.dispatch({
-					// 	type: CHANGE_RESERVATION_CONFIRM_ID,
-					// 	confirm_id,
-					// });
-					//update reservation
+
 					Object.assign(vue_state, {reservation});
 
 					store.dispatch({
@@ -1038,125 +949,98 @@ class BookingForm {
 
 					return;
 				}
-
-				// if(res.statusMsg == AJAX_PAYMENT_REQUEST_SUCCESS){
-				// 	$('#paypal-dialog').modal('hide');
-				// 	console.log(res);
-				// 	console.log('success payment');
-				// 	return;
-				// }
 			},
 			complete(res){
-				console.log(res);
-
+				//console.log(res);
 				store.dispatch( {
 					type: DIALOG_HAS_DATA,
 					dialog_has_data: true
 				});
 			},
 			error(res){
-				//console.log(res);
-				res = res.responseJSON;
-				if(res.statusMsg == AJAX_BOOKING_CONDITION_VALIDATE_FAIL){
-					let msg = 'Booking condition validate fail';
-
-					window.alert(msg);
-					return;
-				}
-				/**
-				 * Need update confirm_id
-				 * Only not for searching available_time
-				 */
-				//noinspection JSValidateTypes
-				if(res.statusMsg == AJAX_RESERVATION_NO_LONGER_AVAILABLE){
-					let data = res.data;
-					let msg  = 'SORRY, Someone has book before you. Rerservation no longer available';
-
-					console.log(msg, res.data);
-					window.alert(msg);
-					return;
-				}
-
-				//noinspection JSValidateTypes
-				if(res.statusMsg == AJAX_RESERVATION_REQUIRED_DEPOSIT){
-					let reservation = res.data.reservation;
-					// let {confirm_id} = reservation;
-					// store.dispatch({
-					// 	type: CHANGE_RESERVATION_CONFIRM_ID,
-					// 	confirm_id,
-					// });
-					//update reservation
-					Object.assign(vue_state, {reservation});
-
-					store.dispatch({
-						type: SYNC_RESERVATION,
-						reservation,
-					});
-
-					let data = res.data;
-					let msg = 'REQUIRED DEPOSIT, payment amount: ';
-
-					// store.dispatch({
-					// 	type: CHANGE_RESERVATION_DEPOSIT,
-					// 	deposit: data.deposit
-					// });
-					let amount     = reservation.deposit;
-					let confirm_id = reservation.confirm_id;
-					let outlet_id  = reservation.outlet_id;
-					let token      = data.paypal_token;
-
-					//noinspection ES6ModulesDependencies
-					let base_url = self.url('paypal');
-					let paypal_authorize = new PayPalAuthorize(token, {amount, confirm_id, outlet_id}, base_url);
-
-					//self.vue.reservation.deposit = amount;
-
-					//$('#paypal-dialog').modal('show');
-
-					console.log(msg, res.data);
-					//window.alert(msg);
-					//store.dispatch({type: PAX_OVER});
-					return;
-				}
-
-				if(res.statusMsg == AJAX_RESERVATION_VALIDATE_FAIL){
-					let info = JSON.stringify(res.data);
-					let msg = 'VALIDATE FAIL: ' + info;
-
-					console.log(msg, res.data);
-					window.alert(msg);
-
-					let form_step =  'form-step-1';
-
-					try{
-						let first_key = Object.keys(res.data)[0];
-
-						let store = window.store;
-						let state = store.getState();
-
-						let customer_info_keys = Object.keys(state.customer);
-
-						if(customer_info_keys.indexOf(first_key) != -1){
-							form_step = 'form-step-2';
+				//noinspection JSUnresolvedVariable
+				console.log(res.responseJSON);
+				try{
+					let data_obj = res.responseJSON;
+					let statusMsg= data_obj.statusMsg;
+					switch(statusMsg){
+						case AJAX_BOOKING_CONDITION_VALIDATE_FAIL: {
+							let info = JSON.stringify(data_obj.data);
+							window.alert(`Booking condition validate fail: ${info}`);
+							break;
 						}
-					}catch(e){}
 
-					store.dispatch({
-						type: CHANGE_FORM_STEP,
-						form_step
-					});
-					return;
-				}
+						case AJAX_RESERVATION_NO_LONGER_AVAILABLE: {
+							window.alert(`SORRY, Someone has book before you. Rerservation no longer available`);
+							break;
+						}
 
-				// if(res.statusMsg == AJAX_PAYMENT_REQUEST_VALIDATE_FAIL
-				// || res.statusMsg == AJAX_PAYMENT_REQUEST_FIND_RESERVATION_FAIL
-				// || res.statusMsg == AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL){
-				// 	let msg = 'PAYPAL FAIL: see log';
-				//
-				// 	console.log(msg, res.data);
-				// 	window.alert(msg);
-				// 	return;
-				// }
+						case AJAX_RESERVATION_REQUIRED_DEPOSIT: {
+							let reservation = data_obj.data.reservation;
+
+							Object.assign(vue_state, {reservation});
+
+							store.dispatch({
+								type: SYNC_RESERVATION,
+								reservation,
+							});
+
+							/**
+							 * Init paypal
+							 */
+							let amount     = reservation.deposit;
+							let confirm_id = reservation.confirm_id;
+							let outlet_id  = reservation.outlet_id;
+							let token      = data.paypal_token;
+
+							//noinspection ES6ModulesDependencies
+							let base_url = self.url('paypal');
+							let paypal_authorize = new PayPalAuthorize(token, {amount, confirm_id, outlet_id}, base_url);
+
+							break;
+						}
+
+						case AJAX_RESERVATION_VALIDATE_FAIL: {
+							let info = JSON.stringify(data_obj.data);
+							window.alert(`Validate fail: ${info}`);
+
+							let form_step =  'form-step-1';
+
+							// Try to move user to where he got mistake
+							// When fullfill form
+							try{
+								let first_key = Object.keys(data_obj.data)[0];
+
+								// Simple list out all keys in form-step-2
+								let form_step_2_keys = [
+									'first_name',
+									'last_name',
+									'email',
+									'phone_country_code',
+									'phone'
+								];
+
+								// Move him to step 2 if validate fail key in
+								if(form_step_2_keys.indexOf(first_key) != -1)
+									form_step = 'form-step-2';
+
+							}catch(e){}
+
+							// Here we go ᕕ( ᐛ )ᕗ
+							store.dispatch({
+								type: CHANGE_FORM_STEP,
+								form_step
+							});
+
+							break;
+						}
+
+						default: {
+							break;
+						}
+					}
+
+				}catch(e){}
 			}
 		});
 	}
