@@ -810,10 +810,10 @@ class AdminSettings {
 			let state = store.getState();
 			let prestate = store.getPrestate();
 
-			/**
-			 * Debug
-			 */
-			pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));
+			// Debug
+			if(state.base_url && state.base_url.includes('reservation.dev') || state.base_url.includes('localhost')){
+				pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));
+			}
 
 			/**
 			 * Change admin step
