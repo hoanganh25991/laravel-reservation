@@ -2,7 +2,7 @@ const INIT_VIEW			= 'INIT_VIEW';
 const CHANGE_FORM_STEP	= 'CHANGE_FORM_STEP';
 
 const CHANGE_CUSTOMER_PHONE_COUNTRY_CODE = 'CHANGE_CUSTOMER_PHONE_COUNTRY_CODE';
-const CHANGE_OUTLET					= 'CHANGE_OUTLET';
+const CHANGE_SELECTED_OUTLET_ID					= 'CHANGE_SELECTED_OUTLET_ID';
 const CHANGE_ADULT_PAX				= 'CHANGE_ADULT_PAX';
 const CHANGE_CHILDREN_PAX			= 'CHANGE_CHILDREN_PAX';
 const HAS_SELECTED_DAY	            = 'HAS_SELECTED_DAY';
@@ -80,19 +80,6 @@ class BookingForm {
 					return Object.assign({}, state, {
 						form_step: self.formStepReducer(state.form_step, action)
 					});
-				case CHANGE_OUTLET:
-					return Object.assign({}, state, {
-						outlet: self.outletReducer(state.outlet, action)
-					});
-				case CHANGE_ADULT_PAX:
-				case CHANGE_CHILDREN_PAX:
-					return Object.assign({}, state, {
-						pax: self.paxReducer(state.pax, action)
-					});
-				case PAX_OVER:
-					return Object.assign({}, state, {
-						pax_over: self.paxOverReducer(state.pax_over, action)
-					});
 				case HAS_SELECTED_DAY:
 					return Object.assign({}, state, {
 						has_selected_day: self.hasSelectedDayReducer(state.has_selected_day, action)
@@ -116,16 +103,6 @@ class BookingForm {
 				case CHANGE_AVAILABLE_TIME:
 					return Object.assign({}, state, {
 						available_time: self.availableTimeReducer(state.available_time, action)
-					});
-				case CHANGE_CUSTOMER_SALUTATION:
-				case CHANGE_CUSTOMER_FIRST_NAME:
-				case CHANGE_CUSTOMER_LAST_NAME:
-				case CHANGE_CUSTOMER_EMAIL:
-				case CHANGE_CUSTOMER_PHONE_COUNTRY_CODE:
-				case CHANGE_CUSTOMER_PHONE:
-				case CHANGE_CUSTOMER_REMARKS:
-					return Object.assign({}, state, {
-						customer: self.customerReducer(state.customer, action)
 					});
 				default:
 					return state;
@@ -191,7 +168,10 @@ class BookingForm {
 			init_view: false,
 			base_url: '',
 			outlets: [],
-			reservation: {},
+			reservation: {
+				adult_pax: 0,
+				children_pax: 0,
+			},
 			dialog: {},
 			available_time: {},
 			ajax_call: 0,
@@ -254,6 +234,17 @@ class BookingForm {
 		// When init, reservation date consider as today
 		// Self compute it
 		vue_state.reservation.date = moment();
+
+		// Pick out the first selected_outlet
+		let first_outlet          = vue_state.outlets[0] || {};
+
+		// Bring this state in vue
+		Object.assign(vue_state, {
+			selected_outlet: first_outlet,
+			selected_outlet_id: first_outlet.id
+		});
+
+		vue_state.selected_outlet = first_outlet;
 
 		return vue_state;
 	}
@@ -345,6 +336,13 @@ class BookingForm {
 							break;
 						}
 					}
+				},
+
+				_updateSelectedOutlet(){
+					let selected_outlets = this.outlets.filter(outlet => outlet.id == this.selected_outlet_id);
+					let selected_outlet = selected_outlets[0] || {};
+
+					Object.assign(window.vue_state, {selected_outlet});
 				}
 			}
 		});
@@ -397,8 +395,8 @@ class BookingForm {
 
 	outletReducer(state, action){
 		switch(action.type){
-			case CHANGE_OUTLET:
-				return action.outlet;
+			case CHANGE_SELECTED_OUTLET_ID:
+				return action.selected_outlet;
 			default:
 				return state;
 		}
@@ -680,14 +678,14 @@ class BookingForm {
 			let has_ajax_dependency =
 				last_action == CHANGE_ADULT_PAX
 				|| last_action == CHANGE_CHILDREN_PAX
-				|| last_action == CHANGE_OUTLET
+				|| last_action == CHANGE_SELECTED_OUTLET_ID
 				|| last_action == CHANGE_RESERVATION_DATE;
 
 			let has_query_condition_change =
 				state.has_selected_day
 				&& (prestate.pax.adult != state.pax.adult
 				||prestate.pax.children != state.pax.children
-				||prestate.outlet.id != state.outlet.id
+				||prestate.selected_outlet.id != state.selected_outlet.id
 				||prestate.reservation.date != state.reservation.date);
 
 			let should_call_ajax = has_ajax_dependency && has_query_condition_change;
@@ -781,7 +779,7 @@ class BookingForm {
 
 
 		let data = {
-			outlet_id: state.outlet.id,
+			outlet_id: state.selected_outlet.id,
 			adult_pax: state.pax.adult,
 			children_pax: state.pax.children,
 			type: AJAX_SEARCH_AVAILABLE_TIME,

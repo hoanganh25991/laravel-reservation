@@ -7,7 +7,8 @@
                     <div id="check-availability" class="content">
                         <div class="rid-select">
                             <label for="outlet_id">Select an outlet</label>
-                            <select name="outlet_id" id="rid" title="spize" class="form-control" v-model="selected_outlet_id">
+                            <select name="outlet_id" id="rid" title="spize" class="form-control"
+                                    v-model="selected_outlet_id" v-on:change="_updateSelectedOutlet">
                                 <template v-for="(outlet, outlet_index) in outlets">
                                     <option :value="outlet.id">@{{ outlet.outlet_name }}</option>
                                 </template>
