@@ -158,33 +158,27 @@ class BookingForm {
 	getFrontendState(){
 		let state =  {
 			init_view: false,
-			outlet: {},
-			overall_min_pax: 2,
-			overall_max_pax: 20,
-			pax: {
-				adult: 0,
-				children: 0
-			},
-			reservation: {
-				date: moment(),
-				time: '',
-				agree_term_condition: false
-			},
+			outlets: [],
+			reservation: {},
 			dialog: {},
 			available_time: {},
 			ajax_call: 0,
 			has_selected_day: false,
 			form_step: 'form-step-1',
-			customer: {
-				salutation: 'Mr.',
-				first_name: '',
-				last_name : '',
-				email: '',
-				phone_country_code: '+65',
-				phone: '',
-				remarks: ''
-			},
-			pax_over: "block",
+			form_step_1_keys: [
+				'outlet_id',
+				'adult_pax',
+				'children_pax',
+				'agree_term_condition',
+				'date'
+			],
+			form_step_2_keys: [
+				'salutation',
+				'first_name',
+				'last_name',
+				'email',
+				//'customer_remarks'
+			],
 		};
 
 		return state;
@@ -193,41 +187,74 @@ class BookingForm {
 	defaultState(){
 		let server_state = window.state || {};
 
-		let frontend_state = this.getFrontendState();
+		let frontend_state = {
+			init_view: false,
+			base_url: '',
+			outlets: [],
+			reservation: {},
+			dialog: {},
+			available_time: {},
+			ajax_call: 0,
+			has_selected_day: false,
+			form_step: 'form-step-1',
+			form_step_1_keys: [
+				'outlet_id',
+				'adult_pax',
+				'children_pax',
+				'agree_term_condition',
+				'date'
+			],
+			form_step_2_keys: [
+				'salutation',
+				'first_name',
+				'last_name',
+				'email',
+				//'customer_remarks'
+			],
+		};;
 
-		let _state = Object.assign(frontend_state, server_state);
-		
-		//faster for dev env
-		if(_state.base_url && _state.base_url.includes('reservation.dev') || _state.base_url.includes('localhost')){
-			_state = Object.assign(_state, {
-				customer: {
+		let state = Object.assign(frontend_state, server_state);
+
+		if(state.base_url && state.base_url.includes('reservation.dev') || state.base_url.includes('localhost')){
+			state = Object.assign(state, {
+				reservation: {
 					salutation: 'Mr.',
 					first_name: 'Anh',
 					last_name : 'Le Hoang',
 					email: 'lehoanganh25991@gmail.com',
 					phone_country_code: '+84',
 					phone: '903865657',
-					remarks: 'hello world'
+					customer_remarks: 'hello world'
 				},
 			});
 		}
 
-		return _state;
+		return state;
 	}
 
 	buildVueState(){
-		let vue_state = Object.assign({}, store.getState(), {
-			//consider availabe_time as empty, don't what this out
-			available_time: {}
+		let store = window.store;
+		let state = store.getState();
+
+		let vue_own_state = {
+			selected_outlet: {},
+			selected_outlet_id: null,
+			outlets: [],
+			reservation: {},
+			available_time_on_reservation_date: [],
+
+		};
+
+		let vue_state = Object.assign(vue_own_state, {
+			outlets: state.outlets,
+			reservation: state.reservation,
+			form_step_1_keys: state.form_step_1_keys,
+			form_step_2_keys: state.form_step_2_keys
 		});
 
-		//dynamic resize select box pax
-		//by self re-create select box
-		let current_max = vue_state.overall_max_pax;
-		vue_state = Object.assign(vue_state, {
-			adult_max_pax: current_max,
-			children_max_pax: current_max
-		});
+		// When init, reservation date consider as today
+		// Self compute it
+		vue_state.reservation.date = moment();
 
 		return vue_state;
 	}
@@ -242,11 +269,9 @@ class BookingForm {
 			data: window.vue_state,
 			computed: {},
 			mounted(){
-				this.event();
-				this.view();
-				this.listener();
-
-
+				self.event();
+				self.view();
+				self.listener();
 			},
 			methods: {
 				_checkEmpty(obj, except_keys = []){
@@ -476,49 +501,6 @@ class BookingForm {
 		this._findView();
 		let store = window.store;
 
-		let outlet_select = this.outlet_select;
-		outlet_select.addEventListener('change', function(){
-			let selectedOption = outlet_select.selectedOptions[0];
-
-			store.dispatch({
-				type: CHANGE_OUTLET,
-				outlet: {
-					id: selectedOption.value,
-					name: selectedOption.innerText
-				}
-			});
-
-			// self.computeAjaxCall();
-		});
-
-		let adult_pax_select = this.adult_pax_select;
-		adult_pax_select.addEventListener('change', function(){
-			let selectedOption = adult_pax_select.selectedOptions[0];
-
-			store.dispatch({
-				type: CHANGE_ADULT_PAX,
-				adult_pax: selectedOption.value
-			});
-
-			// self.computePaxOver();
-
-			// self.computeAjaxCall();
-		});
-
-		let children_pax_select = this.children_pax_select;
-		children_pax_select.addEventListener('change', function(){
-			let selectedOption = children_pax_select.selectedOptions[0];
-
-			store.dispatch({
-				type: CHANGE_CHILDREN_PAX,
-				children_pax: selectedOption.value
-			});
-
-			// self.computePaxOver();
-
-			// self.computeAjaxCall();
-		});
-
 		document.addEventListener('user-select-day', function(e){
 			let date = moment(e.detail.day, 'YYYY-MM-DD');
 
@@ -533,23 +515,6 @@ class BookingForm {
 			}
 
 			// self.computeAjaxCall();
-		});
-
-		let time_select = this.time_select;
-		// time_select.addEventListener('DOMSubtreeModified', function(){
-		// 	console.log('time_select modified');
-		// 	store.dispatch({type: CHANGE_RESERVATION_TIME, time: time_select.options[0].value});
-		// });
-		time_select.addEventListener('change', function(){
-			console.log('time change');
-			let selectedOption = time_select.selectedOptions[0];
-
-			let action = {
-				type: CHANGE_RESERVATION_TIME,
-				time: selectedOption.value
-			};
-
-			store.dispatch(action);
 		});
 
 		let btn_form_nexts = this.btn_form_nexts;
@@ -567,74 +532,6 @@ class BookingForm {
 
 
 			});
-		/**
-		 * Handle customer change info
-		 */
-		this.customer_salutation_select
-		    .addEventListener('change', function(){
-			    //binding in this way to get out this as email input
-			    let salutation = this.selectedOptions[0].value;
-			    store.dispatch({type: CHANGE_CUSTOMER_SALUTATION, salutation});
-		    });
-
-		this.customer_firt_name_input
-		    .addEventListener('change', function(){
-			    //binding in this way to get out this as email input
-			    let first_name = this.value;
-			    store.dispatch({type: CHANGE_CUSTOMER_FIRST_NAME, first_name});
-		    });
-
-		this.customer_last_name_input
-		    .addEventListener('change', function(){
-			    //binding in this way to get out this as email input
-			    let last_name = this.value;
-			    store.dispatch({type: CHANGE_CUSTOMER_LAST_NAME, last_name});
-		    });
-
-		this.customer_email_input
-		    .addEventListener('change', function(){
-			    //binding in this way to get out this as email input
-			    let email = this.value;
-			    store.dispatch({type: CHANGE_CUSTOMER_EMAIL, email});
-		    });
-
-		this.customer_phone_country_code_input
-		    .addEventListener('change', function(){
-			    //binding in this way to get out this as email input
-			    let phone_country_code = this.value;
-			    store.dispatch({type: CHANGE_CUSTOMER_PHONE_COUNTRY_CODE, phone_country_code});
-		    });
-
-		this.customer_phone_input
-		    .addEventListener('change', function(){
-			    //binding in this way to get out this as email input
-			    let phone = this.value;
-			    store.dispatch({type: CHANGE_CUSTOMER_PHONE, phone});
-		    });
-
-		this.customer_remarks_textarea
-		    .addEventListener('change', function(){
-			    //binding in this way to get out this as email input
-			    let remarks = this.value;
-			    store.dispatch({type: CHANGE_CUSTOMER_REMARKS, remarks});
-		    });
-
-		// this.ajax_dialog
-		//     .on('hidden.bs.modal', function(){
-		// 	    store.dispatch({type: DIALOG_HIDDEN});
-		//     });
-
-		// this.ajax_dialog
-		//     .on('shown.bs.modal', function(){
-		// 	    let state = store.getState();
-		// 	    let timeId = setTimeout(function(){
-		// 		    let state = store.getState();
-		// 		    if(state.dialog.show == true){
-		// 			    store.dispatch({type: DIALOG_EXCEED_MIN_EXIST_TIME, exceed_min_exist_time: true});
-		// 		    }
-		// 		    clearTimeout(timeId);
-		// 	    }, state.dialog.min_exist_time);
-		//     });
 
 		/**
 		 * Handle payment success
@@ -802,8 +699,6 @@ class BookingForm {
 
 		});
 	}
-
-
 
 	initView(){
 		let action = {
