@@ -2,10 +2,12 @@
 
 namespace App;
 
-use App\OutletReservationSetting as Setting;
 use Illuminate\Support\Str;
+use Illuminate\Contracts\Support\Jsonable;
+use Illuminate\Contracts\Support\Arrayable;
+use App\OutletReservationSetting as Setting;
 
-class TimingChunk {
+class TimingChunk implements Arrayable, Jsonable{
     protected $time;
     protected $session_type;
     protected $first_arrival_time;
@@ -23,6 +25,21 @@ class TimingChunk {
     protected $min_pax_bookinf_for_deposit;
     protected $min_pax_for_booking_deposit;
     protected $booking_deposit_amount;
+
+    protected $fillable = [
+        'time'               ,
+        'session_type'       ,
+        'session_name'       ,
+        'first_arrival_time' ,
+        'interval_minutes'   ,
+        'capacity_1'         ,
+        'capacity_2'         ,
+        'capacity_3_4'       ,
+        'capacity_5_6'       ,
+        'capacity_7_x'       ,
+        'max_pax'            ,
+        'children_allowed'   ,
+    ];
 
     public function __construct($attributes = []){
         foreach($attributes as $key => $value){
@@ -61,5 +78,28 @@ class TimingChunk {
             return $this->$method($value);
 
         $this->$field = $value;
+    }
+
+    /**
+     * Build json
+     * @param int $options
+     * @return string
+     */
+    public function toJson($options = 0){
+        return json_encode($this->toArray(), JSON_NUMERIC_CHECK);
+    }
+
+    /**
+     * Get the instance as an array.
+     *
+     * @return array
+     */
+    public function toArray(){
+        $arr = [];
+        foreach($this->fillable as $key){
+            $arr[$key] = $this->$key;
+        }
+
+        return $arr;
     }
 }
