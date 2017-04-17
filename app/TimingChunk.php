@@ -31,16 +31,28 @@ class TimingChunk {
     }
 
     public function getMaxPaxAttribute(){
-        $null_val = is_null($this->max_pax);
-        return $null_val ? Setting::TIMING_MAX_PAX : $this->max_pax;
+        return $this->max_pax ?: Setting::TIMING_MAX_PAX;
     }
 
+    /**
+     * __get magic call to wrap case where property not set
+     * Instead of throw exception, no property > return null
+     * Magicall for $this->abc as getAbcAttribute
+     * @param $field
+     * @return mixed|null
+     */
     public function __get($field){
         $method   = 'get'.Str::studly($field).'Attribute';
         if(method_exists($this, $method))
             return $this->$method();
 
-        return $this->$field;
+        // If property not found
+        // Return as null
+        try {
+            return $this->$field;
+        }catch(\Exception $e){
+            return null;
+        }
     }
 
     public function __set($field, $value){

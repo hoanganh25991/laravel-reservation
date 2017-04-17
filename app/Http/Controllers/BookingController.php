@@ -149,7 +149,7 @@ class BookingController extends HoiController {
             $date_with_available_time
                 ->map->filter(function($chunk){
                     $reservation_pax_size = $this->bookingPaxSize();
-                    $chunk->max_pax       = $chunk->max_pax ?: Setting::TIMING_MAX_PAX;
+                    //$chunk->max_pax       = $chunk->max_pax ?: Setting::TIMING_MAX_PAX;
                     $cap_name             = Timing::getCapacityName($reservation_pax_size);
 
                     $is_cap_available   = ($chunk->$cap_name > 0) && ($chunk->max_pax >= $reservation_pax_size);

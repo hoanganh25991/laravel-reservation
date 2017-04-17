@@ -193,7 +193,22 @@ class Timing extends HoiModel {
         //use lt not lte to compare
         while($start_time->lt($end_time)){
             //store timing info in chunk
-            $chunk = (object)[
+//            $chunk = (object)[
+//                'time'               => $start_time->format('H:i'),
+//                'session_type'       => $this->session->type,
+//                'session_name'       => $this->session->session_name,
+//                'first_arrival_time' => $this->first_arrival_time,
+//                'interval_minutes'   => $this->interval_minutes,
+//                'capacity_1'         => $this->capacity_1,
+//                'capacity_2'         => $this->capacity_2,
+//                'capacity_3_4'       => $this->capacity_3_4,
+//                'capacity_5_6'       => $this->capacity_5_6,
+//                'capacity_7_x'       => $this->capacity_7_x,
+//                'max_pax'            => $this->max_pax,
+//                'children_allowed'   => $this->children_allowed,
+//            ];
+
+            $chunk = new TimingChunk([
                 'time'               => $start_time->format('H:i'),
                 'session_type'       => $this->session->type,
                 'session_name'       => $this->session->session_name,
@@ -206,7 +221,7 @@ class Timing extends HoiModel {
                 'capacity_7_x'       => $this->capacity_7_x,
                 'max_pax'            => $this->max_pax,
                 'children_allowed'   => $this->children_allowed,
-            ];
+            ]);
 
             $chunks->push($chunk);
             //increase loop
@@ -222,28 +237,31 @@ class Timing extends HoiModel {
      * @return string
      */
     public static function getCapacityName($pax_size){
-        switch($pax_size){
-            case 1:
+        switch(true){
+            case $pax_size < 1:
+                $value = 'below_1';
+                break;
+            case $pax_size == 1:
                 $value = '1';
                 break;
-            case 2:
+            case $pax_size == 2:
                 $value = '2';
                 break;
-            case 3:
-            case 4:
+            case $pax_size == 3:
+            case $pax_size == 4:
                 $value = '3_4';
                 break;
-            case 5:
-            case 6:
+            case $pax_size == 5:
+            case $pax_size == 6:
                 $value = '5_6';
                 break;
+            case $pax_size >= 7:
+                $value = '7_x';
+                break;
             default:
-                $value = '1';
+                $value = 'unknown';
                 break;
         }
-        
-        if($pax_size >= 7)
-            $value = '7_x';
         
         return "capacity_{$value}";
     }
