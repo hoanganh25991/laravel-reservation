@@ -20,7 +20,9 @@ class OutletController extends HoiController{
             
             switch($action_type){
                 case Call::AJAX_ALL_OUTLETS:
-                    $data = $outlets;
+                    $data = [
+                        'outlets' => $outlets
+                    ];
                     $code = 200;
                     $msg  = Call::AJAX_SUCCESS;
                     break;
@@ -35,7 +37,9 @@ class OutletController extends HoiController{
         }
         
         if($req->fromApiGroup()){
-            $data = $outlets;
+            $data = [
+                'outlets' => $outlets
+            ];
             $code = 200;
             $msg  = Call::AJAX_SUCCESS;
             return $this->apiResponse($data, $code, $msg);
