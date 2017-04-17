@@ -209,7 +209,6 @@ class BookingForm {
 				'first_name',
 				'last_name',
 				'email',
-				//'customer_remarks'
 			],
 		};;
 
@@ -301,18 +300,18 @@ class BookingForm {
 				},
 
 				not_allowed_move_to_form_step_2(){
-					let has_empty_keys = this._checkEmpty(this.reservation);
-
-					let total_pax = this.pax.adult + this.pax.children;
-
-					let out_range = (total_pax < this.overall_min_pax) || (total_pax > this.overall_max_pax);
-
-					return has_empty_keys || out_range;
+					// let has_empty_keys = this._checkEmpty(this.reservation);
+					//
+					// let total_pax = this.pax.adult + this.pax.children;
+					//
+					// let out_range = (total_pax < this.overall_min_pax) || (total_pax > this.overall_max_pax);
+					//
+					// return has_empty_keys || out_range;
 				},
 
 				not_allowed_move_to_form_step_3(){
-					let has_empty_keys = this._checkEmpty(this.customer, ['remarks']);
-					return has_empty_keys;
+					// let has_empty_keys = this._checkEmpty(this.customer, ['remarks']);
+					// return has_empty_keys;
 				},
 
 				_updatePaxSelectBox(state, updated_pax_name){

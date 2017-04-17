@@ -2,7 +2,6 @@
 
 @section('content')
     <div id="form-step-container">
-        @verbatim
             <div class="container">
                 <div class="box form-step" id="form-step-1">
                     <div id="check-availability" class="content">
@@ -10,16 +9,16 @@
                             <label for="outlet_id">Select an outlet</label>
                             <select name="outlet_id" id="rid" title="spize" class="form-control" v-model="selected_outlet_id">
                                 <template v-for="(outlet, outlet_index) in outlets">
-                                    <option :value="outlet.id">{{ outlet.outlet_name }}</option>
+                                    <option :value="outlet.id">@{{ outlet.outlet_name }}</option>
                                 </template>
                             </select>
                         </div>
-                        <div class="selectors cf" :style="'display: ' + pax_over">
+                        <div class="selectors cf">
                             <div id="adults-wrap">
                                 <label for="adults">Adults</label>
                                 <select name="adult_pax" class="form-control" v-model="reservation.adult_pax" >
                                     <template v-for="n in 20">
-                                        <option :value="n">{{ n }}</option>
+                                        <option :value="n">@{{ n }}</option>
                                     </template>
                                 </select>
                             </div>
@@ -27,7 +26,7 @@
                                 <label for="children">Children</label>
                                 <select name="children_pax" class="form-control" v-model="reservation.children_pax">
                                     <template v-for="n in 20">
-                                        <option :value="n">{{ n }}</option>
+                                        <option :value="n">@{{ n }}</option>
                                     </template>
                                 </select>
                             </div>
@@ -36,10 +35,10 @@
                             <div class="clear"></div>
                             <div id="calendar-box" align="center"></div>
                             <div id="dt-choice" class="cf">
-                                <label>Booking time on {{ reservation.date.format('DD MMM Y') }}</label>
+                                <label>Booking time on @{{ reservation.date.format('DD MMM Y') }}</label>
                                 <select v-model="reservation.time" class="form-control">
                                     <template v-for="(time, time_index) in available_time_on_reservation_date">
-                                        <option :value="time.time">{{ time.session_name }} {{ time.time }}</option>
+                                        <option :value="time.time">@{{ time.session_name }} @{{ time.time }}</option>
                                     </template>
                                 </select>
                             </div>
@@ -56,9 +55,7 @@
                                     :disabled="not_allowed_move_to_form_step_2()">Next</button>
                         </div>
                     </div>
-                    @endverbatim
                     @include('reservations.footer')
-                    @verbatim
                 </div>{{--box--}}
                 <div class="box form-step" id="form-step-2">
                     <div id="confirm-details" class="content">
@@ -110,14 +107,10 @@
                                     :disabled="not_allowed_move_to_form_step_3()">Next</button>
                         </div>
                     </div>
-                    @endverbatim
                     @include('reservations.footer')
-                    @verbatim
                 </div><!-- /box -->
                 <div class="box form-step" id="form-step-3">
-                    @endverbatim
                     @include('reservations.booking-summary')
-                    @verbatim
                 </div>
             </div>
             {{--dialog modal--}}
@@ -126,15 +119,12 @@
                     <div class="modal-content">
                         <div class="modal-body center">
                             <div style="width: 140px; display: inline-block; margin-top: 85%;">
-                                @endverbatim
                                 <img src="{{ url('images/ring.svg') }}">
-                                @verbatim
                             </div>
                         </div>
                     </div><!-- /.modal-content -->
                 </div><!-- /.modal-dialog -->
             </div><!-- /.modal -->
-        @endverbatim
     </div>
     @include('debug.redux-state')
 @endsection

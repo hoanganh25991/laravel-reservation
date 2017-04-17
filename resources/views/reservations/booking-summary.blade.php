@@ -1,8 +1,3 @@
-@component('reservations.header')
-@slot('title')
-<span class="r-name"><a href="{{ url('') }}" target="_blank">@{{ outlet.name }}</a></span>
-@endslot
-@endcomponent
 <div class="tile" style="background-color: rgba(255,255,255,0.4);" >
     <div id="reservation-details" class="content legend">
         <h6 v-show="reservation.payment_status == 25" class="r-title">Reservation Summary</h6>
@@ -18,7 +13,7 @@
             <tbody>
             <tr>
                 <td><label>Outlet</label></td>
-                <td>@{{ outlet.name }}<br/>@{{ outlet.address }}</td>
+                <td>@{{ selected_outlet.outlet_name }}<br/>@{{ selected_outlet.address }}</td>
             </tr>
             <tr>
                 <td style="width: 40%;"><label>Date &amp; Time</label></td>
@@ -26,23 +21,23 @@
             </tr>
             <tr>
                 <td><label>Pax</label></td>
-                <td>@{{ pax.adult }} Adults, @{{ pax.children }} Children</td>
+                <td>@{{ reservation.adult_pax }} Adults, @{{ reservation.children_pax }} Children</td>
             </tr>
             <tr>
                 <td><label>Name</label></td>
-                <td>@{{ customer.first_name }} @{{ customer.last_name }}</td>
+                <td>@{{ reservation.first_name }} @{{ reservation.last_name }}</td>
             </tr>
             <tr>
                 <td><label>Contact Number</label></td>
-                <td>@{{ customer.phone_country_code }} @{{ customer.phone }}</td>
+                <td>@{{ reservation.phone_country_code }} @{{ reservation.phone }}</td>
             </tr>
             <tr>
                 <td><label>Email</label></td>
-                <td>@{{ customer.email }}</td>
+                <td>@{{ reservation.email }}</td>
             </tr>
-            <tr v-show="customer.remarks != ''">
+            <tr v-show="reservation.customer_remarks != ''">
                 <td><label>Special Request</label></td>
-                <td>@{{ customer.remarks }}</td>
+                <td>@{{ reservation.customer_remarks }}</td>
             </tr>
             <tr v-show="reservation.payment_status == 100">
                 <td><label>Deposit Paid</label></td>
