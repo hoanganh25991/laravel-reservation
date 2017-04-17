@@ -303,7 +303,13 @@ class Session extends HoiModel{
             $min_hours_session_time = $buffer_config(Setting::MIN_HOURS_IN_ADVANCE_SESSION_TIME);
 
             $diff_in_hours = Carbon::now(Setting::timezone())->diffInHours($session_start_timing, false);
-            $satisfied_in_advance_session_time = $diff_in_hours >= $min_hours_session_time;
+            // Dif in hours >= min hours session time still not enough
+            /** @case   min_hours = 0
+             *          Select time just pass session time, less than 1 hours
+             *          So, compare diffHours function still return as 0, exactly -0
+             */
+            $still_not_pass= Carbon::now(Setting::timezone())->lte($session_start_timing);
+            $satisfied_in_advance_session_time = $still_not_pass && $diff_in_hours >= $min_hours_session_time;
 
             return $satisfied_in_advance_session_time;
         }
