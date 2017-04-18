@@ -195,17 +195,17 @@ class BookingForm {
 		let state = Object.assign(frontend_state, server_state);
 
 		if(state.base_url && state.base_url.includes('reservation.dev') || state.base_url.includes('localhost')){
-			state = Object.assign(state, {
-				reservation: {
-					salutation: 'Mr.',
-					first_name: 'Anh',
-					last_name : 'Le Hoang',
-					email: 'lehoanganh25991@gmail.com',
-					phone_country_code: '+84',
-					phone: '903865657',
-					customer_remarks: 'hello world'
-				},
-			});
+			let reservation = Object.assign(state.reservation, {
+				salutation: 'Mr.',
+				first_name: 'Anh',
+				last_name : 'Le Hoang',
+				email: 'lehoanganh25991@gmail.com',
+				phone_country_code: '+84',
+				phone: '903865657',
+				customer_remarks: 'hello world'
+			})
+
+			state = Object.assign(state, {reservation});
 		}
 
 		return state;
@@ -343,6 +343,26 @@ class BookingForm {
 					let selected_outlet = selected_outlets[0] || {};
 
 					Object.assign(window.vue_state, {selected_outlet});
+				},
+
+				_updateAdultPaxSelectBox(){
+					let pax_range = this.selected_outlet.overall_max_pax - this.reservation.children_pax;
+
+					if(isNaN(pax_range)){
+						return 15;
+					}
+
+					return pax_range;
+				},
+
+				_updateChildrenPaxSelectBox(){
+					let pax_range = this.selected_outlet.overall_max_pax - this.reservation.adult_pax;
+
+					if(isNaN(pax_range)){
+						return 15;
+					}
+
+					return pax_range;
 				}
 			}
 		});
