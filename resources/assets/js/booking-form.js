@@ -46,6 +46,7 @@ const AJAX_BOOKING_CONDITION_VALIDATE_FAIL = 'AJAX_BOOKING_CONDITION_VALIDATE_FA
 //const AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL = 'AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL';
 
 // const AJAX_PAYMENT_REQUEST_SUCCESS = 'AJAX_PAYMENT_REQUEST_SUCCESS';
+const SYNC_VUE_STATE = 'SYNC_VUE_STATE';
 
 class BookingForm {
 	/** @namespace res.statusMsg */
@@ -111,6 +112,10 @@ class BookingForm {
 					return Object.assign({}, state, {
 						select_pax_times: self.selectPaxTimesReducer(state.select_pax_times, action)
 					});
+				case SYNC_VUE_STATE:{
+					let vue_state = action.vue_state;
+					return vue_state;
+				}
 				default:
 					return state;
 			}
@@ -139,46 +144,28 @@ class BookingForm {
 		}
 	}
 
-	getFrontendState(){
-		let state =  {
-			init_view: false,
-			outlets: [],
-			reservation: {},
-			dialog: {},
-			available_time: {},
-			ajax_call: 0,
-			has_selected_day: false,
-			form_step: 'form-step-1',
-			form_step_1_keys: [
-				'outlet_id',
-				'adult_pax',
-				'children_pax',
-				'agree_term_condition',
-				'date'
-			],
-			form_step_2_keys: [
-				'salutation',
-				'first_name',
-				'last_name',
-				'email',
-				//'customer_remarks'
-			],
-		};
-
-		return state;
-	}
-
 	defaultState(){
 		let server_state = window.state || {};
 
 		let frontend_state = {
 			init_view: false,
 			base_url: '',
+			selected_outlet: {},
 			selected_outlet_id: null,
 			outlets: [],
 			reservation: {
+				outlet_id: null,
 				adult_pax: 0,
 				children_pax: 0,
+				date: moment(),
+				time: null,
+				salutation: 'Mr.',
+				first_name: 'Anh',
+				last_name : 'Le Hoang',
+				email: 'lehoanganh25991@gmail.com',
+				phone_country_code: '+84',
+				phone: '903865657',
+				customer_remarks: 'hello world'
 			},
 			dialog: {},
 			available_time: {},
@@ -219,6 +206,7 @@ class BookingForm {
 		// Self pick the first outlet as selected_outlet_id
 		let first_outlet         = state.outlets[0] || {};
 		state.selected_outlet_id = first_outlet.id;
+		state.selected_outlet    = first_outlet;
 
 		return state;
 	}
@@ -250,40 +238,14 @@ class BookingForm {
 		};
 
 		// Sync with parent for things changed
-		this.syncVueStateWithParent(vue_state, state);
+		//this.syncVueStateWithParent(vue_state, state);
+		Object.assign(vue_state, state);
 
 		// When init, reservation date consider as today
 		// Self compute it
-		this.initVueState(vue_state);
+		//this.initVueState(vue_state);
 
 		return vue_state;
-	}
-
-	// Vue state only store this keys in its local state
-	syncVueStateWithParent(vue_state, state){
-		Object.assign(vue_state, {
-			selected_outlet_id: state.selected_outlet_id,
-			outlets:            state.outlets,
-			reservation:        state.reservation,
-			form_step_1_keys:   state.form_step_1_keys,
-			form_step_2_keys:   state.form_step_2_keys
-		});
-	}
-
-	// When vue_state rebuild completely when sync server data
-	// Re computed what need for vue local state only
-	initVueState(vue_state){
-		return;
-		// Init reservation
-		let reservation = vue_state.reservation;
-		let picked_time = reservation.reservation_timestamp;
-		// Change reservation's properties
-		reservation.date      = picked_time ? moment(picked_time, 'YYYY-MM-DD HH:mm:ss') : moment();
-		reservation.outlet_id = vue_state.selected_outlet_id;
-		// Find out base on selected_outlet_id
-		let selected_outlets       = vue_state.outlets.filter(outlet => outlet.id == vue_state.selected_outlet_id);
-		// Init selected outlet
-		vue_state.selected_outlet  = selected_outlets[0] || {};
 	}
 
 	buildVue(){
@@ -294,25 +256,39 @@ class BookingForm {
 		this.vue = new Vue({
 			el: '#form-step-container',
 			data: window.vue_state,
-			created(){
-				this._updateDataBaseOnSelectedOutletId();
-				this._initReservationDate();
-				//this._updatePaxSelectBox('adult_pax');
-				//this._updatePaxSelectBox('children_pax');
-			},
+			created(){},
 			mounted(){
 				self.event();
 				self.view();
 				self.listener();
 			},
-			methods: {
-				_initReservationDate(){
-					let reservation = this.reservation;
-					let picked_time = reservation.reservation_timestamp;
-					// Change reservation's properties
-					reservation.date      = picked_time ? moment(picked_time, 'YYYY-MM-DD HH:mm:ss') : moment();
-					reservation.outlet_id = vue_state.selected_outlet_id;
+			computed: {
+				'reservation.outlet_id': function(){
+					return this.selected_outlet_id;
 				},
+				'selected_outlet': function(){
+					let selected_outlets = this.outlets.filter(outlet => outlet.id == this.selected_outlet_id);
+					let selected_outlet  = selected_outlets[0] || {};
+
+					return selected_outlet;
+				}
+			},
+			watch: {
+				selected_outlet_id: function(val){
+					// Update reservation
+					this.reservation.outlet_id = val;
+					// Update seleceted outlet base on
+					let selected_outlets = this.outlets.filter(outlet => outlet.id == val);
+					this.selected_outlet  = selected_outlets[0] || {};
+				}
+			},
+			beforeUpdate(){
+				store.dispatch({
+					type: SYNC_VUE_STATE,
+					vue_state: window.vue_state
+				});
+			},
+			methods: {
 				_checkEmpty(obj, except_keys = []){
 					let empty_keys = Object.keys(obj).filter(key => {
 						if(except_keys.indexOf(key) != -1){
@@ -354,20 +330,8 @@ class BookingForm {
 					// return has_empty_keys;
 				},
 
-				/** @computed selected_outlet, reservation.outlet_id */
-				_updateDataBaseOnSelectedOutletId(){
-					// Update selected_outlet
-					let selected_outlets = this.outlets.filter(outlet => outlet.id == this.selected_outlet_id);
-					let selected_outlet  = selected_outlets[0] || {};
-					this.selected_outlet = selected_outlet
-					// Update reservation.outlet_id
-					this.reservation.outlet_id = this.selected_outlet_id;
-					// Update select pax
-					this._updatePaxSelectBox('adult_pax');
-					this._updatePaxSelectBox('children_pax');
-				},
-
 				_updatePaxSelectBox(which_pax){
+					return;
 					let other_pax = which_pax == 'adult_pax' ? 'children_pax' : 'adult_pax';
 					// Minus for '1' to allow equal to minimum
 					// Self loop of template, start at 'start'
@@ -394,7 +358,7 @@ class BookingForm {
 					let out_range   = current_pax < (start + 1) || current_pax > end;
 					if(out_range){
 						let diff = (current_pax - start) + (current_pax - end);
-						
+
 						if(diff < 0){
 							// Close to start
 							current_pax = (start + 1);
@@ -413,7 +377,7 @@ class BookingForm {
 						type: CHANGE_RESERVATION,
 						reservation: vue.reservation
 					});
-					
+
 					// Return for template loop
 					// Return range to auto build <option>
 					return (end - start);
@@ -660,7 +624,8 @@ class BookingForm {
 			let state    = store.getState();
 			let last_action = store.getLastAction();
 
-			self.syncVueStateWithParent(window.vue_state, state);
+			//self.syncVueStateWithParent(window.vue_state, state);
+			Object.assign(window.vue_state, state);
 
 			//debug
 			let prestate = store.getPrestate();
