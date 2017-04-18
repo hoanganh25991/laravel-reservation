@@ -174,6 +174,7 @@ class BookingForm {
 		let frontend_state = {
 			init_view: false,
 			base_url: '',
+			selected_outlet_id: null,
 			outlets: [],
 			reservation: {
 				adult_pax: 0,
@@ -181,7 +182,6 @@ class BookingForm {
 			},
 			dialog: {},
 			available_time: {},
-			ajax_call: 0,
 			has_selected_day: false,
 			form_step: 'form-step-1',
 			form_step_1_keys: [
@@ -197,11 +197,11 @@ class BookingForm {
 				'last_name',
 				'email',
 			],
-			select_pax_times: 0,
 		};;
 
 		let state = Object.assign(frontend_state, server_state);
 
+		// For dev mode, quick insert default value
 		if(state.base_url && state.base_url.includes('reservation.dev') || state.base_url.includes('localhost')){
 			let reservation = Object.assign(state.reservation, {
 				salutation: 'Mr.',
@@ -215,6 +215,13 @@ class BookingForm {
 
 			state = Object.assign(state, {reservation});
 		}
+
+		// Self pick the first outlet as selected_outlet_id
+		let first_outlet = state.outlets[0] || {};
+		// Update into state
+		Object.assign(state, {
+			selected_outlet_id: first_outlet.id
+		});
 
 		return state;
 	}
@@ -242,6 +249,7 @@ class BookingForm {
 				start: null,
 				end: null
 			},
+			just_changed_pax: null
 		};
 
 		// Sync with parent for things changed
@@ -249,27 +257,30 @@ class BookingForm {
 
 		// When init, reservation date consider as today
 		// Self compute it
-		vue_state.reservation.date = moment();
-
-		// Pick out the first selected_outlet
-		let first_outlet = vue_state.outlets[0] || {};
-
-		// Self compute on selected outlet
-		Object.assign(vue_state, {
-			selected_outlet: first_outlet,
-			selected_outlet_id: first_outlet.id,
-		});
+		this.precomputeVueState(vue_state);
 
 		return vue_state;
 	}
 
+	// Vue state only store this keys in its local state
 	syncVueStateWithParent(vue_state, state){
 		Object.assign(vue_state, {
-			outlets: state.outlets,
-			reservation: state.reservation,
-			form_step_1_keys: state.form_step_1_keys,
-			form_step_2_keys: state.form_step_2_keys
+			selected_outlet_id: state.selected_outlet_id,
+			outlets:            state.outlets,
+			reservation:        state.reservation,
+			form_step_1_keys:   state.form_step_1_keys,
+			form_step_2_keys:   state.form_step_2_keys
 		});
+	}
+
+	// When vue_state rebuild completely when sync server data
+	// Re computed what need for vue local state only
+	precomputeVueState(vue_state){
+		let reservation = vue_state.reservation;
+		// If has this info
+		reservation.date= reservation.reservation_timestamp ?
+							moment(reservation.reservation_timestamp, 'YYYY-MM-DD HH:mm:ss')
+							:moment();
 	}
 
 	buildVue(){
@@ -280,7 +291,21 @@ class BookingForm {
 		this.vue = new Vue({
 			el: '#form-step-container',
 			data: window.vue_state,
-			computed: {},
+			computed: {
+				selected_outlet(){
+					let selected_outlets = this.outlets.filter(outlet => outlet.id == this.selected_outlet_id);
+					let selected_outlet  = selected_outlets[0] || {};
+
+					return selected_outlet;
+				},
+
+				reservation(){
+					let reservation       = this.reservation;
+					reservation.outlet_id = this.selected_outlet_id;
+
+					return reservation;
+				}
+			},
 			mounted(){
 				self.event();
 				self.view();
@@ -328,11 +353,14 @@ class BookingForm {
 					// return has_empty_keys;
 				},
 
-				_updateSelectedOutlet(){
+				/** @computed selected_outlet, reservation.outlet_id */
+				_updateDataBaseOnSelectedOutletId(){
+					// Update selected_outlet
 					let selected_outlets = this.outlets.filter(outlet => outlet.id == this.selected_outlet_id);
-					let selected_outlet = selected_outlets[0] || {};
-
-					Object.assign(window.vue_state, {selected_outlet});
+					let selected_outlet  = selected_outlets[0] || {};
+					this.selected_outlet = selected_outlet
+					// Update reservation.outlet_id
+					this.reservation.outlet_id = this.selected_outlet_id;
 				},
 
 				_updatePaxSelectBox(which_pax, which_pax_select = `${which_pax}_select`){
