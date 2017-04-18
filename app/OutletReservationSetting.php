@@ -236,6 +236,11 @@ class OutletReservationSetting extends HoiModel{
      * @throws \Exception
      */
     public static function allConfigByGroup($which_outlet = null){
+        // Reset all_config, when called by new guy
+        if(Setting::$outlet_id != $which_outlet){
+            Setting::$all_config = null;
+        }
+
         if(!is_null(Setting::$all_config)){
             return Setting::$all_config;
         }
