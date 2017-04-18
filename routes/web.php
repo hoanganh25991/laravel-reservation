@@ -154,8 +154,12 @@ Route::get('test', function (App\Http\Controllers\BookingController $c, App\Http
 //            false);
 //    return $hour_before;
 
-    $r = App\Reservation::find(117);
+    //$r = App\Reservation::find(117);
 
     //return $r->confirm_coming_url;
-    return $r->toJson();
+    //return $r->toJson();
+
+    App\OutletReservationSetting::injectBrandId(1);
+    $setting = App\Outlet::find(2);
+    return $setting->toJson();
 });
