@@ -6,10 +6,12 @@ const CHANGE_SELECTED_OUTLET_ID					= 'CHANGE_SELECTED_OUTLET_ID';
 const CHANGE_ADULT_PAX				= 'CHANGE_ADULT_PAX';
 const CHANGE_CHILDREN_PAX			= 'CHANGE_CHILDREN_PAX';
 const HAS_SELECTED_DAY	            = 'HAS_SELECTED_DAY';
+const CHANGE_RESERVATION            = 'CHANGE_RESERVATION';
 const CHANGE_RESERVATION_DATE		= 'CHANGE_RESERVATION_DATE';
 const CHANGE_RESERVATION_TIME		= 'CHANGE_RESERVATION_TIME';
 const CHANGE_RESERVATION_CONFIRM_ID = 'CHANGE_RESERVATION_CONFIRM_ID';
 const CHANGE_AVAILABLE_TIME	        = 'CHANGE_AVAILABLE_TIME';
+const SELECT_PAX                    = 'SELECT_PAX';
 
 const PAX_OVER 			= 'PAX_OVER';
 const AJAX_CALL			= 'AJAX_CALL';
@@ -87,6 +89,7 @@ class BookingForm {
 				case CHANGE_RESERVATION_DATE:
 				case CHANGE_RESERVATION_TIME:
 				case CHANGE_RESERVATION_CONFIRM_ID:
+				case CHANGE_RESERVATION:
 				case SYNC_RESERVATION:
 					return Object.assign({}, state, {
 						reservation: self.reservationReducer(state.reservation, action)
@@ -103,6 +106,10 @@ class BookingForm {
 				case CHANGE_AVAILABLE_TIME:
 					return Object.assign({}, state, {
 						available_time: self.availableTimeReducer(state.available_time, action)
+					});
+				case SELECT_PAX:
+					return Object.assign({}, state, {
+						select_pax_times: self.selectPaxTimesReducer(state.select_pax_times, action)
 					});
 				default:
 					return state;
@@ -190,6 +197,7 @@ class BookingForm {
 				'last_name',
 				'email',
 			],
+			select_pax_times: 0,
 		};;
 
 		let state = Object.assign(frontend_state, server_state);
@@ -215,38 +223,53 @@ class BookingForm {
 		let store = window.store;
 		let state = store.getState();
 
-		let vue_own_state = {
+		// Vue own state to manage child view
+		let vue_state = {
+			// Store which selected outlet pick
 			selected_outlet: {},
 			selected_outlet_id: null,
 			outlets: [],
+			// Store reservation data
 			reservation: {},
+			// Handle time select box
 			available_time_on_reservation_date: [],
-
+			// Handle dynamic select pax
+			adult_pax_select: {
+				start: null,
+				end: null,
+			},
+			children_pax_select: {
+				start: null,
+				end: null
+			},
 		};
 
-		let vue_state = Object.assign(vue_own_state, {
-			outlets: state.outlets,
-			reservation: state.reservation,
-			form_step_1_keys: state.form_step_1_keys,
-			form_step_2_keys: state.form_step_2_keys
-		});
+		// Sync with parent for things changed
+		this.syncVueStateWithParent(vue_state, state);
 
 		// When init, reservation date consider as today
 		// Self compute it
 		vue_state.reservation.date = moment();
 
 		// Pick out the first selected_outlet
-		let first_outlet          = vue_state.outlets[0] || {};
+		let first_outlet = vue_state.outlets[0] || {};
 
-		// Bring this state in vue
+		// Self compute on selected outlet
 		Object.assign(vue_state, {
 			selected_outlet: first_outlet,
-			selected_outlet_id: first_outlet.id
+			selected_outlet_id: first_outlet.id,
 		});
 
-		vue_state.selected_outlet = first_outlet;
-
 		return vue_state;
+	}
+
+	syncVueStateWithParent(vue_state, state){
+		Object.assign(vue_state, {
+			outlets: state.outlets,
+			reservation: state.reservation,
+			form_step_1_keys: state.form_step_1_keys,
+			form_step_2_keys: state.form_step_2_keys
+		});
 	}
 
 	buildVue(){
@@ -305,39 +328,6 @@ class BookingForm {
 					// return has_empty_keys;
 				},
 
-				_updatePaxSelectBox(state, updated_pax_name){
-					console.log('dynamicly recompute pax');
-					//console.log(state.pax.adult);
-					let max_pax      = state.overall_max_pax
-					let adult_pax    = state.pax.adult;
-					let children_pax = state.pax.children;
-
-					switch(updated_pax_name){
-						case 'adult':{
-							let children_max_pax  = max_pax - adult_pax;
-							this.children_max_pax = children_max_pax;
-							if(children_max_pax < children_pax){
-								store.dispatch({
-									type: CHANGE_CHILDREN_PAX,
-									chidren_pax: children_max_pax
-								})
-							}
-							break;
-						}
-						case 'children': {
-							let adult_max_pax  = max_pax - children_pax;
-							this.adult_max_pax = adult_max_pax;
-							if(adult_max_pax < adult_pax){
-								store.dispatch({
-									type: CHANGE_ADULT_PAX,
-									adult_pax: adult_max_pax
-								})
-							}
-							break;
-						}
-					}
-				},
-
 				_updateSelectedOutlet(){
 					let selected_outlets = this.outlets.filter(outlet => outlet.id == this.selected_outlet_id);
 					let selected_outlet = selected_outlets[0] || {};
@@ -345,25 +335,66 @@ class BookingForm {
 					Object.assign(window.vue_state, {selected_outlet});
 				},
 
-				_updateAdultPaxSelectBox(){
-					let pax_range = this.selected_outlet.overall_max_pax - this.reservation.children_pax;
-
-					if(isNaN(pax_range)){
-						return 15;
+				_updatePaxSelectBox(which_pax, which_pax_select = `${which_pax}_select`){
+					// Compute dynamic
+					let other_pax = (which_pax == 'adult_pax') ? 'children_pax' : 'adult_pax';
+					// Minus for '1' to allow equal to minimum
+					// Self loop of template, start at 'start'
+					// (1,10) > 1,3,4,5,6,7,8,9,10
+					// Instead of 0,1,2,3,4...
+					let start = (this.selected_outlet.overall_min_pax - this.reservation[other_pax]) - 1;
+					let end   = this.selected_outlet.overall_max_pax - this.reservation[other_pax];
+					// When user first time pick up, allow him choose any thing he want
+					let store = window.store;
+					let state = store.getState();
+					// There are two select box, once for adult, once for children
+					// Only remove check when count times >= 3
+					if(state.select_pax_times < 3){
+						start = -1;
+						end   = this.selected_outlet.overall_max_pax;
+					}
+					// Increase count
+					store.dispatch({
+						type: SELECT_PAX
+					});
+					// Limit start at 0, select for positive number
+					start = start < -1 ? -1 : start;
+					// Update pax_select back to vue_state
+					Object.assign(window.vue_state[which_pax_select], {start, end});
+					// Handle case self pick for customer
+					// When there pax size out of selectable range
+					let current_pax = this.reservation[which_pax];
+					let out_range   = current_pax < (start + 1) || current_pax > end;
+					if(out_range){
+						let diff = (current_pax - start) + (current_pax - end);
+						
+						if(diff < 0){
+							// Close to start
+							current_pax = (start + 1);
+						}else{
+							// Close to end
+							current_pax = end;
+						}
 					}
 
-					return pax_range;
+					// Update vue_state
+					Object.assign(window.vue_state.reservation, {
+						[which_pax]: current_pax
+					})
+
+					// Update to state, we ONLY HAVE ONE STATE
+					// For whole app, place can be trusted
+					//let store = window.store;
+					let vue   = this;
+					store.dispatch({
+						type: CHANGE_RESERVATION,
+						reservation: vue.reservation
+					});
+					
+					// Return for template loop
+					// Return range to auto build <option>
+					return (end - start);
 				},
-
-				_updateChildrenPaxSelectBox(){
-					let pax_range = this.selected_outlet.overall_max_pax - this.reservation.adult_pax;
-
-					if(isNaN(pax_range)){
-						return 15;
-					}
-
-					return pax_range;
-				}
 			}
 		});
 	}
@@ -451,6 +482,9 @@ class BookingForm {
 				return Object.assign({}, state, {
 					confirm_id: action.confirm_id
 				});
+			case CHANGE_RESERVATION: {
+				return action.reservation;
+			}
 			case SYNC_RESERVATION:
 				let new_state = Object.assign(state, action.reservation);
 				return new_state;
@@ -514,6 +548,16 @@ class BookingForm {
 		}
 	}
 
+	selectPaxTimesReducer(state, action){
+		switch(action.type){
+			case SELECT_PAX:
+				// Increase count times
+				let new_state = (state + 1);
+				return new_state;
+			default:
+				return state;
+		}
+	}
 	event(){
 		this._findView();
 		let store = window.store;
@@ -592,11 +636,8 @@ class BookingForm {
 		store.subscribe(()=>{
 			let state    = store.getState();
 			let last_action = store.getLastAction();
-			//update this way for vue see it
-			Object.assign(window.vue_state, state,  {
-				//don't let vue what this
-				available_time: {}
-			});
+
+			self.syncVueStateWithParent(window.vue_state, state);
 
 			//debug
 			let prestate = store.getPrestate();
@@ -654,62 +695,8 @@ class BookingForm {
 				self.ajaxCall();
 			}
 
-			if(prestate.dialog.show == false && state.dialog.show == true){
-				self.ajax_dialog.modal('show');
-			}
-
-			if(prestate.dialog.show == true && state.dialog.show == false){
-				self.ajax_dialog.modal('hide');
-			}
-
-			/**
-			 * Update select pax
-			 */
-			if(last_action == CHANGE_ADULT_PAX){
-				//Ask vue update
-				self.vue._updatePaxSelectBox(state, 'adult');
-			}
-
-			if(last_action == CHANGE_CHILDREN_PAX){
-				self.vue._updatePaxSelectBox(state, 'children');
-			}
-
-			let has_pax_over_dependency =
-				(last_action == CHANGE_ADULT_PAX
-				|| last_action == CHANGE_CHILDREN_PAX);
-
-
-
-			let pax_over_max =(state.pax.adult + state.pax.children) < state.overall_min_pax;
-			let pax_over_min =(state.pax.adult + state.pax.children)  > state.overall_max_pax;
-
-			let is_pax_over = has_pax_over_dependency && (pax_over_max || pax_over_min);
-
-			if(is_pax_over){
-				// store.dispatch({type: PAX_OVER});
-				//window.alert(`Total number of people should be between ${state.overall_min_pax} - ${state.overall_max_pax} `);
-				window.alert(`There is a minimum pax of ${state.overall_min_pax} for reservation at this outlet`);
-			}
-
+			// Handle ajax call
 			if(prestate.has_selected_day == false && state.has_selected_day == true){
-				store.dispatch({type: AJAX_CALL, ajax_call: 1});
-			}
-
-			let has_ajax_dependency =
-				last_action == CHANGE_ADULT_PAX
-				|| last_action == CHANGE_CHILDREN_PAX
-				|| last_action == CHANGE_SELECTED_OUTLET_ID
-				|| last_action == CHANGE_RESERVATION_DATE;
-
-			let has_query_condition_change =
-				state.has_selected_day
-				&& (prestate.pax.adult != state.pax.adult
-				||prestate.pax.children != state.pax.children
-				||prestate.selected_outlet.id != state.selected_outlet.id
-				||prestate.reservation.date != state.reservation.date);
-
-			let should_call_ajax = has_ajax_dependency && has_query_condition_change;
-			if(should_call_ajax){
 				store.dispatch({type: AJAX_CALL, ajax_call: 1});
 			}
 
