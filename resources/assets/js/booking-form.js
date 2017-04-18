@@ -217,11 +217,8 @@ class BookingForm {
 		}
 
 		// Self pick the first outlet as selected_outlet_id
-		let first_outlet = state.outlets[0] || {};
-		// Update into state
-		Object.assign(state, {
-			selected_outlet_id: first_outlet.id
-		});
+		let first_outlet         = state.outlets[0] || {};
+		state.selected_outlet_id = first_outlet.id;
 
 		return state;
 	}
@@ -249,7 +246,7 @@ class BookingForm {
 				start: null,
 				end: null
 			},
-			just_changed_pax: null
+			has_changed_pax: 0
 		};
 
 		// Sync with parent for things changed
@@ -257,7 +254,7 @@ class BookingForm {
 
 		// When init, reservation date consider as today
 		// Self compute it
-		this.precomputeVueState(vue_state);
+		this.initVueState(vue_state);
 
 		return vue_state;
 	}
@@ -275,12 +272,18 @@ class BookingForm {
 
 	// When vue_state rebuild completely when sync server data
 	// Re computed what need for vue local state only
-	precomputeVueState(vue_state){
+	initVueState(vue_state){
+		return;
+		// Init reservation
 		let reservation = vue_state.reservation;
-		// If has this info
-		reservation.date= reservation.reservation_timestamp ?
-							moment(reservation.reservation_timestamp, 'YYYY-MM-DD HH:mm:ss')
-							:moment();
+		let picked_time = reservation.reservation_timestamp;
+		// Change reservation's properties
+		reservation.date      = picked_time ? moment(picked_time, 'YYYY-MM-DD HH:mm:ss') : moment();
+		reservation.outlet_id = vue_state.selected_outlet_id;
+		// Find out base on selected_outlet_id
+		let selected_outlets       = vue_state.outlets.filter(outlet => outlet.id == vue_state.selected_outlet_id);
+		// Init selected outlet
+		vue_state.selected_outlet  = selected_outlets[0] || {};
 	}
 
 	buildVue(){
@@ -291,20 +294,11 @@ class BookingForm {
 		this.vue = new Vue({
 			el: '#form-step-container',
 			data: window.vue_state,
-			computed: {
-				selected_outlet(){
-					let selected_outlets = this.outlets.filter(outlet => outlet.id == this.selected_outlet_id);
-					let selected_outlet  = selected_outlets[0] || {};
-
-					return selected_outlet;
-				},
-
-				reservation(){
-					let reservation       = this.reservation;
-					reservation.outlet_id = this.selected_outlet_id;
-
-					return reservation;
-				}
+			created(){
+				this._updateDataBaseOnSelectedOutletId();
+				this._initReservationDate();
+				//this._updatePaxSelectBox('adult_pax');
+				//this._updatePaxSelectBox('children_pax');
 			},
 			mounted(){
 				self.event();
@@ -312,6 +306,13 @@ class BookingForm {
 				self.listener();
 			},
 			methods: {
+				_initReservationDate(){
+					let reservation = this.reservation;
+					let picked_time = reservation.reservation_timestamp;
+					// Change reservation's properties
+					reservation.date      = picked_time ? moment(picked_time, 'YYYY-MM-DD HH:mm:ss') : moment();
+					reservation.outlet_id = vue_state.selected_outlet_id;
+				},
 				_checkEmpty(obj, except_keys = []){
 					let empty_keys = Object.keys(obj).filter(key => {
 						if(except_keys.indexOf(key) != -1){
@@ -361,37 +362,35 @@ class BookingForm {
 					this.selected_outlet = selected_outlet
 					// Update reservation.outlet_id
 					this.reservation.outlet_id = this.selected_outlet_id;
+					// Update select pax
+					this._updatePaxSelectBox('adult_pax');
+					this._updatePaxSelectBox('children_pax');
 				},
 
-				_updatePaxSelectBox(which_pax, which_pax_select = `${which_pax}_select`){
-					// Compute dynamic
-					let other_pax = (which_pax == 'adult_pax') ? 'children_pax' : 'adult_pax';
+				_updatePaxSelectBox(which_pax){
+					let other_pax = which_pax == 'adult_pax' ? 'children_pax' : 'adult_pax';
 					// Minus for '1' to allow equal to minimum
 					// Self loop of template, start at 'start'
 					// (1,10) > 1,3,4,5,6,7,8,9,10
 					// Instead of 0,1,2,3,4...
-					let start = (this.selected_outlet.overall_min_pax - this.reservation[other_pax]) - 1;
-					let end   = this.selected_outlet.overall_max_pax - this.reservation[other_pax];
+					let start = this.selected_outlet.overall_min_pax - this.reservation[which_pax] - 1;
+					let end   = this.selected_outlet.overall_max_pax - this.reservation[which_pax];
 					// When user first time pick up, allow him choose any thing he want
-					let store = window.store;
-					let state = store.getState();
 					// There are two select box, once for adult, once for children
 					// Only remove check when count times >= 3
-					if(state.select_pax_times < 3){
+					if(this.has_changed_pax < 2){
 						start = -1;
 						end   = this.selected_outlet.overall_max_pax;
 					}
-					// Increase count
-					store.dispatch({
-						type: SELECT_PAX
-					});
+					this.has_changed_pax++;
 					// Limit start at 0, select for positive number
 					start = start < -1 ? -1 : start;
 					// Update pax_select back to vue_state
-					Object.assign(window.vue_state[which_pax_select], {start, end});
+					let other_pax_select   = `${other_pax}_select`;
+					this[other_pax_select] = {start, end};
 					// Handle case self pick for customer
 					// When there pax size out of selectable range
-					let current_pax = this.reservation[which_pax];
+					let current_pax = this.reservation[other_pax];
 					let out_range   = current_pax < (start + 1) || current_pax > end;
 					if(out_range){
 						let diff = (current_pax - start) + (current_pax - end);
@@ -404,15 +403,11 @@ class BookingForm {
 							current_pax = end;
 						}
 					}
-
 					// Update vue_state
-					Object.assign(window.vue_state.reservation, {
-						[which_pax]: current_pax
-					})
-
+					this.reservation[other_pax] = current_pax;
 					// Update to state, we ONLY HAVE ONE STATE
 					// For whole app, place can be trusted
-					//let store = window.store;
+					let store = window.store;
 					let vue   = this;
 					store.dispatch({
 						type: CHANGE_RESERVATION,

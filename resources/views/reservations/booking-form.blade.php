@@ -17,16 +17,20 @@
                     <div class="selectors cf">
                         <div id="adults-wrap">
                             <label for="adults">Adults</label>
-                            <select name="adult_pax" class="form-control" v-model="reservation.adult_pax">
-                                <template v-for="n in _updatePaxSelectBox('adult_pax')">
+                            <select name="adult_pax" class="form-control" v-model="reservation.adult_pax"
+                                    v-on:change="_updatePaxSelectBox('adult_pax')"
+                            >
+                                <template v-for="n in (adult_pax_select.end - adult_pax_select.start)">
                                     <option :value="n + adult_pax_select.start">@{{ n + adult_pax_select.start}}</option>
                                 </template>
                             </select>
                         </div>
                         <div id="children-wrap">
                             <label for="children">Children</label>
-                            <select name="children_pax" class="form-control" v-model="reservation.children_pax">
-                                <template v-for="n in _updatePaxSelectBox('children_pax')">
+                            <select name="children_pax" class="form-control" v-model="reservation.children_pax"
+                                    v-on:change="_updatePaxSelectBox('children_pax')"
+                            >
+                                <template v-for="n in (children_pax_select.end - children_pax_select.start)">
                                     <option :value="n + children_pax_select.start">@{{ n + children_pax_select.start}}</option>
                                 </template>
                             </select>
