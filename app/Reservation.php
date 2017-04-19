@@ -292,8 +292,8 @@ class Reservation extends HoiModel {
             'outlet_id'    => ['required', 'numeric', Rule::in($allowed_outltes_id)],
             'adult_pax'    => 'required|numeric',
             'children_pax' => 'required|numeric',
-            'reservation_timestamp' => 'required|date_format:Y-m-d H:i:s',
-
+            //'reservation_timestamp' => 'required|date_format:Y-m-d H:i:s',
+            'reservation_timestamp' => 'required|numeric',
             'salutation'   => 'required',
             'first_name'   => 'required',
             'last_name'    => 'required',
@@ -362,6 +362,22 @@ class Reservation extends HoiModel {
     
     public static function groupNameByDateTimeCapacity($date, $time, $capacity){
         return "{$date}_{$time}_{$capacity}";
+    }
+
+    /**
+     * Timestamp accept both as number or string as date-timestamp
+     * When number, convert it back
+     * @param number|string $value
+     */
+    public function setReservationTimestampAttribute($value){
+        $db_timestamp = $value;
+        // Case submit timestamp as seconds
+        if(is_numeric($value)){
+            $date_time = Carbon::createFromTimestamp((int)$value, Setting::timezone());
+            $db_timestamp = $date_time->format('Y-m-d H:i:s');
+        }
+
+        $this->attributes['reservation_timestamp'] = $db_timestamp;
     }
 
     /**
