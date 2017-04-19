@@ -12,6 +12,8 @@ class Outlet extends HoiModel {
     
     protected $table = 'outlet';
 
+    //protected $fillable = [];
+
     protected $appends = [
         'overall_min_pax',
         'overall_max_pax',
