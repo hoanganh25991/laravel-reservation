@@ -88,9 +88,9 @@ class Outlet extends HoiModel {
             return null;
         }
 
-        $setting_config = Setting::settingsConfig($outlet_id);
+        $buffer_config = Setting::bufferConfig($outlet_id);
 
-        return $setting_config(Setting::MAX_DAYS_IN_ADVANCE);
+        return $buffer_config(Setting::MAX_DAYS_IN_ADVANCE);
     }
 
 }
