@@ -230,6 +230,7 @@ class BookingForm {
 			// Handle time select box
 			available_time: {},
 			available_time_on_reservation_date: [],
+			no_answer_time: undefined,
 			// Handle dynamic select pax
 			adult_pax_select: {
 				start: -1,
@@ -328,7 +329,7 @@ class BookingForm {
 					let reservation_date = this.reservation.date;
 					let date_time_str    = reservation_date ? reservation_date.format('YYYY-MM-DD') : NO_DATE_PICKED;
 					// Get out for specific day or default 'N/A'
-					this.available_time_on_reservation_date = available_time[date_time_str] || [{session_name: '', time: 'N/A'}];
+					this.available_time_on_reservation_date = available_time[date_time_str] || [];
 				},
 				available_time_on_reservation_date(val){
 					// When see this one change
@@ -774,6 +775,7 @@ class BookingForm {
 			// if(last_action == INIT_VIEW){
 			// 	Object.assign(window.vue_state, state);
 			// }
+			//console.log(state.reservation);
 
 
 			// Only run debug when needed & in local
@@ -829,14 +831,16 @@ class BookingForm {
 
 			// Call ajax to search available time
 			let changed_condition = !self._changeBookingCondition(prestate.reservation, state.reservation);
-			if(state.has_selected_day && changed_condition){
+			let just_select_day   = prestate.has_selected_day == false && state.has_selected_day == true;
+			// Ok should call ajax for searching out available time
+			if(state.has_selected_day && changed_condition || just_select_day){
 				self.ajaxCall({type: AJAX_SEARCH_AVAILABLE_TIME});
 			}
 
-			// State may just get something from Vue
+			// Redux state may just get sync from Vue
 			// Then it updated, it talk back to Vue
 			// After 2 times of SYNC
-			// They are now in the same manner
+			// They are now in the same state
 			Object.assign(window.vue_state, state);
 		});
 
@@ -974,6 +978,7 @@ class BookingForm {
 		let self  = this;
 		// Ask to show dialog
 		store.dispatch({type: DIALOG_SHOW, show: true});
+		console.log(`%c ajaxCall: ${action.type}`, 'background:#FDD835');
 
 		let data = {};
 
