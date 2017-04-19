@@ -19,8 +19,7 @@
                             <label for="adults">Adults</label>
                             <select name="adult_pax" class="form-control"
                                     v-model="reservation.adult_pax" v-on:change="_changePax">
-                                {{--<template v-for="n in _updatePaxSelectBox('adult_pax')">--}}
-                                <template v-for="n in _fun()">
+                                <template v-for="n in _updatePaxSelectBox('adult_pax')">
                                     <option :value="n + adult_pax_select.start">@{{ n + adult_pax_select.start}}</option>
                                 </template>
                             </select>
@@ -29,8 +28,7 @@
                             <label for="children">Children</label>
                             <select name="children_pax" class="form-control"
                                     v-model="reservation.children_pax" v-on:change="_changePax">
-                                {{--<template v-for="n in _updatePaxSelectBox('children_pax')">--}}
-                                <template v-for="n in _fun()">
+                                <template v-for="n in _updatePaxSelectBox('children_pax')">
                                     <option :value="n + children_pax_select.start">@{{ n + children_pax_select.start}}</option>
                                 </template>
                             </select>

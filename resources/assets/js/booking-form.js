@@ -355,6 +355,26 @@ class BookingForm {
 				},
 
 				_updatePaxSelectBox(which_pax, which_pax_select = `${which_pax}_select`){
+					/**
+					 * What trigger this function re-run
+					 * As dependency of watcher
+					 * Like: 'Watch these properties, if it change, call me'
+					 */
+					// let selected_outlet     = this.selected_outlet;
+					// let reservation         = this.reservation;
+					// let adult_pax_select    = this.adult_pax_select;
+					// let children_pax_select = this.children_pax_select;
+
+					console.log('change on', which_pax);
+					let s = this.selected_outlet_id;
+					let r = this.reservation;
+					console.log('r.xxx', r.xxx);
+					if(window.fuck){
+						return;
+					}
+					window.fuck = 'fuck';
+					this.reservation = {xxx: 'xxx'};
+					return
 					//console.log('update xxx run');
 					// Update dynamic pax select on
 					// Compute for itself
