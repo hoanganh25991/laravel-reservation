@@ -47,6 +47,7 @@ const AJAX_BOOKING_CONDITION_VALIDATE_FAIL = 'AJAX_BOOKING_CONDITION_VALIDATE_FA
 
 // const AJAX_PAYMENT_REQUEST_SUCCESS = 'AJAX_PAYMENT_REQUEST_SUCCESS';
 const SYNC_VUE_STATE = 'SYNC_VUE_STATE';
+const UPDATE_CALENDAR_VIEW = 'UPDATE_CALENDAR_VIEW';
 
 class BookingForm {
 	/** @namespace res.statusMsg */
@@ -62,6 +63,7 @@ class BookingForm {
 	/** @namespace Vue */
 	/** @namespace selected_outlet.overall_min_pax */
 	/** @namespace selected_outlet.overall_max_pax */
+	/** @namespace selected_outlet.max_days_in_advance */
 
 	constructor(){
 		this.buildRedux();
@@ -115,7 +117,7 @@ class BookingForm {
 						select_pax_times: self.selectPaxTimesReducer(state.select_pax_times, action)
 					});
 				case SYNC_VUE_STATE:{
-					return Object.assign(state, action.vue_state);
+					return Object.assign({}, state, action.vue_state);
 				}
 				default:
 					return state;
@@ -292,14 +294,31 @@ class BookingForm {
 			},
 			updated(){},
 			watch: {
-				selected_outlet_id: function(val){
+				selected_outlet_id(val){
 					// Update reservation
 					let new_reservation = Object.assign({}, this.reservation, {outlet_id: val});
 					this.reservation    = new_reservation;
 					// Update seleceted outlet base on
 					let selected_outlets = this.outlets.filter(outlet => outlet.id == val);
 					this.selected_outlet = selected_outlets[0] || {};
-				}
+				},
+				available_time(val){
+					// Build back available_time_on_reservation_date
+					let reservation_date_time_str = this.reservation.date.format('YYYY-MM-DD');
+					let available_time_on_reservation_date = [{session_name: '', time: 'N/A'}];
+					try{
+						available_time_on_reservation_date = val[reservation_date_time_str].map(time_obj => {
+							let {session_name, time} = time_obj;
+							return {session_name, time};
+						});
+					}catch(e){};
+
+					this.available_time_on_reservation_date = available_time_on_reservation_date;
+				},
+				// available_time_on_reservation_date(val){
+				// 	// When see this one change
+				// 	// In some way ask for update calendar view
+				// }
 			},
 			methods: {
 				_checkEmpty(obj, except_keys = []){
@@ -685,8 +704,9 @@ class BookingForm {
 		});
 
 		document.addEventListener('calendar-change-month', (e) => {
-			let state = store.getState();
-			this.updateCalendarView(state.available_time);
+
+
+			this.updateCalendarView();
 		});
 	}
 
@@ -694,27 +714,22 @@ class BookingForm {
 		this._findView();
 		let store = window.store;
 		let self = this;
-		/**
-		 * Debug state
-		 */
-		let pre = document.querySelector('#redux-state');
-		if(!pre){
-			let body = document.querySelector('body');
-			pre = document.createElement('pre');
-			//body.appendChild(pre);
-		}
+		
+		//Debug state by redux_debug_html
+		let redex_debug_html = document.querySelector('#redux-state');
 
 		store.subscribe(()=>{
 			let state    = store.getState();
+			let prestate = store.getPrestate();
 			let last_action = store.getLastAction();
 
-			//self.syncVueStateWithParent(window.vue_state, state);
-			//Object.assign(window.vue_state, state);
+			if(last_action == INIT_VIEW){
+				Object.assign(window.vue_state, state);
+			}
 
-			//debug
-			let prestate = store.getPrestate();
-
-			if(state.base_url && state.base_url.includes('reservation.dev') || state.base_url.includes('localhost')){
+			// Only run debug when needed & in local
+			let on_local = state.base_url && state.base_url.includes('reservation.dev') || state.base_url.includes('localhost');
+			if(redex_debug_html && on_local){
 				let clone_state = Object.assign({}, state);
 				// In case available_time so large
 				if(clone_state.available_time){
@@ -725,35 +740,42 @@ class BookingForm {
 					}
 				}
 
-				pre.innerHTML = syntaxHighlight(JSON.stringify(clone_state, null, 4));
+				redex_debug_html.innerHTML = syntaxHighlight(JSON.stringify(clone_state, null, 4));
 			}
 
-			/**
-			 * Available time change
-			 * @type {boolean}
-			 */
+			// Vue available time
+			// let first_time = prestate.init_view == false;
+			// Available time change effect view
+			// Update it
 			let available_time_change = (prestate.available_time != state.available_time);
 			if(available_time_change){
-				this.updateSelectView(state.available_time);
-				this.updateCalendarView(state.available_time);
+				//this.updateSelectView(state.available_time);
+				//this.updateCalendarView(state.available_time);
 			}
-			/**
-			 * Form step change
-			 */
-			let form_step_change = (prestate.form_step != state.form_step)
-				|| (prestate.init_view == false
-				&& state.form_step == 'form-step-1');
+
+			// Form step change
+			let form_step_change =
+				prestate.form_step != state.form_step
+				|| prestate.init_view == false;
 			if(form_step_change){
 				console.info('pointToFormStep');
 				this.pointToFormStep();
 			}
 
+			// Handle dialog
 			if(last_action == DIALOG_SHOW){
 				this.ajax_dialog.modal('show');
 			}
 
 			if(last_action == DIALOG_HAS_DATA){
 				this.ajax_dialog.modal('hide');
+			}
+
+			// Update calendar view
+			let first_time = prestate.init_view == false;
+			let outlet_changed = prestate.selected_outlet_id != state.selected_outlet_id;
+			if(first_time || last_action == UPDATE_CALENDAR_VIEW || outlet_changed){
+				this.updateCalendarView();
 			}
 		});
 
@@ -812,20 +834,42 @@ class BookingForm {
 		this.btn_form_nexts      = document.querySelectorAll('button.btn-form-next');
 	}
 
-	updateCalendarView(available_time) {
+	updateCalendarView() {
+		// Self get data from redux-state
+		let state = store.getState();
+		let selected_outlet     = state.selected_outlet;
+		let max_days_in_advance = selected_outlet.max_days_in_advance;
+
+		// Ok now check which day should disabled
 		let calendar = this.calendar;
 
-		if(Object.keys(available_time).length == 0)
-			return
+		// Build date_range base on max_days_in_advance
+		// Start from today
+		let today = moment();
+		let date_range = [];
+		let i = 0;
+		while(i < max_days_in_advance){
+			let current = today.clone().add(i, 'days');
+			date_range.push(current);
 
+			i++;
+		}
+
+		// Available days as arr of str
+		let available_days = date_range.map(date => date.format('YYYY-MM-DD'));
+		// Bind some helper function, only init one time
 		this._addCalendarHelper(calendar);
 		//Get out all available day
-		let available_days = Object.keys(available_time);
-
 		calendar.day_tds.each(function() {
-			let td = $(this);
-			let td_day_str = `${td.attr('year')}-${calendar._prefix2Dec(td.attr('month'))}-${calendar._prefix2Dec(td.attr('day'))}`;
-
+			let td    = $(this);
+			// Read year, month, day stored in this td
+			let year  = td.attr('year');
+			let month = calendar._prefix2Dec(td.attr('month'));
+			let day   = calendar._prefix2Dec(td.attr('day'));
+			// Rebuild whole string
+			let td_day_str = `${year}-${month}-${day}`;
+			// Check if day is available
+			// Style it
 			if (available_days.includes(td_day_str)) {
 				calendar._pickable(td);
 			} else {
@@ -836,9 +880,14 @@ class BookingForm {
 	}
 
 	_addCalendarHelper(calendar){
+		// IMPORTANT, each time calendar change month
+		// It rebuild calendar's day_tds
+		// So, don't store this reference
+		// re-search out which one
 		calendar.day_tds = $('#calendar-box').find('td');
 
-		if(!calendar._prefix2Dec || !calendar._pickable || calendar._unpickable){
+		// Bind some helper function into calendar
+		if(!calendar._prefix2Dec || !calendar._pickable || !calendar._unpickable){
 			calendar._prefix2Dec = function(val) {
 				if (val < 10)
 					return `0${val}`;
