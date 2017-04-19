@@ -71,7 +71,7 @@ class BookingForm {
 		this.buildVue();
 
 		// init view
-		this.initView();
+		//this.initView();
 	}
 
 	buildRedux(){
@@ -207,16 +207,16 @@ class BookingForm {
 		}
 
 		// Self pick the first outlet as selected_outlet_id
-		let first_outlet         = state.outlets[0] || {};
-		state.selected_outlet_id = first_outlet.id;
-		state.selected_outlet    = first_outlet;
+		//let first_outlet         = state.outlets[0] || {};
+		//state.selected_outlet_id = first_outlet.id;
+		//state.selected_outlet    = first_outlet;
 
 		return state;
 	}
 
 	buildVueState(){
-		let store = window.store;
-		let state = store.getState();
+		// let store = window.store;
+		// let state = store.getState();
 
 		// Vue own state to manage child view
 		let vue_state = {
@@ -225,36 +225,40 @@ class BookingForm {
 			selected_outlet_id: null,
 			outlets: [],
 			// Store reservation data
-			reservation: {},
+			reservation: {
+				date: moment(),
+				//time: null
+			},
 			// Handle time select box
+			available_time: {},
 			available_time_on_reservation_date: [],
 			// Handle dynamic select pax
 			adult_pax_select: {
 				start: -1,
-				end: null,
+				end: 20,
 			},
 			children_pax_select: {
 				start: -1,
-				end: null
+				end: 20
 			},
 			has_changed_pax: null
 		};
 
 		// Sync with parent for things changed
 		//this.syncVueStateWithParent(vue_state, state);
-		Object.assign(vue_state, state);
+		//Object.assign(vue_state, state);
 		// Compute first time for pax select box
-		let selected_outlet = vue_state.selected_outlet;
-		Object.assign(vue_state, {
-			adult_pax_select: {
-				start: -1,
-				end: selected_outlet.overall_max_pax,
-			},
-			children_pax_select: {
-				start: -1,
-				end: selected_outlet.overall_max_pax,
-			},
-		});
+		//let selected_outlet = vue_state.selected_outlet;
+		// Object.assign(vue_state, {
+		// 	adult_pax_select: {
+		// 		start: -1,
+		// 		end: selected_outlet.overall_max_pax,
+		// 	},
+		// 	children_pax_select: {
+		// 		start: -1,
+		// 		end: selected_outlet.overall_max_pax,
+		// 	},
+		// });
 
 		// When init, reservation date consider as today
 		// Self compute it
@@ -274,17 +278,31 @@ class BookingForm {
 		this.vue = new Vue({
 			el: '#form-step-container',
 			data: window.vue_state,
-			created(){},
+			beforeCreated(){
+				// Some data NEED sanity
+				// DAMN
+			},
+			created(){
+				//self.initView();
+			},
 			beforeMount(){
-				store.dispatch({
-					type: SYNC_VUE_STATE,
-					vue_state: window.vue_state
-				});
+				// Do something with draw data
+				//let first_outlet         = this.outlets[0] || {};
+				// Self assign first outlet as what selected
+				//this.selected_outlet_id  = first_outlet.id;
+				// Self compute available_time_on_reservation_day
+				//this.available_time      = {};
+				// store.dispatch({
+				// 	type: SYNC_VUE_STATE,
+				// 	vue_state: window.vue_state
+				// });
 			},
 			mounted(){
 				self.event();
 				self.view();
 				self.listener();
+
+				self.initView();
 			},
 			beforeUpdate(){
 				store.dispatch({
@@ -294,6 +312,10 @@ class BookingForm {
 			},
 			updated(){},
 			watch: {
+				outlets(val){
+					let first_outlet = val[0] || {};
+					this.selected_outlet_id = first_outlet.id;
+				},
 				selected_outlet_id(val){
 					// Update reservation
 					let new_reservation = Object.assign({}, this.reservation, {outlet_id: val});
@@ -314,11 +336,19 @@ class BookingForm {
 					}catch(e){};
 
 					this.available_time_on_reservation_date = available_time_on_reservation_date;
+
 				},
-				// available_time_on_reservation_date(val){
-				// 	// When see this one change
-				// 	// In some way ask for update calendar view
-				// }
+				available_time_on_reservation_date(val){
+					// When see this one change
+					// In some way ask for update calendar view
+					if(!this.reservation.time){
+						let first_time = val[0] || {};
+						let new_reservation = Object.assign({}, this.reservation, {time: first_time});
+
+						this.reservation = new_reservation;
+					}
+
+				}
 			},
 			methods: {
 				_checkEmpty(obj, except_keys = []){
@@ -373,120 +403,128 @@ class BookingForm {
 					return x;
 				},
 
-				_shallowEqualObj(objA, objB){
-					if (Object.is(objA, objB)) {
-						return true;
-					}
-
-					if (typeof objA !== 'object' || objA === null || typeof objB !== 'object' || objB === null) {
-						return false;
-					}
-
-					var keysA = Object.keys(objA);
-					var keysB = Object.keys(objB);
-
-					if (keysA.length !== keysB.length) {
-						return false;
-					}
-
-					// Test for A's keys different from B.
-					for (var i = 0; i < keysA.length; i++) {
-						if (!Object.prototype.hasOwnProperty.call(objB, keysA[i]) || !Object.is(objA[keysA[i]], objB[keysA[i]])) {
-							return false;
-						}
-					}
-
-					return true;
-				},
-
 				_updatePaxSelectBox(which_pax){
-					/**
-					 * What trigger this function re-run
-					 * As dependency of watcher
-					 * Like: 'Watch these properties, if it change, call me'
-					 */
-					let selected_outlet     = this.selected_outlet;
-					let reservation         = this.reservation;
-					let adult_pax_select    = this.adult_pax_select;
-					let children_pax_select = this.children_pax_select;
+					try{
+						/**
+						 * What trigger this function re-run
+						 * As dependency of watcher
+						 * Like: 'Watch these properties, if it change, call me'
+						 */
+						let selected_outlet     = this.selected_outlet;
+						let reservation         = this.reservation;
+						let adult_pax_select    = this.adult_pax_select;
+						let children_pax_select = this.children_pax_select;
 
-					// Determine which pax to base on
-					// User change pax_x >>> base on pax_x
-					let other_pax   = which_pax == 'adult_pax' ? 'children_pax' : 'adult_pax';
-					let base_on_pax = this.has_changed_pax ? this.has_changed_pax : other_pax;
-					let need_updated_pax_select = this[`${which_pax}_select`];
-					// I'm the BASE
-					// NO NEED TO UPDATE ME
-					if(which_pax == base_on_pax){
-						// Doesn't need to update me
-						// Has run already
-						let start = need_updated_pax_select.start;
-						let end   = need_updated_pax_select.end;
+						// Determine which pax to base on
+						// User change pax_x >>> base on pax_x
+						let other_pax   = which_pax == 'adult_pax' ? 'children_pax' : 'adult_pax';
+						let base_on_pax = this.has_changed_pax ? this.has_changed_pax : other_pax;
+						let need_updated_pax_select = this[`${which_pax}_select`];
+						// I'm the BASE
+						// NO NEED TO UPDATE ME
+						if(which_pax == base_on_pax){
+							// Doesn't need to update me
+							// Has run already
+							let start = need_updated_pax_select.start;
+							let end   = need_updated_pax_select.end;
+
+							return (end - start);
+						}
+						// Minus for '1' to allow equal to minimum
+						// Self loop of template, start at 'start'
+						// (1,10) > 1,3,4,5,6,7,8,9,10
+						// Instead of 0,1,2,3,4...
+						let start = selected_outlet.overall_min_pax - reservation[base_on_pax] - 1;
+						let end   = selected_outlet.overall_max_pax - reservation[base_on_pax];
+						// When user first time pick up, allow him choose any thing he want
+						// There are two select box, once for adult, once for children
+						// Only remove check when count times >= 3
+						if(!this.has_changed_pax){
+							start = -1;
+							end   = this.selected_outlet.overall_max_pax;
+						}
+						// Limit start at 0, select for positive number.......
+						start = start < -1 ? -1 : start;
+						// Update pax_select back to vue_state
+						//if(adult_pax_select.)
+						//this[other_pax_select] = {start, end};
+						let new_pax_select = {start, end};
+						let should_update  = !self._shallowEqualObj(need_updated_pax_select, new_pax_select);
+						if(should_update){
+							this[`${which_pax}_select`] = new_pax_select;
+						}
+						// Handle case self pick for customer
+						// When there pax size out of selectable range
+						let pax_value = reservation[which_pax];
+						let out_range = pax_value < (start + 1) || pax_value > end;
+						let new_reservation = reservation;
+						if(out_range){
+							window.alert(`There is a minimum pax of ${this.selected_outlet.overall_min_pax} for reservation at this outlet`);
+							let diff = (pax_value - start) + (pax_value - end);
+
+							if(diff < 0){
+								// Close to start
+								pax_value = (start + 1);
+							}else{
+								// Close to end
+								pax_value = end;
+							}
+
+							// Update new_reservation
+							new_reservation = Object.assign({}, reservation, {[which_pax]: pax_value});
+						}
+						// Update vue_state
+						//this.reservation[which_pax] = pax_value;
+						this.reservation = new_reservation;
+						//Object.assign(this.reservation, {[other_pax]: pax_value});
+						// Update to state, we ONLY HAVE ONE STATE
+						// For whole app, place can be trusted
+						// let store = window.store;
+						// let vue   = this;
+						// store.dispatch({
+						// 	type: CHANGE_RESERVATION,
+						// 	reservation: vue.reservation
+						// });
+
+						// Return for template loop
+						// Return range to auto build <option>
+						if(isNaN(end) || isNaN(start))
+							throw 'not a nummber of end|start';
 
 						return (end - start);
 					}
-					// Minus for '1' to allow equal to minimum
-					// Self loop of template, start at 'start'
-					// (1,10) > 1,3,4,5,6,7,8,9,10
-					// Instead of 0,1,2,3,4...
-					let start = selected_outlet.overall_min_pax - reservation[base_on_pax] - 1;
-					let end   = selected_outlet.overall_max_pax - reservation[base_on_pax];
-					// When user first time pick up, allow him choose any thing he want
-					// There are two select box, once for adult, once for children
-					// Only remove check when count times >= 3
-					if(!this.has_changed_pax){
-						start = -1;
-						end   = this.selected_outlet.overall_max_pax;
+					catch(e){
+						return 20;
 					}
-					// Limit start at 0, select for positive number.......
-					start = start < -1 ? -1 : start;
-					// Update pax_select back to vue_state
-					//if(adult_pax_select.)
-					//this[other_pax_select] = {start, end};
-					let new_pax_select = {start, end};
-					let should_update  = !this._shallowEqualObj(need_updated_pax_select, new_pax_select);
-					if(should_update){
-						this[`${which_pax}_select`] = new_pax_select;
-					}
-					// Handle case self pick for customer
-					// When there pax size out of selectable range
-					let pax_value = reservation[which_pax];
-					let out_range = pax_value < (start + 1) || pax_value > end;
-					let new_reservation = reservation;
-					if(out_range){
-						window.alert(`There is a minimum pax of ${this.selected_outlet.overall_min_pax} for reservation at this outlet`);
-						let diff = (pax_value - start) + (pax_value - end);
-
-						if(diff < 0){
-							// Close to start
-							pax_value = (start + 1);
-						}else{
-							// Close to end
-							pax_value = end;
-						}
-
-						// Update new_reservation
-						new_reservation = Object.assign({}, reservation, {[which_pax]: pax_value});
-					}
-					// Update vue_state
-					//this.reservation[which_pax] = pax_value;
-					this.reservation = new_reservation;
-					//Object.assign(this.reservation, {[other_pax]: pax_value});
-					// Update to state, we ONLY HAVE ONE STATE
-					// For whole app, place can be trusted
-					// let store = window.store;
-					// let vue   = this;
-					// store.dispatch({
-					// 	type: CHANGE_RESERVATION,
-					// 	reservation: vue.reservation
-					// });
-
-					// Return for template loop
-					// Return range to auto build <option>
-					return (end - start);
 				},
 			}
 		});
+	}
+
+	_shallowEqualObj(objA, objB){
+		if (Object.is(objA, objB)) {
+			return true;
+		}
+
+		if (typeof objA !== 'object' || objA === null || typeof objB !== 'object' || objB === null) {
+			return false;
+		}
+
+		var keysA = Object.keys(objA);
+		var keysB = Object.keys(objB);
+
+		if (keysA.length !== keysB.length) {
+			return false;
+		}
+
+		// Test for A's keys different from B.
+		for (var i = 0; i < keysA.length; i++) {
+			if (!Object.prototype.hasOwnProperty.call(objB, keysA[i]) || !Object.is(objA[keysA[i]], objB[keysA[i]])) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	paxOverReducer(state, action){
@@ -677,6 +715,7 @@ class BookingForm {
 					store.dispatch({type: CHANGE_FORM_STEP, form_step: destination});
 
 					if(destination == 'form-step-3'){
+						// should better
 						store.dispatch({type: AJAX_CALL, ajax_call: 1});
 					}
 				});
@@ -705,9 +744,14 @@ class BookingForm {
 
 		document.addEventListener('calendar-change-month', (e) => {
 
-
 			this.updateCalendarView();
 		});
+	}
+
+	_changeBookingCondition(previous_reservation, reservation){
+		return previous_reservation.outlet_id == reservation.outlet_id
+			&& previous_reservation.adult_pax == reservation.adult_pax
+			&& previous_reservation.children_pax == reservation.children_pax;
 	}
 
 	view(){
@@ -723,9 +767,10 @@ class BookingForm {
 			let prestate = store.getPrestate();
 			let last_action = store.getLastAction();
 
-			if(last_action == INIT_VIEW){
-				Object.assign(window.vue_state, state);
-			}
+			// if(last_action == INIT_VIEW){
+			// 	Object.assign(window.vue_state, state);
+			// }
+
 
 			// Only run debug when needed & in local
 			let on_local = state.base_url && state.base_url.includes('reservation.dev') || state.base_url.includes('localhost');
@@ -777,6 +822,16 @@ class BookingForm {
 			if(first_time || last_action == UPDATE_CALENDAR_VIEW || outlet_changed){
 				this.updateCalendarView();
 			}
+
+			// Call ajax to search available time
+			let changed_condition = !self._changeBookingCondition(prestate.reservation, state.reservation);
+			if(state.has_selected_day && changed_condition){
+				self.ajaxCall({
+					type: AJAX_SEARCH_AVAILABLE_TIME
+				});
+			}
+
+			Object.assign(window.vue_state, state);
 		});
 
 
@@ -795,14 +850,14 @@ class BookingForm {
 			let prestate    = store.getPrestate();
 			let last_action = store.getLastAction();
 
-			if(prestate.ajax_call < state.ajax_call){
-				self.ajaxCall();
-			}
+			// if(prestate.ajax_call < state.ajax_call){
+			// 	self.ajaxCall();
+			// }
 
-			// Handle ajax call
-			if(prestate.has_selected_day == false && state.has_selected_day == true){
-				store.dispatch({type: AJAX_CALL, ajax_call: 1});
-			}
+			// // Handle ajax call
+			// if(prestate.has_selected_day == false && state.has_selected_day == true){
+			// 	store.dispatch({type: AJAX_CALL, ajax_call: 1});
+			// }
 
 
 		});
@@ -907,41 +962,45 @@ class BookingForm {
 		}
 	}
 
-	ajaxCall(){
-		// console.info('ajax call');
+	ajaxCall(action){
 		let store = window.store;
 		let state = store.getState();
 		let self  = this;
-
+		// Ask to show dialog
 		store.dispatch({type: DIALOG_SHOW, show: true});
 
+		let data = {};
 
-		let data = {
-			outlet_id: state.selected_outlet.id,
-			adult_pax: state.pax.adult,
-			children_pax: state.pax.children,
-			type: AJAX_SEARCH_AVAILABLE_TIME,
-		};
-
-		if(state.form_step == 'form-step-3'){
-			let {date, time} = state.reservation;
-			let reservation_timestamp = `${date.format('YYYY-MM-DD')} ${time}:00`;
-			let {salutation, first_name, last_name, email, phone_country_code, phone, remarks} = state.customer;
-			data = Object.assign(data, {
-				// reservation_date: date.format('Y-M-D'),
-				// reservation_time: time,
-				reservation_timestamp,
-				salutation,
-				first_name,
-				last_name,
-				email,
-				phone_country_code,
-				phone,
-				customer_remarks: remarks,
-				type: AJAX_SUBMIT_BOOKING,
-			});
-
+		switch(action.type){
+			case AJAX_SEARCH_AVAILABLE_TIME:{
+				let {outlet_id, adult_pax, children_pax} = state.reservation;
+				Object.assign(data, {outlet_id, adult_pax, children_pax}, {type: action.type});
+				break;
+			}
+			default: {
+				break;
+			}
 		}
+
+		// if(state.form_step == 'form-step-3'){
+		// 	let {date, time} = state.reservation;
+		// 	let reservation_timestamp = `${date.format('YYYY-MM-DD')} ${time}:00`;
+		// 	let {salutation, first_name, last_name, email, phone_country_code, phone, remarks} = state.customer;
+		// 	data = Object.assign(data, {
+		// 		// reservation_date: date.format('Y-M-D'),
+		// 		// reservation_time: time,
+		// 		reservation_timestamp,
+		// 		salutation,
+		// 		first_name,
+		// 		last_name,
+		// 		email,
+		// 		phone_country_code,
+		// 		phone,
+		// 		customer_remarks: remarks,
+		// 		type: AJAX_SUBMIT_BOOKING,
+		// 	});
+		//
+		// }
 
 		console.log(data);
 
@@ -979,13 +1038,6 @@ class BookingForm {
 
 					return;
 				}
-			},
-			complete(res){
-				//console.log(res);
-				store.dispatch( {
-					type: DIALOG_HAS_DATA,
-					dialog_has_data: true
-				});
 			},
 			error(res){
 				//noinspection JSUnresolvedVariable
@@ -1069,9 +1121,15 @@ class BookingForm {
 							break;
 						}
 					}
-
 				}catch(e){}
-			}
+			},
+			complete(res){
+				//console.log(res);
+				store.dispatch( {
+					type: DIALOG_HAS_DATA,
+					dialog_has_data: true
+				});
+			},
 		});
 	}
 

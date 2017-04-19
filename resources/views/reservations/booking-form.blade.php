@@ -129,7 +129,9 @@
             </div><!-- /.modal-dialog -->
         </div><!-- /.modal -->
     </div>
-    @include('debug.redux-state')
+    @if(env('APP_ENV') != 'production')
+        @include('debug.redux-state')
+    @endif
 @endsection
 
 @push('script')

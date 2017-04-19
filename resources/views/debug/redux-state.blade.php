@@ -1,10 +1,4 @@
 @push('css')
-@php
-    $hide_debug = ';';
-    if(env('APP_ENV') == 'production'){
-        $hide_debug = 'left: -999px;';
-    }
-@endphp
 <style>
     #redux-state {
         display: block;
@@ -19,7 +13,6 @@
         width: 0;
         transition: all 0.5s ease-in-out;
         background-color: #FDFDFD;
-        {{ $hide_debug }}
     }
     /*#redux-state svg {*/
     #redux-state-svg {
@@ -27,7 +20,6 @@
         bottom: 0;
         right: 0;
         /*float: right;*/
-        {{ $hide_debug }}
     }
 </style>
 @endpush
