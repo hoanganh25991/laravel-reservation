@@ -259,7 +259,7 @@ class BookingForm {
 		//this.initVueState(vue_state);
 		// Sorry but i don't watch on this obj
 		// At config 90 days, available time is HUGE
-		delete vue_state.available_time;
+		// delete vue_state.available_time;
 
 		return vue_state;
 	}
@@ -715,7 +715,17 @@ class BookingForm {
 			let prestate = store.getPrestate();
 
 			if(state.base_url && state.base_url.includes('reservation.dev') || state.base_url.includes('localhost')){
-				pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));
+				let clone_state = Object.assign({}, state);
+				// In case available_time so large
+				if(clone_state.available_time){
+					let keys = Object.keys(clone_state.available_time);
+					if(keys.length > 14){
+						delete clone_state.available_time;
+						console.warn('available_time is large, debug build HTML will slow app, removed it');
+					}
+				}
+
+				pre.innerHTML = syntaxHighlight(JSON.stringify(clone_state, null, 4));
 			}
 
 			/**
