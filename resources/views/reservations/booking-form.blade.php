@@ -8,7 +8,7 @@
                     <div class="rid-select">
                         <label for="outlet_id">Select an outlet</label>
                         <select name="outlet_id" id="rid" title="spize" class="form-control"
-                                v-model="selected_outlet_id" v-on:change="_changePax">
+                                v-model="selected_outlet_id">
                             <template v-for="(outlet, outlet_index) in outlets">
                                 <option :value="outlet.id">@{{ outlet.outlet_name }}</option>
                             </template>
@@ -18,7 +18,7 @@
                         <div id="adults-wrap">
                             <label for="adults">Adults</label>
                             <select name="adult_pax" class="form-control"
-                                    v-model="reservation.adult_pax" v-on:change="_changePax">
+                                    v-model="reservation.adult_pax" v-on:change="_changePax('adult_pax')">
                                 <template v-for="n in _updatePaxSelectBox('adult_pax')">
                                     <option :value="n + adult_pax_select.start">@{{ n + adult_pax_select.start}}</option>
                                 </template>
@@ -27,7 +27,7 @@
                         <div id="children-wrap">
                             <label for="children">Children</label>
                             <select name="children_pax" class="form-control"
-                                    v-model="reservation.children_pax" v-on:change="_changePax">
+                                    v-model="reservation.children_pax" v-on:change="_changePax('children_pax')">
                                 <template v-for="n in _updatePaxSelectBox('children_pax')">
                                     <option :value="n + children_pax_select.start">@{{ n + children_pax_select.start}}</option>
                                 </template>

@@ -235,7 +235,7 @@ class BookingForm {
 				start: -1,
 				end: null
 			},
-			has_changed_pax: 0
+			has_changed_pax: null
 		};
 
 		// Sync with parent for things changed
@@ -343,8 +343,8 @@ class BookingForm {
 					// return has_empty_keys;
 				},
 				
-				_changePax(){
-					this.has_changed_pax++;
+				_changePax(which_pax){
+					this.has_changed_pax = which_pax;
 				},
 
 				_fun(){
@@ -354,55 +354,86 @@ class BookingForm {
 					return x;
 				},
 
-				_updatePaxSelectBox(which_pax, which_pax_select = `${which_pax}_select`){
+				_shallowEqualObj(objA, objB){
+					if (Object.is(objA, objB)) {
+						return true;
+					}
+
+					if (typeof objA !== 'object' || objA === null || typeof objB !== 'object' || objB === null) {
+						return false;
+					}
+
+					var keysA = Object.keys(objA);
+					var keysB = Object.keys(objB);
+
+					if (keysA.length !== keysB.length) {
+						return false;
+					}
+
+					// Test for A's keys different from B.
+					for (var i = 0; i < keysA.length; i++) {
+						if (!Object.prototype.hasOwnProperty.call(objB, keysA[i]) || !Object.is(objA[keysA[i]], objB[keysA[i]])) {
+							return false;
+						}
+					}
+
+					return true;
+				},
+
+				_updatePaxSelectBox(which_pax){
 					/**
 					 * What trigger this function re-run
 					 * As dependency of watcher
 					 * Like: 'Watch these properties, if it change, call me'
 					 */
-					// let selected_outlet     = this.selected_outlet;
-					// let reservation         = this.reservation;
-					// let adult_pax_select    = this.adult_pax_select;
-					// let children_pax_select = this.children_pax_select;
+					let selected_outlet     = this.selected_outlet;
+					let reservation         = this.reservation;
+					let adult_pax_select    = this.adult_pax_select;
+					let children_pax_select = this.children_pax_select;
 
-					console.log('change on', which_pax);
-					let s = this.selected_outlet_id;
-					let r = this.reservation;
-					console.log('r.xxx', r.xxx);
-					if(window.fuck){
-						return;
+					// Determine which pax to base on
+					// User change pax_x >>> base on pax_x
+					let other_pax   = which_pax == 'adult_pax' ? 'children_pax' : 'adult_pax';
+					let base_on_pax = this.has_changed_pax ? this.has_changed_pax : other_pax;
+					let need_updated_pax_select = this[`${which_pax}_select`];
+					// I'm the BASE
+					// NO NEED TO UPDATE ME
+					if(which_pax == base_on_pax){
+						// Doesn't need to update me
+						// Has run already
+						let start = need_updated_pax_select.start;
+						let end   = need_updated_pax_select.end;
+
+						return (end - start);
 					}
-					window.fuck = 'fuck';
-					this.reservation = {xxx: 'xxx'};
-					return
-					//console.log('update xxx run');
-					// Update dynamic pax select on
-					// Compute for itself
-					// which_pax is 'adult_pax' > compute for 'adult_pax_select'
-					let other_pax = which_pax == 'adult_pax' ? 'children_pax' : 'adult_pax';
 					// Minus for '1' to allow equal to minimum
 					// Self loop of template, start at 'start'
 					// (1,10) > 1,3,4,5,6,7,8,9,10
 					// Instead of 0,1,2,3,4...
-
-					let start = this.selected_outlet.overall_min_pax - this.reservation[other_pax] - 1;
-					let end   = this.selected_outlet.overall_max_pax - this.reservation[other_pax];
+					let start = selected_outlet.overall_min_pax - reservation[base_on_pax] - 1;
+					let end   = selected_outlet.overall_max_pax - reservation[base_on_pax];
 					// When user first time pick up, allow him choose any thing he want
 					// There are two select box, once for adult, once for children
 					// Only remove check when count times >= 3
-					if(this.has_changed_pax < 1){
+					if(!this.has_changed_pax){
 						start = -1;
 						end   = this.selected_outlet.overall_max_pax;
 					}
 					// Limit start at 0, select for positive number.......
 					start = start < -1 ? -1 : start;
 					// Update pax_select back to vue_state
+					//if(adult_pax_select.)
 					//this[other_pax_select] = {start, end};
-					Object.assign(this[which_pax_select], {start, end});
+					let new_pax_select = {start, end};
+					let should_update  = !this._shallowEqualObj(need_updated_pax_select, new_pax_select);
+					if(should_update){
+						this[`${which_pax}_select`] = new_pax_select;
+					}
 					// Handle case self pick for customer
 					// When there pax size out of selectable range
-					let pax_value = this.reservation[which_pax];
+					let pax_value = reservation[which_pax];
 					let out_range = pax_value < (start + 1) || pax_value > end;
+					let new_reservation = reservation;
 					if(out_range){
 						window.alert(`There is a minimum pax of ${this.selected_outlet.overall_min_pax} for reservation at this outlet`);
 						let diff = (pax_value - start) + (pax_value - end);
@@ -414,10 +445,14 @@ class BookingForm {
 							// Close to end
 							pax_value = end;
 						}
+
+						// Update new_reservation
+						new_reservation = Object.assign({}, reservation, {[which_pax]: pax_value});
 					}
 					// Update vue_state
 					//this.reservation[which_pax] = pax_value;
-					//Object.assign(this.reservation, {[which_pax]: pax_value});
+					this.reservation = new_reservation;
+					//Object.assign(this.reservation, {[other_pax]: pax_value});
 					// Update to state, we ONLY HAVE ONE STATE
 					// For whole app, place can be trusted
 					// let store = window.store;
