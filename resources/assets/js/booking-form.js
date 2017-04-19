@@ -161,8 +161,7 @@ class BookingForm {
 				outlet_id: null,
 				adult_pax: 0,
 				children_pax: 0,
-				date: null,
-				time: null,
+				reservation_timestamp: null,
 				agree_term_condition: false,
 				salutation: 'Mr.',
 				first_name: '',
@@ -229,7 +228,10 @@ class BookingForm {
 			selected_outlet_id: null,
 			outlets: [],
 			// Store reservation data
-			reservation: {},
+			reservation: {
+				date: null,
+				time: null,
+			},
 			// Handle time select box
 			available_time: {},
 			available_time_on_reservation_date: [],
@@ -357,6 +359,19 @@ class BookingForm {
 					if(this.reservation.time && !is_in){
 						let first_time = val[0] || {};
 						let new_reservation = Object.assign({}, this.reservation, {time: first_time.time});
+
+						this.reservation = new_reservation;
+					}
+				},
+				'reservation.date': function(date){
+					let time = this.reservation.time;
+					this._computeReservationTimestamp(date, time);
+				},
+				'reservation.time': function(time){
+					let date = this.reservation.date;
+					let timestamp = this._computeReservationTimestamp(date, time);
+					if(timestamp){
+						let new_reservation = Object.assign({}, this.reservation, {reservation_timestamp: timestamp});
 
 						this.reservation = new_reservation;
 					}
@@ -514,6 +529,33 @@ class BookingForm {
 					catch(e){
 						return 20;
 					}
+				},
+
+				_submitBooking(){
+					self.ajaxCall({type: AJAX_SUBMIT_BOOKING});
+				},
+
+				_computeReservationTimestamp(date, time){
+					// When date or time not specify, can't go ahead
+					if(!date || !time)
+						return;
+
+					let moment_time = moment(time, 'HH:mm');
+					let moment_date = date; //date already parsed
+
+					if(!moment_date.isValid() || !moment_date.isValid()){
+						console.warn('Why date, time specify but invalid when parsed???');
+						return;
+					}
+
+					// date, time fine as moment obj
+					let time_hour  = moment_time.hour();
+					let time_minute= moment_time.minute();
+					// Ok create a full date, time obj
+					let date_time  = moment_date.clone().hour(time_hour).minute(time_minute);
+
+					//console.log(date_time.format('X'));
+					return date_time.format('X');
 				},
 			}
 		});
@@ -732,10 +774,10 @@ class BookingForm {
 					let destination = btn.getAttribute('destination');
 					store.dispatch({type: CHANGE_FORM_STEP, form_step: destination});
 
-					if(destination == 'form-step-3'){
-						// should better
-						store.dispatch({type: AJAX_CALL, ajax_call: 1});
-					}
+					// if(destination == 'form-step-3'){
+					// 	// should better
+					// 	store.dispatch({type: AJAX_CALL, ajax_call: 1});
+					// }
 				});
 
 
@@ -1012,30 +1054,14 @@ class BookingForm {
 				Object.assign(data, {outlet_id, adult_pax, children_pax}, {type: action.type});
 				break;
 			}
+			case AJAX_SUBMIT_BOOKING:{
+				Object.assign(data, state.reservation, {type: action.type});
+				break;
+			}
 			default: {
 				break;
 			}
 		}
-
-		// if(state.form_step == 'form-step-3'){
-		// 	let {date, time} = state.reservation;
-		// 	let reservation_timestamp = `${date.format('YYYY-MM-DD')} ${time}:00`;
-		// 	let {salutation, first_name, last_name, email, phone_country_code, phone, remarks} = state.customer;
-		// 	data = Object.assign(data, {
-		// 		// reservation_date: date.format('Y-M-D'),
-		// 		// reservation_time: time,
-		// 		reservation_timestamp,
-		// 		salutation,
-		// 		first_name,
-		// 		last_name,
-		// 		email,
-		// 		phone_country_code,
-		// 		phone,
-		// 		customer_remarks: remarks,
-		// 		type: AJAX_SUBMIT_BOOKING,
-		// 	});
-		//
-		// }
 
 		console.log('ajaxCall: data', data);
 
@@ -1045,33 +1071,25 @@ class BookingForm {
 			data,
 			success(res) {
 				console.log(res);
-				//noinspection JSValidateTypes
-				if(res.statusMsg == AJAX_RESERVATION_SUCCESS_CREATE){
-					let reservation = res.data.reservation;
-
-					Object.assign(vue_state, {reservation});
-
-					store.dispatch({
-						type: SYNC_RESERVATION,
-						reservation,
-					});
-					return;
-				}
-
-				/**
-				 * Default case, search for avaialble time
-				 * When call ajax
-				 */
-				//noinspection JSValidateTypes
-				if(res.statusMsg == AJAX_AVAILABLE_TIME_FOUND){
-					let data = res.data;
-
-					store.dispatch({
-						type: CHANGE_AVAILABLE_TIME,
-						available_time: data
-					});
-
-					return;
+				switch(res.statusMsg){
+					case AJAX_AVAILABLE_TIME_FOUND: {
+						let {available_time} = res.data;
+						// Oh Yeah, we get available_time
+						store.dispatch({
+							type: CHANGE_AVAILABLE_TIME,
+							available_time
+						});
+						break;
+					}
+					case AJAX_RESERVATION_SUCCESS_CREATE: {
+						let {reservation} = res.data;
+						// Ok, sync what from server
+						store.dispatch({
+							type: SYNC_RESERVATION,
+							reservation,
+						});
+						break;
+					}
 				}
 			},
 			error(res){

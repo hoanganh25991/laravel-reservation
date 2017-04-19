@@ -108,7 +108,8 @@
                     <div class="form-actions cf bottom_room" style="width:100%">
                         <button class="btn-form-next btn btn-block btn-primary pull-left" style="width:48%; margin: 0;" destination="form-step-1">Back</button>
                         <button class="btn-form-next btn btn-block btn-primary pull-right" style="width:48%; margin: 0;" destination="form-step-3"
-                                :disabled="not_allowed_move_to_form_step_3()">Next</button>
+                                :disabled="not_allowed_move_to_form_step_3()"
+                                v-on:click="_submitBooking">Next</button>
                     </div>
                 </div>
                 @include('reservations.footer')

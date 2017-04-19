@@ -463,7 +463,7 @@ class BookingController extends HoiController {
                      * @warn need update to has it own statusMsg
                      * rather than implicit tell available time on return
                      */
-                    $data = $available_time;
+                    $data = compact('available_time');
                     $code = 200;
                     $msg  = Call::AJAX_AVAILABLE_TIME_FOUND;
                     break;
