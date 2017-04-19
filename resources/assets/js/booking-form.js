@@ -810,7 +810,7 @@ class BookingForm {
 				|| prestate.init_view == false;
 			if(form_step_change){
 				console.info('pointToFormStep');
-				this.pointToFormStep();
+				self.pointToFormStep();
 			}
 
 			// Handle dialog
@@ -819,14 +819,14 @@ class BookingForm {
 			}
 
 			if(last_action == DIALOG_HAS_DATA){
-				this.ajax_dialog.modal('hide');
+				self.ajax_dialog.modal('hide');
 			}
 
 			// Update calendar view
 			let first_time = prestate.init_view == false;
 			let outlet_changed = prestate.selected_outlet_id != state.selected_outlet_id;
 			if(first_time || last_action == UPDATE_CALENDAR_VIEW || outlet_changed){
-				this.updateCalendarView();
+				self.updateCalendarView();
 			}
 
 			// Call ajax to search available time
@@ -835,6 +835,10 @@ class BookingForm {
 			// Ok should call ajax for searching out available time
 			if(state.has_selected_day && changed_condition || just_select_day){
 				self.ajaxCall({type: AJAX_SEARCH_AVAILABLE_TIME});
+			}
+
+			if(last_action == CHANGE_AVAILABLE_TIME){
+				self.updateCalendarView();
 			}
 
 			// Redux state may just get sync from Vue
@@ -902,6 +906,7 @@ class BookingForm {
 	updateCalendarView() {
 		// Self get data from redux-state
 		let state = store.getState();
+		let available_time      = state.available_time;
 		let selected_outlet     = state.selected_outlet;
 		let max_days_in_advance = selected_outlet.max_days_in_advance;
 
@@ -935,7 +940,12 @@ class BookingForm {
 			let td_day_str = `${year}-${month}-${day}`;
 			// Check if day is available
 			// Style it
-			if (available_days.includes(td_day_str)) {
+			let in_date_range = available_days.includes(td_day_str);
+			let times_on_date = available_time[td_day_str];
+			let has_time      = times_on_date ? times_on_date.length > 0 : false;
+			let no_available_time_data = Object.keys(available_time).length == 0;
+
+			if (in_date_range && (has_time || no_available_time_data)) {
 				calendar._pickable(td);
 			} else {
 				calendar._unpickable(td);
