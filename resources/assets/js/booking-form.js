@@ -257,6 +257,9 @@ class BookingForm {
 		// When init, reservation date consider as today
 		// Self compute it
 		//this.initVueState(vue_state);
+		// Sorry but i don't watch on this obj
+		// At config 90 days, available time is HUGE
+		delete vue_state.available_time;
 
 		return vue_state;
 	}
@@ -270,36 +273,33 @@ class BookingForm {
 			el: '#form-step-container',
 			data: window.vue_state,
 			created(){},
+			beforeMount(){
+				store.dispatch({
+					type: SYNC_VUE_STATE,
+					vue_state: window.vue_state
+				});
+			},
 			mounted(){
 				self.event();
 				self.view();
 				self.listener();
-			},
-			computed: {
-				'reservation.outlet_id': function(){
-					return this.selected_outlet_id;
-				},
-				'selected_outlet': function(){
-					let selected_outlets = this.outlets.filter(outlet => outlet.id == this.selected_outlet_id);
-					let selected_outlet  = selected_outlets[0] || {};
-
-					return selected_outlet;
-				}
-			},
-			watch: {
-				selected_outlet_id: function(val){
-					// Update reservation
-					this.reservation.outlet_id = val;
-					// Update seleceted outlet base on
-					let selected_outlets = this.outlets.filter(outlet => outlet.id == val);
-					this.selected_outlet  = selected_outlets[0] || {};
-				}
 			},
 			beforeUpdate(){
 				store.dispatch({
 					type: SYNC_VUE_STATE,
 					vue_state: window.vue_state
 				});
+			},
+			updated(){},
+			watch: {
+				selected_outlet_id: function(val){
+					// Update reservation
+					let new_reservation = Object.assign({}, this.reservation, {outlet_id: val});
+					this.reservation    = new_reservation;
+					// Update seleceted outlet base on
+					let selected_outlets = this.outlets.filter(outlet => outlet.id == val);
+					this.selected_outlet = selected_outlets[0] || {};
+				}
 			},
 			methods: {
 				_checkEmpty(obj, except_keys = []){
