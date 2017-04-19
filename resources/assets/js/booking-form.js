@@ -48,6 +48,7 @@ const AJAX_BOOKING_CONDITION_VALIDATE_FAIL = 'AJAX_BOOKING_CONDITION_VALIDATE_FA
 // const AJAX_PAYMENT_REQUEST_SUCCESS = 'AJAX_PAYMENT_REQUEST_SUCCESS';
 const SYNC_VUE_STATE = 'SYNC_VUE_STATE';
 const UPDATE_CALENDAR_VIEW = 'UPDATE_CALENDAR_VIEW';
+const NO_DATE_PICKED = 'NO_DATE_PICKED';
 
 class BookingForm {
 	/** @namespace res.statusMsg */
@@ -160,7 +161,7 @@ class BookingForm {
 				outlet_id: null,
 				adult_pax: 0,
 				children_pax: 0,
-				date: moment(),
+				date: null,
 				time: null,
 				salutation: '',
 				first_name: '',
@@ -225,10 +226,7 @@ class BookingForm {
 			selected_outlet_id: null,
 			outlets: [],
 			// Store reservation data
-			reservation: {
-				date: moment(),
-				//time: null
-			},
+			reservation: {},
 			// Handle time select box
 			available_time: {},
 			available_time_on_reservation_date: [],
@@ -327,7 +325,8 @@ class BookingForm {
 				},
 				available_time(available_time){
 					// Build back available_time_on_reservation_date
-					let date_time_str = this.reservation.date.format('YYYY-MM-DD');
+					let reservation_date = this.reservation.date;
+					let date_time_str    = reservation_date ? reservation_date.format('YYYY-MM-DD') : NO_DATE_PICKED;
 					// Get out for specific day or default 'N/A'
 					this.available_time_on_reservation_date = available_time[date_time_str] || [{session_name: '', time: 'N/A'}];
 				},
@@ -755,7 +754,8 @@ class BookingForm {
 	_changeBookingCondition(previous_reservation, reservation){
 		return previous_reservation.outlet_id == reservation.outlet_id
 			&& previous_reservation.adult_pax == reservation.adult_pax
-			&& previous_reservation.children_pax == reservation.children_pax;
+			&& previous_reservation.children_pax == reservation.children_pax
+			&& previous_reservation.date == reservation.date;
 	}
 
 	view(){
@@ -830,9 +830,7 @@ class BookingForm {
 			// Call ajax to search available time
 			let changed_condition = !self._changeBookingCondition(prestate.reservation, state.reservation);
 			if(state.has_selected_day && changed_condition){
-				self.ajaxCall({
-					type: AJAX_SEARCH_AVAILABLE_TIME
-				});
+				self.ajaxCall({type: AJAX_SEARCH_AVAILABLE_TIME});
 			}
 
 			// State may just get something from Vue

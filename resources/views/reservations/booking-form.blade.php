@@ -38,7 +38,7 @@
                         <div class="clear"></div>
                         <div id="calendar-box" align="center"></div>
                         <div id="dt-choice" class="cf">
-                            <label>Booking time on @{{ reservation.date.format('DD MMM Y') }}</label>
+                            <label>Booking time on <span v-if="reservation.date">@{{ reservation.date.format('DD MMM Y') }}</span></label>
                             <select v-model="reservation.time" class="form-control">
                                 <template v-for="(time, time_index) in available_time_on_reservation_date">
                                     <option :value="time.time">@{{ time.session_name }} @{{ time.time }}</option>

@@ -17,7 +17,8 @@
             </tr>
             <tr>
                 <td style="width: 40%;"><label>Date &amp; Time</label></td>
-                <td>@{{ reservation.date.format('D MMM Y') }} at @{{ reservation.time }}</td>
+                <td v-if="reservation.date">@{{ reservation.date.format('D MMM Y') }} at @{{ reservation.time }}</td>
+                <td v-if="!reservation.date"></td>
             </tr>
             <tr>
                 <td><label>Pax</label></td>
