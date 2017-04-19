@@ -15,7 +15,7 @@ const SELECT_PAX                    = 'SELECT_PAX';
 
 const PAX_OVER 			= 'PAX_OVER';
 const AJAX_CALL			= 'AJAX_CALL';
-const DIALOG_SHOW  = 'DIALOG_SHOW';
+const DIALOG_SHOW       = 'DIALOG_SHOW';
 const DIALOG_HAS_DATA	= 'DIALOG_HAS_DATA';
 const DIALOG_HIDDEN		= 'DIALOG_HIDDEN';
 const DIALOG_EXCEED_MIN_EXIST_TIME = 'DIALOG_EXCEED_MIN_EXIST_TIME';
@@ -684,8 +684,9 @@ class BookingForm {
 	dialogReducer(state, action){
 		switch(action.type){
 			case DIALOG_SHOW:
+				return true;
 			case DIALOG_HAS_DATA:
-				return state;
+				return false;
 			default:
 				return state;
 		}
@@ -865,7 +866,7 @@ class BookingForm {
 				prestate.form_step != state.form_step
 				|| prestate.init_view == false;
 			if(form_step_change){
-				console.info('pointToFormStep');
+				//console.info('pointToFormStep');
 				self.pointToFormStep();
 			}
 
@@ -1043,7 +1044,7 @@ class BookingForm {
 		let state = store.getState();
 		let self  = this;
 		// Ask to show dialog
-		store.dispatch({type: DIALOG_SHOW, show: true});
+		store.dispatch({type: DIALOG_SHOW});
 		console.log(`%c ajaxCall: ${action.type}`, 'background:#FDD835');
 
 		let data = {};
@@ -1056,6 +1057,10 @@ class BookingForm {
 			}
 			case AJAX_SUBMIT_BOOKING:{
 				Object.assign(data, state.reservation, {type: action.type});
+				// BCS of limit of AJAX from jQuery
+				// We have to manually do this
+				// Remove moment obj inside data
+				delete data.date;
 				break;
 			}
 			default: {
@@ -1090,17 +1095,27 @@ class BookingForm {
 						});
 						break;
 					}
+					default:{
+						console.warn('Server return unknown statusMsg');
+						break;
+					}
 				}
 			},
-			error(res){
+			error(res_literal){
+				//console.log(res);
 				//noinspection JSUnresolvedVariable
-				console.log(res.responseJSON);
+				console.log(res_literal.responseJSON);
+				// It quite weird that in browser window
+				// Response as status code != 200
+				// res obj now wrap by MANY MANY INFO
+				// Please dont change this
+				let res = res_literal.responseJSON;
+				// Do normal things with res as in success case
 				try{
-					let data_obj = res.responseJSON;
-					let statusMsg= data_obj.statusMsg;
-					switch(statusMsg){
+					//let res = res.responseJSON;
+					switch(res.statusMsg){
 						case AJAX_BOOKING_CONDITION_VALIDATE_FAIL: {
-							let info = JSON.stringify(data_obj.data);
+							let info = JSON.stringify(res.data);
 							window.alert(`Booking condition validate fail: ${info}`);
 							break;
 						}
@@ -1111,7 +1126,7 @@ class BookingForm {
 						}
 
 						case AJAX_RESERVATION_REQUIRED_DEPOSIT: {
-							let reservation = data_obj.data.reservation;
+							let reservation = res.data.reservation;
 
 							Object.assign(vue_state, {reservation});
 
@@ -1136,7 +1151,7 @@ class BookingForm {
 						}
 
 						case AJAX_RESERVATION_VALIDATE_FAIL: {
-							let info = JSON.stringify(data_obj.data);
+							let info = JSON.stringify(res.data);
 							window.alert(`Validate fail: ${info}`);
 
 							let form_step =  'form-step-1';
@@ -1144,7 +1159,7 @@ class BookingForm {
 							// Try to move user to where he got mistake
 							// When fullfill form
 							try{
-								let first_key = Object.keys(data_obj.data)[0];
+								let first_key = Object.keys(res.data)[0];
 
 								// Simple list out all keys in form-step-2
 								let form_step_2_keys = [
@@ -1174,14 +1189,12 @@ class BookingForm {
 							break;
 						}
 					}
-				}catch(e){}
+				}catch(e){
+					console.warn('Unknown case of res or has error in code', e);
+				}
 			},
-			complete(res){
-				//console.log(res);
-				store.dispatch( {
-					type: DIALOG_HAS_DATA,
-					dialog_has_data: true
-				});
+			complete(){
+				store.dispatch({type: DIALOG_HAS_DATA});
 			},
 		});
 	}
