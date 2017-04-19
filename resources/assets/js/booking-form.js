@@ -163,7 +163,8 @@ class BookingForm {
 				children_pax: 0,
 				date: null,
 				time: null,
-				salutation: '',
+				agree_term_condition: false,
+				salutation: 'Mr.',
 				first_name: '',
 				last_name : '',
 				email: '',
@@ -187,6 +188,8 @@ class BookingForm {
 				'first_name',
 				'last_name',
 				'email',
+				'phone_country_code',
+				'phone',
 			],
 		};;
 
@@ -230,6 +233,9 @@ class BookingForm {
 			// Handle time select box
 			available_time: {},
 			available_time_on_reservation_date: [],
+			// Please don't change this
+			// undefined here is the default value
+			// to map with no time to pick
 			no_answer_time: undefined,
 			// Handle dynamic select pax
 			adult_pax_select: {
@@ -240,7 +246,9 @@ class BookingForm {
 				start: -1,
 				end: 20
 			},
-			has_changed_pax: null
+			has_changed_pax: null,
+			form_step_1_keys: [],
+			form_step_2_keys: [],
 		};
 
 		// Sync with parent for things changed
@@ -355,45 +363,51 @@ class BookingForm {
 				}
 			},
 			methods: {
-				_checkEmpty(obj, except_keys = []){
-					let empty_keys = Object.keys(obj).filter(key => {
-						if(except_keys.indexOf(key) != -1){
-							return false;
-						}
+				// We check these keys on reservation
+				// If it empty, not allow move next
+				_checkEmpty(keys, except_keys = []){
+					let reservation = this.reservation;
 
-						let value = obj[key];
+					let empty_keys =
+						keys.filter(key => {
+							if(except_keys.indexOf(key) != -1){
+								return false;
+							}
 
-						let isNumber = !isNaN(parseFloat(value)) && isFinite(value);
+							let value = reservation[key];
 
-						if(isNumber){
-							return false;
-						}
+							let isNumber = !isNaN(parseFloat(value)) && isFinite(value);
 
-						if(key == 'time' && value == 'N/A'){
-							//this is the false case
-							//no data select
-							return true;
-						}
+							if(isNumber){
+								return false;
+							}
 
-						return !value;
-					});
+							// If no data > empty key
+							// Like undefined, '', null
+							return !value;
+						});
 
 					return empty_keys.length > 0;
 				},
 
 				not_allowed_move_to_form_step_2(){
-					// let has_empty_keys = this._checkEmpty(this.reservation);
-					//
-					// let total_pax = this.pax.adult + this.pax.children;
-					//
-					// let out_range = (total_pax < this.overall_min_pax) || (total_pax > this.overall_max_pax);
-					//
-					// return has_empty_keys || out_range;
+					let has_empty_keys = this._checkEmpty(this.form_step_1_keys);
+
+					let reservation     = this.reservation;
+					let selected_outlet = this.selected_outlet;
+					// Get out total_pax to CROSS CHECK
+					// Dynamic pax select in worst case not work well
+					let total_pax = reservation.adult_pax + reservation.children;
+					let out_range = (total_pax < selected_outlet.overall_min_pax)
+						|| (total_pax > selected_outlet.overall_max_pax);
+
+					return has_empty_keys || out_range;
 				},
 
 				not_allowed_move_to_form_step_3(){
-					// let has_empty_keys = this._checkEmpty(this.customer, ['remarks']);
-					// return has_empty_keys;
+					let has_empty_keys =  this._checkEmpty(this.form_step_2_keys, ['remarks']);
+
+					return has_empty_keys;
 				},
 				
 				_changePax(which_pax){
@@ -1023,7 +1037,7 @@ class BookingForm {
 		//
 		// }
 
-		console.log(data);
+		console.log('ajaxCall: data', data);
 
 		$.ajax({
 			url: '',
