@@ -162,13 +162,13 @@ class BookingForm {
 				children_pax: 0,
 				date: moment(),
 				time: null,
-				salutation: 'Mr.',
-				first_name: 'Anh',
-				last_name : 'Le Hoang',
-				email: 'lehoanganh25991@gmail.com',
-				phone_country_code: '+84',
-				phone: '903865657',
-				customer_remarks: 'hello world'
+				salutation: '',
+				first_name: '',
+				last_name : '',
+				email: '',
+				phone_country_code: '',
+				phone: '',
+				customer_remarks: ''
 			},
 			dialog: {},
 			available_time: {},
@@ -305,6 +305,7 @@ class BookingForm {
 				self.initView();
 			},
 			beforeUpdate(){
+				//console.log('state changed');
 				store.dispatch({
 					type: SYNC_VUE_STATE,
 					vue_state: window.vue_state
@@ -312,42 +313,45 @@ class BookingForm {
 			},
 			updated(){},
 			watch: {
-				outlets(val){
-					let first_outlet = val[0] || {};
+				outlets(outlets){
+					let first_outlet        = outlets[0] || {};
 					this.selected_outlet_id = first_outlet.id;
 				},
-				selected_outlet_id(val){
+				selected_outlet_id(selected_outlet_id){
 					// Update reservation
-					let new_reservation = Object.assign({}, this.reservation, {outlet_id: val});
+					let new_reservation = Object.assign({}, this.reservation, {outlet_id: selected_outlet_id});
 					this.reservation    = new_reservation;
 					// Update seleceted outlet base on
-					let selected_outlets = this.outlets.filter(outlet => outlet.id == val);
+					let selected_outlets = this.outlets.filter(outlet => outlet.id == selected_outlet_id);
 					this.selected_outlet = selected_outlets[0] || {};
 				},
-				available_time(val){
+				available_time(available_time){
 					// Build back available_time_on_reservation_date
-					let reservation_date_time_str = this.reservation.date.format('YYYY-MM-DD');
-					let available_time_on_reservation_date = [{session_name: '', time: 'N/A'}];
-					try{
-						available_time_on_reservation_date = val[reservation_date_time_str].map(time_obj => {
-							let {session_name, time} = time_obj;
-							return {session_name, time};
-						});
-					}catch(e){};
-
-					this.available_time_on_reservation_date = available_time_on_reservation_date;
-
+					let date_time_str = this.reservation.date.format('YYYY-MM-DD');
+					// Get out for specific day or default 'N/A'
+					this.available_time_on_reservation_date = available_time[date_time_str] || [{session_name: '', time: 'N/A'}];
 				},
 				available_time_on_reservation_date(val){
 					// When see this one change
 					// In some way ask for update calendar view
 					if(!this.reservation.time){
 						let first_time = val[0] || {};
-						let new_reservation = Object.assign({}, this.reservation, {time: first_time});
+						let new_reservation = Object.assign({}, this.reservation, {time: first_time.time});
 
 						this.reservation = new_reservation;
 					}
 
+					// User has pick one
+					// BUTT this not in the new available time array
+					// So.., repick the first one as default
+					let find_in = val.filter(time_obj => time_obj.time == this.reservation.time);
+					let is_in   = find_in.length > 0 ;
+					if(this.reservation.time && !is_in){
+						let first_time = val[0] || {};
+						let new_reservation = Object.assign({}, this.reservation, {time: first_time.time});
+
+						this.reservation = new_reservation;
+					}
 				}
 			},
 			methods: {
@@ -831,6 +835,10 @@ class BookingForm {
 				});
 			}
 
+			// State may just get something from Vue
+			// Then it updated, it talk back to Vue
+			// After 2 times of SYNC
+			// They are now in the same manner
 			Object.assign(window.vue_state, state);
 		});
 
