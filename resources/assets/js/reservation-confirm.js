@@ -2,6 +2,7 @@ const INIT_VIEW   = 'INIT_VIEW';
 const DIALOG_SHOW = 'DIALOG_SHOW';
 const DIALOG_HAS_DATA = 'DIALOG_SHOW';
 const SYNC_RESERVATION = 'SYNC_RESERVATION';
+const SYNC_VUE_STATE = 'SYNC_VUE_STATE';
 /**
  * @namespace moment
  */
@@ -22,7 +23,8 @@ class ReservationConfirm{
 		let rootReducer = function(state = default_state, action){
 			switch(action.type){
 				case INIT_VIEW:{
-					return Object.assign({}, state, {init_view: true});
+					let fuck = Object.assign({}, state, {init_view: true});
+					return fuck;
 				}
 				case DIALOG_SHOW: {
 					return Object.assign({}, state, {dialog: true});
@@ -34,6 +36,9 @@ class ReservationConfirm{
 					let reservation = action.reservation;
 
 					return Object.assign({}, state, {reservation});
+				}
+				case SYNC_VUE_STATE:{
+					return Object.assign({}, state, action.vue_state);
 				}
 				default:
 					return state;
@@ -70,10 +75,11 @@ class ReservationConfirm{
 
 	buildVue(){
 		let self = this;
+		let store= window.store;
 		//Show funny dialog
 		let ajax_dialog = $('#ajax-dialog');
 		ajax_dialog.modal('show');
-		console.log(window.state);
+		//console.log(window.state);
 		//Get state from server
 		let vue_state = {
 			base_url: '',
@@ -88,7 +94,12 @@ class ReservationConfirm{
 			el: '#app',
 			data: vue_state,
 			created(){},
-			beforeUpdate(){},
+			beforeUpdate(){
+				store.dispatch({
+					type: SYNC_VUE_STATE,
+					vue_state: window.vue_state
+				});
+			},
 			mounted(){
 				//console.log('vue mounted');
 				//setup auto hide funny dialog
@@ -103,8 +114,9 @@ class ReservationConfirm{
 				self.initView();
 				//this._initPaypal();
 			},
+			updated(){},
 			watch: {
-				resevation(reservation){
+				reservation(reservation){
 					let date_not_init      = !reservation.date;
 					let has_timestamp_data = reservation.reservation_timestamp;
 					// Decide should run
@@ -117,7 +129,7 @@ class ReservationConfirm{
 					if(date_time.isValid()){
 						let new_reservation = Object.assign({}, reservation, {date: date_time});
 
-						this.resevation = new_reservation;
+						this.reservation = new_reservation;
 					}
 				},
 				paypal_token(){
@@ -168,13 +180,31 @@ class ReservationConfirm{
 	}
 
 	view(){
-		let store       = window.store;
-		let state       = store.getState();
-		let prestate    = store.getPrestate();
-		let last_action = store.getLastAction();
-		let self = this;
+		let store = window.store;
+		let redex_debug_element = document.querySelector('#redux-state');
 
 		store.subscribe(()=>{
+			let store       = window.store;
+			let state       = store.getState();
+			let prestate    = store.getPrestate();
+			let last_action = store.getLastAction();
+			let self = this;
+			// Only run debug when needed & in local
+			let on_local = state.base_url && state.base_url.includes('reservation.dev') || state.base_url.includes('localhost');
+			if(redex_debug_element && on_local){
+				let clone_state = Object.assign({}, state);
+				// In case available_time so large
+				if(clone_state.available_time){
+					let keys = Object.keys(clone_state.available_time);
+					if(keys.length > 14){
+						delete clone_state.available_time;
+						console.warn('available_time is large, debug build HTML will slow app, removed it');
+					}
+				}
+
+				redex_debug_element.innerHTML = syntaxHighlight(JSON.stringify(clone_state, null, 4));
+			}
+
 			if(last_action == DIALOG_SHOW){
 				self.ajax_dialog.modal('show');
 			}
@@ -184,6 +214,7 @@ class ReservationConfirm{
 			}
 
 			// Sync state to vue
+			//console.log('SYNC_STAT_2_VUE');
 			Object.assign(window.vue_state, state);
 		});
 	}
