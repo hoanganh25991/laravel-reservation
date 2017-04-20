@@ -753,35 +753,23 @@ class BookingForm {
 
 		document.addEventListener('user-select-day', function(e){
 			let date = moment(e.detail.day, 'YYYY-MM-DD');
+			// Tell state, which date customer change
+			store.dispatch({type: CHANGE_RESERVATION_DATE, date});
 
-			store.dispatch({
-				type: CHANGE_RESERVATION_DATE,
-				date
-			});
-
-			let state = store.getState();
-			if(state.has_selected_day == false){
+			// Oh, customer just pick a day
+			// Dispatch to state
+			let state              = store.getState();
+			let still_not_pick_day = state.has_selected_day == false;
+			if(still_not_pick_day)
 				store.dispatch({type: HAS_SELECTED_DAY});
-			}
-
-			// self.computeAjaxCall();
 		});
 
-		let btn_form_nexts = this.btn_form_nexts;
-		btn_form_nexts
+		this.btn_form_nexts
 			.forEach((btn)=>{
-
 				btn.addEventListener('click', ()=>{
 					let destination = btn.getAttribute('destination');
 					store.dispatch({type: CHANGE_FORM_STEP, form_step: destination});
-
-					// if(destination == 'form-step-3'){
-					// 	// should better
-					// 	store.dispatch({type: AJAX_CALL, ajax_call: 1});
-					// }
 				});
-
-
 			});
 
 		/**
@@ -882,7 +870,8 @@ class BookingForm {
 			// Update calendar view
 			let first_time = prestate.init_view == false;
 			let outlet_changed = prestate.selected_outlet_id != state.selected_outlet_id;
-			if(first_time || last_action == UPDATE_CALENDAR_VIEW || outlet_changed){
+			// if(first_time || last_action == UPDATE_CALENDAR_VIEW || outlet_changed){
+			if(first_time || outlet_changed){
 				self.updateCalendarView();
 			}
 
