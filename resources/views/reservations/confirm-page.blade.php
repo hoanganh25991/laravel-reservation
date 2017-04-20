@@ -4,27 +4,10 @@
     <div class="box form-step" id="app">
         @include('reservations.booking-summary', ['is_summary_page' => false]);
     </div>
-    {{--modal--}}
-    <div class="modal fade" id="ajax-dialog">
-        <div class="modal-dialog modal-sm">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Searching for available time</h4>
-                </div>
-                <div class="modal-body center">
-                    <div style="width: 184px; display: inline-block">
-                        <img src="{{ url('images/ring.svg') }}">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <hr>
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-    @include('debug.redux-state')
+    @include('reservations.ajax-dialog')
+    @if(env('APP_ENV') != 'production')
+        @include('debug.redux-state')
+    @endif
 @endsection
 
 @push('script')
