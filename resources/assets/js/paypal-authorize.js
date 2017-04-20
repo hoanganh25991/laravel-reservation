@@ -18,24 +18,14 @@ class PayPalAuthorize {
 				amount: 10.00, // Required
 				currency: 'USD', // Required
 				locale: 'en_US',
-				enableShippingAddress: true,
-				shippingAddressEditable: false,
-				shippingAddressOverride: {
-					recipientName: 'Scruff McGruff',
-					line1: '1234 Main St.',
-					line2: 'Unit 1',
-					city: 'Chicago',
-					countryCode: 'US',
-					postalCode: '60652',
-					state: 'IL',
-					phone: '123.456.7890'
-				}
+				enableShippingAddress: false
 			}, paypal_options);
 
 		this.token    = paypal_token;
 		this.base_url = base_url;
 		
 		this.initPaypal();
+		//this.initPaypalV2();
 	}
 
 	initPaypal(){
@@ -59,75 +49,108 @@ class PayPalAuthorize {
 					paypalInstance.tokenize(self.paypal_options, function(err, tokenizationPayload) {
 						// Tokenization complete
 						// Send tokenizationPayload.nonce to server
-						if(err){throw err;}
-						console.log('tokenizationPayload', tokenizationPayload);
-						
-						let data = 
-							Object.assign({
-								tokenizationPayload: JSON.stringify(tokenizationPayload),
-								type: AJAX_PAYMENT_REQUEST
-							}, self.paypal_options);
+						if(err) throw err;
 
-						// Ask for ajax_dialog
-						let store = window.store;
-
-						store.dispatch({type: DIALOG_SHOW});
-
-						$.ajax({
-							url: self.base_url,
-							method: 'POST',
-							data,
-							success(res){
-								console.log(res);
-								switch(res.statusMsg){
-									case AJAX_PAYMENT_REQUEST_SUCCESS:{
-										console.log('%c Success paypal payment', 'background:#FDD835');
-										// Dispatch at document
-										document.dispatchEvent(new CustomEvent('PAYPAL_PAYMENT_SUCCESS', {detail: res}));
-										break;
-									}
-									default:{
-										console.warn('Unknown case of res.statusMsg');
-										break;
-									}
-								}
-							},
-							error(res_literal){
-								//noinspection JSUnresolvedVariable
-								console.log(res_literal.responseJSON);
-								// It quite weird that in browser window
-								// Response as status code != 200
-								// res obj now wrap by MANY MANY INFO
-								// Please dont change this
-								let res = res_literal.responseJSON;
-								// Do normal things with res as in success case
-								switch(res.statusMsg){
-									case AJAX_PAYMENT_REQUEST_VALIDATE_FAIL:
-									case AJAX_PAYMENT_REQUEST_FIND_RESERVATION_FAIL:
-									case AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL:{
-										let info = JSON.stringify(res);
-										let msg  = `Paypal payment fail: ${info}`;
-										window.alert(msg);
-										break;
-									}
-									default:{
-										console.warn('Unknown case of res.statusMsg');
-										break;
-									}
-								}
-
-							},
-							complete(res){
-								//console.log('response from tokenizationPayload.php', res);
-								store.dispatch({type: DIALOG_HAS_DATA});
-							}
-						});
+						self.handlePayload(tokenizationPayload);
 					});
 				});
 			});
 		});
 	}
 
+	initPaypalV2(){
+		let self = this;
+		var submitButton = document.querySelector('#submit-button');
+		//noinspection JSUnresolvedVariable
+		braintree.dropin.create({
+			authorization: self.token,
+			selector: '#dropin-container',
+			paypal: {
+				flow: 'checkout',
+				amount: 10.00,
+				currency: 'USD'
+			}
+		}, function (err, dropinInstance) {
+			if (err) {
+				// Handle any errors that might've occurred when creating Drop-in
+				console.error(err);
+				return;
+			}
+			submitButton.addEventListener('click', function () {
+				//noinspection JSUnresolvedFunction
+				dropinInstance.requestPaymentMethod(function (err, tokenizationPayload) {
+					if (err) throw err;
 
+					self.handlePayload(tokenizationPayload);
+				});
+			});
+		});
+	}
 
+	handlePayload(tokenizationPayload){
+		let self = this;
+		// Send payload.nonce to your server
+		console.log('tokenizationPayload', tokenizationPayload);
+
+		let data =
+			Object.assign({
+				tokenizationPayload: JSON.stringify(tokenizationPayload),
+				type: AJAX_PAYMENT_REQUEST
+			}, self.paypal_options);
+
+		// Ask for ajax_dialog
+		let store = window.store;
+
+		store.dispatch({type: DIALOG_SHOW});
+
+		$.ajax({
+			url: self.base_url,
+			method: 'POST',
+			data,
+			success(res){
+				console.log(res);
+				switch(res.statusMsg){
+					case AJAX_PAYMENT_REQUEST_SUCCESS:{
+						console.log('%c Success paypal payment', 'background:#FDD835');
+						// Dispatch at document
+						document.dispatchEvent(new CustomEvent('PAYPAL_PAYMENT_SUCCESS', {detail: res}));
+						break;
+					}
+					default:{
+						console.warn('Unknown case of res.statusMsg');
+						break;
+					}
+				}
+			},
+			error(res_literal){
+				//noinspection JSUnresolvedVariable
+				console.log(res_literal.responseJSON);
+				// It quite weird that in browser window
+				// Response as status code != 200
+				// res obj now wrap by MANY MANY INFO
+				// Please dont change this
+				let res = res_literal.responseJSON;
+				// Do normal things with res as in success case
+				switch(res.statusMsg){
+					case AJAX_PAYMENT_REQUEST_VALIDATE_FAIL:
+					case AJAX_PAYMENT_REQUEST_FIND_RESERVATION_FAIL:
+					case AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL:{
+						let info = JSON.stringify(res);
+						let msg  = `Paypal payment fail: ${info}`;
+						window.alert(msg);
+						break;
+					}
+					default:{
+						console.warn('Unknown case of res.statusMsg');
+						break;
+					}
+				}
+
+			},
+			complete(res){
+				//console.log('response from tokenizationPayload.php', res);
+				store.dispatch({type: DIALOG_HAS_DATA});
+			}
+		});
+	}
 }
