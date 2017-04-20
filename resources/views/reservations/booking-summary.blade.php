@@ -2,7 +2,7 @@
     <div id="reservation-details" class="content legend">
         <h6 v-show="reservation.payment_status == 25" class="r-title">Reservation Summary</h6>
         <p v-show="reservation.payment_status == 25" class="r-title">
-            <label class="text-danger" style="float: none;">Your reservation will not be confirmed<br/>unless a deposit is made</label>
+            <label class="text-danger" style="float: none;">A payment authorization is required<br/>before confirming your reservation.</label>
         </p>
 
         <h6 v-show="reservation.payment_status != 25" class="r-title">Reservation No. <strong>@{{ reservation.confirm_id }}</strong></h6>
@@ -51,6 +51,8 @@
                 <td><label>Deposit Required</label></td>
                 <td>
                     <label class="h5 text-danger">$@{{ reservation.deposit }}</label>
+                    <label class="text-danger">Tap on the PayPal button to authorize the payment.
+                        Note that you will only be charged in the event of no-show.</label>
                     @include('paypal.authorize')
                 </td>
             </tr>
