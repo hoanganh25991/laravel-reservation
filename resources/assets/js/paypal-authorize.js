@@ -6,6 +6,12 @@ const AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL = 'AJAX_PAYMENT_REQUEST_TRANSACTION_
 class PayPalAuthorize {
 
 	constructor(paypal_token, paypal_options, base_url){
+		let dependencies = [
+			`Current endpoint support ajax call: ${AJAX_PAYMENT_REQUEST}`,
+			`Ajax dialog for 2 action: ${DIALOG_SHOW}, ${DIALOG_HAS_DATA}`
+		];
+		console.warn('Dependencies', dependencies);
+
 		this.paypal_options =
 			Object.assign({
 				flow: 'checkout', // Required
@@ -61,7 +67,12 @@ class PayPalAuthorize {
 								tokenizationPayload: JSON.stringify(tokenizationPayload),
 								type: AJAX_PAYMENT_REQUEST
 							}, self.paypal_options);
-						
+
+						// Ask for ajax_dialog
+						let store = window.store;
+
+						store.dispatch({type: DIALOG_SHOW});
+
 						$.ajax({
 							url: self.base_url,
 							method: 'POST',
@@ -108,6 +119,7 @@ class PayPalAuthorize {
 							},
 							complete(res){
 								//console.log('response from tokenizationPayload.php', res);
+								store.dispatch({type: DIALOG_HAS_DATA});
 							}
 						});
 					});
