@@ -31,22 +31,47 @@ class ReservationController extends HoiController{
         if($req->method() == 'POST'){
             
             $action_type = $req->get('type');
+
+            // $response built when this controller
+            // base on other controller to handle request
+            // WHY??? same end point idea
+            // GET|POST at one place
+            $response = null;
             
             switch($action_type){
                 case Call::AJAX_PAYMENT_REQUEST:
                     $respone = (new PayPalController)->handlePayment($req);
                     break;
+                case Call::AJAX_CONFIRM_RESERVATION:
+                    // Only change status of reservation to CONFIRMED
+                    // When reservation booked
+                    if($reservation->status >= Reservation::RESERVED){
+                        $reservation->status = Reservation::CONFIRMED;
+                        $reservation->save();
+
+                        $data = compact('reservation');
+                        $code = 200;
+                        $msg  = Call::AJAX_CONFIRM_RESERVATION_SUCCESS;
+                        break;
+                    }
+
+                    // Reservation not changed to confirm
+                    // It should be RESERVED first
+                    $data = compact('reservation');
+                    $code = 422;
+                    $msg  = Call::AJAX_RESERVATION_STILL_NOT_RESERVED;
+                    break;
                 default:{
-                    $reservation->status = Reservation::CONFIRMED;
-                    $reservation->save();
-                    //Should tell something
+                    $data = [];
+                    $code = 422;
+                    $msg  = Call::AJAX_UNKNOWN_CASE;
+                    break;
                 }
             }
             
-            if(true){//when fine
-                
-            }
-            //return redirect()->route('reservation_thank_you');
+            if($respone) return $respone;
+
+            return $this->apiResponse($data, $code, $msg);
         }
         
         if(is_null($reservation)){
