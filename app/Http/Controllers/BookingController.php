@@ -430,6 +430,11 @@ class BookingController extends HoiController {
         if($req->method() == 'POST'){
             $action_type = $req->get('type');
 
+            // $response built when this controller
+            // base on other controller to handle request
+            // WHY??? same end point idea
+            // GET|POST at one place
+            $response = null;
             switch($action_type){
                 default:
                     $data = [];
@@ -533,7 +538,14 @@ class BookingController extends HoiController {
                     $code = 200;
                     $msg  = Call::AJAX_RESERVATION_SUCCESS_CREATE;
                     break;
+                case Call::AJAX_PAYMENT_REQUEST:
+                    $response = (new PayPalController)->handlePayment($req);
+                    break;
             }
+
+            // Return $response built by other controllers
+            if($response)
+                return $response;
 
             return $this->apiResponse($data, $code, $msg);
         }
