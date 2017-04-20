@@ -136,7 +136,8 @@ class Reservation extends HoiModel {
      */
     protected $casts = [
         'send_sms_confirmation' => 'boolean',
-        'staff_read_state'      => 'boolean'
+        'staff_read_state'      => 'boolean',
+        'phone_country_code'    => 'string',
     ];
 
     /**
