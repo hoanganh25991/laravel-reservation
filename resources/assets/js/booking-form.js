@@ -797,7 +797,7 @@ class BookingForm {
 		let self = this;
 		
 		//Debug state by redux_debug_html
-		let redex_debug_html = document.querySelector('#redux-state');
+		let redex_debug_element = document.querySelector('#redux-state');
 
 		store.subscribe(()=>{
 			let state    = store.getState();
@@ -812,7 +812,7 @@ class BookingForm {
 
 			// Only run debug when needed & in local
 			let on_local = state.base_url && state.base_url.includes('reservation.dev') || state.base_url.includes('localhost');
-			if(redex_debug_html && on_local){
+			if(redex_debug_element && on_local){
 				let clone_state = Object.assign({}, state);
 				// In case available_time so large
 				if(clone_state.available_time){
@@ -823,7 +823,7 @@ class BookingForm {
 					}
 				}
 
-				redex_debug_html.innerHTML = syntaxHighlight(JSON.stringify(clone_state, null, 4));
+				redex_debug_element.innerHTML = syntaxHighlight(JSON.stringify(clone_state, null, 4));
 			}
 
 			// Vue available time
