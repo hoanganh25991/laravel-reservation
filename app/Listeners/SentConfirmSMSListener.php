@@ -20,7 +20,14 @@ class SentConfirmSMSListener{
      */
     public function handle(SentReminderSMS $event){
         $reservation = $event->reservation;
-        $reservation->status = Reservation::REMINDER_SENT;
-        $reservation->save();
+        // When customer pick up the reservation
+        // Do confirm BEFORE reminder sent
+        // Quite crazy right!!
+        // Only up to  REMINDER_SENT
+        // Not down to REMINDER_SENT
+        if($reservation->status < Reservation::REMINDER_SENT){
+            $reservation->status = Reservation::REMINDER_SENT;
+            $reservation->save();
+        }
     }
 }
