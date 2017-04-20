@@ -1,12 +1,21 @@
 const INIT_VIEW   = 'INIT_VIEW';
 const DIALOG_SHOW = 'DIALOG_SHOW';
-const DIALOG_HAS_DATA = 'DIALOG_SHOW';
+const DIALOG_HAS_DATA = 'DIALOG_HAS_DATA';
 const SYNC_RESERVATION = 'SYNC_RESERVATION';
 const SYNC_VUE_STATE = 'SYNC_VUE_STATE';
-/**
- * @namespace moment
- */
+
+const AJAX_CONFIRM_RESERVATION = 'AJAX_CONFIRM_RESERVATION';
+const AJAX_CONFIRM_RESERVATION_SUCCESS = 'AJAX_CONFIRM_RESERVATION_SUCCESS';
+const AJAX_RESERVATION_STILL_NOT_RESERVED = 'AJAX_RESERVATION_STILL_NOT_RESERVED';
+
 class ReservationConfirm{
+
+	/**
+	 * @namespace moment
+	 * @namespace  vue.thank_you_url
+	 */
+
+
 	constructor(){
 		this.buildRedux();
 		this.buildVue();
@@ -74,37 +83,42 @@ class ReservationConfirm{
 	}
 
 	buildVue(){
-		let self = this;
 		let store= window.store;
 		//Show funny dialog
-		let ajax_dialog = $('#ajax-dialog');
-		ajax_dialog.modal('show');
-		//console.log(window.state);
-		//Get state from server
+		store.dispatch({type: DIALOG_SHOW});
+
+		let self = this;
+		// Vue state at the begining
+		// Each keys in this initial state
+		// Is what WATCHED by vue
 		let vue_state = {
 			base_url: '',
 			selected_outlet: {},
 			reservation: {},
 			paypal_token: null,
+			thank_you_url: '',
 		};
-		//locall vue state
+		// Store as global reference
 		window.vue_state = vue_state;
 
 		this.vue = new Vue({
 			el: '#app',
 			data: vue_state,
+			beforeCreate(){},
 			created(){},
 			beforeUpdate(){
+				// Sync vue with redux-state
+				// I love this one
+				// Should sync in EVERY STEP
 				store.dispatch({
 					type: SYNC_VUE_STATE,
 					vue_state: window.vue_state
 				});
 			},
 			mounted(){
-				//console.log('vue mounted');
-				//setup auto hide funny dialog
+				// Auto hide funny dialog
 				setTimeout(function(){
-					ajax_dialog.modal('hide');
+					store.dispatch({type: DIALOG_HAS_DATA});
 				}, 690);
 				//bind view
 				self.event();
@@ -112,10 +126,11 @@ class ReservationConfirm{
 				self.view();
 				// Here we go
 				self.initView();
-				//this._initPaypal();
 			},
 			updated(){},
 			watch: {
+				// When reservation change|init at first time
+				// Base on his own 'reservation_timestamp' > build on date moment obj
 				reservation(reservation){
 					let date_not_init      = !reservation.date;
 					let has_timestamp_data = reservation.reservation_timestamp;
@@ -132,6 +147,8 @@ class ReservationConfirm{
 						this.reservation = new_reservation;
 					}
 				},
+				// Ok if has paypal_token
+				// Init one braintree to conduct payment
 				paypal_token(){
 					// Ok we has paypal_token
 					// So init the paypal method
@@ -152,7 +169,75 @@ class ReservationConfirm{
 					let paypal_authorize = new PayPalAuthorize(paypal_token, paypal_options, base_url);
 				}
 			},
-			methods:{}
+			methods:{
+				_confirmReservation(){
+					let vue  = this;
+					let data = {type: AJAX_CONFIRM_RESERVATION};
+
+					store.dispatch({type: DIALOG_SHOW});
+
+					// Do a post request
+					// Handle response
+					$.ajax({
+						url: vue.base_url,
+						method: 'POST',
+						data,
+						success(res){
+							console.log(res);
+							switch(res.statusMsg){
+								case AJAX_CONFIRM_RESERVATION_SUCCESS:{
+									let {reservation} = res.data;
+
+									store.dispatch({
+										type: SYNC_RESERVATION,
+										reservation
+									});
+
+									// Ok, move to thank you page
+									window.location.href = vue.thank_you_url;
+
+									break;
+								}
+								default:{
+									console.warn('Unknown case', res);
+									break;
+								}
+							}
+						},
+						error(res_literal){
+							//console.log(res);
+							//noinspection JSUnresolvedVariable
+							console.log(res_literal.responseJSON);
+							// It quite weird that in browser window
+							// Response as status code != 200
+							// res obj now wrap by MANY MANY INFO
+							// Please dont change this
+							let res = res_literal.responseJSON;
+							switch(res.statusMsg){
+								case AJAX_RESERVATION_STILL_NOT_RESERVED:{
+									let {reservation} = res.data;
+
+									store.dispatch({
+										type: SYNC_RESERVATION,
+										reservation
+									});
+
+									let msg = 'Please complete your payment first. Thank you.'
+									window.alert(msg);
+									break;
+								}
+								default:{
+									console.warn('Unknown case', res);
+									break;
+								}
+							}
+						},
+						complete(){
+							store.dispatch({type: DIALOG_HAS_DATA});
+						}
+					});
+				}
+			}
 		});
 	}
 

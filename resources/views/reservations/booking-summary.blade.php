@@ -66,9 +66,9 @@
             @endif
 
             @if(!$is_summary_page)
-                <form method="POST">
-                    <button class="btn btn-primary">Confirm</button>
-                </form>
+                <button class="btn btn-primary"
+                        v-show="reservation.status <= 100"
+                        v-on:click="_confirmReservation">Confirm</button>
             @endif
         </div>
     </div>

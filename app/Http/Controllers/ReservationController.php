@@ -40,7 +40,7 @@ class ReservationController extends HoiController{
             
             switch($action_type){
                 case Call::AJAX_PAYMENT_REQUEST:
-                    $respone = (new PayPalController)->handlePayment($req);
+                    $response = (new PayPalController)->handlePayment($req);
                     break;
                 case Call::AJAX_CONFIRM_RESERVATION:
                     // Only change status of reservation to CONFIRMED
@@ -69,7 +69,7 @@ class ReservationController extends HoiController{
                 }
             }
             
-            if($respone) return $respone;
+            if($response) return $response;
 
             return $this->apiResponse($data, $code, $msg);
         }
@@ -87,6 +87,7 @@ class ReservationController extends HoiController{
             'selected_outlet'=> $selected_outlet,
             'reservation'    => $reservation,
             'paypal_token'   => $paypal_token,
+            'thank_you_url'  => route('reservation_thank_you')
         ];
         
         return view('reservations.confirm-page')->with(compact('state'));
