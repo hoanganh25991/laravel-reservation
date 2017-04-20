@@ -306,6 +306,25 @@ class Reservation extends HoiModel {
         return $validator;
     }
 
+    public static function validateInAdminPage($reservation_data){
+        $allowed_outltes_id = Outlet::all()->pluck('id')->toArray();
+
+        $validator = Validator::make($reservation_data, [
+            'outlet_id'    => ['required', 'numeric', Rule::in($allowed_outltes_id)],
+            'adult_pax'    => 'required|numeric',
+            'children_pax' => 'required|numeric',
+            'reservation_timestamp' => 'required|date_format:Y-m-d H:i:s',
+            'salutation'   => 'required',
+            'first_name'   => 'required',
+            'last_name'    => 'required',
+            'email'        => 'required|email',
+            'phone_country_code' => 'required|regex:/^\+\d{2,}/',
+            'phone'        => 'required|regex:/\d+$/',
+        ]);
+
+        return $validator;
+    }
+
     /**
      * Global query scope, order by reservation time
      */
