@@ -11,3 +11,11 @@ Homestead.yaml
 #/database/reservation.sql
 /.vscode
 /npm-debug.log.*
+/public/mix-manifest.json
+/public/js/admin-reservations.**.js
+/public/js/admin-settings.**.js
+/public/js/booking-form.**.js
+/public/js/paypal-authorize.**.js
+/public/js/reservation-confirm.**.js
+/public/js/calendar.**.js
+/public/js/syntax-highlight.**.js
