@@ -161,7 +161,7 @@ class BookingForm {
 				outlet_id: null,
 				adult_pax: 0,
 				children_pax: 0,
-				reservation_timestamp: null,
+				reservation_timestamp: 'be computed base on date & time',
 				agree_term_condition: false,
 				salutation: 'Mr.',
 				first_name: '',
@@ -363,19 +363,6 @@ class BookingForm {
 						this.reservation = new_reservation;
 					}
 				},
-				'reservation.date': function(date){
-					let time = this.reservation.time;
-					this._computeReservationTimestamp(date, time);
-				},
-				'reservation.time': function(time){
-					let date = this.reservation.date;
-					let timestamp = this._computeReservationTimestamp(date, time);
-					if(timestamp){
-						let new_reservation = Object.assign({}, this.reservation, {reservation_timestamp: timestamp});
-
-						this.reservation = new_reservation;
-					}
-				}
 			},
 			methods: {
 				// We check these keys on reservation
@@ -674,7 +661,7 @@ class BookingForm {
 				return action.reservation;
 			}
 			case SYNC_RESERVATION:
-				let new_state = Object.assign(state, action.reservation);
+				let new_state = Object.assign({}, state, action.reservation);
 				return new_state;
 			default:
 				return state;
@@ -1046,6 +1033,13 @@ class BookingForm {
 			}
 			case AJAX_SUBMIT_BOOKING:{
 				Object.assign(data, state.reservation, {type: action.type});
+				// Compute timestamp
+				let vue = self.vue;
+				let {date, time} = state.reservation;
+				let timestamp    = vue._computeReservationTimestamp(date, time);
+				console.log(timestamp);
+				// Add timestamp, requirement for submit booking
+				data.reservation_timestamp = timestamp;
 				// BCS of limit of AJAX from jQuery
 				// We have to manually do this
 				// Remove moment obj inside data
@@ -1085,7 +1079,7 @@ class BookingForm {
 						break;
 					}
 					default:{
-						console.warn('Server return unknown statusMsg');
+						console.warn('Unknown case of res.statusMsg');
 						break;
 					}
 				}
@@ -1115,9 +1109,7 @@ class BookingForm {
 						}
 
 						case AJAX_RESERVATION_REQUIRED_DEPOSIT: {
-							let reservation = res.data.reservation;
-
-							Object.assign(vue_state, {reservation});
+							let {reservation} = res.data;
 
 							store.dispatch({
 								type: SYNC_RESERVATION,
@@ -1127,14 +1119,20 @@ class BookingForm {
 							/**
 							 * Init paypal
 							 */
-							let amount     = reservation.deposit;
-							let confirm_id = reservation.confirm_id;
-							let outlet_id  = reservation.outlet_id;
-							let token      = data.paypal_token;
+							let amount        = reservation.deposit;
+							let confirm_id    = reservation.confirm_id;
+							let outlet_id     = reservation.outlet_id;
+							let {paypal_token}= res.data;
 
 							//noinspection ES6ModulesDependencies
 							let base_url = self.url('paypal');
-							let paypal_authorize = new PayPalAuthorize(token, {amount, confirm_id, outlet_id}, base_url);
+							// Create state data for paypal
+							let paypal_options = {
+								amount,
+								outlet_id,
+								confirm_id,
+							};
+							let paypal_authorize = new PayPalAuthorize(paypal_token, paypal_options, base_url);
 
 							break;
 						}
