@@ -29,17 +29,40 @@ class ReservationController extends HoiController{
          * Customer confirm resrevation
          */
         if($req->method() == 'POST'){
-            $reservation->status = Reservation::CONFIRMED;
-            $reservation->save();
-
-            return redirect()->route('reservation_thank_you');
+            
+            $action_type = $req->get('type');
+            
+            switch($action_type){
+                case Call::AJAX_PAYMENT_REQUEST:
+                    $respone = (new PayPalController)->handlePayment($req);
+                    break;
+                default:{
+                    $reservation->status = Reservation::CONFIRMED;
+                    $reservation->save();
+                    //Should tell something
+                }
+            }
+            
+            if(true){//when fine
+                
+            }
+            //return redirect()->route('reservation_thank_you');
         }
         
         if(is_null($reservation)){
             return redirect('');
         }
-        
-        $state = $this->buildAppState($reservation);
+
+        //$state = $this->buildAppState($req, $reservation);
+        $paypal_token    = (new PayPalController)->generateToken();
+        $selected_outlet = $reservation->outlet;
+
+        $state = [
+            'base_url'       => url()->current(),
+            'selected_outlet'=> $selected_outlet,
+            'reservation'    => $reservation,
+            'paypal_token'   => $paypal_token,
+        ];
         
         return view('reservations.confirm-page')->with(compact('state'));
     }
@@ -48,41 +71,22 @@ class ReservationController extends HoiController{
         return view('reservations.thank-you');
     }
 
-    public function buildAppState(Reservation $reservation){
-
-
-        $paypal_token = (new PayPalController)->generateToken();
-
-        $state = [
-            'outlet' => [
-                'id' => $reservation->outlet_id,
-                'name' => $reservation->outlet_name
-            ],
-
-            'pax' => [
-                'adult' => $reservation->adult_pax,
-                'children' => $reservation->children_pax
-            ],
-
-            'reservation' => $reservation,
-
-            'customer' => [
-                'salutation' => $reservation->salutation,
-                'first_name' => $reservation->first_name,
-                'last_name'  => $reservation->last_name,
-                'email'      => $reservation->email,
-                'phone_country_code' => $reservation->phone_country_code,
-                'phone'      => $reservation->phone,
-                'remarks'    => $reservation->customer_remarks
-            ],
-            
-            'paypal_token'   => $paypal_token,
-            
-            'paypal_url'     => url('paypal'),
-        ];
-        
-        return $state;
-    }
+//    public function buildAppState(ApiRequest $req, Reservation $reservation){
+//
+//
+//        $paypal_token = (new PayPalController)->generateToken();
+//
+//        $selected_outlet = $reservation->outlet;
+//
+//        $state = [
+//            'base_url'       => url()->current(),
+//            'selected_outlet'=> $selected_outlet,
+//            'reservation'    => $reservation,
+//            'paypal_token'   => $paypal_token,
+//        ];
+//
+//        return $state;
+//    }
 
     /**
      * @param ApiRequest $req
