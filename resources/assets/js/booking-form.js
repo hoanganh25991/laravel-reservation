@@ -167,7 +167,7 @@ class BookingForm {
 				first_name: '',
 				last_name : '',
 				email: '',
-				phone_country_code: '',
+				phone_country_code: '+65',
 				phone: '',
 				customer_remarks: ''
 			},
