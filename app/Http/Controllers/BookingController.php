@@ -84,8 +84,8 @@ class BookingController extends HoiController {
             ])
         );
 
-        //$booking_date   = Carbon::createFromFormat('Y-m-d H:i:s', $req->get('reservation_timestamp'), Setting::timezone());
-        $booking_date   = Carbon::createFromTimestamp($req->get('reservation_timestamp'), Setting::timezone());
+        $booking_date   = Carbon::createFromFormat('Y-m-d H:i:s', $req->get('reservation_timestamp'), Setting::timezone());
+        //$booking_date   = Carbon::createFromTimestamp($req->get('reservation_timestamp'), Setting::timezone());
         $available_time = $this->availableTime();
 
         if(!isset($available_time[$booking_date->format('Y-m-d')])){
