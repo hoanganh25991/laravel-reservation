@@ -664,4 +664,21 @@ class Reservation extends HoiModel {
         return $query->where('reservation_timestamp', '>=', $last_30_days_str);
     }
 
+    /**
+     * Send sms base on nexmo require phone_code as '+xx', start with +
+     * Support transform code as '65' > '+65'
+     * Or empty '' > '+65'
+     * @param $value
+     */
+    public function setPhoneCountryCodeAttribute($value){
+        $code = $value;
+
+        $start_with_signal_plus = substr($value, 0, 1) == '+';
+        if(!$start_with_signal_plus){
+            $code = "+$code";
+        }
+
+        $this->attributes['phone_country_code'] = $code;
+    }
+
 }
