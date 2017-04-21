@@ -7,7 +7,7 @@
 
         <h6 v-show="reservation.payment_status != 25" class="r-title">Reservation No. <strong>@{{ reservation.confirm_id }}</strong></h6>
         <p v-show="reservation.payment_status != 25" class="r-title">
-            <label style="float: none;">An SMS has been sent to your mobile phone</label>
+            <label style="float: none;" v-show="selected_outlet.send_sms_on_booking && reservation.status >= 100">An SMS has been sent to your mobile phone</label>
         </p>
         <table id="r-rsrve-info">
             <tbody>

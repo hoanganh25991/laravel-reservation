@@ -18,7 +18,7 @@ class Outlet extends HoiModel {
         'overall_min_pax',
         'overall_max_pax',
         'max_days_in_advance',
-        ''
+        'send_sms_on_booking'
     ];
     
     public function getNameAttribute(){
