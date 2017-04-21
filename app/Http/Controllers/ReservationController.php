@@ -131,7 +131,7 @@ class ReservationController extends HoiController{
 
                 foreach($reservations as $reservation_data){
                     //$validator = Reservation::validateOnCRUD($reservation_data);
-                    $validator = Reservation::validateInAdminPage($reservation_data);
+                    $validator = Reservation::validateOnCRUD($reservation_data);
 
                     if($validator->fails()){
                         break;
