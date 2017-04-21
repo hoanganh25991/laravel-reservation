@@ -72,7 +72,7 @@ class Handler extends ExceptionHandler {
             return Response::json([
                 'statusCode' => $code,
                 'statusMsg'  => $msg,
-                'error_msg'  => $exception->getMessage(),
+                'errorMsg'   => $exception->getMessage(),
                 'data'       => $data,
             ], $code)->setEncodingOptions(JSON_NUMERIC_CHECK);
         }
