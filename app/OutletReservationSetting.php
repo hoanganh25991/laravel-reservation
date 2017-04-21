@@ -409,8 +409,11 @@ class OutletReservationSetting extends HoiModel{
             //No item found, use default config
             if(is_null($item)){
                 try{
-                    $setting_class = new \ReflectionClass(Setting::class);
-                    $item_value    = $setting_class->getConstant("DEFAULT_$key");
+//                    $setting_class = new \ReflectionClass(Setting::class);
+//                    $item_value    = $setting_class->getConstant("DEFAULT_$key");
+                    $setting_class = Setting::class;
+                    $constant_str  = "$setting_class::DEFAULT_$key";
+                    $item_value    = constant($constant_str);
 
                     return $item_value;
                 }catch(\Exception $e){
