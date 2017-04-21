@@ -1079,6 +1079,34 @@ class BookingForm {
 						});
 						break;
 					}
+					case AJAX_RESERVATION_REQUIRED_DEPOSIT: {
+						let {reservation} = res.data;
+
+						store.dispatch({
+							type: SYNC_RESERVATION,
+							reservation,
+						});
+
+						/**
+						 * Init paypal
+						 */
+						let amount        = reservation.deposit;
+						let confirm_id    = reservation.confirm_id;
+						let outlet_id     = reservation.outlet_id;
+						let {paypal_token}= res.data;
+
+						//noinspection ES6ModulesDependencies
+						let base_url = self.url('paypal');
+						// Create state data for paypal
+						let paypal_options = {
+							amount,
+							outlet_id,
+							confirm_id,
+						};
+						let paypal_authorize = new PayPalAuthorize(paypal_token, paypal_options, base_url);
+
+						break;
+					}
 					default:{
 						console.warn('Unknown case of res.statusMsg');
 						break;
@@ -1103,41 +1131,10 @@ class BookingForm {
 							window.alert(`Booking condition validate fail: ${info}`);
 							break;
 						}
-
 						case AJAX_RESERVATION_NO_LONGER_AVAILABLE: {
 							window.alert(`SORRY, Someone has book before you. Rerservation no longer available`);
 							break;
 						}
-
-						case AJAX_RESERVATION_REQUIRED_DEPOSIT: {
-							let {reservation} = res.data;
-
-							store.dispatch({
-								type: SYNC_RESERVATION,
-								reservation,
-							});
-
-							/**
-							 * Init paypal
-							 */
-							let amount        = reservation.deposit;
-							let confirm_id    = reservation.confirm_id;
-							let outlet_id     = reservation.outlet_id;
-							let {paypal_token}= res.data;
-
-							//noinspection ES6ModulesDependencies
-							let base_url = self.url('paypal');
-							// Create state data for paypal
-							let paypal_options = {
-								amount,
-								outlet_id,
-								confirm_id,
-							};
-							let paypal_authorize = new PayPalAuthorize(paypal_token, paypal_options, base_url);
-
-							break;
-						}
-
 						case AJAX_RESERVATION_VALIDATE_FAIL: {
 							let info = JSON.stringify(res.data);
 							window.alert(`Validate fail: ${info}`);
@@ -1172,7 +1169,6 @@ class BookingForm {
 
 							break;
 						}
-
 						default: {
 							break;
 						}
