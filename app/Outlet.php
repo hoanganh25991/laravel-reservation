@@ -17,7 +17,8 @@ class Outlet extends HoiModel {
     protected $appends = [
         'overall_min_pax',
         'overall_max_pax',
-        'max_days_in_advance'
+        'max_days_in_advance',
+        ''
     ];
     
     public function getNameAttribute(){
@@ -95,4 +96,22 @@ class Outlet extends HoiModel {
         return $buffer_config(Setting::MAX_DAYS_IN_ADVANCE);
     }
 
+    /**
+     * Get send_sms_on_booking
+     * For better experience with select pax form
+     * @return mixed|null
+     */
+    public function getSendSMSOnBookingAttribute(){
+        $outlet_id = $this->id;
+
+        if(is_null($outlet_id)){
+            // Outlet still not created
+            // Can get its config
+            return null;
+        }
+
+        $notification_config = Setting::notificationConfig($outlet_id);
+
+        return $notification_config(Setting::SEND_SMS_ON_BOOKING);
+    }
 }
