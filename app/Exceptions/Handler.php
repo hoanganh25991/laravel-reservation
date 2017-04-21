@@ -2,14 +2,19 @@
 
 namespace App\Exceptions;
 
+use App\Traits\ApiResponse;
 use Exception;
 use Illuminate\Log\Writer;
+use Illuminate\Support\Facades\Response;
 use Psr\Log\LoggerInterface;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use App\Libraries\HoiAjaxCall as Call;
 
-class Handler extends ExceptionHandler
-{
+class Handler extends ExceptionHandler {
+
+    use ApiResponse;
+
     /**
      * A list of the exception types that should not be reported.
      *
@@ -56,6 +61,22 @@ class Handler extends ExceptionHandler
      * @return \Illuminate\Http\Response
      */
     public function render($request, Exception $exception){
+        // When render error for api
+        // Render as
+        // code: 500
+        if($request->ajax()){
+            $data = [];
+            $code = 500;
+            $msg  = Call::SERVER_THROWN_EXCEPTION;
+
+            return Response::json([
+                'statusCode' => $code,
+                'statusMsg'  => $msg,
+                'error_msg'  => $exception->getMessage(),
+                'data'       => $data,
+            ], $code)->setEncodingOptions(JSON_NUMERIC_CHECK);
+        }
+
         return parent::render($request, $exception);
     }
 
