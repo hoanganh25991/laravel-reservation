@@ -524,7 +524,7 @@ class BookingController extends HoiController {
                         $paypal_token = (new PayPalController)->generateToken();
 
                         $data = compact('reservation', 'paypal_token');
-                        $code = 422;
+                        $code = 200;
                         $msg  = Call::AJAX_RESERVATION_REQUIRED_DEPOSIT;
                         break;
                     }
