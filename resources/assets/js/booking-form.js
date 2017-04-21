@@ -542,7 +542,8 @@ class BookingForm {
 					let date_time  = moment_date.clone().hour(time_hour).minute(time_minute);
 
 					//console.log(date_time.format('X'));
-					return date_time.format('X');
+					//return date_time.format('X');
+					return date_time.format('YYYY-MM-DD HH:mm:ss');
 				},
 			}
 		});
