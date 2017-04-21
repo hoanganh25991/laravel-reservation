@@ -301,6 +301,7 @@ class Reservation extends HoiModel {
             'email'        => 'required|email',
             'phone_country_code' => 'required|regex:/^\+\d{2,}/',
             'phone'        => 'required|regex:/\d+$/',
+            'phone'        => 'required|regex:/\b(?!0)\d{6,}\b/',
         ]);
 
         return $validator;
