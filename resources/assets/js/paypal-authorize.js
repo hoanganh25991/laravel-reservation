@@ -25,8 +25,8 @@ class PayPalAuthorize {
 		this.token    = paypal_token;
 		this.base_url = base_url;
 		
-		// this.initPaypal();
-		this.initPaypalV2();
+		this.initPaypal();
+		// this.initPaypalV2();
 	}
 
 	initPaypal(){
