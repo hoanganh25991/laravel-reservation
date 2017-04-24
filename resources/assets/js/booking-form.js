@@ -51,6 +51,7 @@ const UPDATE_CALENDAR_VIEW = 'UPDATE_CALENDAR_VIEW';
 const NO_DATE_PICKED = 'NO_DATE_PICKED';
 const PAYPAL_BUTTON_SHOW = 'PAYPAL_BUTTON_SHOW';
 const PAYPAL_BUTTON_HIDE = 'PAYPAL_BUTTON_HIDE';
+const CHANGE_PAX = 'CHANGE_PAX';
 
 class BookingForm {
 	/** @namespace res.statusMsg */
@@ -93,9 +94,10 @@ class BookingForm {
 
 					return Object.assign({}, state, {reservation});
 				}
-				case CHANGE_RESERVATION:
-				case SYNC_RESERVATION:
-					return Object.assign({}, state, {reservation: action.reservation});
+				case SYNC_RESERVATION:{
+					let reservation = Object.assign({}, action.reservation);
+					return Object.assign({}, state, {reservation});
+				}
 				case AJAX_CALL:
 					return Object.assign({}, state, {
 						ajax_call: self.ajaxCallReducer(state.ajax_call, action)
@@ -160,7 +162,7 @@ class BookingForm {
 				adult_pax: 0,
 				children_pax: 0,
 				reservation_timestamp: 'be computed base on date & time',
-				agree_term_condition: false,
+				agree_term_condition: null,
 				salutation: 'Mr.',
 				first_name: '',
 				last_name : '',
@@ -178,7 +180,8 @@ class BookingForm {
 				'adult_pax',
 				'children_pax',
 				'agree_term_condition',
-				'date'
+				'date',
+				'time',
 			],
 			form_step_2_keys: [
 				'salutation',
@@ -230,6 +233,7 @@ class BookingForm {
 			reservation: {
 				date: null,
 				time: null,
+				agree_term_condition: null,
 				agree_payment_term_condition: null, //Only show paypal authorization button, when customer accept term&condition
 			},
 			// Handle time select box
@@ -248,7 +252,10 @@ class BookingForm {
 				start: -1,
 				end: 20
 			},
-			has_changed_pax: null,
+			change_pax: {
+				current_label: null,
+				times: 0
+			},
 			form_step_1_keys: [],
 			form_step_2_keys: [],
 			dialog: null, //Vue need dialog info, to manage show/hide on last step summary,
@@ -316,10 +323,21 @@ class BookingForm {
 			},
 			beforeUpdate(){
 				//console.log('state changed');
+				let store = window.store;
+				let state = store.getState();
 				store.dispatch({
 					type: SYNC_VUE_STATE,
 					vue_state: window.vue_state
 				});
+
+				try{
+					let change_pax = state.change_pax.times < this.change_pax.times;
+					if(change_pax){
+						store.dispatch({type: CHANGE_PAX});
+					}
+				}catch(e){
+					console.log('Cant resolve change_pax');
+				}
 			},
 			updated(){},
 			watch: {
@@ -364,8 +382,8 @@ class BookingForm {
 						this.reservation = new_reservation;
 					}
 				},
-				
-				
+
+
 			},
 			methods: {
 				// We check these keys on reservation
@@ -402,7 +420,7 @@ class BookingForm {
 					let selected_outlet = this.selected_outlet;
 					// Get out total_pax to CROSS CHECK
 					// Dynamic pax select in worst case not work well
-					let total_pax = reservation.adult_pax + reservation.children;
+					let total_pax = reservation.adult_pax + reservation.children_pax;
 					let out_range = (total_pax < selected_outlet.overall_min_pax)
 						|| (total_pax > selected_outlet.overall_max_pax);
 
@@ -414,9 +432,14 @@ class BookingForm {
 
 					return has_empty_keys;
 				},
-				
+
 				_changePax(which_pax){
-					this.has_changed_pax = which_pax;
+					let times = this.change_pax.times;
+					times++;
+					this.change_pax = {
+						current_label: which_pax,
+						times
+					};
 				},
 
 				_fun(){
@@ -427,98 +450,96 @@ class BookingForm {
 				},
 
 				_updatePaxSelectBox(which_pax){
-					try{
-						/**
-						 * What trigger this function re-run
-						 * As dependency of watcher
-						 * Like: 'Watch these properties, if it change, call me'
-						 */
-						let selected_outlet     = this.selected_outlet;
-						let reservation         = this.reservation;
-						let adult_pax_select    = this.adult_pax_select;
-						let children_pax_select = this.children_pax_select;
+					/**
+					 * What trigger this function re-run
+					 * As dependency of watcher
+					 * Like: 'Watch these properties, if it change, call me'
+					 */
+					let selected_outlet     = this.selected_outlet;
+					let reservation         = this.reservation;
+					let adult_pax_select    = this.adult_pax_select;
+					let children_pax_select = this.children_pax_select;
+					let change_pax          = this.change_pax;
 
-						// Determine which pax to base on
-						// User change pax_x >>> base on pax_x
-						let other_pax   = which_pax == 'adult_pax' ? 'children_pax' : 'adult_pax';
-						let base_on_pax = this.has_changed_pax ? this.has_changed_pax : other_pax;
-						let need_updated_pax_select = this[`${which_pax}_select`];
-						// I'm the BASE
-						// NO NEED TO UPDATE ME
-						if(which_pax == base_on_pax){
-							// Doesn't need to update me
-							// Has run already
-							let start = need_updated_pax_select.start;
-							let end   = need_updated_pax_select.end;
-
-							return (end - start);
-						}
-						// Minus for '1' to allow equal to minimum
-						// Self loop of template, start at 'start'
-						// (1,10) > 1,3,4,5,6,7,8,9,10
-						// Instead of 0,1,2,3,4...
-						let start = selected_outlet.overall_min_pax - reservation[base_on_pax] - 1;
-						let end   = selected_outlet.overall_max_pax - reservation[base_on_pax];
-						// When user first time pick up, allow him choose any thing he want
-						// There are two select box, once for adult, once for children
-						// Only remove check when count times >= 3
-						if(!this.has_changed_pax){
-							start = -1;
-							end   = this.selected_outlet.overall_max_pax;
-						}
-						// Limit start at 0, select for positive number.......
-						start = start < -1 ? -1 : start;
-						// Update pax_select back to vue_state
-						//if(adult_pax_select.)
-						//this[other_pax_select] = {start, end};
-						let new_pax_select = {start, end};
-						let should_update  = !self._shallowEqualObj(need_updated_pax_select, new_pax_select);
-						if(should_update){
-							this[`${which_pax}_select`] = new_pax_select;
-						}
-						// Handle case self pick for customer
-						// When there pax size out of selectable range
-						let pax_value = reservation[which_pax];
-						let out_range = pax_value < (start + 1) || pax_value > end;
-						let new_reservation = reservation;
-						if(out_range){
-							window.alert(`There is a minimum pax of ${this.selected_outlet.overall_min_pax} for reservation at this outlet`);
-							let diff = (pax_value - start) + (pax_value - end);
-
-							if(diff < 0){
-								// Close to start
-								pax_value = (start + 1);
-							}else{
-								// Close to end
-								pax_value = end;
-							}
-
-							// Update new_reservation
-							new_reservation = Object.assign({}, reservation, {[which_pax]: pax_value});
-						}
-						// Update vue_state
-						//this.reservation[which_pax] = pax_value;
-						this.reservation = new_reservation;
-						//Object.assign(this.reservation, {[other_pax]: pax_value});
-						// Update to state, we ONLY HAVE ONE STATE
-						// For whole app, place can be trusted
-						// let store = window.store;
-						// let vue   = this;
-						// store.dispatch({
-						// 	type: CHANGE_RESERVATION,
-						// 	reservation: vue.reservation
-						// });
-
-						// Return for template loop
-						// Return range to auto build <option>
-						if(isNaN(end) || isNaN(start))
-							throw 'not a nummber of end|start';
+					// Determine which pax to base on
+					// User change pax_x >>> base on pax_x
+					let other_pax   = which_pax == 'adult_pax' ? 'children_pax' : 'adult_pax';
+					let base_on_pax = change_pax.current_label ? change_pax.current_label : other_pax;
+					let need_updated_pax_select = this[`${which_pax}_select`];
+					// I'm the BASE
+					// NO NEED TO UPDATE ME
+					if(which_pax == base_on_pax){
+						// Doesn't need to update me
+						// Has run already
+						let start = need_updated_pax_select.start;
+						let end   = need_updated_pax_select.end;
 
 						return (end - start);
 					}
-					catch(e){
+					// Minus for '1' to allow equal to minimum
+					// Self loop of template, start at 'start'
+					// (1,10) > 1,3,4,5,6,7,8,9,10
+					// Instead of 0,1,2,3,4...
+					let start = selected_outlet.overall_min_pax - reservation[base_on_pax] - 1;
+					let end   = selected_outlet.overall_max_pax - reservation[base_on_pax];
+					// When user first time pick up, allow him choose any thing he want
+					// There are two select box, once for adult, once for children
+					// Only remove check when count times >= 3
+					if(!change_pax.current_label){
+						start = -1;
+						end   = this.selected_outlet.overall_max_pax;
+					}
+					// Limit start at 0, select for positive number.......
+					start = start < -1 ? -1 : start;
+					// Update pax_select back to vue_state
+					//if(adult_pax_select.)
+					//this[other_pax_select] = {start, end};
+					let new_pax_select = {start, end};
+					let should_update  = !self._shallowEqualObj(need_updated_pax_select, new_pax_select);
+					if(should_update){
+						this[`${which_pax}_select`] = new_pax_select;
+					}
+					// Handle case self pick for customer
+					// When there pax size out of selectable range
+					let pax_value = reservation[which_pax];
+					let out_range = pax_value < (start + 1) || pax_value > end;
+					let new_reservation = reservation;
+					if(out_range){
+						window.alert(`There is a minimum pax of ${this.selected_outlet.overall_min_pax} for reservation at this outlet`);
+						let diff = (pax_value - start) + (pax_value - end);
+
+						if(diff < 0){
+							// Close to start
+							pax_value = (start + 1);
+						}else{
+							// Close to end
+							pax_value = end;
+						}
+
+						// Update new_reservation
+						new_reservation = Object.assign({}, reservation, {[which_pax]: pax_value});
+					}
+					// Update vue_state
+					//this.reservation[which_pax] = pax_value;
+					this.reservation = new_reservation;
+					//Object.assign(this.reservation, {[other_pax]: pax_value});
+					// Update to state, we ONLY HAVE ONE STATE
+					// For whole app, place can be trusted
+					// let store = window.store;
+					// let vue   = this;
+					// store.dispatch({
+					// 	type: CHANGE_RESERVATION,
+					// 	reservation: vue.reservation
+					// });
+
+					// Return for template loop
+					// Return range to auto build <option>
+					if(isNaN(end) || isNaN(start)){
+						//console.error('not a nummber of end|start');
 						return 20;
 					}
+
+					return (end - start);
 				},
 
 				_submitBooking(){
@@ -625,12 +646,12 @@ class BookingForm {
 		});
 
 		this.btn_form_nexts
-			.forEach((btn)=>{
-				btn.addEventListener('click', ()=>{
-					let destination = btn.getAttribute('destination');
-					store.dispatch({type: CHANGE_FORM_STEP, form_step: destination});
-				});
-			});
+		    .forEach((btn)=>{
+			    btn.addEventListener('click', ()=>{
+				    let destination = btn.getAttribute('destination');
+				    store.dispatch({type: CHANGE_FORM_STEP, form_step: destination});
+			    });
+		    });
 
 		/**
 		 * Handle payment success
@@ -658,6 +679,13 @@ class BookingForm {
 	}
 
 	_changeBookingCondition(previous_reservation, reservation){
+		let store = window.store;
+		let last_action = store.getLastAction();
+
+		if(last_action == SYNC_RESERVATION){
+			return false;
+		}
+
 		return previous_reservation.outlet_id != reservation.outlet_id
 			|| previous_reservation.adult_pax != reservation.adult_pax
 			|| previous_reservation.children_pax != reservation.children_pax
@@ -668,7 +696,7 @@ class BookingForm {
 		this._findView();
 		let store = window.store;
 		let self = this;
-		
+
 		//Debug state by redux_debug_html
 		let redex_debug_element = document.querySelector('#redux-state');
 
@@ -736,7 +764,11 @@ class BookingForm {
 			}
 
 			// Call ajax to search available time
-			let changed_condition = self._changeBookingCondition(prestate.reservation, state.reservation);
+			// Why still need this?
+			// Deep keys can't watch inside vue for what change
+			// Explicit tell host what changed
+			let change_pax        = last_action == CHANGE_PAX;
+			let changed_condition = self._changeBookingCondition(prestate.reservation, state.reservation) || change_pax;
 			let just_select_day   = prestate.has_selected_day == false && state.has_selected_day == true;
 			// Ok should call ajax for searching out available time
 			if(state.has_selected_day && changed_condition || just_select_day){
@@ -746,7 +778,7 @@ class BookingForm {
 			if(last_action == CHANGE_AVAILABLE_TIME){
 				self.updateCalendarView();
 			}
-			
+
 			if(last_action == PAYPAL_BUTTON_SHOW){
 				self.paypal_button.style.transform = 'scale(1,1)';
 			}
@@ -919,7 +951,7 @@ class BookingForm {
 				let vue = self.vue;
 				let {date, time} = state.reservation;
 				let timestamp    = vue._computeReservationTimestamp(date, time);
-				console.log(timestamp);
+				//console.log(timestamp);
 				// Add timestamp, requirement for submit booking
 				data.reservation_timestamp = timestamp;
 				// BCS of limit of AJAX from jQuery
