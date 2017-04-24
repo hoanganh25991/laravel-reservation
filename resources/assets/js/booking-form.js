@@ -211,18 +211,10 @@ class BookingForm {
 			state = Object.assign(state, {reservation});
 		}
 
-		// Self pick the first outlet as selected_outlet_id
-		//let first_outlet         = state.outlets[0] || {};
-		//state.selected_outlet_id = first_outlet.id;
-		//state.selected_outlet    = first_outlet;
-
 		return state;
 	}
 
 	buildVueState(){
-		// let store = window.store;
-		// let state = store.getState();
-
 		// Vue own state to manage child view
 		let vue_state = {
 			// Store which selected outlet pick
@@ -234,7 +226,8 @@ class BookingForm {
 				date: null,
 				time: null,
 				agree_term_condition: null,
-				agree_payment_term_condition: null, //Only show paypal authorization button, when customer accept term&condition
+				//Only show paypal authorization button, when customer accept term&condition
+				agree_payment_term_condition: null,
 			},
 			// Handle time select box
 			available_time: {},
@@ -258,31 +251,9 @@ class BookingForm {
 			},
 			form_step_1_keys: [],
 			form_step_2_keys: [],
-			dialog: null, //Vue need dialog info, to manage show/hide on last step summary,
+			// Vue need dialog info, to manage show/hide on summary step
+			dialog: null,
 		};
-
-		// Sync with parent for things changed
-		//this.syncVueStateWithParent(vue_state, state);
-		//Object.assign(vue_state, state);
-		// Compute first time for pax select box
-		//let selected_outlet = vue_state.selected_outlet;
-		// Object.assign(vue_state, {
-		// 	adult_pax_select: {
-		// 		start: -1,
-		// 		end: selected_outlet.overall_max_pax,
-		// 	},
-		// 	children_pax_select: {
-		// 		start: -1,
-		// 		end: selected_outlet.overall_max_pax,
-		// 	},
-		// });
-
-		// When init, reservation date consider as today
-		// Self compute it
-		//this.initVueState(vue_state);
-		// Sorry but i don't watch on this obj
-		// At config 90 days, available time is HUGE
-		// delete vue_state.available_time;
 
 		return vue_state;
 	}
@@ -295,41 +266,32 @@ class BookingForm {
 		this.vue = new Vue({
 			el: '#form-step-container',
 			data: window.vue_state,
-			beforeCreated(){
-				// Some data NEED sanity
-				// DAMN
-			},
-			created(){
-				//self.initView();
-			},
-			beforeMount(){
-				// Do something with draw data
-				//let first_outlet         = this.outlets[0] || {};
-				// Self assign first outlet as what selected
-				//this.selected_outlet_id  = first_outlet.id;
-				// Self compute available_time_on_reservation_day
-				//this.available_time      = {};
-				// store.dispatch({
-				// 	type: SYNC_VUE_STATE,
-				// 	vue_state: window.vue_state
-				// });
-			},
+			beforeCreated(){},
+			created(){},
+			beforeMount(){},
 			mounted(){
 				self.event();
 				self.view();
 				self.listener();
 
-				self.initView();
+				let store = window.store;
+				store.dispatch({type: INIT_VIEW});
 			},
 			beforeUpdate(){
-				//console.log('state changed');
 				let store = window.store;
 				let state = store.getState();
+
+				// Ok  sync vue with redux-state
 				store.dispatch({
 					type: SYNC_VUE_STATE,
 					vue_state: window.vue_state
 				});
 
+				// SYNC VUE STATE is clumsy event
+				// Can't decide what has changed inside vue
+				// Vue self check which improtant changed
+				// Affect on UI
+				// Notify it out for global handle
 				try{
 					let change_pax = state.change_pax.times < this.change_pax.times;
 					if(change_pax){
@@ -442,13 +404,6 @@ class BookingForm {
 					};
 				},
 
-				_fun(){
-					let a = this.selected_outlet_id;
-					let b = this.reservation;
-					let x = Math.floor(Math.random()*10);
-					return x;
-				},
-
 				_updatePaxSelectBox(which_pax){
 					/**
 					 * What trigger this function re-run
@@ -492,8 +447,6 @@ class BookingForm {
 					// Limit start at 0, select for positive number.......
 					start = start < -1 ? -1 : start;
 					// Update pax_select back to vue_state
-					//if(adult_pax_select.)
-					//this[other_pax_select] = {start, end};
 					let new_pax_select = {start, end};
 					let should_update  = !self._shallowEqualObj(need_updated_pax_select, new_pax_select);
 					if(should_update){
@@ -520,22 +473,10 @@ class BookingForm {
 						new_reservation = Object.assign({}, reservation, {[which_pax]: pax_value});
 					}
 					// Update vue_state
-					//this.reservation[which_pax] = pax_value;
 					this.reservation = new_reservation;
-					//Object.assign(this.reservation, {[other_pax]: pax_value});
-					// Update to state, we ONLY HAVE ONE STATE
-					// For whole app, place can be trusted
-					// let store = window.store;
-					// let vue   = this;
-					// store.dispatch({
-					// 	type: CHANGE_RESERVATION,
-					// 	reservation: vue.reservation
-					// });
 
-					// Return for template loop
-					// Return range to auto build <option>
+					// If can't resolve the range
 					if(isNaN(end) || isNaN(start)){
-						//console.error('not a nummber of end|start');
 						return 20;
 					}
 
@@ -543,6 +484,13 @@ class BookingForm {
 				},
 
 				_submitBooking(){
+					// Should not self decide
+					// Decision must make be global
+					// Who know exactly what is going on
+					// Quick app, write in this way
+					/** @warn   Loose from parent >>> lead to don't know where trigger
+					 *          Parent manage whole things directly >>> easy to track what going on app
+					 */
 					self.ajaxCall({type: AJAX_SUBMIT_BOOKING});
 				},
 
@@ -565,8 +513,6 @@ class BookingForm {
 					// Ok create a full date, time obj
 					let date_time  = moment_date.clone().hour(time_hour).minute(time_minute);
 
-					//console.log(date_time.format('X'));
-					//return date_time.format('X');
 					return date_time.format('YYYY-MM-DD HH:mm:ss');
 				},
 
@@ -673,7 +619,6 @@ class BookingForm {
 		});
 
 		document.addEventListener('calendar-change-month', (e) => {
-
 			this.updateCalendarView();
 		});
 	}
@@ -682,6 +627,7 @@ class BookingForm {
 		let store = window.store;
 		let last_action = store.getLastAction();
 
+		// Code in this way issss clumsy to a function
 		if(last_action == SYNC_RESERVATION){
 			return false;
 		}
@@ -705,12 +651,6 @@ class BookingForm {
 			let prestate = store.getPrestate();
 			let last_action = store.getLastAction();
 
-			// if(last_action == INIT_VIEW){
-			// 	Object.assign(window.vue_state, state);
-			// }
-			//console.log(state.reservation);
-
-
 			// Only run debug when needed & in local
 			let on_local = state.base_url && state.base_url.includes('reservation.dev') || state.base_url.includes('localhost');
 			if(redex_debug_element && on_local){
@@ -727,22 +667,11 @@ class BookingForm {
 				redex_debug_element.innerHTML = syntaxHighlight(JSON.stringify(clone_state, null, 4));
 			}
 
-			// Vue available time
-			// let first_time = prestate.init_view == false;
-			// Available time change effect view
-			// Update it
-			let available_time_change = (prestate.available_time != state.available_time);
-			if(available_time_change){
-				//this.updateSelectView(state.available_time);
-				//this.updateCalendarView(state.available_time);
-			}
-
 			// Form step change
-			let form_step_change =
-				prestate.form_step != state.form_step
-				|| prestate.init_view == false;
-			if(form_step_change){
-				//console.info('pointToFormStep');
+			let change_step    = prestate.form_step != state.form_step;
+			// First time run, self point to the first one
+			let run_first_step = prestate.init_view == false;
+			if(change_step || run_first_step){
 				self.pointToFormStep();
 			}
 
@@ -751,22 +680,23 @@ class BookingForm {
 				this.ajax_dialog.modal('show');
 			}
 
+			// Show dialog
 			if(last_action == DIALOG_HAS_DATA){
 				self.ajax_dialog.modal('hide');
 			}
 
 			// Update calendar view
-			let first_time = prestate.init_view == false;
+			let first_time     = prestate.init_view == false;
 			let outlet_changed = prestate.selected_outlet_id != state.selected_outlet_id;
-			// if(first_time || last_action == UPDATE_CALENDAR_VIEW || outlet_changed){
 			if(first_time || outlet_changed){
 				self.updateCalendarView();
 			}
 
 			// Call ajax to search available time
 			// Why still need this?
-			// Deep keys can't watch inside vue for what change
-			// Explicit tell host what changed
+			// Event after sync, but deep keys just a reference
+			// Can't see condition changed in state vs prestate
+			// Explicit tell host changed pax
 			let change_pax        = last_action == CHANGE_PAX;
 			let changed_condition = self._changeBookingCondition(prestate.reservation, state.reservation) || change_pax;
 			let just_select_day   = prestate.has_selected_day == false && state.has_selected_day == true;
@@ -775,14 +705,17 @@ class BookingForm {
 				self.ajaxCall({type: AJAX_SEARCH_AVAILABLE_TIME});
 			}
 
+			// Ok update calendar view dynamic base on available_time
 			if(last_action == CHANGE_AVAILABLE_TIME){
 				self.updateCalendarView();
 			}
 
+			// Show paypal button
 			if(last_action == PAYPAL_BUTTON_SHOW){
 				self.paypal_button.style.transform = 'scale(1,1)';
 			}
 
+			// Hide paypal button
 			if(last_action == PAYPAL_BUTTON_HIDE){
 				self.paypal_button.style.transform = 'scale(0,1)';
 			}
@@ -797,39 +730,7 @@ class BookingForm {
 
 	}
 
-	listener(){
-		let store = window.store;
-		let self = this;
-		store.subscribe(()=>{
-			// if(store.SELF_DISPATCH_FLAG == true){
-			// 	store.SELF_DISPATCH_FLAG = false;
-			// 	return;
-			// }
-
-			let state       = store.getState();
-			let prestate    = store.getPrestate();
-			let last_action = store.getLastAction();
-
-			// if(prestate.ajax_call < state.ajax_call){
-			// 	self.ajaxCall();
-			// }
-
-			// // Handle ajax call
-			// if(prestate.has_selected_day == false && state.has_selected_day == true){
-			// 	store.dispatch({type: AJAX_CALL, ajax_call: 1});
-			// }
-
-
-		});
-	}
-
-	initView(){
-		let action = {
-			type: 'INIT_VIEW'
-		}
-
-		store.dispatch(action);
-	}
+	listener(){}
 
 	_findView(){
 		if(this._hasRunFindView){
@@ -1027,7 +928,6 @@ class BookingForm {
 				}
 			},
 			error(res_literal){
-				//console.log(res);
 				//noinspection JSUnresolvedVariable
 				console.log(res_literal.responseJSON);
 				// It quite weird that in browser window
@@ -1037,7 +937,6 @@ class BookingForm {
 				let res = res_literal.responseJSON;
 				// Do normal things with res as in success case
 				try{
-					//let res = res.responseJSON;
 					switch(res.statusMsg){
 						case AJAX_BOOKING_CONDITION_VALIDATE_FAIL: {
 							let info = JSON.stringify(res.data);
