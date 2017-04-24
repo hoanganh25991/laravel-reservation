@@ -13,7 +13,7 @@
             <tbody>
             <tr>
                 <td><label>Outlet</label></td>
-                <td>@{{ selected_outlet.outlet_name }}<br/>@{{ selected_outlet.address }}</td>
+                <td>@{{ selected_outlet.outlet_name }}<br/>@{{ selected_outlet.outlet_address }}</td>
             </tr>
             <tr>
                 <td style="width: 40%;"><label>Date &amp; Time</label></td>
@@ -41,14 +41,14 @@
                 <td>@{{ reservation.customer_remarks }}</td>
             </tr>
             <tr v-show="reservation.payment_status == 100">
-                <td><label>Deposit Paid</label></td>
+                <td><label>Payment authorization Paid</label></td>
                 <td>
                     <label class="h5">$@{{ reservation.deposit }}</label><br/>
                     Your deposit will be returned when you arrive for your reservation
                 </td>
             </tr>
             <tr v-show="reservation.payment_status == 25">
-                <td><label>Deposit Required</label></td>
+                <td><label>Payment authorization Required</label></td>
                 <td>
                     <label class="h5 text-danger">$@{{ reservation.deposit }}</label>
                     <label class="text-danger">Tap on the PayPal button to authorize the payment.
@@ -63,7 +63,7 @@
                 $is_summary_page = isset($is_summary_page) ? $is_summary_page : true;
             @endphp
             @if($is_summary_page)
-            {{--@if($is_summary_page && env('APP_ENV') != 'production')--}}
+                {{--@if($is_summary_page && env('APP_ENV') != 'production')--}}
                 {{--<button class="btn-form-next btn btn-primary pull-left" destination="form-step-2">Back</button>--}}
                 <a href="{{ url()->current() }}" type="button" class="btn btn-primary pull-right">Home</a>
             @endif
