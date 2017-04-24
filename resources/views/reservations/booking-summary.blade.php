@@ -62,9 +62,10 @@
             @php
                 $is_summary_page = isset($is_summary_page) ? $is_summary_page : true;
             @endphp
-            @if($is_summary_page && env('APP_ENV') != 'production')
-                <button class="btn-form-next btn btn-primary pull-left" destination="form-step-2">Back</button>
-                <a href="{{ url('') }}" type="button" class="btn btn-primary pull-right">Home</a>
+            @if($is_summary_page)
+            {{--@if($is_summary_page && env('APP_ENV') != 'production')--}}
+                {{--<button class="btn-form-next btn btn-primary pull-left" destination="form-step-2">Back</button>--}}
+                <a href="{{ url()->current() }}" type="button" class="btn btn-primary pull-right">Home</a>
             @endif
 
             @if(!$is_summary_page)
