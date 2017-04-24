@@ -251,6 +251,7 @@ class BookingForm {
 			has_changed_pax: null,
 			form_step_1_keys: [],
 			form_step_2_keys: [],
+			dialog: null, //Vue need dialog info, to manage show/hide on last step summary
 		};
 
 		// Sync with parent for things changed

@@ -114,7 +114,8 @@
                 </div>
                 @include('reservations.footer')
             </div><!-- /box -->
-            <div class="box form-step" id="form-step-3">
+            {{--@explain ! dialog means we ONLY show summary after has info from server--}}
+            <div class="box form-step" id="form-step-3" v-show="!dialog">
                 @include('reservations.booking-summary')
             </div>
         </div>
