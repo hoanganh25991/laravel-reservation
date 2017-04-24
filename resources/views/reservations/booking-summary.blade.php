@@ -1,3 +1,6 @@
+@php
+    $is_summary_page = isset($is_summary_page) ? $is_summary_page : true;
+@endphp
 <div class="tile" style="background-color: rgba(255,255,255,0.4);" >
     <div id="reservation-details" class="content legend">
         <h6 v-show="reservation.payment_status == 25" class="r-title">Reservation Summary</h6>
@@ -48,29 +51,27 @@
                     Your deposit will be returned when you arrive for your reservation
                 </td>
             </tr>
+            @if($is_summary_page)
             <tr v-show="reservation.payment_status == 25">
                 <td><label>Payment authorization Required</label></td>
                 <td>
                     <label class="h5 text-danger">$@{{ reservation.deposit }}</label>
-                    <div class="agree-box cf">
+                    <div class="agree-box cf" style="margin: 40px 0 10px 0;">
                         <div class="checkbox cf" style="padding-left: 5px;">
                             <label for="agree_payment_box">I acknowledge that I will be subject to a cancellation fee of $@{{ reservation.deposit }} if I do not give more than 24-hours cancellation notice or if I do not honour this reservation.</label>
                             <input id="agree_payment_box" type="checkbox" class="form-control agree-check"
                                v-model="reservation.agree_payment_term_condition" v-on:click="_togglePaypalButton">
                         </div>
                     </div>
-                    <div id="paypal-container" style="transition: 0.5s all ease-in-out; transform: scale(0,0);">
+                    <div id="paypal-container" style="transition: 0.5s all ease-in-out; transform: scale(0,1);" class="pull-left">
                         @include('paypal.authorize')
-                        {{--@include('paypal.authorize-custom')--}}
                     </div>
                 </td>
             </tr>
+            @endif
             </tbody>
         </table>
         <div class="form-actions cf bottom_room">
-            @php
-                $is_summary_page = isset($is_summary_page) ? $is_summary_page : true;
-            @endphp
             @if($is_summary_page)
                 {{--@if($is_summary_page && env('APP_ENV') != 'production')--}}
                 {{--<button class="btn-form-next btn btn-primary pull-left" destination="form-step-2">Back</button>--}}

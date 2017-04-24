@@ -49,6 +49,8 @@ const AJAX_BOOKING_CONDITION_VALIDATE_FAIL = 'AJAX_BOOKING_CONDITION_VALIDATE_FA
 const SYNC_VUE_STATE = 'SYNC_VUE_STATE';
 const UPDATE_CALENDAR_VIEW = 'UPDATE_CALENDAR_VIEW';
 const NO_DATE_PICKED = 'NO_DATE_PICKED';
+const PAYPAL_BUTTON_SHOW = 'PAYPAL_BUTTON_SHOW';
+const PAYPAL_BUTTON_HIDE = 'PAYPAL_BUTTON_HIDE';
 
 class BookingForm {
 	/** @namespace res.statusMsg */
@@ -81,44 +83,40 @@ class BookingForm {
 		let rootReducer = function(state = default_state, action){
 			switch(action.type){
 				case INIT_VIEW:
-					return Object.assign({}, state, {
-						init_view: self.initViewReducer(state.init_view, action)
-					});
+					return Object.assign({}, state, {init_view: true});
 				case CHANGE_FORM_STEP:
-					return Object.assign({}, state, {
-						form_step: self.formStepReducer(state.form_step, action)
-					});
+					return Object.assign({}, state, {form_step: action.form_step});
 				case HAS_SELECTED_DAY:
-					return Object.assign({}, state, {
-						has_selected_day: self.hasSelectedDayReducer(state.has_selected_day, action)
-					});
-				case CHANGE_RESERVATION_DATE:
-				case CHANGE_RESERVATION_TIME:
-				case CHANGE_RESERVATION_CONFIRM_ID:
+					return Object.assign({}, state, {has_selected_day: true});
+				case CHANGE_RESERVATION_DATE:{
+					let reservation = Object.assign({}, state.reservation, {date: action.date});
+
+					return Object.assign({}, state, {reservation});
+				}
 				case CHANGE_RESERVATION:
 				case SYNC_RESERVATION:
-					return Object.assign({}, state, {
-						reservation: self.reservationReducer(state.reservation, action)
-					});
+					return Object.assign({}, state, {reservation: action.reservation});
 				case AJAX_CALL:
 					return Object.assign({}, state, {
 						ajax_call: self.ajaxCallReducer(state.ajax_call, action)
 					});
-				case DIALOG_SHOW:
-				case DIALOG_HAS_DATA:
-					return Object.assign({}, state, {
-						dialog: self.dialogReducer(state.dialog, action)
-					});
-				case CHANGE_AVAILABLE_TIME:
-					return Object.assign({}, state, {
-						available_time: self.availableTimeReducer(state.available_time, action)
-					});
-				case SELECT_PAX:
-					return Object.assign({}, state, {
-						select_pax_times: self.selectPaxTimesReducer(state.select_pax_times, action)
-					});
+				case DIALOG_SHOW: {
+					return Object.assign({}, state, {dialog: true});
+				}
+				case DIALOG_HAS_DATA:{
+					return Object.assign({}, state, {dialog: false});
+				}
+				case CHANGE_AVAILABLE_TIME: {
+					return Object.assign({}, state, {available_time: action.available_time});
+				}
 				case SYNC_VUE_STATE:{
 					return Object.assign({}, state, action.vue_state);
+				}
+				case PAYPAL_BUTTON_HIDE:{
+					return Object.assign({}, state, {paypal_button: false});
+				}
+				case PAYPAL_BUTTON_SHOW:{
+					return Object.assign({}, state, {paypal_button: true});
 				}
 				default:
 					return state;
@@ -190,6 +188,7 @@ class BookingForm {
 				'phone_country_code',
 				'phone',
 			],
+			paypal_button: false,
 		};;
 
 		let state = Object.assign(frontend_state, server_state);
@@ -231,6 +230,7 @@ class BookingForm {
 			reservation: {
 				date: null,
 				time: null,
+				agree_payment_term_condition: null, //Only show paypal authorization button, when customer accept term&condition
 			},
 			// Handle time select box
 			available_time: {},
@@ -252,7 +252,6 @@ class BookingForm {
 			form_step_1_keys: [],
 			form_step_2_keys: [],
 			dialog: null, //Vue need dialog info, to manage show/hide on last step summary,
-			agree_payment_term_condition: null, //Only show paypal authorization button, when customer accept term&condition
 		};
 
 		// Sync with parent for things changed
@@ -551,14 +550,22 @@ class BookingForm {
 				},
 
 				_togglePaypalButton(){
-					console.log(this.reservation.agree_payment_term_condition);
-					let p = document.querySelector('#paypal-container');
-					if(this.reservation.agree_payment_term_condition){
-						p.style.transform = 'scale(1,1)';
-					}else{
-						p.style.transform = 'scale(0,0)';
-					}
-					
+					//console.log(this.reservation.agree_payment_term_condition);
+					let paypal_button = this.reservation.agree_payment_term_condition;
+
+					// Ok, sync state first
+					// beforeUpdate is a good hook
+					// But it not enough for complex case
+					// Explicit tell redux what is going on
+					store.dispatch({
+						type: SYNC_VUE_STATE,
+						vue_state: window.vue_state
+					});
+
+					// Hide or show paypal button
+					// Base on 'agree_payment_term_condition'
+					let show_hide_paypal_button = paypal_button ? PAYPAL_BUTTON_SHOW : PAYPAL_BUTTON_HIDE;
+					store.dispatch({type: show_hide_paypal_button});
 				},
 			}
 		});
@@ -590,128 +597,6 @@ class BookingForm {
 		return true;
 	}
 
-	paxOverReducer(state, action){
-		// console.log(action);
-		switch(action.type){
-			case 'PAX_OVER':
-				return 'none';
-			default:
-				return state;
-		}
-	}
-
-	customerReducer(state, action){
-		switch(action.type){
-			case CHANGE_CUSTOMER_SALUTATION:
-				return Object.assign({}, state, {
-					salutation: action.salutation
-				});
-			case CHANGE_CUSTOMER_FIRST_NAME:
-				return Object.assign({}, state, {
-					first_name: action.first_name
-				});
-			case CHANGE_CUSTOMER_LAST_NAME:
-				return Object.assign({}, state, {
-					last_name: action.last_name
-				});
-			case CHANGE_CUSTOMER_EMAIL:
-				return Object.assign({}, state, {
-					email: action.email
-				});
-			case CHANGE_CUSTOMER_PHONE_COUNTRY_CODE:
-				return Object.assign({}, state, {
-					phone_country_code: action.phone_country_code
-				});
-			case CHANGE_CUSTOMER_PHONE:
-				return Object.assign({}, state, {
-					phone: action.phone
-				});
-			case CHANGE_CUSTOMER_REMARKS:
-				return Object.assign({}, state, {
-					remarks: action.remarks
-				});
-			default:
-				return state;
-		}
-	}
-
-	outletReducer(state, action){
-		switch(action.type){
-			case CHANGE_SELECTED_OUTLET_ID:
-				return action.selected_outlet;
-			default:
-				return state;
-		}
-	}
-
-	paxReducer(state, action){
-		switch(action.type){
-			case CHANGE_ADULT_PAX:
-				return Object.assign({}, state, {
-					adult: Number(action.adult_pax)
-				});
-			case CHANGE_CHILDREN_PAX:
-				return Object.assign({}, state, {
-					children: Number(action.children_pax)
-				});
-			default:
-				return state;
-		}
-	}
-
-	reservationReducer(state, action){
-		switch(action.type){
-			case CHANGE_RESERVATION_DATE:
-				return Object.assign({}, state, {
-					date: action.date
-				});
-			case CHANGE_RESERVATION_TIME:
-				return Object.assign({}, state, {
-					time: action.time
-				});
-			case CHANGE_RESERVATION_CONFIRM_ID:
-				return Object.assign({}, state, {
-					confirm_id: action.confirm_id
-				});
-			case CHANGE_RESERVATION: {
-				return action.reservation;
-			}
-			case SYNC_RESERVATION:
-				let new_state = Object.assign({}, state, action.reservation);
-				return new_state;
-			default:
-				return state;
-		}
-	}
-
-	dialogReducer(state, action){
-		switch(action.type){
-			case DIALOG_SHOW:
-				return true;
-			case DIALOG_HAS_DATA:
-				return false;
-			default:
-				return state;
-		}
-	}
-
-	availableTimeReducer(state, action){
-		switch(action.type){
-			case CHANGE_AVAILABLE_TIME:
-				return action.available_time;
-			default:
-				return state;
-		}
-	}
-
-	initViewReducer(state, action){
-		switch(action.type){
-			case INIT_VIEW:
-				return true;
-			default:
-				return state;
-		}
-	}
 
 	ajaxCallReducer(state, action){
 		switch(action.type){
@@ -722,34 +607,6 @@ class BookingForm {
 		}
 	}
 
-	hasSelectedDayReducer(state, action){
-		switch(action.type){
-			case HAS_SELECTED_DAY:
-				return true;
-			default:
-				return state;
-		}
-	}
-
-	formStepReducer(state, action){
-		switch(action.type){
-			case CHANGE_FORM_STEP:
-				return action.form_step;
-			default:
-				return state;
-		}
-	}
-
-	selectPaxTimesReducer(state, action){
-		switch(action.type){
-			case SELECT_PAX:
-				// Increase count times
-				let new_state = (state + 1);
-				return new_state;
-			default:
-				return state;
-		}
-	}
 	event(){
 		this._findView();
 		let store = window.store;
@@ -889,6 +746,14 @@ class BookingForm {
 			if(last_action == CHANGE_AVAILABLE_TIME){
 				self.updateCalendarView();
 			}
+			
+			if(last_action == PAYPAL_BUTTON_SHOW){
+				self.paypal_button.style.transform = 'scale(1,1)';
+			}
+
+			if(last_action == PAYPAL_BUTTON_HIDE){
+				self.paypal_button.style.transform = 'scale(0,1)';
+			}
 
 			// Redux state may just get sync from Vue
 			// Then it updated, it talk back to Vue
@@ -950,6 +815,7 @@ class BookingForm {
 		// Change form step
 		this.form_step_container = document.querySelector('#form-step-container');
 		this.btn_form_nexts      = document.querySelectorAll('button.btn-form-next');
+		this.paypal_button       = document.querySelector('#paypal-container');
 	}
 
 	updateCalendarView() {
