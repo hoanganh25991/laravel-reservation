@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="box form-step" id="app">
-        @include('reservations.booking-summary', ['is_summary_page' => false]);
+        @include('reservations.booking-summary', ['is_summary_page' => false])
     </div>
     @include('reservations.ajax-dialog')
     @if(env('APP_ENV') != 'production')

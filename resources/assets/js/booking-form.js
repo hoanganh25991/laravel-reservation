@@ -658,10 +658,10 @@ class BookingForm {
 	}
 
 	_changeBookingCondition(previous_reservation, reservation){
-		return previous_reservation.outlet_id == reservation.outlet_id
-			&& previous_reservation.adult_pax == reservation.adult_pax
-			&& previous_reservation.children_pax == reservation.children_pax
-			&& previous_reservation.date == reservation.date;
+		return previous_reservation.outlet_id != reservation.outlet_id
+			|| previous_reservation.adult_pax != reservation.adult_pax
+			|| previous_reservation.children_pax != reservation.children_pax
+			|| previous_reservation.date != reservation.date;
 	}
 
 	view(){
@@ -736,7 +736,7 @@ class BookingForm {
 			}
 
 			// Call ajax to search available time
-			let changed_condition = !self._changeBookingCondition(prestate.reservation, state.reservation);
+			let changed_condition = self._changeBookingCondition(prestate.reservation, state.reservation);
 			let just_select_day   = prestate.has_selected_day == false && state.has_selected_day == true;
 			// Ok should call ajax for searching out available time
 			if(state.has_selected_day && changed_condition || just_select_day){
