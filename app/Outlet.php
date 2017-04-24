@@ -114,4 +114,10 @@ class Outlet extends HoiModel {
 
         return $notification_config(Setting::SEND_SMS_ON_BOOKING);
     }
+
+    public function getOutletAddressAttribute($value){
+        $address = str_replace("\\n", ", ", $value);
+
+        return $address;
+    }
 }
