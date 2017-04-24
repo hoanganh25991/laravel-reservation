@@ -48,8 +48,7 @@
                         </div>
                         <div class="agree-box cf">
                             <div class="checkbox cf" style="padding-left: 5px;">
-                                <label for="agree_box">I acknowledge that this is a waitlisted reservation and is subjected to the restaurant's confirmation.
-                                    I understand that the restaurant will hold my table for a maximum of 15 minutes.</label>
+                                <label for="agree_box">I acknowledge that this is a waitlisted reservation and is subjected to the restaurant's confirmation. I understand that the restaurant will hold my table for a maximum of 15 minutes.</label>
                                 <input id="agree_box" type="checkbox" v-model="reservation.agree_term_condition" class="form-control agree-check">
                             </div>
                         </div>

@@ -2,7 +2,8 @@
     <div id="reservation-details" class="content legend">
         <h6 v-show="reservation.payment_status == 25" class="r-title">Reservation Summary</h6>
         <p v-show="reservation.payment_status == 25" class="r-title">
-            <label class="text-danger" style="float: none;">A payment authorization is required<br/>before confirming your reservation.</label>
+            <label class="text-danger" style="float: none;">@{{ selected_outlet.outlet_name }} requires credit card authorization (not payment) to secure this reservation. Note that your seats will only be held for 10 minutes before they are released. Please provide your payment details on this secure platform powered by PayPal by following the link below:
+            </label>
         </p>
 
         <h6 v-show="reservation.payment_status != 25" class="r-title">Reservation No. <strong>@{{ reservation.confirm_id }}</strong></h6>
@@ -51,9 +52,16 @@
                 <td><label>Payment authorization Required</label></td>
                 <td>
                     <label class="h5 text-danger">$@{{ reservation.deposit }}</label>
-                    <label class="text-danger">Tap on the PayPal button to authorize the payment.
-                        Note that you will only be charged in the event of no-show.</label>
-                    @include('paypal.authorize')
+                    <div class="agree-box cf">
+                        <div class="checkbox cf" style="padding-left: 5px;">
+                            <label for="agree_payment_box">I acknowledge that I will be subject to a cancellation fee of $@{{ reservation.deposit }} if I do not give more than 24-hours cancellation notice or if I do not honour this reservation.</label>
+                            <input id="agree_payment_box" type="checkbox" class="form-control agree-check"
+                               v-model="reservation.agree_payment_term_condition" v-on:click="_togglePaypalButton">
+                        </div>
+                    </div>
+                    <div id="paypal-container" style="transition: 0.5s all ease-in-out; transform: scale(0,0);">
+                        @include('paypal.authorize')
+                    </div>
                 </td>
             </tr>
             </tbody>

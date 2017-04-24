@@ -251,7 +251,8 @@ class BookingForm {
 			has_changed_pax: null,
 			form_step_1_keys: [],
 			form_step_2_keys: [],
-			dialog: null, //Vue need dialog info, to manage show/hide on last step summary
+			dialog: null, //Vue need dialog info, to manage show/hide on last step summary,
+			agree_payment_term_condition: null, //Only show paypal authorization button, when customer accept term&condition
 		};
 
 		// Sync with parent for things changed
@@ -364,6 +365,8 @@ class BookingForm {
 						this.reservation = new_reservation;
 					}
 				},
+				
+				
 			},
 			methods: {
 				// We check these keys on reservation
@@ -545,6 +548,17 @@ class BookingForm {
 					//console.log(date_time.format('X'));
 					//return date_time.format('X');
 					return date_time.format('YYYY-MM-DD HH:mm:ss');
+				},
+
+				_togglePaypalButton(){
+					console.log(this.reservation.agree_payment_term_condition);
+					let p = document.querySelector('#paypal-container');
+					if(this.reservation.agree_payment_term_condition){
+						p.style.transform = 'scale(1,1)';
+					}else{
+						p.style.transform = 'scale(0,0)';
+					}
+					
 				},
 			}
 		});
