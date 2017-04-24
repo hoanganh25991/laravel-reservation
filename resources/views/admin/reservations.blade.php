@@ -19,6 +19,7 @@
                                 <tr class="bg-info">
                                     <th></th>
                                     <th>Read</th>
+                                    <th>No.</th>
                                     <th>Customer Info</th>
                                     <th>Time</th>
                                     <th>Pax Size</th>
@@ -43,6 +44,7 @@
                                                    style="position: relative; width: 20px; left: 0px;"
                                             >
                                         </td>
+                                        <td>{{ reservation.confirm_id }}</td>
                                         <td style="width: 200px">
                                             <p style="margin: 0">{{ reservation.salutation }} {{ reservation.first_name }} {{ reservation.last_name }}</p>
                                             <p style="margin: 0">{{ reservation.phone_country_code }}{{ reservation.phone }}</p>
@@ -52,14 +54,14 @@
                                         <td style="width: 100px">{{ reservation.adult_pax }}+{{ reservation.children_pax }}</td>
                                         <td>
                                             <input
-                                                    type="text" style="width: 100px"
+                                                    type="text" style="width: 70px"
                                                     v-model="reservation.table_name"
                                                     :value="reservation.table_name"
                                             >
                                         </td>
                                         <td>
                                     <textarea
-                                            rows="2" col="20" style="height: 50px"
+                                            rows="2" col="20" style="height: 50px; width: 100px"
                                             v-model="reservation.customer_remarks"
                                             :value="reservation.customer_remarks"
                                             placeholder="Customer Remarks"
