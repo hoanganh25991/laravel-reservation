@@ -18,14 +18,15 @@ class PayPalAuthorize {
 				amount: 10.00, // Required
 				currency: 'USD', // Required
 				locale: 'en_US',
+
 				enableShippingAddress: false
 			}, paypal_options);
 
 		this.token    = paypal_token;
 		this.base_url = base_url;
 		
-		this.initPaypal();
-		//this.initPaypalV2();
+		// this.initPaypal();
+		this.initPaypalV2();
 	}
 
 	initPaypal(){
@@ -60,16 +61,18 @@ class PayPalAuthorize {
 
 	initPaypalV2(){
 		let self = this;
-		var submitButton = document.querySelector('#submit-button');
+		var submitButton = document.querySelector('#paypal-submit-button');
 		//noinspection JSUnresolvedVariable
 		braintree.dropin.create({
 			authorization: self.token,
 			selector: '#dropin-container',
 			paypal: {
-				flow: 'checkout',
-				amount: 10.00,
-				currency: 'USD'
-			}
+				flow: 'checkout', // Required
+				amount: 10.00, // Required
+				currency: 'USD', // Required
+				locale: 'en_US',
+				offerCredit: false,
+			},
 		}, function (err, dropinInstance) {
 			if (err) {
 				// Handle any errors that might've occurred when creating Drop-in

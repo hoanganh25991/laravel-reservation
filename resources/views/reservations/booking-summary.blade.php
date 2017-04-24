@@ -60,7 +60,8 @@
                         </div>
                     </div>
                     <div id="paypal-container" style="transition: 0.5s all ease-in-out; transform: scale(0,0);">
-                        @include('paypal.authorize')
+                        {{--@include('paypal.authorize')--}}
+                        @include('paypal.authorize-custom')
                     </div>
                 </td>
             </tr>
