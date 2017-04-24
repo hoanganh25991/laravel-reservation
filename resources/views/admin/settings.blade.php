@@ -159,12 +159,17 @@
                                                id="notification_HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM">
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-5">
                                     <div style="border: 1px solid #e5e5e5; border-radius: 3px; padding: 20px">
                                         <div class="row">
-                                            <p><span class="h3 pull-left" style="margin: 0">SMSes</span> <span class="h4 pull-right" style="margin: 0"><span>{{ notification.sms_credit_balance }}</span> credits remaining</span></p>
+                                            <p>
+                                                <span class="h3 pull-left" style="margin: 0">SMSes</span>
+                                                <span class="h3 pull-right" style="margin: 0"><span class="bg-info">
+                                                        {{ notification.sms_credit_balance }}</span> credits remaining
+                                                </span>
+                                            </p>
                                         </div>
-                                        <div class="row">
+                                        <div class="row" v-show="notification.sms_credit_balance < 200">
                                             <p></p>
                                             <p class="bg-warning">You are running on low SMS credits, please recharge ASAP to prevent service interruption!</p>
                                         </div>
