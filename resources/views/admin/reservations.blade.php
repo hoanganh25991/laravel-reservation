@@ -88,12 +88,16 @@
                                         <td>
                                             <div v-show="reservation.payment_status == 100">
                                                 <p>${{ reservation.payment_amount }}</p>
-                                                <button action="refund" :reservation-index='reservation_index'  class="bg-info" style="width: 100%"
-                                                    v-on:click="_updateReservationPayment"
-                                                >Void</button>
-                                                <button action="charge" :reservation-index='reservation_index' class="bg-danger" style="width: 100%"
-                                                    v-on:click="_updateReservationPayment"
-                                                >Charge</button>
+                                                <!--Ok only administrator can see this action
+                                                Be cross-checked on server -->
+                                                <div v-show="user.permission_level == 10">
+                                                    <button action="refund" :reservation-index='reservation_index'  class="bg-info" style="width: 100%"
+                                                            v-on:click="_updateReservationPayment"
+                                                    >Void</button>
+                                                    <button action="charge" :reservation-index='reservation_index' class="bg-danger" style="width: 100%"
+                                                            v-on:click="_updateReservationPayment"
+                                                    >Charge</button>
+                                                </div>
                                             </div>
                                         </td>
                                     </tr>

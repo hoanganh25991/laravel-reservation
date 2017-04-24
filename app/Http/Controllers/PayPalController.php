@@ -2,13 +2,14 @@
 namespace App\Http\Controllers;
 
 use App\Brand;
-use App\ReservationUser;
 use Carbon\Carbon;
 use App\Reservation;
 use Braintree\Gateway;
+use App\ReservationUser;
 use Braintree\Transaction;
 use App\Traits\ApiResponse;
 use App\Http\Requests\ApiRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Libraries\HoiAjaxCall as Call;
 use Illuminate\Support\Facades\Validator;
