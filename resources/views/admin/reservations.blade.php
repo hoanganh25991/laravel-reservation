@@ -85,6 +85,7 @@
                                         </td>
                                         <td>
                                             <div v-show="reservation.payment_status == 100">
+                                                <p>${{ reservation.payment_amount }}</p>
                                                 <button action="refund" :reservation-index='reservation_index'  class="bg-info" style="width: 100%"
                                                     v-on:click="_updateReservationPayment"
                                                 >Void</button>
