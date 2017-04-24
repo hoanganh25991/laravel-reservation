@@ -257,7 +257,7 @@ class Reservation extends HoiModel {
                 $success = false;
                 switch($reservation->payment_status){
                     case Reservation::PAYMENT_REFUNDED:
-                        $success = PayPalController::refund($transaction_id);
+                        $success = PayPalController::void($transaction_id);
                         break;
                     case Reservation::PAYMENT_CHARGED:
                         $success = PayPalController::charge($transaction_id);

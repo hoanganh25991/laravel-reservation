@@ -89,10 +89,19 @@ class AdminController extends HoiController {
         //Build state
         $reservations = $reservation_controller->fetchUpdateReservations();
 
+        /** Current logined user */
+        // When some actions in page require permission more than
+        // what current user assgined
+        // Need to know which user permission level
+        // To show/hide action
+        // Cross check inside controller
+        $user = Auth::user();
+
         $state = [
             'base_url'     => url()->current(),
             'outlet_id'    => Setting::outletId(),
-            'reservations' => $reservations
+            'reservations' => $reservations,
+            'user'         => $user,
         ];
 
         return $state;
@@ -164,6 +173,14 @@ class AdminController extends HoiController {
         $deposit      = $setting_controller->fetchUpdateDeposit();
         $outlets      = Outlet::all();
 
+        /** Current logined user */
+        // When some actions in page require permission more than
+        // what current user assgined
+        // Need to know which user permission level
+        // To show/hide action
+        // Cross check inside controller
+        $user = Auth::user();
+
         $state = [
             'base_url'         => url()->current(),
             'outlet_id'        => Setting::outletId(),
@@ -174,6 +191,7 @@ class AdminController extends HoiController {
             'settings'         => $settings,
             'deposit'          => $deposit,
             'outlets'          => $outlets,
+            'user'             => $user,
         ];
 
         return $state;

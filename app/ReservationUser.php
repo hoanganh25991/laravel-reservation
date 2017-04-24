@@ -21,6 +21,9 @@ use App\OutletReservationSetting as Setting;
  *
  * @property mixed id
  * @property mixed brand_id
+ * @property mixed display_name
+ * @property mixed role
+ * @see App\ReservationUser::getRoleAttribute
  *
  * @method notAdministrator
  * @see App\ReservationUser::scopeNotAdministrator

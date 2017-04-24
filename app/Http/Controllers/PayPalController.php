@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Brand;
+use App\ReservationUser;
 use Carbon\Carbon;
 use App\Reservation;
 use Braintree\Gateway;
@@ -161,14 +162,48 @@ class PayPalController extends HoiController{
     }
 
     /**
+     * Wrapper function to check administrator role
+     * @return bool
+     * @throws \Exception
+     */
+    public static function administratorRoleRequired(){
+        /** @var ReservationUser $user */
+        $user = Auth::user();
+        $msg = "Only administrator can void/charge. ";
+
+        if(is_null($user)){
+            $msg .= "No loggined user found. ";
+
+            throw new \Exception($msg);
+        }
+
+        if(!$user->isAdministrator()){
+            $msg .= "Current user: $user->display_name. ";
+            $msg .= "Permission level: $user->role. ";
+
+            throw new \Exception($msg);
+        }
+        
+        return true;
+    }
+
+    /**
      * Refund a transaction
      * This means that if the transaction still not settle down
      * >>> VOID IT
      * >>> TOTALLY SETTLE DOWN > REFUND
      * @param $trasaction_id
      * @return bool
+     * @throws \Exception
      */
-    public static function refund($trasaction_id){
+    public static function void($trasaction_id){
+        /** This action now REQUIRED permission level as administrator */
+        try{
+            PayPalController::administratorRoleRequired();
+        }catch(\Exception $e){
+            throw $e;
+        }
+
         /**
          * Check status to call void or refund
          */
@@ -212,8 +247,16 @@ class PayPalController extends HoiController{
      * Default status as pending
      * @param $trasaction_id
      * @return bool
+     * @throws \Exception
      */
     public static function charge($trasaction_id){
+        /** This action now REQUIRED permission level as administrator */
+        try{
+            PayPalController::administratorRoleRequired();
+        }catch(\Exception $e){
+            throw $e;
+        }
+        
         /**
          * Settle it down to get money
          */
