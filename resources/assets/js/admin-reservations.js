@@ -108,7 +108,12 @@ class AdminReservations {
 			toast: {
 				title: 'Title',
 				content: 'Content'
-			}
+			},
+			reservations: [],
+			// Manage filterd on reservations
+			filtered_reservations: [],
+			// Decide show|hide
+			filtered: false,
 		};
 	}
 
@@ -124,7 +129,7 @@ class AdminReservations {
 			},
 			reservations: [],
 			// Manage filterd on reservations
-			filterd_reservations: [],
+			filtered_reservations: [],
 			// Decide show|hide
 			filtered: false,
 		};
@@ -139,6 +144,7 @@ class AdminReservations {
 		let self  = this;
 
 		this.vue  = new Vue({
+			/** @namespace moment */
 			el: '#app',
 			data: window.vue_state,
 			mounted(){
@@ -320,6 +326,73 @@ class AdminReservations {
 					current_state     = !current_state;
 					// Update it
 					this.filtered     = current_state;
+				},
+
+				_filter(which_case){
+					let reservations = this.reservations;
+					switch(which_case){
+						case 'today':{
+							console.log('see click today');
+							// Assign reservations with moment date obj
+							let reservations_with_date = reservations.map(reservation => {
+								if(!reservation.date){
+									let timestamp    = reservation.reservation_timestamp;
+									reservation.date = moment(timestamp, 'YYYY-MM-DD HH:mm:ss');
+								}
+
+								return reservation;
+							});
+
+							// Update back resersvations
+							this.reservations = reservations_with_date;
+
+							// Filter out
+							// Today here is the first day
+							let today = moment({hour: 0, minute: 0, seconds: 0});
+
+							let filtered_reservations = reservations_with_date.filter(reservation => {
+								return reservation.date.isSame(today, 'day');
+							});
+
+							// Update filtered reservations;
+							this.filtered_reservations = filtered_reservations;
+
+							break;
+						}
+						case 'tomorrow':{
+							console.log('see click tomorrow');
+							// Assign reservations with moment date obj
+							let reservations_with_date = reservations.map(reservation => {
+								if(!reservation.date){
+									let timestamp    = reservation.reservation_timestamp;
+									reservation.date = moment(timestamp, 'YYYY-MM-DD HH:mm:ss');
+								}
+
+								return reservation;
+							});
+
+							// Update back resersvations
+							this.reservations = reservations_with_date;
+
+							// Filter out
+							// Today here is the first day
+							let tomorrow = moment({hour: 0, minute: 0, seconds: 0}).add(1, 'days');
+
+							let filtered_reservations = reservations_with_date.filter(reservation => {
+								return reservation.date.isSame(tomorrow, 'day');
+							});
+
+							// Update filtered reservations;
+							this.filtered_reservations = filtered_reservations;
+
+							break;
+						}
+						case 'next_3_days':{break;}
+						case 'next_7_days':{break;}
+						case 'next_30_days':{break;}
+						case 'custom':{break;}
+						case 'clear':{break;}
+					}
 				}
 			}
 		});

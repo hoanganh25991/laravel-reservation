@@ -27,12 +27,13 @@
                                 </div>
                                 <transition name="slide">
                                     <div  v-if="filtered" class="btn-group pull-right">
-                                        <button class="btn btn-sm btn-default">Today</button>
-                                        <button class="btn btn-sm btn-default">Tomorrow</button>
-                                        <button class="btn btn-sm btn-default">Next 3 days</button>
-                                        <button class="btn btn-sm btn-default">Next 7 days</button>
-                                        <button class="btn btn-sm btn-default">Next 30 days</button>
-                                        <button class="btn btn-sm btn-default"><span class="fa fa-times"></span>Clear</button>
+                                        <button class="btn btn-sm btn-default" v-on:click="_filter('today')"       >Today</button>
+                                        <button class="btn btn-sm btn-default" v-on:click="_filter('tomorrow')"    >Tomorrow</button>
+                                        <button class="btn btn-sm btn-default" v-on:click="_filter('next_3_days')" >Next 3 days</button>
+                                        <button class="btn btn-sm btn-default" v-on:click="_filter('next_7_days')" >Next 7 days</button>
+                                        <button class="btn btn-sm btn-default" v-on:click="_filter('next_30_days')">Next 30 days</button>
+                                        <button class="btn btn-sm btn-default" v-on:click="_filter('custom')"      >Pick a day</button>
+                                        <button class="btn btn-sm btn-default" v-on:click="_filter('clear')"       ><span class="fa fa-times"></span>Clear</button>
                                     </div>
                                 </transition>
                             </div>
@@ -53,10 +54,10 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <template v-for="(reservation, reservation_index) in filterd_reservations">
+                                <template v-for="(reservation, reservation_index) in filtered_reservations">
                                     @endverbatim
                                     @include('admin.reservations.single-row-info')
-                                    @verbatime
+                                    @verbatim
                                 </template>
                                 </tbody>
                             </table>
@@ -85,7 +86,7 @@
                                 <template v-for="(reservation, reservation_index) in reservations">
                                     @endverbatim
                                     @include('admin.reservations.single-row-info')
-                                    @verbatime
+                                    @verbatim
                                 </template>
                                 </tbody>
                             </table>
