@@ -14,7 +14,7 @@
 </head>
 <body>
 
-<div class="container">
+<div style="width: 100%; height: 100%">
     @include('admin.navigator')
     @yield('content')
 </div>

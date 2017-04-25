@@ -179,7 +179,7 @@ class AdminReservations {
 					this.reservations;
 					this.reserved_mode;
 					// and then return a different value every time
-					return Date.now() // or performance.now()
+					return moment(); // or performance.now()
 				}
 			},
 			watch: {
@@ -380,7 +380,7 @@ class AdminReservations {
 				 * @private
 				 */
 				_fitlerReservationByDay(date, mode = MODE_EXACTLY){
-					let reservations = this.reservations;
+					let reservations = this.reserved_reservations;
 					// Assign reservations with moment date obj
 					let reservations_with_date = reservations.map(reservation => {
 						if(!reservation.date){
