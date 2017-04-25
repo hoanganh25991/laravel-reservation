@@ -19,17 +19,20 @@
                     <div class="modal-body">
                         <div style="box-shadow: rgba(0, 0, 0, 0.5) 0px 5px 15px;">
                             <div style="height: 38px">
-                                <button class="btn bg-info pull-right"
+                                <div style="width: 100%; height: 38px; text-align: right">
+                                    <span class="h3 text-muted">Filter reservations</span>
+                                    <span  class="fa fa-filter btn bg-info"
                                         v-on:click="_toggleFilter"
-                                ><span class="fa fa-filter"></span></button>
+                                    ></span>
+                                </div>
                                 <transition name="slide">
                                     <div  v-if="filtered" class="btn-group pull-right">
-                                        <button class="btn btn-default">Today</button>
-                                        <button class="btn btn-default">Tomorrow</button>
-                                        <button class="btn btn-default">Next 3 days</button>
-                                        <button class="btn btn-default">Next 7 days</button>
-                                        <button class="btn btn-default">Next 30 days</button>
-                                        <button class="btn btn-default"><span class="fa fa-times"></span>Clear</button>
+                                        <button class="btn btn-sm btn-default">Today</button>
+                                        <button class="btn btn-sm btn-default">Tomorrow</button>
+                                        <button class="btn btn-sm btn-default">Next 3 days</button>
+                                        <button class="btn btn-sm btn-default">Next 7 days</button>
+                                        <button class="btn btn-sm btn-default">Next 30 days</button>
+                                        <button class="btn btn-sm btn-default"><span class="fa fa-times"></span>Clear</button>
                                     </div>
                                 </transition>
                             </div>
@@ -59,7 +62,8 @@
                             </table>
                         </div>
                     </div>
-                    <div class="modal-body">
+
+                    <div v-if="!filtered" class="modal-body">
                         <div style="box-shadow: rgba(0, 0, 0, 0.5) 0px 5px 15px;">
                             <table class="table table-hover table-condensed table-bordered">
                                 <thead>
