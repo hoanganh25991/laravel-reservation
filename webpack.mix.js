@@ -19,8 +19,13 @@ let css_output_dir = 'public/css';
 /**
  * Css code for whole app
  */
-//mix.styles(['resources/assets/css/admin.css'], css_output_dir + '/admin.css');
 mix.styles(['resources/assets/css/reservation.css'], css_output_dir + '/reservation.css');
+
+/**
+ * Css code handle animation
+ */
+mix.styles(['resources/assets/css/animate.css'], css_output_dir + '/animate.css');
+
 /**
  * Js code handle reservation booking page
  */
@@ -32,10 +37,12 @@ mix.babel(['resources/assets/js/syntax-highlight.js'], js_output_dir + '/syntax-
  * Js code for reservation>confirm page
  */
 mix.babel(['resources/assets/js/reservation-confirm.js'], js_output_dir + '/reservation-confirm.js');
+
 /**
  * Js code for admin>settings page
  */
 mix.babel(['resources/assets/js/admin-settings.js'], js_output_dir + '/admin-settings.js');
+
 /**
  * Js code for admin>reservations page
  */

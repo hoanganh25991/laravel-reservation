@@ -123,7 +123,10 @@ class AdminReservations {
 					content: 'Content'
 			},
 			reservations: [],
+			// Manage filterd on reservations
 			filterd_reservations: [],
+			// Decide show|hide
+			filtered: false,
 		};
 
 		
@@ -309,6 +312,14 @@ class AdminReservations {
 						}
 						catch(e){}
 					}
+				},
+
+				_toggleFilter(){
+					let current_state = this.filtered;
+					// Ok, toggle it
+					current_state     = !current_state;
+					// Update it
+					this.filtered     = current_state;
 				}
 			}
 		});

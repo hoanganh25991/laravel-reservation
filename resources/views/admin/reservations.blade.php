@@ -1,4 +1,7 @@
 @extends('layouts.admin')
+@push('css')
+    <link href="{{ url_mix('css/animate.css') }}" rel="stylesheet"/>
+@endpush
 @section('content')
     <div id='app'>
         {{--@include('admin.navigator')--}}
@@ -12,9 +15,25 @@
                             v-on:click="_updateReservations"
                         >Save</button>
                     </div>
+                    <!-- This div used to filterd reservations -->
                     <div class="modal-body">
                         <div style="box-shadow: rgba(0, 0, 0, 0.5) 0px 5px 15px;">
-                            <table class="table table-hover table-condensed table-bordered">
+                            <div style="height: 38px">
+                                <button class="btn bg-info pull-right"
+                                        v-on:click="_toggleFilter"
+                                ><span class="fa fa-filter"></span></button>
+                                <transition name="slide">
+                                    <div  v-if="filtered" class="btn-group pull-right">
+                                        <button class="btn btn-default">Today</button>
+                                        <button class="btn btn-default">Tomorrow</button>
+                                        <button class="btn btn-default">Next 3 days</button>
+                                        <button class="btn btn-default">Next 7 days</button>
+                                        <button class="btn btn-default">Next 30 days</button>
+                                        <button class="btn btn-default"><span class="fa fa-times"></span>Clear</button>
+                                    </div>
+                                </transition>
+                            </div>
+                            <table  v-if="filtered" class="table table-hover table-condensed table-bordered">
                                 <thead>
                                 <tr class="bg-info">
                                     <th></th>
