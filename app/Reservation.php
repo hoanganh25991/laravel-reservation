@@ -74,6 +74,8 @@ use App\OutletReservationSetting as Setting;
  * @property string payment_timestamp
  * @property int $payment_status
  * @property string payment_authorization_id
+ * @method mixed fromToday
+ * @see App\Reservation::scopeFromToday
  */
 class Reservation extends HoiModel {
 
@@ -642,6 +644,23 @@ class Reservation extends HoiModel {
         $last_30_days_str = $last_30_days->format('Y-m-d H:i:s');
 
         return $query->where('reservation_timestamp', '>=', $last_30_days_str);
+    }
+
+    /**
+     * Reservation newer than last 30 days from $start
+     * @param $query
+     * @param Carbon $start
+     * @return
+     */
+    public function scopeFromToday($query, Carbon $start = null){
+        // $start default as 'the start of today'
+        // $start as now >>> reservation just 10 minutes ago not listed in
+        // set his time back to 0 hours 0 minutes 0 seconds
+        $start = $start ?: Carbon::now(Setting::timezone())->setTime(0, 0, 0);
+
+        $today_str = $start->format('Y-m-d H:i:s');
+
+        return $query->where('reservation_timestamp', '>=', $today_str);
     }
 
     /**
