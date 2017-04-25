@@ -11,7 +11,7 @@
                             <li><a destination="buffer"                class="btn go">Buffer</a></li>
                             <li><a destination="notification"          class="btn go">Notification</a></li>
                             <li><a destination="settings"              class="btn go">Settings</a></li>
-                            <li><a destination="deposit"               class="btn go">Deposit</a></li>
+                            <li><a destination="deposit"               class="btn go">Payment Authorization</a></li>
                         </ul>
                     </div>
                 </div>
@@ -272,7 +272,7 @@
                     <div id="deposit" class="modal-content admin-step">
                         @verbatim
                         <div class="modal-header">
-                            <h1>Deposit</h1>
+                            <h1>Payment Authorization</h1>
                         </div>
                         <div class="modal-body">
                             <div class="row">
@@ -296,7 +296,7 @@
                                 <div class="col-md-7">
                                     <!-- div style="padding: 0 15px" -->
                                     <div>
-                                        <h4>Deposit Calculation</h4>
+                                        <h4>Payment Authorization Calculation</h4>
                                         <div class="input-group col-md-6">
                                             <span class="input-group-addon">$</span>
                                             <input type="number" class="form-control"

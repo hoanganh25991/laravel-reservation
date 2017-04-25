@@ -27,7 +27,7 @@
                                     <th>Customer Remarks</th>
                                     <th>Staff Remarks</th>
                                     <th>Status</th>
-                                    <th>Deposit</th>
+                                    <th>Payment Authorization</th>
                                 </tr>
                                 </thead>
                                 <tbody>
