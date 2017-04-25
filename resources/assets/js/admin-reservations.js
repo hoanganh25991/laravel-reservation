@@ -453,7 +453,19 @@ class AdminReservations {
 
 							break;
 						}
-						case CUSTOM:{break;}
+						case CUSTOM:{
+							let date_str = this.custom_pick_day;
+							console.log(date_str);
+							// Luckily, format of date is YYYY-MM-DD
+							// Can't change this default
+							// Ok, cross platform, parse it
+							let date    = moment(date_str, 'YYYY-MM-DD');
+							//console.log(date);
+							let mode    = MODE_EXACTLY;
+							this._fitlerReservationByDay(date, mode);
+
+							break;
+						}
 						case CLEAR:{break;}
 					}
 				},
@@ -462,10 +474,12 @@ class AdminReservations {
 					/**
 					 * Return current query to first state
 					 */
-					this.next_3_days = null;
-					this.next_7_days = null;
-					this.next_30_days = null;
-					this.custom = null;
+					this.next_3_days     = null;
+					this.next_7_days     = null;
+					this.next_30_days    = null;
+					this.custom_pick_day = null;
+
+					this.filter_date_picker = null;
 
 					this.filtered = false;
 				},
