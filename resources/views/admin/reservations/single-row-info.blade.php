@@ -8,6 +8,7 @@
         <input type="checkbox"
                v-model="reservation.staff_read_state"
                style="position: relative; width: 20px; left: 0px;"
+               v-on:change="_autoSave"
         >
     </td>
     <td>@{{ reservation.confirm_id }}</td>
@@ -23,6 +24,7 @@
                 type="text" style="width: 70px"
                 v-model="reservation.table_name"
                 :value="reservation.table_name"
+                v-on:change="_autoSave"
         >
     </td>
     <td>
@@ -31,6 +33,7 @@
                 v-model="reservation.customer_remarks"
                 :value="reservation.customer_remarks"
                 placeholder="Customer Remarks"
+                v-on:change="_autoSave"
         ></textarea>
     </td>
     <td>
@@ -39,10 +42,11 @@
                 v-model="reservation.staff_remarks"
                 :value="reservation.staff_remarks"
                 placeholder="Staff Remarks"
+                v-on:change="_autoSave"
         ></textarea>
     </td>
     <td>
-        <select v-model="reservation.status">
+        <select v-model="reservation.status" v-on:change="_autoSave">
             <option value="300" class="bg-success">Confirmation</option>
             <option value="200" class="bg-info">Reminder Sent</option>
             <option value="100" class="bg-info">Reserved</option>

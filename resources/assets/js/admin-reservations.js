@@ -474,6 +474,17 @@ class AdminReservations {
 					this.filtered_reservations = [];
 				},
 
+				_autoSave(){
+					// Get out reservations & save it
+					let reservations = this.reservations;
+					let action = {
+						type: AJAX_UPDATE_RESERVATIONS,
+						reservations
+					}
+
+					self.ajax_call(action);
+				}
+
 			}
 		});
 	}
