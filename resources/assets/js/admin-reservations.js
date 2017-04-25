@@ -44,6 +44,7 @@ const CLEAR        = 'CLEAR';
 
 const MODE_EXACTLY = 'MODE_EXACTLY';
 const MODE_FROM = 'MODE_FROM';
+const SYNC_VUE_STATE = 'SYNC_VUE_STATE';
 
 
 class AdminReservations {
@@ -81,7 +82,11 @@ class AdminReservations {
 						toast: action.toast
 					});
 				case SYNC_DATA:{
-					return Object.assign(state, action.data);
+					return Object.assign({}, state, action.data);
+				}
+				case SYNC_VUE_STATE :{
+					return Object.assign({}, state, action.vue_state);
+					break;
 				}
 				default:
 					return state;
@@ -154,14 +159,20 @@ class AdminReservations {
 				self.view();
 				self.listener();
 			},
+			beforeUpdate(){
+				store.dispatch({
+					type: SYNC_VUE_STATE,
+					vue_state: window.vue_state
+				});
+			},
 			methods: {
 				_reservationDetailDialog(e){
 					try{
 						let tr = this._findTrElement(e);
 						this._remarksAsStaffRead(tr);
 						//Clone it into reservation dialog content
-						let reservation_index  = tr.getAttribute('reservation-index');
-						let picked_reservation = this.reservations[reservation_index];
+						let reservation_id  = tr.getAttribute('reservation-id');
+						let picked_reservation = this.reservations.filter(reservation => reservation.id == reservation_id)[0];
 						let dialog_reservation = Object.assign({}, picked_reservation);
 						//Diloag need data for other stuff
 						//Self update for itself
@@ -620,9 +631,9 @@ class AdminReservations {
 				window.Toast.show();
 			}
 
-			if(action == SYNC_DATA){
-				Object.assign(window.vue_state, store.getState());
-			}
+			// if(action == SYNC_DATA){
+			Object.assign(window.vue_state, store.getState());
+			// }
 		});
 	}
 

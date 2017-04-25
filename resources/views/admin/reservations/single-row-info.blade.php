@@ -1,6 +1,6 @@
 <tr :class="reservation.staff_read_state ? '' : 'active'"
     :id="'reservation_' + reservation.id"
-    :reservation-index="reservation_index"
+    :reservation-id="reservation.id"
     v-on:click="_reservationDetailDialog"
 >
     <td>@{{ reservation_index + 1 }}</td>
