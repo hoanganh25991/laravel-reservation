@@ -73,6 +73,7 @@ use App\OutletReservationSetting as Setting;
  * @property double payment_amount
  * @property string payment_timestamp
  * @property int $payment_status
+ * @property string payment_authorization_id
  */
 class Reservation extends HoiModel {
 

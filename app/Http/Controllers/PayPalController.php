@@ -127,9 +127,15 @@ class PayPalController extends HoiController{
                     $transaction_id = $result->transaction->id;
 
                     /**
-                     * Store payment id
-                     * To capture later
+                     * Store payment info
+                     * payment_id : used for API call, to capture later
+                     * payment_authorization_id : transaction id as authorization case
                      */
+                    // Get paypal details first
+                    /** @var Transaction\PayPalDetails $paypal_details */
+                    $paypal_details                        = $result->transaction->paypalDetails;
+                    $reservation->payment_authorization_id = $paypal_details->authorizationId;
+
                     $reservation->payment_id        = $transaction_id;
                     $reservation->payment_amount    = $amount;
                     $reservation->payment_timestamp = Carbon::now(Setting::timezone());
