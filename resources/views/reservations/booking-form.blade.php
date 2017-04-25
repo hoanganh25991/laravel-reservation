@@ -38,13 +38,19 @@
                         <div class="clear"></div>
                         <div id="calendar-box" align="center"></div>
                         <div id="dt-choice" class="cf">
-                            <label>Booking time on <span v-if="reservation.date">@{{ reservation.date.format('DD MMM Y') }}</span></label>
-                            <select v-model="reservation.time" class="form-control">
-                                <option :value="no_answer_time" disabled>N/A</option>
-                                <template v-for="(time, time_index) in available_time_on_reservation_date">
-                                    <option :value="time.time">@{{ time.session_name }} @{{ time.time }}</option>
-                                </template>
-                            </select>
+                            <label style="display: block; width: 100%; text-align: left;">
+                                Booking time on <span v-if="reservation.date">@{{ reservation.date.format('DD MMM Y') }}</span></label>
+                            <div v-show="available_time_on_reservation_date.length > 0">
+                                <select v-model="reservation.time" class="form-control">
+                                    <option :value="no_answer_time" disabled>N/A</option>
+                                    <template v-for="(time, time_index) in available_time_on_reservation_date">
+                                        <option :value="time.time">@{{ time.session_name }} @{{ time.time }}</option>
+                                    </template>
+                                </select>
+                            </div>
+                            <label v-show="available_time_on_reservation_date.length == 0 & has_selected_day"
+                                   style="display: block; width: 100%; text-align: left;" class="bg-info">
+                                We apologize that there are no reservation slots available at your selected date</label>
                         </div>
                         <div class="agree-box cf">
                             <div class="checkbox cf" style="padding-left: 5px;">

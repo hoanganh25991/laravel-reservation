@@ -253,6 +253,9 @@ class BookingForm {
 			form_step_2_keys: [],
 			// Vue need dialog info, to manage show/hide on summary step
 			dialog: null,
+			// Vue need keys, to manage show|hide select time box
+			// Or show msg, which better than select time box with N/A
+			has_selected_day: null,
 		};
 
 		return vue_state;
