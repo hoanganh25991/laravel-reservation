@@ -43,7 +43,7 @@ const CUSTOM       = 'CUSTOM';
 const CLEAR        = 'CLEAR';
 
 const MODE_EXACTLY = 'MODE_EXACTLY';
-const MODE_FROM = 'MODE_FROM';
+const MODE_BETWEEN = 'MODE_BETWEEN';
 const SYNC_VUE_STATE = 'SYNC_VUE_STATE';
 
 
@@ -332,14 +332,6 @@ class AdminReservations {
 					}
 				},
 
-				_toggleFilter(){
-					let current_state = this.filtered;
-					// Ok, toggle it
-					current_state     = !current_state;
-					// Update it
-					this.filtered     = current_state;
-				},
-
 				/**
 				 * Fitler base on a date
 				 * @param date
@@ -370,9 +362,9 @@ class AdminReservations {
 							};
 							break;
 						}
-						case MODE_FROM:{
+						case MODE_BETWEEN:{
 							dateQueryFunction = function(reservation){
-								return reservation.date.isSameOrAfter(date);
+								return reservation.date.isBefore(date);
 							};
 							break;
 						}
@@ -393,6 +385,7 @@ class AdminReservations {
 					switch(which_case){
 						case TODAY:{
 							console.log('see click today');
+							// Find out which date
 							let today = moment({hour: 0, minute: 0, seconds: 0});
 							let mode  = MODE_EXACTLY;
 
@@ -401,6 +394,7 @@ class AdminReservations {
 						}
 						case TOMORROW:{
 							console.log('see click tomorrow');
+							// Find out which date
 							let tomorrow = moment({hour: 0, minute: 0, seconds: 0}).add(1, 'days');
 							let mode     = MODE_EXACTLY;
 
@@ -411,56 +405,41 @@ class AdminReservations {
 							// When call next_3_days, means next 3 days from current search
 							// if no current search stored > default is today
 							if(!this.next_3_days){
-								this.next_3_days = moment({hour: 0, minute: 0, seconds: 0});
+								let today        = moment({hour: 0, minute: 0, seconds: 0});
+								this.next_3_days = today.clone().add(4, 'days');
 							}
 
-							let current     = this.next_3_days;
-
-							let next_3_days = current.clone().add(3, 'days');
-							// Update search step ifself
-							this.next_3_days= next_3_days;
-
-							// Call filter base on this step
-							let mode = MODE_FROM;
-							this._fitlerReservationByDay(next_3_days, mode);
+							let date = this.next_3_days;
+							let mode = MODE_BETWEEN;
+							this._fitlerReservationByDay(date, mode);
 
 							break;
 						}
 						case NEXT_7_DAYS:{
-							// When call next_30_days, means next 7 days from current search
+							// When call next_7_days, means next 7 days from current search
 							// if no current search stored > default is today
-							if(!this.next_30_days){
-								this.next_30_days = moment({hour: 0, minute: 0, seconds: 0});
+							if(!this.next_7_days){
+								let today        = moment({hour: 0, minute: 0, seconds: 0});
+								this.next_7_days = today.clone().add(8, 'days');
 							}
 
-							let current     = this.next_30_days;
-
-							let next_7_days = current.clone().add(7, 'days');
-							// Update search step ifself
-							this.next_30_days= next_7_days;
-
-							// Call filter base on this step
-							let mode = MODE_FROM;
-							this._fitlerReservationByDay(next_7_days, mode);
+							let date = this.next_7_days;
+							let mode = MODE_BETWEEN;
+							this._fitlerReservationByDay(date, mode);
 
 							break;
 						}
 						case NEXT_30_DAYS:{
-							// When call next_30_days, means next 30 days from current search
+							// When call next_7_days, means next 30 days from current search
 							// if no current search stored > default is today
 							if(!this.next_30_days){
-								this.next_30_days = moment({hour: 0, minute: 0, seconds: 0});
+								let today         = moment({hour: 0, minute: 0, seconds: 0});
+								this.next_30_days = today.clone().add(31, 'days');
 							}
 
-							let current     = this.next_30_days;
-
-							let next_30_days = current.clone().add(30, 'days');
-							// Update search step ifself
-							this.next_30_days= next_30_days;
-
-							// Call filter base on this step
-							let mode = MODE_FROM;
-							this._fitlerReservationByDay(next_30_days, mode);
+							let date = this.next_30_days;
+							let mode = MODE_BETWEEN;
+							this._fitlerReservationByDay(date, mode);
 
 							break;
 						}
@@ -485,14 +464,14 @@ class AdminReservations {
 					/**
 					 * Return current query to first state
 					 */
-					this.next_3_days     = null;
-					this.next_7_days     = null;
-					this.next_30_days    = null;
-					this.custom_pick_day = null;
+					// this.next_3_days     = null;
+					// this.next_7_days     = null;
+					// this.next_7_days     = null;
+					// this.custom_pick_day = null;
 
 					this.filter_date_picker = null;
-
-					this.filtered = false;
+					this.filtered           = false;
+					this.filtered_reservations = [];
 				},
 
 			}
