@@ -115,9 +115,19 @@ class AdminReservations {
 	defaultState(){
 		let default_state  = window.state || {};
 
-		let frontend_state = this.getFrontEndState();
+		//let frontend_state = this.getFrontEndState();
+		let frontend_state = {
+			reservation_dialog_content: {},
+			toast: {
+				title: 'Title',
+					content: 'Content'
+			},
+			reservations: [],
+			filterd_reservations: [],
+		};
+
 		
-		return Object.assign(default_state, frontend_state);
+		return Object.assign(frontend_state, default_state);
 	}
 
 	buildVue(){
