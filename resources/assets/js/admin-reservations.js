@@ -34,6 +34,17 @@ const PAYMENT_REFUNDED = 50;
 const PAYMENT_PAID     = 100;
 const PAYMENT_CHARGED  = 200;
 
+const TODAY        = 'TODAY';
+const TOMORROW     = 'TOMORROW';
+const NEXT_3_DAYS  = 'NEXT_3_DAYS';
+const NEXT_7_DAYS  = 'NEXT_7_DAYS';
+const NEXT_30_DAYS = 'NEXT_30_DAYS';
+const CUSTOM       = 'CUSTOM';
+const CLEAR        = 'CLEAR';
+
+const MODE_EXACTLY = 'MODE_EXACTLY';
+const MODE_FROM = 'MODE_FROM';
+
 
 class AdminReservations {
 	/**
@@ -102,21 +113,6 @@ class AdminReservations {
 		}
 	}
 
-	getFrontEndState(){
-		return {
-			reservation_dialog_content: {},
-			toast: {
-				title: 'Title',
-				content: 'Content'
-			},
-			reservations: [],
-			// Manage filterd on reservations
-			filtered_reservations: [],
-			// Decide show|hide
-			filtered: false,
-		};
-	}
-
 	defaultState(){
 		let default_state  = window.state || {};
 
@@ -132,6 +128,11 @@ class AdminReservations {
 			filtered_reservations: [],
 			// Decide show|hide
 			filtered: false,
+			next_3_days: null,
+			next_7_days: null,
+			next_30_days: null,
+			filter_date_picker: null,
+			custom_pick_day: null,
 		};
 
 		
@@ -328,72 +329,147 @@ class AdminReservations {
 					this.filtered     = current_state;
 				},
 
-				_filter(which_case){
+				/**
+				 * Fitler base on a date
+				 * @param date
+				 * @param mode
+				 *      two mode supported: 'exactly', 'from'
+				 * @private
+				 */
+				_fitlerReservationByDay(date, mode = MODE_EXACTLY){
 					let reservations = this.reservations;
-					switch(which_case){
-						case 'today':{
-							console.log('see click today');
-							// Assign reservations with moment date obj
-							let reservations_with_date = reservations.map(reservation => {
-								if(!reservation.date){
-									let timestamp    = reservation.reservation_timestamp;
-									reservation.date = moment(timestamp, 'YYYY-MM-DD HH:mm:ss');
-								}
+					// Assign reservations with moment date obj
+					let reservations_with_date = reservations.map(reservation => {
+						if(!reservation.date){
+							let timestamp    = reservation.reservation_timestamp;
+							reservation.date = moment(timestamp, 'YYYY-MM-DD HH:mm:ss');
+						}
 
-								return reservation;
-							});
+						return reservation;
+					});
 
-							// Update back resersvations
-							this.reservations = reservations_with_date;
+					// Update back resersvations
+					this.reservations = reservations_with_date;
 
-							// Filter out
-							// Today here is the first day
-							let today = moment({hour: 0, minute: 0, seconds: 0});
-
-							let filtered_reservations = reservations_with_date.filter(reservation => {
-								return reservation.date.isSame(today, 'day');
-							});
-
-							// Update filtered reservations;
-							this.filtered_reservations = filtered_reservations;
-
+					let dateQueryFunction = '';
+					switch(mode){
+						case MODE_EXACTLY:{
+							dateQueryFunction = function(reservation){
+								return reservation.date.isSame(date, 'day');
+							};
 							break;
 						}
-						case 'tomorrow':{
-							console.log('see click tomorrow');
-							// Assign reservations with moment date obj
-							let reservations_with_date = reservations.map(reservation => {
-								if(!reservation.date){
-									let timestamp    = reservation.reservation_timestamp;
-									reservation.date = moment(timestamp, 'YYYY-MM-DD HH:mm:ss');
-								}
-
-								return reservation;
-							});
-
-							// Update back resersvations
-							this.reservations = reservations_with_date;
-
-							// Filter out
-							// Today here is the first day
-							let tomorrow = moment({hour: 0, minute: 0, seconds: 0}).add(1, 'days');
-
-							let filtered_reservations = reservations_with_date.filter(reservation => {
-								return reservation.date.isSame(tomorrow, 'day');
-							});
-
-							// Update filtered reservations;
-							this.filtered_reservations = filtered_reservations;
-
+						case MODE_FROM:{
+							dateQueryFunction = function(reservation){
+								return reservation.date.isSameOrAfter(date);
+							};
 							break;
 						}
-						case 'next_3_days':{break;}
-						case 'next_7_days':{break;}
-						case 'next_30_days':{break;}
-						case 'custom':{break;}
-						case 'clear':{break;}
+						default: {
+							throw 'No mode is specified';
+						}
+
 					}
-				}
+
+					let filtered_reservations = reservations_with_date.filter(dateQueryFunction);
+
+					// Update filtered reservations;
+					this.filtered_reservations = filtered_reservations;
+				},
+
+				_filter(which_case){
+					//console.log(which_case);
+					switch(which_case){
+						case TODAY:{
+							console.log('see click today');
+							let today = moment({hour: 0, minute: 0, seconds: 0});
+							let mode  = MODE_EXACTLY;
+
+							this._fitlerReservationByDay(today, mode);
+							break;
+						}
+						case TOMORROW:{
+							console.log('see click tomorrow');
+							let tomorrow = moment({hour: 0, minute: 0, seconds: 0}).add(1, 'days');
+							let mode     = MODE_EXACTLY;
+
+							this._fitlerReservationByDay(tomorrow, mode);
+							break;
+						}
+						case NEXT_3_DAYS:{
+							// When call next_3_days, means next 3 days from current search
+							// if no current search stored > default is today
+							if(!this.next_3_days){
+								this.next_3_days = moment({hour: 0, minute: 0, seconds: 0});
+							}
+
+							let current     = this.next_3_days;
+
+							let next_3_days = current.clone().add(3, 'days');
+							// Update search step ifself
+							this.next_3_days= next_3_days;
+
+							// Call filter base on this step
+							let mode = MODE_FROM;
+							this._fitlerReservationByDay(next_3_days, mode);
+
+							break;
+						}
+						case NEXT_7_DAYS:{
+							// When call next_30_days, means next 7 days from current search
+							// if no current search stored > default is today
+							if(!this.next_30_days){
+								this.next_30_days = moment({hour: 0, minute: 0, seconds: 0});
+							}
+
+							let current     = this.next_30_days;
+
+							let next_7_days = current.clone().add(7, 'days');
+							// Update search step ifself
+							this.next_30_days= next_7_days;
+
+							// Call filter base on this step
+							let mode = MODE_FROM;
+							this._fitlerReservationByDay(next_7_days, mode);
+
+							break;
+						}
+						case NEXT_30_DAYS:{
+							// When call next_30_days, means next 30 days from current search
+							// if no current search stored > default is today
+							if(!this.next_30_days){
+								this.next_30_days = moment({hour: 0, minute: 0, seconds: 0});
+							}
+
+							let current     = this.next_30_days;
+
+							let next_30_days = current.clone().add(30, 'days');
+							// Update search step ifself
+							this.next_30_days= next_30_days;
+
+							// Call filter base on this step
+							let mode = MODE_FROM;
+							this._fitlerReservationByDay(next_30_days, mode);
+
+							break;
+						}
+						case CUSTOM:{break;}
+						case CLEAR:{break;}
+					}
+				},
+
+				_clearSearch(){
+					/**
+					 * Return current query to first state
+					 */
+					this.next_3_days = null;
+					this.next_7_days = null;
+					this.next_30_days = null;
+					this.custom = null;
+
+					this.filtered = false;
+				},
+
 			}
 		});
 	}

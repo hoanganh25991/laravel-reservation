@@ -27,13 +27,18 @@
                                 </div>
                                 <transition name="slide">
                                     <div  v-if="filtered" class="btn-group pull-right">
-                                        <button class="btn btn-sm btn-default" v-on:click="_filter('today')"       >Today</button>
-                                        <button class="btn btn-sm btn-default" v-on:click="_filter('tomorrow')"    >Tomorrow</button>
-                                        <button class="btn btn-sm btn-default" v-on:click="_filter('next_3_days')" >Next 3 days</button>
-                                        <button class="btn btn-sm btn-default" v-on:click="_filter('next_7_days')" >Next 7 days</button>
-                                        <button class="btn btn-sm btn-default" v-on:click="_filter('next_30_days')">Next 30 days</button>
-                                        <button class="btn btn-sm btn-default" v-on:click="_filter('custom')"      >Pick a day</button>
-                                        <button class="btn btn-sm btn-default" v-on:click="_filter('clear')"       ><span class="fa fa-times"></span>Clear</button>
+                                        <button class="btn btn-sm btn-default" v-on:click="_filter(TODAY)"       >Today</button>
+                                        <button class="btn btn-sm btn-default" v-on:click="_filter(TOMORROW)"    >Tomorrow</button>
+                                        <button class="btn btn-sm btn-default" v-on:click="_filter(NEXT_3_DAYS)" >Next 3 days</button>
+                                        <button class="btn btn-sm btn-default" v-on:click="_filter(NEXT_7_DAYS)" >Next 7 days</button>
+                                        <button class="btn btn-sm btn-default" v-on:click="_filter(NEXT_30_DAYS)">Next 30 days</button>
+                                        <button class="btn btn-sm btn-default" v-on:click="filter_date_picker = !filter_date_picker">Pick a day</button>
+                                        <button class="btn btn-sm btn-default" v-on:click="_clearSearch"       ><span class="fa fa-times"></span>Clear</button>
+                                    </div>
+                                </transition>
+                                <transition name="slide">
+                                    <div v-if="filter_date_picker & filtered">
+                                        <input type="date" v-model="custom_pick_day">
                                     </div>
                                 </transition>
                             </div>
