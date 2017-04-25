@@ -72,6 +72,11 @@
                         </div>
                     </div>
 
+                    <div class="modal-body">
+                        <div style="width: 100%; text-align: right">
+                            <button v-on:click="reserved_mode = !reserved_mode">{{ reserved_mode ? 'All Reservations' : 'Reserved Only' }}</button>
+                        </div>
+                    </div>
                     <div v-if="!filtered" class="modal-body">
                         <div style="box-shadow: rgba(0, 0, 0, 0.5) 0px 5px 15px;">
                             <table class="table table-hover table-condensed table-bordered">
@@ -91,7 +96,7 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <template v-for="(reservation, reservation_index) in reservations">
+                                <template v-for="(reservation, reservation_index) in reserved_reservations">
                                     @endverbatim
                                     @include('admin.reservations.single-row-info')
                                     @verbatim

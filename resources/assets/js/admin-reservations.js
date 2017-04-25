@@ -46,6 +46,8 @@ const MODE_EXACTLY = 'MODE_EXACTLY';
 const MODE_BETWEEN = 'MODE_BETWEEN';
 const SYNC_VUE_STATE = 'SYNC_VUE_STATE';
 
+const RESERVATION_RESERVED = 100;
+
 
 class AdminReservations {
 	/**
@@ -57,10 +59,8 @@ class AdminReservations {
 		this.buildRedux();
 		this.buildVue();
 		//Hack into these core concept, to get log
-		this.hack_store();
+		//this.hack_store();
 		this.hack_ajax();
-
-		this.initView();
 	}
 
 	buildRedux(){
@@ -69,9 +69,7 @@ class AdminReservations {
 		let rootReducer = function(state = default_state, action){
 			switch(action.type){
 				case INIT_VIEW:
-					return Object.assign({}, state, {
-						init_view: self.initViewReducer(state.init_view, action)
-					});
+					return Object.assign({}, state, {init_view: true});
 				case SHOW_RESERVATION_DIALOG_CONTENT:
 				case HIDE_RESERVATION_DIALOG_CONTENT:
 					return Object.assign({}, state, {
@@ -94,9 +92,7 @@ class AdminReservations {
 		}
 
 		window.store = Redux.createStore(rootReducer);
-	}
 
-	hack_store(){
 		let store = window.store;
 		/**
 		 * Helper function
@@ -122,13 +118,25 @@ class AdminReservations {
 		let default_state  = window.state || {};
 
 		//let frontend_state = this.getFrontEndState();
-		let frontend_state = {
+		let frontend_state = this.frontEndState();
+
+		return Object.assign({}, frontend_state, default_state);
+	}
+
+	frontEndState(){
+		return {
+			user: {},
 			reservation_dialog_content: {},
 			toast: {
 				title: 'Title',
-					content: 'Content'
+				content: 'Content'
 			},
 			reservations: [],
+			// This list used for reserved only mode
+			// Which only show out reserved reservations
+			reserved_reservations: [],
+			// Store which mode used
+			reserved_mode: null,
 			// Manage filterd on reservations
 			filtered_reservations: [],
 			// Decide show|hide
@@ -139,13 +147,10 @@ class AdminReservations {
 			filter_date_picker: null,
 			custom_pick_day: null,
 		};
-
-		
-		return Object.assign(frontend_state, default_state);
 	}
 
 	buildVue(){
-		window.vue_state = this.buildVueState();
+		window.vue_state = this.frontEndState();
 
 		let self  = this;
 
@@ -158,12 +163,47 @@ class AdminReservations {
 				self.event();
 				self.view();
 				self.listener();
+				let store = window.store;
+				// Init view
+				store.dispatch({type: INIT_VIEW});
 			},
 			beforeUpdate(){
 				store.dispatch({
 					type: SYNC_VUE_STATE,
 					vue_state: window.vue_state
 				});
+			},
+			computed:{
+				updateReservedReservations() {
+					// it's only required to reference those properties
+					this.reservations;
+					this.reserved_mode;
+					// and then return a different value every time
+					return Date.now() // or performance.now()
+				}
+			},
+			watch: {
+				updateReservedReservations(){
+					/**
+					 * List out dependecies, which trigger this function re-run
+					 * Like, hey 'watch on these properties, if you change it, i recompute
+					 */
+					let reservations = this.reservations;
+					let reserved_mode= this.reserved_mode;
+
+					let filterReservationsBaseOnMode = () => true;;
+
+					// Current mode is simple
+					// Only true as limit or false as let all
+					if(reserved_mode){
+						filterReservationsBaseOnMode = (resservation) => {return resservation.status >= RESERVATION_RESERVED;};
+					}
+
+					let reserved_reservations = reservations.filter(filterReservationsBaseOnMode);
+					// Ok, update list
+					this.reserved_reservations = reserved_reservations;
+					// This is a return function, so just return it
+				}
 			},
 			methods: {
 				_reservationDetailDialog(e){
@@ -483,29 +523,12 @@ class AdminReservations {
 					}
 
 					self.ajax_call(action);
-				}
-
+				},
 			}
 		});
 	}
 
-	buildVueState(){
-		return Object.assign({}, store.getState());
-	}
 
-	initViewReducer(state, action){
-		switch(action.type){
-			case INIT_VIEW:{
-				return true;
-			}
-			default:
-				return state;
-		}
-	}
-
-	initView(){
-		store.dispatch({type: INIT_VIEW});
-	}
 
 	reservationDialogContentReducer(state, action){
 		switch(action.type){
