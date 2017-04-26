@@ -727,7 +727,7 @@ class BookingForm {
 			// Then it updated, it talk back to Vue
 			// After 2 times of SYNC
 			// They are now in the same state
-			Object.assign(window.vue_state, state);
+			Object.assign(window.vue_state, store.getState());
 		});
 
 
