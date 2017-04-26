@@ -175,7 +175,8 @@ class ReservationController extends HoiController{
 
     public function fetchUpdateReservations(){
         //$reservations = Reservation::last30Days()->where('status', '>=', Reservation::RESERVED)->get();
-        $reservations = Reservation::fromToday()->where('status', '>=', Reservation::RESERVED)->get();
+//        $reservations = Reservation::fromToday()->where('status', '>=', Reservation::RESERVED)->get();
+        $reservations = Reservation::fromToday()->where('status', '!=', Reservation::REQUIRED_DEPOSIT)->get();
 
         return $reservations;
     }
