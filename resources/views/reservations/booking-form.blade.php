@@ -49,7 +49,7 @@
                                 </select>
                             </div>
                             <label v-show="available_time_on_reservation_date.length == 0 & has_selected_day & !dialog"
-                                   style="display: block; width: 100%; text-align: left;" class="bg-info">
+                                   style="display: block; width: 100%; text-align: left; font-weight: normal" class="text-danger">
                                 We apologize that there are no reservation slots available at your selected date</label>
                         </div>
                         <div class="agree-box cf">
