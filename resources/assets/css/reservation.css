@@ -2368,3 +2368,10 @@ label:hover:before {
 #user-dialog .multiple-select:focus {
     height: auto;
 }
+.i-multiple-select{
+    transition: all 0.5s ease-in-out;
+    height: 35px;
+}
+.i-multiple-select:focus {
+    height: auto;
+}

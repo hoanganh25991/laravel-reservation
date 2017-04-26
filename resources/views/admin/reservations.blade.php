@@ -33,7 +33,7 @@
                                         <button class="btn btn-sm btn-default" v-on:click="_addFilterByDay(NEXT_7_DAYS)" >Next 7 days</button>
                                         <button class="btn btn-sm btn-default" v-on:click="_addFilterByDay(NEXT_30_DAYS)">Next 30 days</button>
                                         <button class="btn btn-sm btn-default" v-on:click="filter_date_picker = !filter_date_picker">Pick a day</button>
-                                        <button class="btn btn-sm btn-default" v-on:click="_clearSearch"       ><span class="fa fa-times"></span>Clear</button>
+                                        <button class="btn btn-sm btn-default" v-on:click="_clearFilterByDay"><span class="fa fa-times"></span>Clear</button>
                                     </div>
                                 </transition>
                             </div>
@@ -43,22 +43,27 @@
                                            v-model="custom_pick_day" v-on:change="_addFilterByDay(CUSTOM)">
                                 </div>
                             </transition>
+
+                            <transition name="slide">
+                                <div  v-if="filter_panel"  style="width: 100%; text-align: right">
+                                    <p>{{ filter_statuses }}</p>
+                                    <select v-model="filter_statuses" multiple class="i-multiple-select">
+                                        <option value="300" class="bg-success">Confirmation</option>
+                                        <option value="200" class="bg-info">Reminder Sent</option>
+                                        <option value="100" class="bg-info">Reserved</option>
+                                        <option value="-100" class="bg-info">User cancelled</option>
+                                        <option value="-200" class="bg-warning">Staff cancelled</option>
+                                        <option value="-300" class="bg-danger">No show</option>
+                                    </select>
+                                    <button class="btn bg-info" v-on:click="_addFilterByStatus(...filter_statuses)">Filter by status</button>
+                                    <button class="btn bg-info" v-on:click="_clearFilterByStatus">Clear by status</button>
+                                </div>
+                            </transition>
                         </div>
                     </div>
                     <!-- This div used to filterd reservations -->
                     <div class="modal-body">
-                        <div  style="width: 100%; text-align: right">
-                            <p>{{ filter_statuses }}</p>
-                            <select v-model="filter_statuses" multiple>
-                                <option value="300" class="bg-success">Confirmation</option>
-                                <option value="200" class="bg-info">Reminder Sent</option>
-                                <option value="100" class="bg-info">Reserved</option>
-                                <option value="-100" class="bg-info">User cancelled</option>
-                                <option value="-200" class="bg-warning">Staff cancelled</option>
-                                <option value="-300" class="bg-danger">No show</option>
-                            </select>
-                            <button class="btn bg-info" v-on:click="_addFilterForMultipleStatus">Filter by status</button>
-                        </div>
+
                     </div>
                     <!-- This div used to SHOW filterd reservations -->
                     <div class="modal-body">

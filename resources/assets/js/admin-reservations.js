@@ -136,7 +136,7 @@ class AdminReservations {
 			},
 			reservations: [],
 			// Decide show|hide
-			filter_panel: false,
+			filter_panel: true,
 			// Manage filterd on reservations
 			filtered_reservations: [],
 			// contains all filters
@@ -176,30 +176,66 @@ class AdminReservations {
 				});
 			},
 			computed:{
-				updateReservedReservations() {
+				updateFilteredReservations() {
 					// it's only required to reference those properties
 					this.reservations;
+					this.filter_options;
 					// and then return a different value every time
-					return moment(); // or performance.now()
+					return new Date(); // or performance.now()
 				}
 			},
 			watch: {
-				updateReservedReservations(){
+				// Need modify reservations with moment date obj
+				// To run compare date easily
+				// Any time see reservations changed
+				// Ok assign date obj to him
+				reservations(reservations){
+					// let reservations_with_date =
+					// 	reservations.map(reservation => {
+					// 		// Only run when date not assing
+					// 		// Of course, don't do silly thing > infinite loop
+					// 		// ᕕ( ᐛ )ᕗ
+					// 		if(!reservation.date){
+					// 			let timestamp = reservation.reservation_timestamp;
+					// 			let date      = moment(timestamp, 'YYYY-MM-DD HH:mm:ss');
+					// 			// Assign date
+					// 			reservation.date = date;
+					// 		}
+					//
+					// 		return reservation;
+					// 	});
+					//
+					// // Ok update it to vue state explicit
+					// // By calling in this style
+					// // Redux state also be synced
+					// this.reservations = reservations_with_date;
+
+					// Assign date
+					reservations.forEach(reservation => {
+						let timestamp = reservation.reservation_timestamp;
+						let date      = moment(timestamp, 'YYYY-MM-DD HH:mm:ss');
+						// Assign date
+						reservation.date = date;
+					});
+				},
+				updateFilteredReservations(){
 					/**
 					 * List out dependecies, which trigger this function re-run
 					 * Like, hey 'watch on these properties, if you change it, i recompute
 					 */
-					let reservations = this.reservations;
+					let reservations   = this.reservations;
+					let filter_options = this.filter_options;
+					// Loop through each filter_options, run on current reservations
+					let filtered_reservations =
+						filter_options.reduce((carry, filter) => {
+							// aplly current filter
+							let _f_reservations = carry.filter(filter);
+							// return result for next row call filter on
+							return _f_reservations;
+						}, reservations);
 
-					let filterReservationsBaseOnMode = () => true;;
-
-					// Current mode is simple
-					// Only true as limit or false as let all
-
-					let reserved_reservations = reservations.filter(filterReservationsBaseOnMode);
-					// Ok, update list
-					this.reserved_reservations = reserved_reservations;
-					// This is a return function, so just return it
+					// Update filtered reservations
+					this.filtered_reservations = filtered_reservations;
 				}
 			},
 			methods: {
@@ -497,7 +533,7 @@ class AdminReservations {
 					}
 				},
 
-				_clearSearch(){
+				_clearFilterByDay(){
 					/**
 					 * Return current query to first state
 					 */
@@ -507,8 +543,12 @@ class AdminReservations {
 					// this.custom_pick_day = null;
 
 					this.filter_date_picker = null;
-					this.filtered           = false;
-					this.filtered_reservations = [];
+					// Hide filter panel
+					//this.filtered_reservations = [];
+					let iFilter = this._createFilter( function(){return true;}, {name: 'filter by status', type: FILTER_TYPE_DAY, priority: 1});
+
+					this._addNewFilter(iFilter);
+
 				},
 
 				_autoSave(){
@@ -542,17 +582,34 @@ class AdminReservations {
 				_createFilter(filter_function, options){
 					// Check required keys of type
 					const required_keys = ['type', 'priority'];
-					let empty_keys      = required_keys.map(key => typeof options[key] == 'undefined');
+					let empty_keys      = required_keys.filter(key => typeof options[key] == 'undefined');
 
 					if(empty_keys.length > 0){
 						throw '_createFilter, type lack of required key';
 					}
 
-					filter_function.priority = type.priority;
+					filter_function.priority = options.priority;
 					filter_function.type     = options.type;
 					filter_function.toString = () => {return options.name;};
 
 					return filter_function;
+				},
+
+				_addNewFilter(new_filter){
+					// Push it back to filter_options
+					// Filter here is same type & doesn't have higher priority
+					// >>> remove it out
+					let new_filter_options = this.filter_options.filter(filter => {
+						if(filter.type == new_filter.type && filter.priority <= new_filter.priority){
+							return false;
+						}
+
+						return true;
+					});
+
+					new_filter_options.push(new_filter);
+
+					this.filter_options = new_filter_options;
 				},
 
 				_addFilterByDay(which_day){
@@ -594,9 +651,11 @@ class AdminReservations {
 							// So lucky at this point
 							start_day = moment(date_str, 'YYYY-MM-DD');
 							num_days  = 1;
+							break;
 						}
 						default:{
 							throw '_addFilterByDay: not support case';
+							break;
 						}
 					}
 
@@ -611,22 +670,9 @@ class AdminReservations {
 						return date.isBetween(start_day, end_day, null, '[)');
 					};
 
-					let ifilter = this._createFilter(filter, {name: 'filter reservation by day', type: FILTER_TYPE_DAY, priority: 1});
+					let iFilter = this._createFilter(filter, {name: 'filter reservation by day', type: FILTER_TYPE_DAY, priority: 1});
 
-					// Push it back to filter_options
-					// Filter here is same type & doesn't have higher priority
-					// >>> remove it out
-					let new_filter_options = this.filter_options.filter(filter => {
-						if(filter.type == ifilter.type && filter.priority <= ifilter.priority){
-							return false;
-						}
-						
-						return true;
-					});
-					
-					new_filter_options.push(ifilter);
-					
-					this.filter_options = new_filter_options;
+					this._addNewFilter(iFilter);
 				},
 
 				/**
@@ -634,9 +680,33 @@ class AdminReservations {
 				 * @param which_status
 				 * @private
 				 */
-				_addFilterByStatus(...which_status){},
+				_addFilterByStatus(...which_status){
+					// Support case when status as number
+					let integer_status = which_status.map(status => Number(status));
+					let filter = (reservation) => {
+						if(which_status.includes(reservation.status)
+							||integer_status.includes(reservation.status)
+						){
+							return true;
+						}
 
-				_addFilterForMultipleStatus(){},
+						return false;
+					};
+
+					let iFilter = this._createFilter(filter, {name: 'filter by status', type: FILTER_TYPE_STATUS, priority: 1});
+
+					this._addNewFilter(iFilter);
+				},
+
+				_clearFilterByStatus(){
+					// Clear current filter
+					// By replace it with something
+					// Always return true
+					// So fun ^^
+					let iFilter = this._createFilter( function(){return true;}, {name: 'filter by status', type: FILTER_TYPE_STATUS, priority: 1});
+
+					this._addNewFilter(iFilter);
+				}
 			}
 		});
 	}
