@@ -49,7 +49,7 @@
                                     <button :class="(filter_statuses.includes(RESERVATION_ARRIVED) ? 'active' : '') + ' ' +'btn btn-default'"
                                             v-on:click="_toggleFilterStatus(RESERVATION_ARRIVED, $event)"         >Arrived</button>
                                     <button :class="(filter_statuses.includes(RESERVATION_CONFIRMATION) ? 'active' : '') + ' ' + 'btn btn-default'"
-                                            v-on:click="_toggleFilterStatus(RESERVATION_CONFIRMATION, $event)"    >Confirmation</button>
+                                            v-on:click="_toggleFilterStatus(RESERVATION_CONFIRMATION, $event)"    >Confirmed</button>
                                     <button :class="(filter_statuses.includes(RESERVATION_REMINDER_SENT) ? 'active' : '') + ' ' + 'btn btn-default'"
                                             v-on:click="_toggleFilterStatus(RESERVATION_REMINDER_SENT, $event)"   >Reminder Sent</button>
                                     <button :class="(filter_statuses.includes(RESERVATION_RESERVED) ? 'active' : '') +  ' ' +'btn btn-default'"
