@@ -50,7 +50,7 @@ const AJAX_REFETCHING_DATA_SUCCESS = 'AJAX_REFETCHING_DATA_SUCCESS';
 const AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS = 'AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS';
 
 const HIDE_USER_DIALOG = 'HIDE_USER_DIALOG';
-
+const SYNC_VUE_STATE   = 'SYNC_VUE_STATE';
 
 
 class AdminSettings {
@@ -86,13 +86,16 @@ class AdminSettings {
 						toast: self.toastReducer(state.toast, action)
 					});
 				case SYNC_DATA : {
-					return Object.assign(state, action.data);
+					return Object.assign({}, state, action.data);
 				}
 				case HIDE_USER_DIALOG:
 				case SHOW_USER_DIALOG: {
 					return Object.assign({}, state, {
 						user_dialog_content: self.userDialogContentReducer(state.user_dialog_content, action)
 					});
+				}
+				case SYNC_VUE_STATE:{
+					return Object.assign({}, state, action.vue_state);
 				}
 				default:
 					return state;
@@ -169,6 +172,15 @@ class AdminSettings {
 				self.view();
 				self.listener();
 			},
+			beforeUpdate(){
+				let store = window.store;
+				// Sync vue_state with its parent redux-state
+				// Always respect state
+				store.dispatch({
+					type: SYNC_VUE_STATE,
+					vue_state: window.vue_state
+				});
+			},
 			updated(){
 				/**
 				 * @warn bad code here
@@ -189,14 +201,21 @@ class AdminSettings {
 				});
 				console.timeEnd('$ bind time-picker');
 			},
-			methods: {
-				_askRecomputeWeeklyView(){
-
+			watch: {
+				outlet_id(outlet_id){
+					let data = {outlet_id};
+					document.dispatchEvent(new CustomEvent('outlet_id', {detail: data}));
 				},
+				weekly_sessions(weekly_sessions){
+					let weekly_view = self.computeWeeklyView(weekly_sessions);
+					// Update weekly view
+					this.weekly_view= weekly_view;
+				}
+			},
+			methods: {
 				_addWeeklySession(){
 					let new_session = self._dumpWeeklySession();
 					this.weekly_sessions.push(new_session);
-					this._askRecomputeWeeklyView();
 				},
 				_addTimingToSession(e){
 					console.log('see add timing');
@@ -257,7 +276,6 @@ class AdminSettings {
 				_addSpecialSession(){
 					let new_special_session = self._dumpSpecialSession();
 					this.special_sessions.push(new_special_session);
-					this._askRecomputeWeeklyView();
 				},
 
 				_addTimingToSpecialSession(e){
@@ -838,8 +856,6 @@ class AdminSettings {
 			 * @type {boolean}
 			 */
 			if(action == TOAST_SHOW){
-				let toast = state.toast;
-				Object.assign(window.vue_state, {toast});
 				window.Toast.show();
 			}
 
@@ -852,19 +868,9 @@ class AdminSettings {
 			}
 
 
-			if(action == SYNC_DATA){
-				Object.assign(window.vue_state, store.getState());
-			}
-
 			/**
 			 * Self build weekly_view from weekly_sessions
 			 */
-			let should_compute_weekly_view = first_view || (action == SYNC_DATA);
-
-			if(should_compute_weekly_view){
-				let weekly_view = self.computeWeeklyView();
-				Object.assign(vue_state, {weekly_view});
-			}
 
 			if(action == SYNC_DATA){
 				/**
@@ -882,6 +888,9 @@ class AdminSettings {
 					});
 				}
 			}
+
+			// Sync data from redux state to vue
+			Object.assign(window.vue_state, store.getState());
 		});
 	}
 
@@ -916,12 +925,7 @@ class AdminSettings {
 		}
 	}
 
-	computeWeeklyView(){
-		let store = window.store;
-		let state = store.getState();
-
-		let weekly_sessions = state.weekly_sessions;
-
+	computeWeeklyView(weekly_sessions){
 		let today  = moment();
 		let monday = today.clone().startOf('isoWeek');
 		let sunday = today.clone().endOf('isoWeek');
