@@ -135,6 +135,9 @@ class AdminReservations {
 
 	frontEndState(){
 		return {
+			init_view: false,
+			base_url: null,
+			outlet_id: null,
 			user: {},
 			reservation_dialog_content: {},
 			toast: {
@@ -243,6 +246,10 @@ class AdminReservations {
 
 					// Update filtered reservations
 					this.filtered_reservations = filtered_reservations;
+				},
+				outlet_id(outlet_id){
+					let data = {outlet_id};
+					document.dispatchEvent(new CustomEvent('outlet_id', {detail: data}));
 				}
 			},
 			methods: {

@@ -125,8 +125,6 @@
 @endsection
 
 @push('script')
-
-<script src="{{ url('js/vue.min.js') }}"></script>
 <script>@php
         $state_json = json_encode($state);
         echo "window.state = $state_json;";
