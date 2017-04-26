@@ -123,6 +123,16 @@ class AdminSettings {
 	getFrontendState(){
 		return {
 			init_view: false,
+			base_url: null,
+			outlet_id: null,
+			outlets: [],
+			weekly_sessions: [],
+			special_sessions: [],
+			buffer: {},
+			notification: {},
+			settings: {},
+			deposit: {},
+			user: {},
 			admin_step: 'weekly_sessions_view',
 			user_dialog_content: {
 				outlet_ids: []
@@ -132,7 +142,8 @@ class AdminSettings {
 			toast: {
 				title: 'Title',
 				content: 'Content'
-			}
+			},
+			weekly_view: {},
 		};
 	}
 
@@ -141,7 +152,7 @@ class AdminSettings {
 
 		let frontend_state = this.getFrontendState();
 
-		return Object.assign(default_state, frontend_state);
+		return Object.assign(frontend_state, default_state);
 	}
 
 	buildVue(){
@@ -593,13 +604,7 @@ class AdminSettings {
 	}
 
 	buildVueState(){
-		let vue_state = Object.assign({}, store.getState());
-
-		let vue_need  = {
-			weekly_view: {}
-		}
-
-		Object.assign(vue_state, vue_need);
+		let vue_state = this.getFrontendState();
 
 		return vue_state;
 	}
