@@ -48,6 +48,9 @@ const SYNC_VUE_STATE = 'SYNC_VUE_STATE';
 
 const RESERVATION_RESERVED = 100;
 
+const FILTER_TYPE_DAY =  'FILTER_TYPE_DAY';
+const FILTER_TYPE_STATUS = 'FILTER_TYPE_STATUS';
+
 
 class AdminReservations {
 	/**
@@ -132,20 +135,19 @@ class AdminReservations {
 				content: 'Content'
 			},
 			reservations: [],
-			// This list used for reserved only mode
-			// Which only show out reserved reservations
-			reserved_reservations: [],
-			// Store which mode used
-			reserved_mode: null,
+			// Decide show|hide
+			filter_panel: false,
 			// Manage filterd on reservations
 			filtered_reservations: [],
-			// Decide show|hide
-			filtered: false,
-			next_3_days: null,
-			next_7_days: null,
-			next_30_days: null,
+			// contains all filters
+			filter_options: [],
+			// manage filter date picker
 			filter_date_picker: null,
+			// store which day pick by staff
 			custom_pick_day: null,
+			// support multilple status
+			filter_statuses: [],
+
 		};
 	}
 
@@ -177,7 +179,6 @@ class AdminReservations {
 				updateReservedReservations() {
 					// it's only required to reference those properties
 					this.reservations;
-					this.reserved_mode;
 					// and then return a different value every time
 					return moment(); // or performance.now()
 				}
@@ -189,15 +190,11 @@ class AdminReservations {
 					 * Like, hey 'watch on these properties, if you change it, i recompute
 					 */
 					let reservations = this.reservations;
-					let reserved_mode= this.reserved_mode;
 
 					let filterReservationsBaseOnMode = () => true;;
 
 					// Current mode is simple
 					// Only true as limit or false as let all
-					if(reserved_mode){
-						filterReservationsBaseOnMode = (resservation) => {return resservation.status >= RESERVATION_RESERVED;};
-					}
 
 					let reserved_reservations = reservations.filter(filterReservationsBaseOnMode);
 					// Ok, update list
@@ -524,6 +521,122 @@ class AdminReservations {
 
 					self.ajax_call(action);
 				},
+
+				/**
+				 * What is 'type'
+				 * type to classify filter condition in same type can override on each other
+				 * ok simple support priority, if current type is same, priority not larger than
+				 * be POP OUT, to replace when add new one
+				 * @param name
+				 * @param filter_function
+				 * @param options
+				 * type keys:
+				 * {
+				 *      type: '<name of type'>,
+				 *      priority: <number>,
+				 *      name: 'name of this filter', //optional
+				 * }
+				 * @returns {*}
+				 * @private
+				 */
+				_createFilter(filter_function, options){
+					// Check required keys of type
+					const required_keys = ['type', 'priority'];
+					let empty_keys      = required_keys.map(key => typeof options[key] == 'undefined');
+
+					if(empty_keys.length > 0){
+						throw '_createFilter, type lack of required key';
+					}
+
+					filter_function.priority = type.priority;
+					filter_function.type     = options.type;
+					filter_function.toString = () => {return options.name;};
+
+					return filter_function;
+				},
+
+				_addFilterByDay(which_day){
+					let start_day = moment({hour: 0, minute: 0, seconds: 0});
+					let num_days    = 0;
+					switch(which_day){
+						case TODAY:{
+							// in today, start day is start day of default
+							num_days = 1;
+							break;
+						}
+						case TOMORROW:{
+							// as tomorrow case, start day is early of tomorrow
+							// ok, at one more
+							start_day = start_day.add(1, 'days');
+							num_days = 1;
+							break;
+						}
+						case NEXT_3_DAYS:{
+							// why at 4 in 3_days case
+							// bcs we want to reach up to 23:59:59
+							// when filter in between as [)
+							// equal at first start
+							// less than at last end
+							num_days = 4;
+							break;
+						}
+						case NEXT_7_DAYS:{
+							num_days = 8;
+							break;
+						}
+						case NEXT_30_DAYS:{
+							num_days = 31;
+							break;
+						}
+						case CUSTOM:{
+							let date_str = this.custom_pick_day;
+							// Browser pick day, ONLY RETURN AS YYYY-MM-DD
+							// So lucky at this point
+							start_day = moment(date_str, 'YYYY-MM-DD');
+							num_days  = 1;
+						}
+						default:{
+							throw '_addFilterByDay: not support case';
+						}
+					}
+
+					let end_day = start_day.clone().add(num_days, 'days');
+
+					// Filter receive a reservation
+					// Base on that reservation filter out
+					let filter = (reservation) => {
+						// Get out date of reservation to compare
+						let date = reservation.date;
+						// wow the last parameter is [}, [], () compare on equal or not
+						return date.isBetween(start_day, end_day, null, '[)');
+					};
+
+					let ifilter = this._createFilter(filter, {name: 'filter reservation by day', type: FILTER_TYPE_DAY, priority: 1});
+
+					// Push it back to filter_options
+					// Filter here is same type & doesn't have higher priority
+					// >>> remove it out
+					let new_filter_options = this.filter_options.filter(filter => {
+						if(filter.type == ifilter.type && filter.priority <= ifilter.priority){
+							return false;
+						}
+						
+						return true;
+					});
+					
+					new_filter_options.push(ifilter);
+					
+					this.filter_options = new_filter_options;
+				},
+
+				/**
+				 * Support multiple status
+				 * @param which_status
+				 * @private
+				 */
+				_addFilterByStatus(...which_status){},
+
+				_addFilterForMultipleStatus(){},
 			}
 		});
 	}
