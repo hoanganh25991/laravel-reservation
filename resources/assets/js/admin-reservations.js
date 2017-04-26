@@ -46,7 +46,14 @@ const MODE_EXACTLY = 'MODE_EXACTLY';
 const MODE_BETWEEN = 'MODE_BETWEEN';
 const SYNC_VUE_STATE = 'SYNC_VUE_STATE';
 
-const RESERVATION_RESERVED = 100;
+const RESERVATION_NO_SHOW          = -300;
+const RESERVATION_STAFF_CANCELLED = -200;
+const RESERVATION_USER_CANCELLED      = -100;
+const RESERVATION_DEPOSIT          = 50;
+const RESERVATION_RESERVED         = 100;
+const RESERVATION_REMINDER_SENT    = 200;
+const RESERVATION_CONFIRMATION     = 300;
+const RESERVATION_ARRIVED          = 400;
 
 const FILTER_TYPE_DAY =  'FILTER_TYPE_DAY';
 const FILTER_TYPE_STATUS = 'FILTER_TYPE_STATUS';
@@ -699,6 +706,7 @@ class AdminReservations {
 				},
 
 				_clearFilterByStatus(){
+					this.filter_statuses = [];
 					// Clear current filter
 					// By replace it with something
 					// Always return true
@@ -706,6 +714,30 @@ class AdminReservations {
 					let iFilter = this._createFilter( function(){return true;}, {name: 'filter by status', type: FILTER_TYPE_STATUS, priority: 1});
 
 					this._addNewFilter(iFilter);
+				},
+
+				_toggleFilterStatus(status, $event){
+					//console.log(which_status, $event);
+					let filter_statuses = this.filter_statuses;
+					let current_state   = filter_statuses.includes(status);
+					// Toggle state
+					current_state       = !current_state;
+
+					let new_filter_statuses;
+					// true it means show push
+					if(current_state){
+						new_filter_statuses = [...filter_statuses, status];
+					// should remove
+					}else{
+						new_filter_statuses = filter_statuses.filter(_status => _status != status);
+					}
+
+					// Update vue state
+					this.filter_statuses = new_filter_statuses;
+
+					//console.log(new_filter_statuses);
+					// Ok, now call search
+					this._addFilterByStatus(...new_filter_statuses);
 				}
 			}
 		});
