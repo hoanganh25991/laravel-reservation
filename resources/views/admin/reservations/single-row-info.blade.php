@@ -47,7 +47,8 @@
     </td>
     <td>
         <select v-model="reservation.status" v-on:change="_autoSave">
-            <option value="300" class="bg-success">Confirmation</option>
+            <option value="400" class="bg-success">Arrived</option>
+            <option value="300" class="bg-success">Confirmed</option>
             <option value="200" class="bg-info">Reminder Sent</option>
             <option value="100" class="bg-info">Reserved</option>
             <option value="-100" class="bg-info">User cancelled</option>
