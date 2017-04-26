@@ -47,27 +47,27 @@
             <tr v-show="reservation.payment_status == 100">
                 <td><label>Payment authorization Paid</label></td>
                 <td>
-                    <label class="h5">$@{{ reservation.deposit }}</label><br/>
-                    Your deposit will be returned when you arrive for your reservation
+                    <label class="h5" style="display: block; width: 100%;">$@{{ reservation.deposit }}</label>
+                    <div>Your deposit will be returned when you arrive for your reservation</div>
                 </td>
             </tr>
             @if($is_summary_page)
-            <tr v-show="reservation.payment_status == 25">
-                <td><label>Payment authorization Required</label></td>
-                <td>
-                    <label class="h5 text-danger">$@{{ reservation.deposit }}</label>
-                    <div class="agree-box cf" style="margin: 40px 0 10px 0;">
-                        <div class="checkbox cf" style="padding-left: 5px;">
-                            <label for="agree_payment_box">I acknowledge that I will be subject to a cancellation fee of $@{{ reservation.deposit }} if I do not give more than 24-hours cancellation notice or if I do not honour this reservation.</label>
-                            <input id="agree_payment_box" type="checkbox" class="form-control agree-check"
-                               v-model="reservation.agree_payment_term_condition" v-on:click="_togglePaypalButton">
+                <tr v-show="reservation.payment_status == 25">
+                    <td><label>Payment authorization Required</label></td>
+                    <td>
+                        <label class="h5 text-danger">$@{{ reservation.deposit }}</label>
+                        <div class="agree-box cf" style="margin: 40px 0 10px 0;">
+                            <div class="checkbox cf" style="padding-left: 5px;">
+                                <label for="agree_payment_box">I acknowledge that I will be subject to a cancellation fee of $@{{ reservation.deposit }} if I do not give more than 24-hours cancellation notice or if I do not honour this reservation.</label>
+                                <input id="agree_payment_box" type="checkbox" class="form-control agree-check"
+                                   v-model="reservation.agree_payment_term_condition" v-on:click="_togglePaypalButton">
+                            </div>
                         </div>
-                    </div>
-                    <div id="paypal-container" style="transition: 0.5s all ease-in-out; transform: scale(0,1);" class="pull-left">
-                        @include('paypal.authorize')
-                    </div>
-                </td>
-            </tr>
+                        <div id="paypal-container" style="transition: 0.5s all ease-in-out; transform: scale(0,1);" class="pull-left">
+                            @include('paypal.authorize')
+                        </div>
+                    </td>
+                </tr>
             @endif
             </tbody>
         </table>
