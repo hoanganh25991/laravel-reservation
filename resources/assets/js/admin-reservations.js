@@ -241,6 +241,19 @@ class AdminReservations {
 					 */
 					let reservations   = this.reservations;
 					let filter_options = this.filter_options;
+					/**
+					 * Special case
+					 * When filter by confirm_id exist
+					 * Only run this one, no need to apply other
+					 * @warn which check is best practice
+					 */
+					let filters_by_confirm_id = filter_options.filter(filter => filter.type == FILTER_TYPE_CONFIRM_ID);
+					// If exist a filter by confirm id option
+					// Only run this one
+					if(filters_by_confirm_id.length > 0){
+						// Get this first one
+						filter_options = [filters_by_confirm_id[0]];
+					}
 					// Loop through each filter_options, run on current reservations
 					let filtered_reservations =
 						filter_options.reduce((carry, filter) => {
@@ -814,7 +827,15 @@ class AdminReservations {
 					};
 
 					if(confirm_id == ""){
-						filter = () => {return true};
+						//filter = () => {return true};
+						// I want a default filter as return true
+						// But check in array of filters, if it appear
+						// Only run it, not other
+
+						// Ok, remove it
+						let new_filter_options = this.filter_options.filter(filter => filter.type != FILTER_TYPE_CONFIRM_ID);
+						this.filter_options    = new_filter_options;
+						return;
 					}
 
 					let iFilter = this._createFilter(filter, {name: 'filter by confirm id', type: FILTER_TYPE_CONFIRM_ID, priority: 1});
