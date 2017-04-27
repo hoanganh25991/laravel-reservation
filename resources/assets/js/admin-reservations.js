@@ -551,6 +551,8 @@ class AdminReservations {
 				_clearFilterByDay(){
 					// clean date picker
 					this.filter_date_picker = null;
+					/** @warn annoy code, should improve */
+					this.custom_pick_day    = null;
 					// clean filter
 					let new_filter_day      = null;
 					// Update vue state
