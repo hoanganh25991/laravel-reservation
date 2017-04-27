@@ -47,7 +47,7 @@
 
                                     <button class="btn bg-info"
                                             v-on:click="_clearFilterByDay"
-                                    ><span class="fa fa-times"></span>Clear</button>
+                                    ><i class="fa fa-times"></i>Clear</button>
                                 </div>
                             </transition>
                         </div>
@@ -89,7 +89,7 @@
                                         v-on:click="_toggleFilterStatus(RESERVATION_NO_SHOW, $event)"
                                 >No show</button>
 
-                                <button class="btn bg-info" v-on:click="_clearFilterByStatus"><span class="fa fa-times"></span>Clear</button>
+                                <button class="btn bg-info" v-on:click="_clearFilterByStatus"><i class="fa fa-times"></i>Clear</button>
                             </div>
                         </div>
                         <div style="width: 100%; text-align: right; /** margin-bottom: 20px; */">
@@ -99,7 +99,9 @@
                                            style="text-transform:uppercase"
                                            v-model="filter_confirm_id">
                                 </button>
-                                <button class="btn bg-info"><i class="fa fa-search"></i></button>
+                                <button class="btn bg-info"
+                                    v-on:click="_toggleFilterSearch"
+                                ><i :class="!filter_search ? 'fa fa-search' : 'fa fa-times'"></i></button>
                             </div>
                         </div>
                     </div>

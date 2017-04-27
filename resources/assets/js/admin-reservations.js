@@ -55,8 +55,9 @@ const RESERVATION_REMINDER_SENT    = 200;
 const RESERVATION_CONFIRMATION     = 300;
 const RESERVATION_ARRIVED          = 400;
 
-const FILTER_TYPE_DAY =  'FILTER_TYPE_DAY';
-const FILTER_TYPE_STATUS = 'FILTER_TYPE_STATUS';
+const FILTER_TYPE_DAY        =  'FILTER_TYPE_DAY';
+const FILTER_TYPE_STATUS     = 'FILTER_TYPE_STATUS';
+const FILTER_TYPE_CONFIRM_ID = 'FILTER_TYPE_CONFIRM_ID';
 
 
 class AdminReservations {
@@ -159,6 +160,10 @@ class AdminReservations {
 			filter_statuses: [],
 			// store which type of filter by day
 			filter_day: null,
+			// allow search by confirm_id
+			filter_confirm_id: null,
+			// store search confirm_id search state
+			filter_search: null,
 		};
 	}
 
@@ -801,6 +806,44 @@ class AdminReservations {
 					this.filter_day = new_filter_day;
 					// Call filter
 					this._addFilterByDay(new_filter_day);
+				},
+
+				_addFilterByConfirmId(confirm_id){
+					let filter = (reservation) => {
+						return reservation.confirm_id == confirm_id;
+					};
+
+					if(confirm_id == ""){
+						filter = () => {return true};
+					}
+
+					let iFilter = this._createFilter(filter, {name: 'filter by confirm id', type: FILTER_TYPE_CONFIRM_ID, priority: 1});
+
+					this._addNewFilter(iFilter);
+				},
+
+				_toggleFilterSearch(){
+					// Toggle it
+					this.filter_search = !this.filter_search;
+					// If staff want to search
+					// Build confirm id to search
+					// If not remove filter
+					let new_filter_confirm_id;
+					if(this.filter_search){
+						// Get confirm_id from input
+						let confirm_id = this.filter_confirm_id;
+						// Transform to uppercase
+						let uppercase_confirm_id = confirm_id ? confirm_id.toUpperCase() : '';
+						// Update vue state
+						new_filter_confirm_id    = uppercase_confirm_id;
+					}else{
+						new_filter_confirm_id    = "";
+					}
+
+					// Update vue state
+					this.filter_confirm_id = new_filter_confirm_id;
+
+					this._addFilterByConfirmId(new_filter_confirm_id);
 				}
 			}
 		});
