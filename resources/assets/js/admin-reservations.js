@@ -549,21 +549,15 @@ class AdminReservations {
 				},
 
 				_clearFilterByDay(){
-					/**
-					 * Return current query to first state
-					 */
-					// this.next_3_days     = null;
-					// this.next_7_days     = null;
-					// this.next_7_days     = null;
-					// this.custom_pick_day = null;
-
+					// clean date picker
 					this.filter_date_picker = null;
-					this.filter_day         = null;
+					// clean filter
+					let new_filter_day      = null;
+					// Update vue state
+					this.filter_day         = new_filter_day;
 					// Hide filter panel
 					//this.filtered_reservations = [];
-					let iFilter = this._createFilter( function(){return true;}, {name: 'filter by status', type: FILTER_TYPE_DAY, priority: 1});
-
-					this._addNewFilter(iFilter);
+					this._addFilterByDay(new_filter_day);
 
 				},
 
@@ -669,6 +663,10 @@ class AdminReservations {
 							num_days  = 1;
 							break;
 						}
+						// When specify as null, means no filter apply
+						case null:{
+							break;
+						}
 						default:{
 							throw '_addFilterByDay: not support case';
 							break;
@@ -685,6 +683,11 @@ class AdminReservations {
 						// wow the last parameter is [}, [], () compare on equal or not
 						return date.isBetween(start_day, end_day, null, '[)');
 					};
+
+					// When no filter apply, filter function return true in all cases
+					if(which_day == null){
+						filter = () => {return true};
+					}
 
 					let iFilter = this._createFilter(filter, {name: 'filter reservation by day', type: FILTER_TYPE_DAY, priority: 1});
 
@@ -709,20 +712,23 @@ class AdminReservations {
 						return false;
 					};
 
+					// When no status specify as empty array
+					// Which means no filter to apply
+					if(which_status.length == 0){
+						filter = () => {return true;};
+					}
+
 					let iFilter = this._createFilter(filter, {name: 'filter reservation by status', type: FILTER_TYPE_STATUS, priority: 1});
 
 					this._addNewFilter(iFilter);
 				},
 
 				_clearFilterByStatus(){
-					this.filter_statuses = [];
-					// Clear current filter
-					// By replace it with something
-					// Always return true
-					// So fun ^^
-					let iFilter = this._createFilter( function(){return true;}, {name: 'filter by status', type: FILTER_TYPE_STATUS, priority: 1});
-
-					this._addNewFilter(iFilter);
+					let new_filter_statuses = [];
+					// Update vue state
+					this.filter_statuses    = new_filter_statuses;
+					// add to filter queue
+					this._addFilterByStatus(new_filter_statuses);
 				},
 
 				_toggleFilterStatus(status, $event){
@@ -750,11 +756,49 @@ class AdminReservations {
 				},
 				
 				_toggleFilterByDay(which_day){
-					// Update current filter day
-					this.filter_day = which_day;
-					
+					let current_state = this.filter_day == which_day;
+					// toggle it
+					current_state     = !current_state;
+					/**
+					 * This is quite ANNOY
+					 * But when toggle on custom day
+					 * Which only means that we change a pick day
+					 * So, still be at CUSTOM
+					 * @type {boolean}
+					 */
+					// which_day == CUSTOM, means when change a pick day
+					// still be at CUSTOM, rather than close it
+					if(which_day == CUSTOM){
+						current_state = true;
+					}
+
+					/**
+					 * These code should be improve
+					 * custom_pick_day store staff pick
+					 * but when toggle to other options
+					 * it should be remove
+					 * to notify when staff repick
+					 * as on-change event trigger
+					 */
+					if(which_day != CUSTOM){
+						//clear custom_pick_day
+						this.custom_pick_day = null;
+						this.filter_date_picker = null;
+					}
+
+					let new_filter_day;
+					// true it means should push
+					if(current_state){
+						new_filter_day = which_day;
+					}else{
+						// Update current filter day
+						new_filter_day = null;
+					}
+
+					// Update vue state
+					this.filter_day = new_filter_day;
 					// Call filter
-					this._addFilterByDay(which_day);
+					this._addFilterByDay(new_filter_day);
 				}
 			}
 		});
