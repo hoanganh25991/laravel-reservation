@@ -128,13 +128,23 @@ class ReservationController extends HoiController{
                 $reservations = $req->json('reservations');
 
                 $validator = null;
+                $msg_bag   = collect([]);
 
                 foreach($reservations as $reservation_data){
                     //$validator = Reservation::validateOnCRUD($reservation_data);
                     $validator = Reservation::validateOnCRUD($reservation_data);
 
                     if($validator->fails()){
-                        break;
+                        //break;
+                        // Instead of break here, we continue save which one is fine
+                        // Store error msg in msg_bag
+                        $first_fail_msg = $validator->getMessageBag()->first();
+                        // Build readable error msg
+                        $confirm_id = $reservation_data['confirm_id'];
+                        $error_msg  = "Reservation No. $confirm_id: $first_fail_msg";
+                        $msg_bag->push($error_msg);
+                        // Move on
+                        continue;
                     }
 
                     $reservation = Reservation::findOrNew($reservation_data['id']);
@@ -151,8 +161,10 @@ class ReservationController extends HoiController{
                 }
 
                 //validate run & fail
-                if($validator->fails()){
-                    $data = $validator->getMessageBag()->toArray();
+                //if($validator->fails()){
+                    //$data = $validator->getMessageBag()->toArray();
+                if($msg_bag->count() > 0){
+                    $data = $msg_bag;
                     $code = 200;
                     $msg  = Call::AJAX_VALIDATE_FAIL;
                     break;
