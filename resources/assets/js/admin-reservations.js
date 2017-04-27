@@ -157,7 +157,8 @@ class AdminReservations {
 			custom_pick_day: null,
 			// support multilple status
 			filter_statuses: [],
-
+			// store which type of filter by day
+			filter_day: null,
 		};
 	}
 
@@ -557,6 +558,7 @@ class AdminReservations {
 					// this.custom_pick_day = null;
 
 					this.filter_date_picker = null;
+					this.filter_day         = null;
 					// Hide filter panel
 					//this.filtered_reservations = [];
 					let iFilter = this._createFilter( function(){return true;}, {name: 'filter by status', type: FILTER_TYPE_DAY, priority: 1});
@@ -745,6 +747,14 @@ class AdminReservations {
 					//console.log(new_filter_statuses);
 					// Ok, now call search
 					this._addFilterByStatus(...new_filter_statuses);
+				},
+				
+				_toggleFilterByDay(which_day){
+					// Update current filter day
+					this.filter_day = which_day;
+					
+					// Call filter
+					this._addFilterByDay(which_day);
 				}
 			}
 		});

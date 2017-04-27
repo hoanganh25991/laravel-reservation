@@ -26,20 +26,35 @@
                         <div style="width: 100%; text-align: right; margin-bottom: 20px; ">
                             <transition name="slide">
                                 <div  v-if="filter_panel" class="btn-group">
-                                    <button class="btn btn-default" v-on:click="_addFilterByDay(TODAY)"       >Today</button>
-                                    <button class="btn btn-default" v-on:click="_addFilterByDay(TOMORROW)"    >Tomorrow</button>
-                                    <button class="btn btn-default" v-on:click="_addFilterByDay(NEXT_3_DAYS)" >Next 3 days</button>
-                                    <button class="btn btn-default" v-on:click="_addFilterByDay(NEXT_7_DAYS)" >Next 7 days</button>
-                                    <button class="btn btn-default" v-on:click="_addFilterByDay(NEXT_30_DAYS)">Next 30 days</button>
-                                    <button class="btn btn-default" v-on:click="filter_date_picker = !filter_date_picker">Pick a day</button>
-                                    <button class="btn bg-info" v-on:click="_clearFilterByDay"><span class="fa fa-times"></span>Clear</button>
+                                    <button :class="(TODAY == filter_day? 'active' : '') + ' ' + 'btn btn-default'"
+                                            v-on:click="_toggleFilterByDay(TODAY)"       >Today</button>
+
+                                    <button :class="(TOMORROW == filter_day? 'active' : '') + ' ' +  'btn btn-default'"
+                                            v-on:click="_toggleFilterByDay(TOMORROW)"    >Tomorrow</button>
+
+                                    <button :class="(NEXT_3_DAYS == filter_day? 'active' : '') + ' ' +  'btn btn-default'"
+                                            v-on:click="_toggleFilterByDay(NEXT_3_DAYS)" >Next 3 days</button>
+
+                                    <button :class="(NEXT_7_DAYS == filter_day? 'active' : '') + ' ' +  'btn btn-default'"
+                                            v-on:click="_toggleFilterByDay(NEXT_7_DAYS)" >Next 7 days</button>
+
+                                    <button :class="(NEXT_30_DAYS == filter_day? 'active' : '') + ' ' +  'btn btn-default'"
+                                            v-on:click="_toggleFilterByDay(NEXT_30_DAYS)">Next 30 days</button>
+
+                                    <button :class="(CUSTOM == filter_day ? 'active' : '') + ' ' + 'btn btn-default'"
+                                            v-on:click="filter_date_picker = !filter_date_picker"
+                                    >Pick a day</button>
+
+                                    <button class="btn bg-info"
+                                            v-on:click="_clearFilterByDay"
+                                    ><span class="fa fa-times"></span>Clear</button>
                                 </div>
                             </transition>
                         </div>
                         <transition name="slide">
                             <div v-if="filter_date_picker & filter_panel" style="width: 100%; text-align: right; margin-bottom: 20px;">
                                 <input type="date" style="width: 135px; height: 30px; border-radius: 3px"
-                                       v-model="custom_pick_day" v-on:change="_addFilterByDay(CUSTOM)">
+                                       v-model="custom_pick_day" v-on:change="_toggleFilterByDay(CUSTOM)">
                             </div>
                         </transition>
 
@@ -47,21 +62,33 @@
                             <transition name="slide">
                                 <div  v-if="filter_panel" class="btn-group">
                                     <button :class="(filter_statuses.includes(RESERVATION_ARRIVED) ? 'active' : '') + ' ' +'btn btn-default'"
-                                            v-on:click="_toggleFilterStatus(RESERVATION_ARRIVED, $event)"         >Arrived</button>
+                                            v-on:click="_toggleFilterStatus(RESERVATION_ARRIVED, $event)"
+                                    >Arrived</button>
+
                                     <button :class="(filter_statuses.includes(RESERVATION_CONFIRMATION) ? 'active' : '') + ' ' + 'btn btn-default'"
-                                            v-on:click="_toggleFilterStatus(RESERVATION_CONFIRMATION, $event)"    >Confirmed</button>
+                                            v-on:click="_toggleFilterStatus(RESERVATION_CONFIRMATION, $event)"
+                                    >Confirmed</button>
+
                                     <button :class="(filter_statuses.includes(RESERVATION_REMINDER_SENT) ? 'active' : '') + ' ' + 'btn btn-default'"
-                                            v-on:click="_toggleFilterStatus(RESERVATION_REMINDER_SENT, $event)"   >Reminder Sent</button>
+                                            v-on:click="_toggleFilterStatus(RESERVATION_REMINDER_SENT, $event)"
+                                    >Reminder Sent</button>
+
                                     <button :class="(filter_statuses.includes(RESERVATION_RESERVED) ? 'active' : '') +  ' ' +'btn btn-default'"
-                                            v-on:click="_toggleFilterStatus(RESERVATION_RESERVED, $event)"        >Reserved</button>
-                                    <!--<button :class="(filter_statuses.includes(RESERVATION_DEPOSIT) ? 'active' : '') + ' ' + 'btn btn-default'"
-                                            v-on:click="_toggleFilterStatus(RESERVATION_DEPOSIT, $event)"         >Deposit</button> -->
+                                            v-on:click="_toggleFilterStatus(RESERVATION_RESERVED, $event)"
+                                    >Reserved</button>
+
                                     <button :class="(filter_statuses.includes(RESERVATION_USER_CANCELLED) ? 'active' : '') +  ' ' +'btn btn-default'"
-                                            v-on:click="_toggleFilterStatus(RESERVATION_USER_CANCELLED, $event)"  >User cancelled</button>
+                                            v-on:click="_toggleFilterStatus(RESERVATION_USER_CANCELLED, $event)"
+                                    >User cancelled</button>
+
                                     <button :class="(filter_statuses.includes(RESERVATION_STAFF_CANCELLED) ? 'active' : '') + ' ' + 'btn btn-default'"
-                                            v-on:click="_toggleFilterStatus(RESERVATION_STAFF_CANCELLED, $event)" >Staff cancelled</button>
+                                            v-on:click="_toggleFilterStatus(RESERVATION_STAFF_CANCELLED, $event)"
+                                    >Staff cancelled</button>
+
                                     <button :class="(filter_statuses.includes(RESERVATION_NO_SHOW) ? 'active' : '') + ' ' + 'btn btn-default'"
-                                            v-on:click="_toggleFilterStatus(RESERVATION_NO_SHOW, $event)"         >No show</button>
+                                            v-on:click="_toggleFilterStatus(RESERVATION_NO_SHOW, $event)"
+                                    >No show</button>
+
                                     <button class="btn bg-info" v-on:click="_clearFilterByStatus"><span class="fa fa-times"></span>Clear</button>
                                 </div>
                             </transition>
