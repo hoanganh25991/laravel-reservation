@@ -606,7 +606,7 @@ class AdminReservations {
 
 					filter_function.priority = options.priority;
 					filter_function.type     = options.type;
-					filter_function.toString = () => {return options.name;};
+					filter_function.toJSON   = () => {return options.name;};
 
 					return filter_function;
 				},
@@ -709,7 +709,7 @@ class AdminReservations {
 						return false;
 					};
 
-					let iFilter = this._createFilter(filter, {name: 'filter by status', type: FILTER_TYPE_STATUS, priority: 1});
+					let iFilter = this._createFilter(filter, {name: 'filter reservation by status', type: FILTER_TYPE_STATUS, priority: 1});
 
 					this._addNewFilter(iFilter);
 				},
@@ -837,12 +837,7 @@ class AdminReservations {
 		let self  = this;
 
 		//Debug state
-		let pre = document.querySelector('#redux-state');
-		if(!pre){
-			let body = document.querySelector('body');
-			pre = document.createElement('pre');
-			//body.appendChild(pre);
-		}
+		let redux_state_element = document.querySelector('#redux-state');
 
 		store.subscribe(()=>{
 			let action   = store.getLastAction();
@@ -850,8 +845,14 @@ class AdminReservations {
 			let prestate = store.getPrestate();
 
 			// Debug
-			if(state.base_url && state.base_url.includes('reservation.dev') || state.base_url.includes('localhost')){
-				pre.innerHTML = syntaxHighlight(JSON.stringify(state, null, 4));
+			let is_local = state.base_url && state.base_url.includes('reservation.dev') || state.base_url.includes('localhost');
+			if(redux_state_element && is_local){
+				let clone_state = Object.assign({}, state);
+				// Remove 'heavy keys' which build HTML > kill performance
+				clone_state.reservations          = 'Please watch in state';
+				clone_state.filtered_reservations = 'Please watch in state';
+				// Ok, build html
+				redux_state_element.innerHTML = syntaxHighlight(JSON.stringify(clone_state, null, 4));
 			}
 
 			/**
