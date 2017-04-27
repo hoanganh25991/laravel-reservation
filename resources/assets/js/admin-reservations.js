@@ -730,7 +730,7 @@ class AdminReservations {
 					// Update vue state
 					this.filter_statuses    = new_filter_statuses;
 					// add to filter queue
-					this._addFilterByStatus(new_filter_statuses);
+					this._addFilterByStatus(...new_filter_statuses);
 				},
 
 				_toggleFilterStatus(status, $event){
