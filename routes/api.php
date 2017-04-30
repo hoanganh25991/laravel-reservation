@@ -4,6 +4,8 @@ use App\Http\Requests\ApiRequest;
 use Illuminate\Http\Request;
 use App\OutletReservationSetting as Setting;
 use App\Reservation;
+use App\ReservationUser;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,8 +22,26 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('admin/reservations', function(ApiRequest $req){
-    Setting::injectBrandId(1);
+Route::any('admin/login', function(ApiRequest $req){
+	$user_name = $req->get('user_name');
+	$password = $req->get('password');
+
+	//$user = ReservationUser::where('username', $username);
+
+    $logined = Auth::attempt([
+        'user_name' => $user_name,
+        'password'  => $password
+    ], true);
+
+    if($logined){
+        return ['msg' => 'ok'];
+    }
+
+    return ['msg' => 'fail'];
+});
+
+Route::middleware('reservations')->any('admin/reservations', function(){
+	Setting::injectBrandId(1);
     Setting::injectOutletId(1);
 
     $reservations = Reservation::fromToday()->get();
@@ -29,3 +49,11 @@ Route::get('admin/reservations', function(ApiRequest $req){
     return $reservations;
 });
 
+// Route::any('admin/reservations', function(ApiRequest $req){
+//     Setting::injectBrandId(1);
+//     Setting::injectOutletId(1);
+
+//     $reservations = Reservation::fromToday()->get();
+
+//     return $reservations;
+// });
