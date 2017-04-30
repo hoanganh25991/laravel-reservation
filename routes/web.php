@@ -159,7 +159,48 @@ Route::get('test', function (App\Http\Controllers\BookingController $c, App\Http
     //return $r->confirm_coming_url;
     //return $r->toJson();
 
-    App\OutletReservationSetting::injectBrandId(1);
-    $setting = App\Outlet::find(2);
-    return $setting->toJson();
+//    App\OutletReservationSetting::injectBrandId(1);
+//    $setting = App\Outlet::find(2);
+//    return $setting->toJson();
+    //return Session::token();
+    //return  Auth::getName();
+    $cookies_name = "remember_web_59ba36addc2b2f9401580f014c7f58ea4e30989d";
+
+});
+
+
+
+
+Route::group(['prefix' => 'api', 'middleware' => 'react'], function (){
+//Route::group(['prefix' => 'api', 'middleware' => 'api'], function (){
+//Route::group(['prefix' => 'api', 'middleware' => 'cors'], function (){
+//Route::group(['prefix' => 'api'], function (){
+    Route::any('admin/login', function(\App\Http\Requests\ApiRequest $req){
+        $user_name = $req->get('user_name');
+        $password = $req->get('password');
+
+        //$user = ReservationUser::where('username', $username);
+
+        $logined = Auth::attempt([
+            'user_name' => $user_name,
+            'password'  => $password
+        ], true);
+
+        if($logined){
+            //$req->session()->regenerate();
+            return ['msg' => 'ok'];
+        }
+
+        return ['msg' => 'fail'];
+    });
+
+
+    Route::middleware('reservations')->any('admin/reservations', function(){
+        Setting::injectBrandId(1);
+        Setting::injectOutletId(1);
+
+        $reservations = App\Reservation::fromToday()->get();
+
+        return $reservations;
+    });
 });

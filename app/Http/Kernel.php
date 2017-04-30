@@ -46,6 +46,17 @@ class Kernel extends HttpKernel
             'bindings',
             \Barryvdh\Cors\HandleCors::class,
         ],
+        
+        'react' => [
+            \App\Http\Middleware\EncryptCookies::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
+            // \Illuminate\Session\Middleware\AuthenticateSession::class,
+            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+            //            \App\Http\Middleware\VerifyCsrfToken::class,
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \Barryvdh\Cors\HandleCors::class,
+        ]
     ];
 
     /**
@@ -65,6 +76,6 @@ class Kernel extends HttpKernel
         'staff'         => Staff::class,
         'administrator' => Administrator::class,
         'reservations'  => Reservations::class,
-        //'cors'          => \Barryvdh\Cors\ServiceProvider::class,
+        'cors'          => \Barryvdh\Cors\ServiceProvider::class,
     ];
 }
