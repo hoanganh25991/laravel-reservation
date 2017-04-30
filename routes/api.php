@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Requests\ApiRequest;
 use Illuminate\Http\Request;
+use App\OutletReservationSetting as Setting;
+use App\Reservation;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,3 +19,13 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::get('admin/reservations', function(ApiRequest $req){
+    Setting::injectBrandId(1);
+    Setting::injectOutletId(1);
+
+    $reservations = Reservation::fromToday()->get();
+
+    return $reservations;
+});
+
