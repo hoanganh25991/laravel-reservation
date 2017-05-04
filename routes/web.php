@@ -194,6 +194,12 @@ Route::group(['prefix' => 'api', 'middleware' => 'react'], function (){
         return ['msg' => 'fail'];
     });
 
+    Route::any('admin/logout', function(\App\Http\Requests\ApiRequest $req){
+        Auth::logout();
+
+        return ['msg' => 'ok'];
+    });
+
 
     Route::middleware('reservations')->any('admin/reservations', function(){
         Setting::injectBrandId(1);
