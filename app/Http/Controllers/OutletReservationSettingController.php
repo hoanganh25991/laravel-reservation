@@ -176,7 +176,7 @@ class OutletReservationSettingController extends Controller {
             Setting::OVERALL_MIN_PAX,
             Setting::OVERALL_MAX_PAX,
         ];
-
+        
         $settings = Setting::buildKeyValueOfConfig($settings_config, $settings_keys);
 
         $user_controller= new UserController;
@@ -193,7 +193,8 @@ class OutletReservationSettingController extends Controller {
             Setting::REQUIRE_DEPOSIT,
             Setting::DEPOSIT_THRESHOLD_PAX,
             Setting::DEPOSIT_TYPE,
-            Setting::DEPOSIT_VALUE
+            Setting::DEPOSIT_VALUE,
+            Setting::PAYPAL_TOKEN,
         ];
 
         return Setting::buildKeyValueOfConfig($deposit_config, $deposit_keys);

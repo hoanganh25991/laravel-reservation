@@ -324,6 +324,15 @@
                                     </div>
                                     <p></p>
                                 </div>
+                                <div class="col-md-5">
+                                    <div class="form-group">
+                                        <label for="deposit_PAYPAL_TOKEN" class="col-md-4 text-right">PAYPAL TOKEN</label>
+                                        <input type="text" spellcheck="false"
+                                               v-model="deposit.PAYPAL_TOKEN"
+                                               id="deposit_PAYPAL_TOKEN"
+                                               class="form-control" style="width: 200px; display: inline-block;">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="modal-footer" style="border-top: 1px solid #e5e5e5;">

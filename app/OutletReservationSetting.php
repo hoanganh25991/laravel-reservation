@@ -192,6 +192,7 @@ class OutletReservationSetting extends HoiModel{
             Setting::DEPOSIT_THRESHOLD_PAX,
             Setting::DEPOSIT_TYPE,
             Setting::DEPOSIT_VALUE,
+            Setting::PAYPAL_TOKEN,
             //for settings
             //Setting::BRAND_ID,
             Setting::SMS_SENDER_NAME,
@@ -454,6 +455,8 @@ class OutletReservationSetting extends HoiModel{
 
     /**
      * Input array of keys, output map of key => value
+     * Only use it for admin setting page
+     * Where $key don't have value set as null
      * @param \Closure $config
      * @param array $keys
      * @return array
@@ -462,7 +465,15 @@ class OutletReservationSetting extends HoiModel{
         $map = [];
         
         foreach($keys as $key){
-            $map[$key] = $config($key);
+            // When config get $key
+            // If key not exist, should throw exception
+            // For admin setting page
+            // Accept return as null
+            try{
+                $map[$key] = $config($key);
+            }catch(\Exception $e){
+                $map[$key] = null;
+            }
         }
 
         return $map;

@@ -34,8 +34,9 @@ class PayPalController extends HoiController{
     
     public function initGateway(){
         //$outlet_id      = Setting::outletId();
-        $setting_config = Setting::settingsConfig();
-        $access_token   = $setting_config(Setting::PAYPAL_TOKEN);
+        //$setting_config = Setting::settingsConfig();
+        $deposit_config = Setting::depositConfig();
+        $access_token   = $deposit_config(Setting::PAYPAL_TOKEN);
         $this->gateway  = new Gateway([
             'accessToken' => $access_token
         ]);
