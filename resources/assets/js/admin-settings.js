@@ -174,12 +174,24 @@ class AdminSettings {
 			},
 			beforeUpdate(){
 				let store = window.store;
+				let preState = store.getState();
+
 				// Sync vue_state with its parent redux-state
 				// Always respect state
 				store.dispatch({
 					type: SYNC_VUE_STATE,
 					vue_state: window.vue_state
 				});
+
+				/** Bad code */
+				if(preState.user_dialog_content != window.vue_state.user_dialog_content){
+					/**
+					 * @warn Should call store for update value
+					 */
+					store.dispatch({
+						type: SHOW_USER_DIALOG
+					});
+				}
 			},
 			updated(){
 				/**
@@ -528,12 +540,7 @@ class AdminSettings {
 						// this.user_dialog_content = user_dialog_content
 						Object.assign(window.vue_state, {user_dialog_content});
 
-						/**
-						 * @warn Should call store for update value
-						 */
-						store.dispatch({
-							type: SHOW_USER_DIALOG
-						});
+
 					}catch(e){}
 				},
 
