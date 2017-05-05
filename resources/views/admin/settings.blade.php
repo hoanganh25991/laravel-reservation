@@ -322,16 +322,17 @@
                                                 If "fixed sum" is selected, then a payment authorization of $5 will be obtained.</p>
                                         </div>
                                     </div>
-                                    <p></p>
-                                </div>
-                                <div class="col-md-5">
+                                    <br/>
                                     <div class="form-group">
-                                        <label for="deposit_PAYPAL_TOKEN" class="col-md-4 text-right">PAYPAL TOKEN</label>
+                                        <h4>Paypal Token</h4>
                                         <input type="text" spellcheck="false"
                                                v-model="deposit.PAYPAL_TOKEN"
                                                id="deposit_PAYPAL_TOKEN"
                                                class="form-control" style="width: 200px; display: inline-block;">
                                     </div>
+                                </div>
+                                <div class="col-md-5">
+
                                 </div>
                             </div>
                         </div>
