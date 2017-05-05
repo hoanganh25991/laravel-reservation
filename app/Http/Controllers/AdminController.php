@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 //use App\Session;
+use App\Exceptions\DontHavePermissionException;
 use App\Outlet;
 use Carbon\Carbon;
 use App\ReservationUser;
@@ -199,6 +200,26 @@ class AdminController extends HoiController {
 
     public function resolveOutletIdToInject(){
         if(!is_null(Setting::$outlet_id)){
+
+            /**
+             * Check user allowed to edit on this outlet??
+             * Where should we check user update data
+             */
+            
+            $outlet_id = Setting::outletId();
+            /** @var ReservationUser $user */
+            $user      = Auth::user();
+
+            if(is_null($user)){
+                throw new \Exception('Can\'t find user in admin controller, are you hack???');
+            }
+
+            $allowed_outlet = $user->allowedOutletIds()->contains($outlet_id);
+            
+            if(!$allowed_outlet){
+                throw new DontHavePermissionException();
+            }
+            
             return;
         }
         

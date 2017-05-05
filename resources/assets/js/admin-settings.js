@@ -52,6 +52,8 @@ const AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS = 'AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS
 const HIDE_USER_DIALOG = 'HIDE_USER_DIALOG';
 const SYNC_VUE_STATE   = 'SYNC_VUE_STATE';
 
+const DONT_HAVE_PERMISSION = 'DONT_HAVE_PERMISSION';
+
 
 class AdminSettings {
 	/** @namespace user.permission_level */
@@ -1095,12 +1097,33 @@ class AdminSettings {
 		}
 	}
 
-	ajax_call_error(res){
-		console.log(res);
-		let toast = {
-			title:'Server error',
-			content: '(⊙.☉)7'
-		};
+	ajax_call_error(resLiteral){
+		console.log(resLiteral);
+		// Please don't change these code
+		let res = JSON.parse(resLiteral.responseText);
+
+		let toast = {};
+
+		switch(res.statusMsg){
+			case DONT_HAVE_PERMISSION:{
+				let info = JSON.stringify(res.data);
+
+				toast = {
+					title: DONT_HAVE_PERMISSION,
+					content: info
+				};
+
+				break;
+			}
+			default: {
+				toast = {
+					title:'Server error',
+					content: resLiteral.responseText
+				};
+
+				break;
+			}
+		}
 
 		store.dispatch({
 			type: TOAST_SHOW,

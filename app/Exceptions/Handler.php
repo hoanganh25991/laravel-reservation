@@ -2,9 +2,11 @@
 
 namespace App\Exceptions;
 
+use App\ReservationUser;
 use App\Traits\ApiResponse;
 use Exception;
 use Illuminate\Log\Writer;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 use Psr\Log\LoggerInterface;
 use Illuminate\Auth\AuthenticationException;
@@ -65,10 +67,22 @@ class Handler extends ExceptionHandler {
         // Render as
         // code: 500
         if($request->ajax()){
-            $data = [];
-            $code = 500;
-            $msg  = Call::SERVER_THROWN_EXCEPTION;
 
+            switch(get_class($exception)){
+                case DontHavePermissionException::class:
+                    /** @var ReservationUser $user */
+                    $user = Auth::user();
+                    $data = compact('user');
+                    $code = 422;
+                    $msg  = Call::DONT_HAVE_PERMISSION;
+                    break;
+                default:
+                    $data = [];
+                    $code = 500;
+                    $msg  = Call::SERVER_THROWN_EXCEPTION;
+                    break;
+            }
+            
             return Response::json([
                 'statusCode' => $code,
                 'statusMsg'  => $msg,
