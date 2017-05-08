@@ -19,7 +19,8 @@ use App\OutletReservationSetting as Setting;
 class PayPalController extends HoiController{
 
     use ApiResponse;
-    
+
+    /** @var  Gateway $gateway */
     public $gateway;
     
     public function __construct(){
