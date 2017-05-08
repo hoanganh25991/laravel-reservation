@@ -16,7 +16,7 @@ class PayPalAuthorize {
 			Object.assign({
 				flow: 'checkout', // Required
 				amount: 10.00, // Required
-				currency: 'USD', // Required
+				currency: 'SGD', // Required
 				locale: 'en_US',
 
 				enableShippingAddress: false
@@ -69,7 +69,7 @@ class PayPalAuthorize {
 			paypal: {
 				flow: 'checkout', // Required
 				amount: 10.00, // Required
-				currency: 'USD', // Required
+				currency: 'SGD', // Required
 				locale: 'en_US',
 				offerCredit: false,
 			},
@@ -126,6 +126,7 @@ class PayPalAuthorize {
 				}
 			},
 			error(res_literal){
+				console.log(res_literal);
 				//noinspection JSUnresolvedVariable
 				console.log(res_literal.responseJSON);
 				// It quite weird that in browser window
@@ -133,21 +134,23 @@ class PayPalAuthorize {
 				// res obj now wrap by MANY MANY INFO
 				// Please dont change this
 				let res = res_literal.responseJSON;
-				// Do normal things with res as in success case
-				switch(res.statusMsg){
-					case AJAX_PAYMENT_REQUEST_VALIDATE_FAIL:
-					case AJAX_PAYMENT_REQUEST_FIND_RESERVATION_FAIL:
-					case AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL:{
-						let info = JSON.stringify(res);
-						let msg  = `Paypal payment fail: ${info}`;
-						window.alert(msg);
-						break;
+				try{
+					// Do normal things with res as in success case
+					switch(res.statusMsg){
+						case AJAX_PAYMENT_REQUEST_VALIDATE_FAIL:
+						case AJAX_PAYMENT_REQUEST_FIND_RESERVATION_FAIL:
+						case AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL:{
+							let info = JSON.stringify(res);
+							let msg  = `Paypal payment fail: ${info}`;
+							window.alert(msg);
+							break;
+						}
+						default:{
+							console.warn('Unknown case of res.statusMsg');
+							break;
+						}
 					}
-					default:{
-						console.warn('Unknown case of res.statusMsg');
-						break;
-					}
-				}
+				}catch(e){}
 
 			},
 			complete(res){

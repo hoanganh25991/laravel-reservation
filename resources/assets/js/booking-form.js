@@ -931,6 +931,7 @@ class BookingForm {
 				}
 			},
 			error(res_literal){
+				console.log(res_literal);
 				//noinspection JSUnresolvedVariable
 				console.log(res_literal.responseJSON);
 				// It quite weird that in browser window
