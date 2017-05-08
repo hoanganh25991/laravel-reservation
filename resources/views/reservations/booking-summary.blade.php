@@ -47,7 +47,7 @@
             <tr v-show="reservation.payment_status == 100">
                 <td><label>Payment authorization Paid</label></td>
                 <td>
-                    <label class="h5" style="display: block; width: 100%;">$@{{ reservation.deposit }}</label>
+                    <label class="h5" style="display: block; width: 100%;">$@{{ reservation.deposit }} (SGD)</label>
                     <div>Your deposit will be returned when you arrive for your reservation</div>
                 </td>
             </tr>
