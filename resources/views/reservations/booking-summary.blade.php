@@ -47,7 +47,7 @@
             <tr v-show="reservation.payment_status == 100">
                 <td><label>Payment authorization Paid</label></td>
                 <td>
-                    <label class="h5" style="display: block; width: 100%;">$@{{ reservation.deposit }} (SGD)</label>
+                    <label class="h5" style="display: block; width: 100%;">@{{ reservation.deposit }} (@{{ reservation.paypal_currency }})</label>
                     <div>Your deposit will be returned when you arrive for your reservation</div>
                 </td>
             </tr>
@@ -55,7 +55,7 @@
                 <tr v-show="reservation.payment_status == 25">
                     <td><label>Payment authorization Required</label></td>
                     <td>
-                        <label class="h5 text-danger">$@{{ reservation.deposit }} (SGD)</label>
+                        <label class="h5 text-danger">@{{ reservation.deposit }} (@{{ reservation.paypal_currency }})</label>
                         <div class="agree-box cf" style="margin: 40px 0 10px 0;">
                             <div class="checkbox cf" style="padding-left: 5px;">
                                 <label for="agree_payment_box">I acknowledge that I will be subject to a cancellation fee of $@{{ reservation.deposit }} if I do not give more than 24-hours cancellation notice or if I do not honour this reservation.</label>
