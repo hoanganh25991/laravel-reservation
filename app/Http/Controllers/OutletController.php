@@ -7,13 +7,22 @@ use App\Outlet;
 use App\Traits\ApiResponse;
 use App\Http\Requests\ApiRequest;
 use App\Libraries\HoiAjaxCall as Call;
+use App\OutletReservationSetting as Setting;
 
 class OutletController extends HoiController{
 
     use ApiResponse;
     
     public function fetchAllOutlet(ApiRequest $req){
-        $outlets = Outlet::withoutGlobalScope('brand_id')->where('brand_id', 1)->get();
+        $brand_id = $req->get('brand_id');
+
+        if(is_null($brand_id)){
+            throw new \Exception('Please submit brand_id');
+        }
+
+        Setting::injectBrandId($brand_id);
+
+        $outlets = Outlet::all();
 
         if($req->method() == 'POST'){
             $action_type = $req->get('type');
