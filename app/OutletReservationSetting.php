@@ -85,7 +85,9 @@ class OutletReservationSetting extends HoiModel{
 
     const PAYPAL_CURRENCY = 'PAYPAL_CURRENCY';
     const DEFAULT_PAYPAL_CURRENCY = 'SGD';
-    const SUPPOTED_PAYPAL_CURRENCY = [
+    
+    const SUPPORTED_PAYPAL_CURRENCY = 'SUPPORTED_PAYPAL_CURRENCY';
+    const DEFAULT_SUPPORTED_PAYPAL_CURRENCY = [
         'USD' => 'US Dollar',
         'SGD' => 'Singapore Dollar',
         'MYR' => 'Malaysian Ringgit',
@@ -203,6 +205,7 @@ class OutletReservationSetting extends HoiModel{
             Setting::DEPOSIT_TYPE,
             Setting::DEPOSIT_VALUE,
             Setting::PAYPAL_TOKEN,
+            Setting::PAYPAL_CURRENCY,
             //for settings
             //Setting::BRAND_ID,
             Setting::SMS_SENDER_NAME,
@@ -489,7 +492,7 @@ class OutletReservationSetting extends HoiModel{
         return $map;
     }
 
-    public static function supportedPaypalCurrency(){
-        return Setting::SUPPOTED_PAYPAL_CURRENCY;
+    public static function getSupportedPaypalCurrency(){
+        return Setting::DEFAULT_SUPPORTED_PAYPAL_CURRENCY;
     }
 }

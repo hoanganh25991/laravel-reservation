@@ -195,6 +195,8 @@ class OutletReservationSettingController extends Controller {
             Setting::DEPOSIT_TYPE,
             Setting::DEPOSIT_VALUE,
             Setting::PAYPAL_TOKEN,
+            Setting::PAYPAL_CURRENCY,
+            Setting::SUPPORTED_PAYPAL_CURRENCY,
         ];
 
         return Setting::buildKeyValueOfConfig($deposit_config, $deposit_keys);
