@@ -43,8 +43,6 @@ class OutletReservationSetting extends HoiModel{
 
     const SMS_SENDER_NAME = 'SMS_SENDER_NAME';
     const DEFAULT_SMS_SENDER_NAME = 'ALFRED';
-    
-    const PAYPAL_TOKEN = 'PAYPAL_TOKEN';
 
     /**
      * NOTIFICATION default config
@@ -81,7 +79,19 @@ class OutletReservationSetting extends HoiModel{
     //deposit value used for both fixed & per pax
     const DEPOSIT_VALUE = 'DEPOSIT_VALUE';
     const DEFAULT_DEPOSIT_VALUE = 5; //$5
-    
+
+    const PAYPAL_TOKEN = 'PAYPAL_TOKEN';
+    // no default value for PAYPAL_TOKEN
+
+    const PAYPAL_CURRENCY = 'PAYPAL_CURRENCY';
+    const DEFAULT_PAYPAL_CURRENCY = 'SGD';
+    const SUPPOTED_PAYPAL_CURRENCY = [
+        'USD' => 'US Dollar',
+        'SGD' => 'Singapore Dollar',
+        'MYR' => 'Malaysian Ringgit',
+    ];
+
+
     /**
      * Overral pax
      * Min pax
@@ -477,5 +487,9 @@ class OutletReservationSetting extends HoiModel{
         }
 
         return $map;
+    }
+
+    public static function supportedPaypalCurrency(){
+        return Setting::SUPPOTED_PAYPAL_CURRENCY;
     }
 }
