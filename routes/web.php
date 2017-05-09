@@ -60,7 +60,7 @@ Route::group(['middleware' => 'administrator'], function (){
  * Currently only support frontend call
  */
 Route::group(['prefix' => 'api','middleware' => 'api'], function (){
-    Setting::injectBrandId(1);
+    //Setting::injectBrandId(1);
     Route::any('', 'BookingController@getBookingForm');
     Route::any('outlets', 'OutletController@fetchAllOutlet');
 });
