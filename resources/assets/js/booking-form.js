@@ -54,6 +54,7 @@ const PAYPAL_BUTTON_HIDE = 'PAYPAL_BUTTON_HIDE';
 const CHANGE_PAX = 'CHANGE_PAX';
 
 class BookingForm {
+	/** @namespace selected_outlet.paypal_currency */
 	/** @namespace res.statusMsg */
 	/** @namespace res.responseJSON */
 	/** @namespace action.adult_pax */
@@ -908,6 +909,8 @@ class BookingForm {
 						 * Init paypal
 						 */
 						let amount        = reservation.deposit;
+						// currency accepted by this outlet
+						let currency      = reservation.paypal_currency;
 						let confirm_id    = reservation.confirm_id;
 						let outlet_id     = reservation.outlet_id;
 						let {paypal_token}= res.data;
@@ -917,6 +920,7 @@ class BookingForm {
 						// Create state data for paypal
 						let paypal_options = {
 							amount,
+							currency,
 							outlet_id,
 							confirm_id,
 						};
