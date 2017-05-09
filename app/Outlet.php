@@ -7,6 +7,7 @@ use App\OutletReservationSetting as Setting;
 /**
  * @property mixed outlet_name
  * @property mixed id
+ * @property mixed paypal_currency
  */
 class Outlet extends HoiModel {
     
@@ -18,7 +19,8 @@ class Outlet extends HoiModel {
         'overall_min_pax',
         'overall_max_pax',
         'max_days_in_advance',
-        'send_sms_on_booking'
+        'send_sms_on_booking',
+        'paypal_currency',
     ];
     
     public function getNameAttribute(){
@@ -119,5 +121,25 @@ class Outlet extends HoiModel {
         $address = str_replace("\\n", ", ", $value);
 
         return $address;
+    }
+
+    /**
+     * Each outlet has it own paypal currency
+     * Payapl Currency match with what currency accepted by the merchant account
+     *
+     * Bring these info to generate paypal_authorize dynamic
+     */
+    public function getPaypalCurrencyAttribute(){
+        $outlet_id = $this->id;
+
+        if(is_null($outlet_id)){
+            // Outlet still not created
+            // Can get its config
+            return null;
+        }
+
+        $deposit_config = Setting::depositConfig($outlet_id);
+
+        return $deposit_config(Setting::PAYPAL_CURRENCY);
     }
 }

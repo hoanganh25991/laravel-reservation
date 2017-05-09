@@ -124,6 +124,7 @@ class Reservation extends HoiModel {
         'send_confirmation_by_timestamp',
         'deposit',
         'time',
+        'paypal_currency',
     ];
 
     /**
@@ -678,6 +679,23 @@ class Reservation extends HoiModel {
         }
 
         $this->attributes['phone_country_code'] = $code;
+    }
+
+    /**
+     * When payment authorization case happen
+     * Need this info to help create paypal popup dynamic with right currency
+     * Reservation itself doesn't have these info
+     * This come from Outlet
+     */
+    public function getPaypalCurrencyAttribute(){
+        /** @var Outlet $outlet */
+        $outlet = $this->outlet;
+
+        if(!$outlet){
+            return null;
+        }
+
+        return $outlet->paypal_currency;
     }
 
 }

@@ -306,7 +306,7 @@
                                                    id="deposit_DEPOSIT_VALUE">
                                             <div class="input-group-addon">
                                                 <select v-model="deposit.DEPOSIT_TYPE" class="input-group">
-                                                    <option disabled>Please deposit type</option>
+                                                    <option disabled>Please select deposit type</option>
                                                     <option value="0">Fixed Sum</option>
                                                     <option value="1">Per Pax</option>
                                                 </select>
@@ -329,6 +329,15 @@
                                                v-model="deposit.PAYPAL_TOKEN"
                                                id="deposit_PAYPAL_TOKEN"
                                                class="form-control" style="width: 200px; display: inline-block;">
+                                    </div>
+                                    <div class="form-group">
+                                        <h4>Paypal Currency</h4>
+                                        <select v-model="deposit.PAYPAL_CURRENCY" class="input-group">
+                                            <option disabled>Please select paypal currency</option>
+                                            <template v-for="(value, key) in deposit.SUPPORTED_PAYPAL_CURRENCY">
+                                                <option :value="key">{{ value }}</option>
+                                            </template>
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="col-md-5">
