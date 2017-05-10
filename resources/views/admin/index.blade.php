@@ -13,7 +13,7 @@
                         <div style="box-shadow: 0 5px 15px rgba(0,0,0,.5);">
                             <h3 class="bg-info">Outlet</h3>
                             <div class="panel-body">
-                                <select v-model="selected_outlet">
+                                <select v-model="selected_outlet_id">
                                     <option value="null" disabled>Please select an outlet</option>
                                     <template v-for="(outlet, outlet_index) in outlets">
                                         <option :value="outlet.id">{{ outlet.outlet_name }}</option>
@@ -45,7 +45,7 @@
             </div>
         </div>
         @endverbatim
-        @include('partial.toast')
+        {{--@include('partial.toast')--}}
     </div>
 @endsection
 
@@ -54,15 +54,14 @@
 <script>@php
         $state_json = json_encode($state);
         echo "window.state = $state_json;";
-    @endphp</script>
+@endphp</script>
 <script>
-    const AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS = 'AJAX_UPDATE_SCOPE_OUTLET_ID_SUCCESS';
-    const AJAX_UPDATE_SCOPE_OUTLET_ID_ERROR = 'AJAX_UPDATE_SCOPE_OUTLET_ID_ERROR';
 
-    window.vue_state = Object.assign({}, state, {toast: {
-        title: 'Switch Outlet',
-        content: 'Redirecting'
-    }});
+    let frontend_state = {selected_outlet_id: null};
+
+    // Build vue_state
+    window.vue_state = Object.assign({}, frontend_state, state);
+
     let vue = new Vue({
         el: '#app',
         data: window.vue_state,
@@ -76,10 +75,8 @@
             _goToAdminReservations(){
                 let vue = this;
 
-                Toast.show();
-
                 //noinspection JSUnresolvedVariable
-                let outlet_id = vue.selected_outlet;
+                let outlet_id = vue.selected_outlet_id;
 
                 let redirect_url = `admin/reservations?outlet_id=${outlet_id}`;
 
