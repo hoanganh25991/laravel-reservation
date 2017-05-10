@@ -37,7 +37,6 @@ class AdminController extends HoiController {
 
         $state = [
             'outlets'         => $outlets,
-            'selected_outlet' => null,
             'base_url'        => url(''),
             'user'            => $user,
         ];
@@ -51,13 +50,13 @@ class AdminController extends HoiController {
      * @throws \Exception
      */
     public function getReservationDashboard(ApiRequest $req){
-        $this->resolveOutletIdToInject();
-
-        $reservation_controller = new ReservationController;
-
-        $action_type = $req->json('type');
-
+        // Handle post case
         if($req->method() == 'POST'){
+
+            $action_type = $req->json('type');
+
+            $reservation_controller = new ReservationController;
+
             switch($action_type){
                 case Call::AJAX_UPDATE_RESERVATIONS:
                     $response = $reservation_controller->update($req);
@@ -79,17 +78,18 @@ class AdminController extends HoiController {
             return $response;
         }
 
+        // Handle default case
+        // Why have to resolve
+        // When staff access admin/reservations
+        // No explicit outlet_id told, resolve as the first one
+        $this->resolveOutletIdToInject();
+
         $state = $this->reservationsState();
 
-        //Handle get
         return view('admin.reservations')->with(compact('state'));
     }
 
     private function reservationsState(){
-        $reservation_controller = new ReservationController;
-        //Build state
-        $reservations = $reservation_controller->fetchUpdateReservations();
-
         /** Current logined user */
         // When some actions in page require permission more than
         // what current user assgined
@@ -101,7 +101,7 @@ class AdminController extends HoiController {
         $state = [
             'base_url'     => url()->current(),
             'outlet_id'    => Setting::outletId(),
-            'reservations' => $reservations,
+            'reservations' => (new ReservationController)->fetchUpdateReservations(),
             'user'         => $user,
         ];
 
@@ -113,16 +113,13 @@ class AdminController extends HoiController {
      * @return $this
      */
     public function getSettingsDashboard(ApiRequest $req){
-        //Realy important, outlet id should specific which one
-        $this->resolveOutletIdToInject();
-
-        $session_controller = new SessionController;
-        $setting_controller = new SettingController;
-
-        //implicit get action_type from json call
-        $action_type = $req->json('type');
-
+        // Handle post case
         if($req->method() == 'POST'){
+
+            $action_type        = $req->json('type');
+            $session_controller = new SessionController;
+            $setting_controller = new SettingController;
+
             switch($action_type){
                 case Call::AJAX_UPDATE_SESSIONS:
                     $response = $session_controller->update($req);
@@ -150,6 +147,12 @@ class AdminController extends HoiController {
 
             return $response;
         }
+
+        // Handle default case
+        // Why have to resolve
+        // When staff access admin/reservations
+        // No explicit outlet_id told, resolve as the first one
+        $this->resolveOutletIdToInject();
 
         $state = $this->settingsState();
 
@@ -184,6 +187,7 @@ class AdminController extends HoiController {
 
         $state = [
             'base_url'         => url()->current(),
+            'outlets'          => $outlets,
             'outlet_id'        => Setting::outletId(),
             'weekly_sessions'  => $weekly_sessions,
             'special_sessions' => $special_sesssions,
@@ -191,7 +195,6 @@ class AdminController extends HoiController {
             'notification'     => $notification,
             'settings'         => $settings,
             'deposit'          => $deposit,
-            'outlets'          => $outlets,
             'user'             => $user,
         ];
 
@@ -199,42 +202,24 @@ class AdminController extends HoiController {
     }
 
     public function resolveOutletIdToInject(){
-        if(!is_null(Setting::$outlet_id)){
 
-            /**
-             * Check user allowed to edit on this outlet??
-             * Where should we check user update data
-             */
-            
-            $outlet_id = Setting::outletId();
+        // Only resolve when no outlet_id explicit told
+        // Get the first one from
+        if(!Setting::isOutletIdSetup()){
             /** @var ReservationUser $user */
-            $user      = Auth::user();
+            $user = Auth::user();
 
             if(is_null($user)){
-                throw new \Exception('Can\'t find user in admin controller, are you hack???');
+                throw new \Exception('Can\'t find user, are you hack???');
             }
 
-            $allowed_outlet = $user->allowedOutletIds()->contains($outlet_id);
-            
-            if(!$allowed_outlet){
-                throw new DontHavePermissionException();
-            }
-            
-            return;
-        }
-        
-        /** @var ReservationUser $user */
-        $user = Auth::user();
-        if(is_null($user)){
-            throw new \Exception('Can\'t find user in admin controller, are you hack???');
-        }
-        //implicit means he want to go to the first one
-        $outlet_id = $user->allowedOutletIds()->first();
-        //not outelet set up
-        if(is_null($outlet_id)){
-            throw new \Exception('Can\'t resolve outlet_id to move on');
-        }
+            $outlet_id = $user->allowedOutletIds()->first();
 
-        Setting::injectOutletId($outlet_id);
+            if(is_null($outlet_id)){
+                throw new \Exception('Current account cant access to any outlet');
+            }
+
+            Setting::injectOutletId($outlet_id);
+        }
     }
 }
