@@ -4,7 +4,7 @@
         <div>
             <div id="settings_content" class="row">
                 <div id="reservations_content" class="col-md-2">
-                    <div class="navbar navbar-default">
+                    <div class="navbar navbar-default" style="max-width: 200px;">
                         <ul class="nav navbar-nav" id="go-container">
                             <li><a destination="weekly_sessions_view"  class="btn go">Weekly Sessions</a></li>
                             <li><a destination="special_sessions_view" class="btn go">Special Sessions</a></li>
