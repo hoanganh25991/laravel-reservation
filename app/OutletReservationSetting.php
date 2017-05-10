@@ -44,6 +44,11 @@ class OutletReservationSetting extends HoiModel{
     const SMS_SENDER_NAME = 'SMS_SENDER_NAME';
     const DEFAULT_SMS_SENDER_NAME = 'ALFRED';
 
+    // Overral pax | Min pax | Max pax
+    // To validate select pax form
+    const OVERALL_MIN_PAX = 'OVERALL_MIN_PAX';
+    const DEFAULT_OVERALL_MIN_PAX = 2;
+
     /**
      * NOTIFICATION default config
      */
@@ -94,14 +99,7 @@ class OutletReservationSetting extends HoiModel{
     ];
 
 
-    /**
-     * Overral pax
-     * Min pax
-     * Max pax
-     * To validate select pax form
-     */
-    const OVERALL_MIN_PAX = 'OVERALL_MIN_PAX';
-    const DEFAULT_OVERALL_MIN_PAX = 2;
+
 
     const OVERALL_MAX_PAX = 'OVERALL_MAX_PAX';
     const DEFAULT_OVERALL_MAX_PAX = 20;
@@ -327,6 +325,10 @@ class OutletReservationSetting extends HoiModel{
 
         return Setting::$outlet_id;
     }
+    
+    public static function isOutletIdSetup(){
+        return !is_null(Setting::$outlet_id);
+    }
 
     /**
      * Config of each group
@@ -393,6 +395,10 @@ class OutletReservationSetting extends HoiModel{
         }
 
         return Setting::$brand_id;
+    }
+    
+    public static function isBranIdSetup(){
+        return !is_null(Setting::$brand_id);
     }
 
     /**
