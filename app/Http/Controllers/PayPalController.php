@@ -119,6 +119,7 @@ class PayPalController extends HoiController{
 
                 $paymentMethodNonce  = $tokenizationPayload['nonce'];
 
+                // Call Paypal API to excecute this transaction
                 $result =
                     $this->gateway->transaction()->sale([
                         'amount'             => $amount,
@@ -135,11 +136,15 @@ class PayPalController extends HoiController{
                      */
                     // Get paypal details first
                     /** @var Transaction\PayPalDetails $paypal_details */
-                    $paypal_details                        = $result->transaction->paypalDetails;
-                    $reservation->payment_authorization_id = $paypal_details->authorizationId;
-
+                    $paypal_details = $result->transaction->paypalDetails;
+                    // Store Payment id
+                    // payment_id only used for Paypal API to call void|charge...
                     $reservation->payment_id        = $transaction_id;
+                    // Payment have many id, this is authorize-payment type, store this one
+                    $reservation->payment_authorization_id = $paypal_details->authorizationId;
+                    // Store Payment info
                     $reservation->payment_amount    = $amount;
+                    $reservation->payment_currency  = $reservation->paypal_currency;
                     $reservation->payment_timestamp = Carbon::now(Setting::timezone());
                     $reservation->payment_status    = Reservation::PAYMENT_PAID;
                     //update status as RESERVED

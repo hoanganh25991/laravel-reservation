@@ -74,6 +74,9 @@ use App\OutletReservationSetting as Setting;
  * @property string payment_timestamp
  * @property int $payment_status
  * @property string payment_authorization_id
+ * @property mixed payment_currency
+ * @property mixed paypal_currency
+ * @see App\Reservation::getPaypalCurrencyAttribute
  * @method mixed fromToday
  * @see App\Reservation::scopeFromToday
  */
