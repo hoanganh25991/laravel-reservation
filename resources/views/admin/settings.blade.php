@@ -339,6 +339,11 @@
                                             </template>
                                         </select>
                                     </div>
+                                    <div class="form-group bg-danger" style="padding: 1px 15px;">
+                                        <h4>Notice</h4>
+                                        <p>Please submit Paypal currency match what the paypal merchant account accepted.
+                                            If not execute transaction from customer fail.</p>
+                                    </div>
                                 </div>
                                 <div class="col-md-5">
 
