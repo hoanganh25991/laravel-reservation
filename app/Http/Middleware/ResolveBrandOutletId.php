@@ -11,11 +11,9 @@ use App\OutletReservationSetting as Setting;
 
 
 class ResolveBrandOutletId {
-    
-    const URI_HAS_BRAND_ID = 'URI_HAS_BRAND_ID';
-    const USER_IN_ADMIN_PAGE = 'USER_IN_ADMIN_PAGE';
-    
-    protected $request;
+
+    /** @var Request $req */
+    protected $req;
 
     /**
      * Handle an incoming request.
@@ -26,35 +24,59 @@ class ResolveBrandOutletId {
      * @internal param Closure $next
      */
     public function __construct(Route $route, Request $req){
-        $this->request = $req;
+        $this->req = $req;
     }
 
     public function handle($request, Closure $next){
+        $req = $this->req;
         /**
-         * Try to resolve brand_id
+         * Resolve for normal case from customer
          */
-        //brand id from route
-        $brand_id = $this->request->route()->parameter('brand_id');
+        // Try to resolve brand_id
+        $brand_id = $this->tryGetFromAllTypeOfRequest('brand_id');
 
         if(!is_null($brand_id)){
             Setting::injectBrandId($brand_id);
-        }else{
-            /** @var ReservationUser $user */
-            $user = Auth::user();
-            if(!is_null($user)){
-                $user->injectBrandId();
-            }
         }
 
-        /**
-         * Try to resolve outlet_id
-         */
-        $outlet_id = $this->request->get('outlet_id') ?: $this->request->json('outlet_id');
+        // Try to resolve outlet_id
+        $outlet_id = $this->tryGetFromAllTypeOfRequest('outlet_id');
         
         if(!is_null($outlet_id)){
             Setting::injectOutletId($outlet_id);
         }
 
+        /**
+         * Resolve for staff login to manage admin
+         */
+        if($req->is('admin*')){
+            /** @var ReservationUser $user */
+            $user = Auth::user();
+
+            if(!is_null($user)){
+                $user->injectBrandId();
+            }
+        }
+
         return $next($request);
     }
+
+    public function tryGetFromAllTypeOfRequest($key){
+        $req     = $this->req;
+        $methods = ['get', 'json', 'route'];
+
+        // Init while loop
+        $value = null;
+        $index = 0;
+
+        while(is_null($value) && $index < count($methods)){
+
+            $method = $methods[$index];
+            $value  = $req->$method($key);
+            $index++;
+        }
+
+        return $value;
+    }
+
 }
