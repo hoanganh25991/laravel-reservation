@@ -685,17 +685,19 @@ class Reservation extends HoiModel {
      * When payment authorization case happen
      * Need this info to help create paypal popup dynamic with right currency
      * Reservation itself doesn't have these info
-     * This come from Outlet
+     * This come from Outlet Setting
      */
     public function getPaypalCurrencyAttribute(){
-        /** @var Outlet $outlet */
-        $outlet = $this->outlet;
 
-        if(!$outlet){
-            return null;
+        $outlet_id = $this->outlet_id;
+
+        if(!$outlet_id){
+            throw new \Exception("Reservation $this->id, doesnt have outlet_id info");
         }
 
-        return $outlet->paypal_currency;
+        $deposit_config = Setting::depositConfig($outlet_id);
+
+        return $deposit_config(Setting::PAYPAL_CURRENCY);
     }
 
 }
