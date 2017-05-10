@@ -24,11 +24,6 @@ class Reservations
             return redirect('login');
         }
         
-        if($user->isAdministrator()){
-            return $next($request);
-        }
-        
-
         if($user->isReservations()){
             return $next($request);
         }

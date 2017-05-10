@@ -123,7 +123,12 @@ class ReservationUser extends User {
      */
     public function isReservations(){
         $is_reservations = $this->permission_level == ReservationUser::RESERVATIONS;
-        return $is_reservations;
+
+        // Administrator over the reservations role
+        // If it is administrator >>> can use any role from reservations
+        $is_admin = $this->isAdministrator();
+
+        return $is_admin || $is_reservations;
     }
 
     /**
