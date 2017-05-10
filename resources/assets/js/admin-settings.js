@@ -1097,38 +1097,27 @@ class AdminSettings {
 		}
 	}
 
-	ajax_call_error(resLiteral){
-		console.log(resLiteral);
+	ajax_call_error(res_literal){
+		console.log(res_literal);
 		// Please don't change these code
-		let res = JSON.parse(resLiteral.responseText);
+		let res = res_literal.responseJSON;
 
-		let toast = {};
-
-		switch(res.statusMsg){
-			case DONT_HAVE_PERMISSION:{
-				let info = JSON.stringify(res.data);
-
-				toast = {
-					title: DONT_HAVE_PERMISSION,
-					content: info
-				};
-
-				break;
+		try{
+			switch(res.statusMsg){
+				case DONT_HAVE_PERMISSION:{
+					window.alert(res.errorMsg);
+					break;
+				}
+				default: {
+					window.alert(res.errorMsg);
+					break;
+				}
 			}
-			default: {
-				toast = {
-					title:'Server error',
-					content: resLiteral.responseText
-				};
-
-				break;
-			}
+		}catch(e){
+			window.alert(JSON.stringify(res_literal));
 		}
 
-		store.dispatch({
-			type: TOAST_SHOW,
-			toast
-		});
+
 	}
 	
 	ajax_call_complete(){}
