@@ -298,8 +298,8 @@
                                     <div>
                                         <h4>Payment Authorization Calculation</h4>
                                         <div class="input-group col-md-6">
-                                            <span class="input-group-addon">$</span>
-                                            <input type="number" class="form-control"
+                                            <span class="input-group-addon">{{ deposit.PAYPAL_CURRENCY }}</span>
+                                            <input type="number" class="form-control" style="min-width: 60px;"
                                                    placeholder="$5"
                                                    v-model="deposit.DEPOSIT_VALUE"
                                                    :value="deposit.DEPOSIT_VALUE"
