@@ -33,14 +33,14 @@ class ResolveBrandOutletId {
          * Resolve for normal case from customer
          */
         // Try to resolve brand_id
-        $brand_id = $this->tryGetFromAllTypeOfRequest('brand_id');
+        $brand_id = $this->tryGetKeyFromAllTypeOfReq('brand_id');
 
         if(!is_null($brand_id)){
             Setting::injectBrandId($brand_id);
         }
 
         // Try to resolve outlet_id
-        $outlet_id = $this->tryGetFromAllTypeOfRequest('outlet_id');
+        $outlet_id = $this->tryGetKeyFromAllTypeOfReq('outlet_id');
         
         if(!is_null($outlet_id)){
             Setting::injectOutletId($outlet_id);
@@ -61,9 +61,12 @@ class ResolveBrandOutletId {
         return $next($request);
     }
 
-    public function tryGetFromAllTypeOfRequest($key){
+    public function tryGetKeyFromAllTypeOfReq($key){
         $req     = $this->req;
-        $methods = ['get', 'json', 'route'];
+
+        // The order of which method tried is IMPORTANT
+        // The most trival at first
+        $methods = ['route', 'json', 'get'];
 
         // Init while loop
         $value = null;
