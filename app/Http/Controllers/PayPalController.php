@@ -152,7 +152,15 @@ class PayPalController extends HoiController{
                     $reservation->save();
 
                 } else {
-                    $err  = var_export($result->errors);
+                    $err  = "Paypal BrainTree execute transaction fail";
+
+                    // Try to get exactly message from $result
+                    try{
+
+                        $err = $result->__get('message');
+
+                    }catch(\Exception $e){}
+
                     $data = $err;
                     $code = 422;
                     $msg  = Call::AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL;
