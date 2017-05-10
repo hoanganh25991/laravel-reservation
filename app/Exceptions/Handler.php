@@ -66,7 +66,10 @@ class Handler extends ExceptionHandler {
         // When render error for api
         // Render as
         // code: 500
-        if($request->ajax()){
+
+        $fromApiGroup = preg_match('/api/', $request->url());
+
+        if($request->ajax() || $fromApiGroup){
 
             switch(get_class($exception)){
                 case DontHavePermissionException::class:
