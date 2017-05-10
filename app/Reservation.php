@@ -306,7 +306,7 @@ class Reservation extends HoiModel {
             'last_name'    => 'required',
             'email'        => 'required|email',
             'phone_country_code' => 'required|regex:/\d{2,}$/',
-            'phone'        => 'required|regex:/\b(?!0)\d{6,}\b/',
+            'phone'        => 'required|regex:/\d{6,}/',
         ]);
 
         return $validator;
@@ -701,6 +701,26 @@ class Reservation extends HoiModel {
         $deposit_config = Setting::depositConfig($outlet_id);
 
         return $deposit_config(Setting::PAYPAL_CURRENCY);
+    }
+
+    /**
+     * Customer input phone allow start with 0
+     * Auto trunk this leading 0 when save to database
+     * @param $value
+     */
+    public function setPhoneAttribute($value){
+        $phone = $value;
+
+        $start_with_zero = substr($value, 0, 1) == '0';
+
+        if($start_with_zero){
+            $phone = substr($value, 1);
+        }
+
+        // Notice: different from get which return as result
+        // To set an attribute on model, have to explicit tell set
+        // Return will let to NOOO CHANGE on model phone field
+        $this->attributes['phone'] = $phone;
     }
 
 }
