@@ -53,6 +53,10 @@ class AdminController extends HoiController {
         // Handle post case
         if($req->method() == 'POST'){
 
+            if(!$this->canModifyReservationsPage()){
+                throw new \Exception('Sorry, current account cant modify reservations page');
+            }
+
             $action_type = $req->json('type');
 
             $reservation_controller = new ReservationController;
@@ -108,13 +112,31 @@ class AdminController extends HoiController {
         return $state;
     }
 
+    public function canModifyReservationsPage(){
+        $outlet_id = Setting::outletId();
+
+        /** @var ReservationUser $user */
+        $user = Auth::user();
+
+        $isAdmin = $user->isReservations();
+
+        $allowed_outlet = $user->allowedOutletIds()->contains($outlet_id);
+
+        return $isAdmin && $allowed_outlet;
+    }
+
     /**
      * @param ApiRequest $req
      * @return $this
+     * @throws \Exception
      */
     public function getSettingsDashboard(ApiRequest $req){
         // Handle post case
         if($req->method() == 'POST'){
+
+            if(!$this->canModifyOnSettingPage()){
+                throw new \Exception('Sorry, current account cant modify setting page');
+            }
 
             $action_type        = $req->json('type');
             $session_controller = new SessionController;
@@ -201,6 +223,19 @@ class AdminController extends HoiController {
         return $state;
     }
 
+    public function canModifyOnSettingPage(){
+        $outlet_id = Setting::outletId();
+
+        /** @var ReservationUser $user */
+        $user = Auth::user();
+
+        $isAdmin = $user->isAdministrator();
+
+        $allowed_outlet = $user->allowedOutletIds()->contains($outlet_id);
+
+        return $isAdmin && $allowed_outlet;
+    }
+
     public function resolveOutletIdToInject(){
 
         // Only resolve when no outlet_id explicit told
@@ -222,4 +257,8 @@ class AdminController extends HoiController {
             Setting::injectOutletId($outlet_id);
         }
     }
+
+
+
+
 }
