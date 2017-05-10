@@ -21,6 +21,7 @@ class Outlet extends HoiModel {
         'max_days_in_advance',
         'send_sms_on_booking',
         'paypal_currency',
+        'sms_sender_name',
     ];
     
     public function getNameAttribute(){
@@ -47,6 +48,7 @@ class Outlet extends HoiModel {
      * Get overall_min_pax
      * For better experience with select pax form
      * @return mixed|null
+     * @throws \Exception
      */
     public function getOverallMinPaxAttribute(){
         $outlet_id = $this->id;
@@ -54,7 +56,7 @@ class Outlet extends HoiModel {
         if(is_null($outlet_id)){
             // Outlet still not created
             // Can get its config
-            return null;
+            throw new \Exception('Outlet doenst have id');
         }
 
         $setting_config = Setting::settingsConfig($outlet_id);
@@ -79,10 +81,12 @@ class Outlet extends HoiModel {
 
         return $setting_config(Setting::OVERALL_MAX_PAX);
     }
+
     /**
      * Get max_days_in_advance
      * To restrict booking calendar, which days is selectable
      * @return mixed|null
+     * @throws \Exception
      */
     public function getMaxDaysInAdvanceAttribute(){
         $outlet_id = $this->id;
@@ -90,7 +94,7 @@ class Outlet extends HoiModel {
         if(is_null($outlet_id)){
             // Outlet still not created
             // Can get its config
-            return null;
+            throw new \Exception('Outlet doenst have id');
         }
 
         $buffer_config = Setting::bufferConfig($outlet_id);
@@ -102,6 +106,7 @@ class Outlet extends HoiModel {
      * Get send_sms_on_booking
      * For better experience with select pax form
      * @return mixed|null
+     * @throws \Exception
      */
     public function getSendSMSOnBookingAttribute(){
         $outlet_id = $this->id;
@@ -109,7 +114,7 @@ class Outlet extends HoiModel {
         if(is_null($outlet_id)){
             // Outlet still not created
             // Can get its config
-            return null;
+            throw new \Exception('Outlet doenst have id');
         }
 
         $notification_config = Setting::notificationConfig($outlet_id);
@@ -135,11 +140,25 @@ class Outlet extends HoiModel {
         if(is_null($outlet_id)){
             // Outlet still not created
             // Can get its config
-            return null;
+            throw new \Exception('Outlet doenst have id');
         }
 
         $deposit_config = Setting::depositConfig($outlet_id);
 
         return $deposit_config(Setting::PAYPAL_CURRENCY);
+    }
+
+    public function getSmsSenderNameAttribute(){
+        $outlet_id = $this->id;
+
+        if(is_null($outlet_id)){
+            // Outlet still not created
+            // Can get its config
+            throw new \Exception('Outlet doenst have id');
+        }
+
+        $setting_config = Setting::settingsConfig($outlet_id);
+
+        return $setting_config(Setting::SMS_SENDER_NAME);
     }
 }
