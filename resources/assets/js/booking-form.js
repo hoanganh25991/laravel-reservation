@@ -348,8 +348,16 @@ class BookingForm {
 						this.reservation = new_reservation;
 					}
 				},
+				reservation(reservation){
+					//console.log('See reservation update');
 
+					if(!reservation.date && reservation.reservation_timestamp){
+						//console.log('Update reservation moment date obj');
+						let date = moment(reservation.reservation_timestamp, 'YYYY-MM-DD HH:mm:ss');
 
+						Object.assign(reservation, {date});
+					}
+				}
 			},
 			methods: {
 				// We check these keys on reservation
