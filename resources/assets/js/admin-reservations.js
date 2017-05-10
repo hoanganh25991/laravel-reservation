@@ -61,6 +61,7 @@ const FILTER_TYPE_CONFIRM_ID = 'FILTER_TYPE_CONFIRM_ID';
 
 
 class AdminReservations {
+	/** @namespace res.errorMsg */
 	/**
 	 * @namespace Redux
 	 * @namespace moment
@@ -1112,22 +1113,23 @@ class AdminReservations {
 		}
 	}
 
-	ajax_call_error(res){
-		console.log(res);
-		let toast = {
-			title:'Server error',
-			content: '(⊙.☉)7'
-		};
+	ajax_call_error(res_literal){
+		console.log(res_literal);
+		// Please don't modify these code
+		let res = res_literal.responseJSON;
 
-		store.dispatch({
-			type: TOAST_SHOW,
-			toast
-		});
+		try{
+			switch(res.statusMsg){
+				default:
+					window.alert(res.errorMsg);
+					break;
+			}
+		}catch(e){
+			window.alert(JSON.stringify(res_literal));
+		}
 	}
 	
-	ajax_call_complete(res){
-		//console.log(res);
-	}
+	ajax_call_complete(res){}
 
 	hack_ajax(){
 		//check if not init
