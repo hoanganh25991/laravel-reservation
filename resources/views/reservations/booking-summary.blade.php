@@ -44,13 +44,15 @@
                 <td><label>Special Request</label></td>
                 <td>@{{ reservation.customer_remarks }}</td>
             </tr>
+            <!-- When customer success pay money for authorization -->
             <tr v-show="reservation.payment_status == 100">
                 <td><label>Payment authorization Paid</label></td>
                 <td>
-                    <label class="h5" style="display: block; width: 100%;">@{{ reservation.deposit }} (@{{ reservation.paypal_currency }})</label>
+                    <label class="h5" style="display: block; width: 100%;">@{{ reservation.payment_amount }} (@{{ reservation.payment_currency }})</label>
                     <div>Your deposit will be returned when you arrive for your reservation</div>
                 </td>
             </tr>
+            <!-- In case ask customer for authorization payment -->
             @if($is_summary_page)
                 <tr v-show="reservation.payment_status == 25">
                     <td><label>Payment authorization Required</label></td>
