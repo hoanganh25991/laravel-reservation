@@ -945,7 +945,7 @@ class BookingForm {
 			error(res_literal){
 				console.log(res_literal);
 				//noinspection JSUnresolvedVariable
-				console.log(res_literal.responseJSON);
+				//console.log(res_literal.responseJSON);
 				// It quite weird that in browser window
 				// Response as status code != 200
 				// res obj now wrap by MANY MANY INFO
@@ -1002,7 +1002,8 @@ class BookingForm {
 						}
 					}
 				}catch(e){
-					console.warn('Unknown case of res or has error in code', e);
+					//console.warn('Unknown case of res or has error in code', e);
+					window.alert(JSON.stringify(res_literal));
 				}
 			},
 			complete(){
