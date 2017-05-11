@@ -5,8 +5,8 @@
 @section('content')
     <div id='app'>
         {{--@include('admin.navigator')--}}
-        <div class="row">
-            <div class="col-md-11 col-md-offset-1">
+        <div class="row" style="margin: 0">
+            <div>
                 @verbatim
                 <div class="modal-content">
                     <div class="modal-header">
