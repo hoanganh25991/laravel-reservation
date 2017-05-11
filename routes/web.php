@@ -63,6 +63,7 @@ Route::group(['prefix' => 'api','middleware' => 'api'], function (){
     //Setting::injectBrandId(1);
     Route::any('', 'BookingController@getBookingForm');
     Route::any('outlets', 'OutletController@fetchAllOutlet');
+    Route::any('brands', 'BrandController@fetchBrands');
 });
 
 
@@ -205,7 +206,7 @@ Route::group(['prefix' => 'api', 'middleware' => 'react'], function (){
         Setting::injectBrandId(1);
         Setting::injectOutletId(1);
 
-        $reservations = App\Reservation::fromToday()->get();
+        $reservations = App\Reservation::fromToday()->where('status', '>=', 100)->get();
 
         return $reservations;
     });
