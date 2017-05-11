@@ -240,39 +240,60 @@ class PayPalController extends HoiController{
 
         }
 
-        /**
-         * Check status to call void or refund
-         */
+        // Check status to call void or refund
         $paypal_controller = new PayPalController;
         $paypal_controller->initGateway();
+
         try{
             $transaction = $paypal_controller->gateway->transaction()->find($trasaction_id);
 
             switch($transaction->status){
+
                 case Transaction::AUTHORIZED:
                     $result = $paypal_controller->gateway->transaction()->void($trasaction_id);
                     break;
+
                 case Transaction::SETTLED:
                     $result = $paypal_controller->gateway->transaction()->refund($trasaction_id);
                     break;
+
                 default:
                     break;
             }
 
             if(isset($result) && $result->success){
+
                 return true;
+
             }else{
-                //log error
-                Log::info('fail refund');
-                return false;
+
+                $msg = "Voi transaction fail: $trasaction_id. ";
+
+                try{
+
+                    $msg += $result->__get('message');
+
+                }catch(\Exceptio $e){}
+
+                throw new \Exception($msg);
+
+                //return false;
             }
         //exception throw when no transaction found
         }catch(\Exception $e){
-            //log or do sth with error
-            Log::info('fail find transaction');
-            return false;
+
+            $msg = "Find transaction fail: $trasaction_id. ";
+
+            try {
+
+                $msg += $e->getMessage();
+
+            }catch(\Exception $e){}
+
+            throw new \Exception($msg);
+
+            //return false;
         }
-        //debug here to review transaction
 
         return false;
     }
@@ -318,7 +339,7 @@ class PayPalController extends HoiController{
             return true;
         }else{
             $error = var_export($result->errors);
-            Log::info('charge fail');
+            //Log::info('charge fail');
             return false;
             //log or do sth
         }
