@@ -114,11 +114,13 @@ class PayPalAuthorize {
 							break;
 						}
 						default:{
-							console.warn('Unknown case of res.statusMsg');
+							window.alert(res.errorMsg);
 							break;
 						}
 					}
-				}catch(e){}
+				}catch(e){
+					window.alert(JSON.stringify(res_literal));
+				}
 
 			},
 			complete(res){
