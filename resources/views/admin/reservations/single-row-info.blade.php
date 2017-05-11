@@ -8,7 +8,7 @@
         <input type="checkbox"
                v-model="reservation.staff_read_state"
                style="position: relative; width: 20px; left: 0px;"
-               v-on:change="_autoSave"
+               v-on:change="_autoSave(reservation, 'staff_read_state')"
         >
     </td>
     <td>@{{ reservation.confirm_id }}</td>
@@ -24,7 +24,7 @@
                 type="text" style="width: 70px"
                 v-model="reservation.table_name"
                 :value="reservation.table_name"
-                v-on:change="_autoSave"
+                v-on:change="_autoSave(reservation, 'table_name')"
         >
     </td>
     <td>
@@ -33,7 +33,7 @@
                 v-model="reservation.customer_remarks"
                 :value="reservation.customer_remarks"
                 placeholder="Customer Remarks"
-                v-on:change="_autoSave"
+                v-on:change="_autoSave(reservation, 'customer_remarks')"
         ></textarea>
     </td>
     <td>
@@ -42,11 +42,11 @@
                 v-model="reservation.staff_remarks"
                 :value="reservation.staff_remarks"
                 placeholder="Staff Remarks"
-                v-on:change="_autoSave"
+                v-on:change="_autoSave(reservation, 'staff_remarks')"
         ></textarea>
     </td>
     <td>
-        <select v-model="reservation.status" v-on:change="_autoSave">
+        <select v-model="reservation.status" v-on:change="_autoSave(reservation, 'status')">
             <option value="400" class="bg-success">Arrived</option>
             <option value="300" class="bg-success">Confirmed</option>
             <option value="200" class="bg-info">Reminder Sent</option>

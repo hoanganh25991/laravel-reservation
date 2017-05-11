@@ -384,6 +384,9 @@ class AdminReservations {
 							need_update_reservation[key] = reservation_dialog_content[key];
 						});
 
+					// Mark as read
+					Object.assign(need_update_reservation, {staff_read_state: 1});
+
 					store.dispatch({
 						type: HIDE_RESERVATION_DIALOG_CONTENT
 					});
@@ -582,7 +585,10 @@ class AdminReservations {
 
 				},
 
-				_autoSave(){
+				_autoSave(reservation = null, key = null){
+					if(reservation && key != 'staff_read_state'){
+						reservation.staff_read_state = true;
+					}
 					// Get out reservations & save it
 					let reservations = this.reservations;
 					let action = {
