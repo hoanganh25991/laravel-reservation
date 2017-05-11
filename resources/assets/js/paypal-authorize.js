@@ -126,6 +126,7 @@ class PayPalAuthorize {
 			complete(res){
 				//console.log('response from tokenizationPayload.php', res);
 				store.dispatch({type: DIALOG_HAS_DATA});
+				document.dispatchEvent(new CustomEvent('PAYPAL_PAYMENT_FAIL', {detail: res}));
 			}
 		});
 	}

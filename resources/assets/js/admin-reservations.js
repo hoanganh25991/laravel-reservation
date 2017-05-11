@@ -1044,8 +1044,7 @@ class AdminReservations {
 	}
 
 	ajax_call_success(res){
-		let self = this;
-		
+
 		switch(res.statusMsg){
 			case AJAX_SUCCESS: {
 				let toast = {
@@ -1069,8 +1068,8 @@ class AdminReservations {
 				store.dispatch({
 					type: TOAST_SHOW,
 					toast: {
-						title: 'Switch Outlet',
-						content: 'Fetched Data'
+						title: 'Fetch data from outlet',
+						content: 'Received'
 					}
 				});
 
@@ -1114,6 +1113,8 @@ class AdminReservations {
 	}
 
 	ajax_call_error(res_literal){
+
+
 		console.log(res_literal);
 		// Please don't modify these code
 		let res = res_literal.responseJSON;
@@ -1127,6 +1128,17 @@ class AdminReservations {
 		}catch(e){
 			window.alert(JSON.stringify(res_literal));
 		}
+
+		// When fall case happen
+		// Should refetch page
+		let self  = this;
+		let store = window.store;
+		let state = store.getState();
+		let {outlet_id} = state;
+
+		window.alert('We are refetching data');
+
+		self.ajax_call({type: AJAX_REFETCHING_DATA, outlet_id});
 	}
 	
 	ajax_call_complete(res){}
@@ -1148,9 +1160,9 @@ class AdminReservations {
 			options = Object.assign(options, {
 				method  : 'POST',
 				data    : data_json,
-				success : self.ajax_call_success,
-				error   : self.ajax_call_error,
-				compelte: self.ajax_call_complete
+				success : self.ajax_call_success.bind(self),
+				error   : self.ajax_call_error.bind(self),
+				compelte: self.ajax_call_complete.bind(self),
 			});
 
 			return o_ajax(options);
