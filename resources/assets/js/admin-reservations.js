@@ -59,6 +59,10 @@ const FILTER_TYPE_DAY        =  'FILTER_TYPE_DAY';
 const FILTER_TYPE_STATUS     = 'FILTER_TYPE_STATUS';
 const FILTER_TYPE_CONFIRM_ID = 'FILTER_TYPE_CONFIRM_ID';
 
+const REFRESH = 'REFRESH';
+const REFRESHING = 'REFRESHING';
+
+const CALLING_AJAX = 'CALLING_AJAX';
 
 class AdminReservations {
 	/** @namespace res.errorMsg */
@@ -92,11 +96,23 @@ class AdminReservations {
 						toast: action.toast
 					});
 				case SYNC_DATA:{
-					return Object.assign({}, state, action.data);
+					let new_state = Object.assign({}, state, action.data);
+
+					Object.assign(new_state, {auto_refresh_status: REFRESH});
+
+					return new_state;
 				}
 				case SYNC_VUE_STATE :{
 					return Object.assign({}, state, action.vue_state);
 					break;
+				}
+				case REFETCHING_DATA: {
+					return Object.assign({}, state, {auto_refresh_status: REFRESHING});
+					break;
+				}
+				case CALLING_AJAX: {
+					let {is_calling_ajax} = action;
+					return Object.assign({}, state, {is_calling_ajax});
 				}
 				default:
 					return state;
@@ -165,6 +181,9 @@ class AdminReservations {
 			filter_confirm_id: null,
 			// store search confirm_id search state
 			filter_search: null,
+			// auto refresh
+			auto_refresh_status: null,
+			is_calling_ajax: null,
 		};
 	}
 
@@ -185,6 +204,9 @@ class AdminReservations {
 				let store = window.store;
 				// Init view
 				store.dispatch({type: INIT_VIEW});
+
+				// Start auto refresh interval
+				this.startIntervalAutoRefresh();
 			},
 			beforeUpdate(){
 				store.dispatch({
@@ -872,6 +894,39 @@ class AdminReservations {
 					this.filter_confirm_id = new_filter_confirm_id;
 
 					this._addFilterByConfirmId(new_filter_confirm_id);
+				},
+
+				_refreshOutletData(){
+					//this.startIntervalAutoRefresh();
+					store.dispatch({type: REFETCHING_DATA});
+				},
+
+				startIntervalAutoRefresh(){
+
+					let self          = this;
+					const short_check = 5 * 1000;
+					const long_check  = 5 * 60 * 1000;
+
+					let run = function(how_long){
+						console.log('run timeout');
+						setTimeout(() => {
+
+							if(!self.is_calling_ajax){
+
+								store.dispatch({type: REFETCHING_DATA});
+
+								run(long_check)
+
+							}else{
+
+								run(short_check);
+
+							}
+						}, how_long);
+					}
+
+					// execute run
+					run(long_check);
 				}
 			}
 		});
@@ -992,6 +1047,11 @@ class AdminReservations {
 				//update toast in vue
 				Object.assign(window.vue_state, {toast});
 				window.Toast.show();
+			}
+
+			if(action == REFETCHING_DATA){
+				let {outlet_id} = state;
+				self.ajax_call({type: AJAX_REFETCHING_DATA, outlet_id});
 			}
 
 			// if(action == SYNC_DATA){
@@ -1147,7 +1207,10 @@ class AdminReservations {
 		self.ajax_call({type: AJAX_REFETCHING_DATA, outlet_id});
 	}
 	
-	ajax_call_complete(res){}
+	ajax_call_complete(res){
+		let store = window.store;
+		store.dispatch({type: CALLING_AJAX, is_calling_ajax: false});
+	}
 
 	hack_ajax(){
 		//check if not init
@@ -1160,6 +1223,10 @@ class AdminReservations {
 
 		let o_ajax = $.ajax;
 		$.ajax = function(options){
+			// Dispatch calling ajax
+			let store = window.store;
+			store.dispatch({type: CALLING_AJAX, is_calling_ajax: true});
+
 			let data = options.data;
 			let data_json = JSON.stringify(data);
 			//console.log(data_json);
@@ -1168,7 +1235,7 @@ class AdminReservations {
 				data    : data_json,
 				success : self.ajax_call_success.bind(self),
 				error   : self.ajax_call_error.bind(self),
-				compelte: self.ajax_call_complete.bind(self),
+				complete: self.ajax_call_complete.bind(self),
 			});
 
 			return o_ajax(options);

@@ -11,9 +11,11 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <span class="h1">Reservations</span>
-                        <!-- <button class="btn bg-info pull-right"
-                            v-on:click="_updateReservations"
-                        >Save</button> -->
+                        <button class="btn bg-info pull-right" v-on:click="_refreshOutletData">
+                            @endverbatim
+                            <img src="{{ url('images/ring.svg') }}" height="25" v-show="auto_refresh_status == REFRESHING">Refresh
+                            @verbatim
+                        </button>
                     </div>
                     <!-- This div used to filterd reservations -->
                     <div class="modal-body">
