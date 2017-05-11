@@ -23,21 +23,13 @@ class PayPalController extends HoiController{
     /** @var  Gateway $gateway */
     public $gateway;
     
-    public function __construct(){
-        /**
-         * Controller construct is not reliable to run ANYTHING
-         * WHY???
-         * BCS Route parse action string > bind (controller, action)
-         * As list url > action
-         * >>> controller construct init before any route parse run 
-         */
-    }
+    public function __construct(){}
     
     public function initGateway(){
-        //$outlet_id      = Setting::outletId();
-        //$setting_config = Setting::settingsConfig();
+        // Get paypal access token
         $deposit_config = Setting::depositConfig();
         $access_token   = $deposit_config(Setting::PAYPAL_TOKEN);
+        // Init gateway
         $this->gateway  = new Gateway([
             'accessToken' => $access_token
         ]);
@@ -46,15 +38,17 @@ class PayPalController extends HoiController{
     public static function validatePaymentRequest(ApiRequest $req){
         $validator =
             Validator::make($req->all(), [
-                'confirm_id'          => 'required', //for reservation
-                'tokenizationPayload' => 'required'
+                'confirm_id'          => 'required', // for reservation
+                'tokenizationPayload' => 'required', // get client token, to know who he is
             ]);
 
         return $validator;
     }
 
     public function generateToken(){
+
         $this->initGateway();
+
         $clientToken = $this->gateway->clientToken()->generate();
 
         return $clientToken;
@@ -69,23 +63,16 @@ class PayPalController extends HoiController{
      * @throws \Exception
      */
     public function handlePayment(ApiRequest $req){
-        //test end point
-        if($req->method() == 'GET'){
-            $this->initGateway();
-            
-            return 'Gateway success init';
-        }
-        
+
         $this->initGateway();
         
         $action_type = $req->get('type');
 
         switch($action_type){
+
             case Call::AJAX_PAYMENT_REQUEST:
 
-                /**
-                 * Validate what need to handle
-                 */
+                // Validate what need to handle
                 $validator = PayPalController::validatePaymentRequest($req);
 
                 if($validator->fails()){
@@ -95,14 +82,9 @@ class PayPalController extends HoiController{
                     break;
                 }
 
-                /**
-                 * Make payment
-                 * as pending to capture
-                 */
-
+                // Make payment as pending to capture (authorization payment)
                 //Find out reservation to build up info
                 $reservation_id = Setting::hash()->decode($req->get('confirm_id'));
-
                 /** @var Reservation $reservation */
                 $reservation    = Reservation::find($reservation_id);
 
@@ -127,13 +109,13 @@ class PayPalController extends HoiController{
                     ]);
 
                 if ($result->success) {
+
                     $transaction_id = $result->transaction->id;
 
-                    /**
-                     * Store payment info
-                     * payment_id : used for API call, to capture later
-                     * payment_authorization_id : transaction id as authorization case
-                     */
+                    // Store payment info
+                    // payment_id :               used for API call, to capture later
+                    // payment_authorization_id : transaction id as authorization case
+                    //
                     // Get paypal details first
                     /** @var Transaction\PayPalDetails $paypal_details */
                     $paypal_details = $result->transaction->paypalDetails;
@@ -152,19 +134,18 @@ class PayPalController extends HoiController{
                     $reservation->save();
 
                 } else {
-                    $err  = "Paypal BrainTree execute transaction fail";
+
+                    $msg = "Create authorize payment fail. Reservation confirm id: $reservation->confirm_id";
 
                     // Try to get exactly message from $result
                     try{
 
-                        $err = $result->__get('message');
+                        $msg .= $result->__get('message');
 
                     }catch(\Exception $e){}
 
-                    $data = $err;
-                    $code = 422;
-                    $msg  = Call::AJAX_PAYMENT_REQUEST_TRANSACTION_FAIL;
-                    break;
+                    throw new \Exception($msg);
+                    //break;
                 }
 
                 //everything is fine
@@ -184,32 +165,6 @@ class PayPalController extends HoiController{
     }
 
     /**
-     * Wrapper function to check administrator role
-     * @return bool
-     * @throws \Exception
-     */
-    public static function administratorRoleRequired(){
-        /** @var ReservationUser $user */
-        $user = Auth::user();
-        $msg = "Only administrator can void/charge. ";
-
-        if(is_null($user)){
-            $msg .= "No loggined user found. ";
-
-            throw new \Exception($msg);
-        }
-
-        if(!$user->isAdministrator()){
-            $msg .= "Current user: $user->display_name. ";
-            $msg .= "Permission level: $user->role. ";
-
-            throw new \Exception($msg);
-        }
-        
-        return true;
-    }
-
-    /**
      * Refund a transaction
      * This means that if the transaction still not settle down
      * >>> VOID IT
@@ -219,12 +174,7 @@ class PayPalController extends HoiController{
      * @throws \Exception
      */
     public static function void($trasaction_id){
-        /** This action now REQUIRED permission level as administrator */
-//        try{
-//            PayPalController::administratorRoleRequired();
-//        }catch(\Exception $e){
-//            throw $e;
-//        }
+        // This action now REQUIRED permission level as administrator
         // Bring logic inside User model it self
         try{
             /* @var ReservationUser $user*/
@@ -244,49 +194,37 @@ class PayPalController extends HoiController{
         $paypal_controller = new PayPalController;
         $paypal_controller->initGateway();
 
-        try{
-            $transaction = $paypal_controller->gateway->transaction()->find($trasaction_id);
+        $transaction = $paypal_controller->gateway->transaction()->find($trasaction_id);
 
-            switch($transaction->status){
+        if(is_null($transaction)){
+            throw new \Exception('Find transaction fail.');
+        }
 
-                case Transaction::AUTHORIZED:
-                    $result = $paypal_controller->gateway->transaction()->void($trasaction_id);
-                    break;
+        switch($transaction->status){
 
-                case Transaction::SETTLED:
-                    $result = $paypal_controller->gateway->transaction()->refund($trasaction_id);
-                    break;
+            case Transaction::AUTHORIZED:
+                $result = $paypal_controller->gateway->transaction()->void($trasaction_id);
+                break;
 
-                default:
-                    break;
-            }
+            case Transaction::SETTLED:
+                $result = $paypal_controller->gateway->transaction()->refund($trasaction_id);
+                break;
 
-            if(isset($result) && $result->success){
+            default:
+                break;
+        }
 
-                return true;
+        if(isset($result) && $result->success){
 
-            }else{
+            return true;
 
-                $msg = "Voi transaction fail: $trasaction_id. ";
+        }else{
 
-                try{
+            $msg = "Voi transaction fail. Transaction id $trasaction_id. ";
 
-                    $msg += $result->__get('message');
+            try{
 
-                }catch(\Exceptio $e){}
-
-                throw new \Exception($msg);
-
-                //return false;
-            }
-        //exception throw when no transaction found
-        }catch(\Exception $e){
-
-            $msg = "Find transaction fail: $trasaction_id. ";
-
-            try {
-
-                $msg += $e->getMessage();
+                $msg .= $result->__get('message');
 
             }catch(\Exception $e){}
 
@@ -307,19 +245,14 @@ class PayPalController extends HoiController{
      * @throws \Exception
      */
     public static function charge($trasaction_id){
-        /** This action now REQUIRED permission level as administrator */
-//        try{
-//            PayPalController::administratorRoleRequired();
-//        }catch(\Exception $e){
-//            throw $e;
-//        }
+        // This action now REQUIRED permission level as administrator
         // Bring logic inside User model it self
         try{
             /* @var ReservationUser $user*/
             $user = Auth::user();
 
             if(!$user->hasAdministratorPermissionOnCurrentOutlet()){
-                throw new \Exception('Current account cant charge');
+                throw new \Exception();
             }
 
         } catch(\Exception $e){
@@ -328,20 +261,29 @@ class PayPalController extends HoiController{
 
         }
         
-        /**
-         * Settle it down to get money
-         */
+        // Settle it down to get money
         $paypal_controller = new PayPalController;
         $paypal_controller->initGateway();
+        // Call charge API
         $result = $paypal_controller->gateway->transaction()->submitForSettlement($trasaction_id);
 
         if($result->success){
+
             return true;
+
         }else{
-            $error = var_export($result->errors);
-            //Log::info('charge fail');
-            return false;
-            //log or do sth
+
+            $msg = "Charge transaction fail. Transaction id: $trasaction_id.";
+
+            try {
+
+                $msg .= $result->__get('message');
+
+            }catch(\Exception $e){}
+
+            throw new \Exception($msg);
+
+            //return false;
         }
 
         return false;
