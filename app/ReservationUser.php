@@ -145,7 +145,7 @@ class ReservationUser extends User {
      * @see App\ReservationUser::getOutletIdsAttribute
      * @return Collection
      */
-        public function allowedOutletIds(){
+    public function allowedOutletIds(){
             return $this->outlet_ids;
     }
 
@@ -221,10 +221,7 @@ class ReservationUser extends User {
      * @return string
      */
     public function getRoleAttribute(){
-        if(is_null($this->permission_level)){
-            return 'Logined';
-        }
-        
+
         switch($this->permission_level){
             case ReservationUser::RESERVATIONS:
                 return 'Reservations';
@@ -233,6 +230,7 @@ class ReservationUser extends User {
             default:
                 return 'Logined';
         }
+
     }
 
     /**
@@ -258,6 +256,41 @@ class ReservationUser extends User {
         
         return $outlets;
     }
+
+    /**
+     * Admin role used for piece of function call, not a WHOLE controller
+     * Like void|charge only for admin
+     * >>> Check on each function call better than check at controller level
+     * @return bool
+     */
+    public function hasAdministratorPermissionOnCurrentOutlet(){
+        try {
+            $outlet_id      = Setting::outletId();
+            $isAdmin        = $this->isAdministrator();
+            $allowed_outlet = $this->allowedOutletIds()->contains($outlet_id);
+
+            return $isAdmin && $allowed_outlet;
+
+        } catch(\Exception $e){
+
+            return false;
+
+        }
+    }
     
+    public function hasReservationsPermissionOnCurrentOutlet(){
+        try {
+            $outlet_id      = Setting::outletId();
+            $isResv         = $this->isReservations();
+            $allowed_outlet = $this->allowedOutletIds()->contains($outlet_id);
+
+            return $isResv && $allowed_outlet;
+
+        } catch(\Exception $e){
+
+            return false;
+
+        }
+    }
     
 }
