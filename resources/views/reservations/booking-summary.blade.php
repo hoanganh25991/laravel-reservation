@@ -82,7 +82,7 @@
 
             @if(!$is_summary_page)
                 <button class="btn btn-primary"
-                        v-show="reservation.status <= 100"
+                        v-show="reservation.status <= 300"
                         v-on:click="_confirmReservation">Confirm</button>
             @endif
         </div>
