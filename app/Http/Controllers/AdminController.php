@@ -56,9 +56,9 @@ class AdminController extends HoiController {
             /** @var ReservationUser $user */
             $user = $req->user();
 
-//            if(!$user->hasReservationsPermissionOnCurrentOutlet()){
-//                throw new \Exception('Sorry, current account cant modify reservations page');
-//            }
+            if(!$user->hasReservationsPermissionOnCurrentOutlet()){
+                throw new \Exception('Sorry, current account cant modify reservations page');
+            }
 
             $action_type = $req->json('type');
 
