@@ -79,6 +79,10 @@ use App\OutletReservationSetting as Setting;
  * @see App\Reservation::getPaypalCurrencyAttribute
  * @method mixed fromToday
  * @see App\Reservation::scopeFromToday
+ * @method byDayBetween
+ * @see App\Reservation::scopeByDayBetween
+ * @method alreadyReserved
+ * @see App\Reservation::scopeAlreadyReserved
  */
 class Reservation extends HoiModel {
 
@@ -721,6 +725,25 @@ class Reservation extends HoiModel {
         // To set an attribute on model, have to explicit tell set
         // Return will let to NOOO CHANGE on model phone field
         $this->attributes['phone'] = $phone;
+    }
+
+    /**
+     * Support query reservations by day
+     * @param $query
+     * @param Carbon $star_day
+     * @param Carbon $end_day
+     */
+    public function scopeByDayBetween($query, $star_day, $end_day){
+        return $query->where([
+            // lager than & equal
+            ['reservation_timestamp', '>=', $star_day->format('Y-m-d H:m:s')],
+            // less than
+            ['reservation_timestamp', '<',   $end_day->format('Y-m-d H:m:s')],
+        ]);
+    }
+
+    public function scopeAlreadyReserved($query){
+        return $query->where('status', '>=', Reservation::RESERVED);
     }
 
 }

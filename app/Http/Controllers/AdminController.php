@@ -56,9 +56,9 @@ class AdminController extends HoiController {
             /** @var ReservationUser $user */
             $user = $req->user();
 
-            if(!$user->hasReservationsPermissionOnCurrentOutlet()){
-                throw new \Exception('Sorry, current account cant modify reservations page');
-            }
+//            if(!$user->hasReservationsPermissionOnCurrentOutlet()){
+//                throw new \Exception('Sorry, current account cant modify reservations page');
+//            }
 
             $action_type = $req->json('type');
 
@@ -68,12 +68,26 @@ class AdminController extends HoiController {
                 case Call::AJAX_UPDATE_RESERVATIONS:
                     $response = $reservation_controller->update($req);
                     break;
+
                 case Call::AJAX_REFETCHING_DATA:
                     $data = $this->reservationsState();
                     $code = 200;
                     $msg  = Call::AJAX_REFETCHING_DATA_SUCCESS;
+                    
                     $response = $this->apiResponse($data, $code, $msg);
                     break;
+
+                case Call::AJAX_FETCH_RESERVATIONS_BY_DAY:
+                    $day_str  = $req->json('day');
+                    $reservations = $reservation_controller->fetchReservationsByDay($day_str);
+                    
+                    $data = compact('reservations');
+                    $code = 200;
+                    $msg  = Call::AJAX_FETCH_RESERVATIONS_BY_DAY_SUCCESS;
+
+                    $response = $this->apiResponse($data, $code, $msg);
+                    break;
+
                 default:
                     $data = [];
                     $code = 200;

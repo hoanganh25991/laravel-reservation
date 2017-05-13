@@ -3,14 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Outlet;
+use Carbon\Carbon;
 use App\Reservation;
 use App\Traits\ApiResponse;
 use App\Http\Requests\ApiRequest;
 use App\Libraries\HoiAjaxCall as Call;
 use App\OutletReservationSetting as Setting;
-
+use App\Http\Controllers\ReservationController as By;
 class ReservationController extends HoiController{
-    
+
+    // Fetch reservations by day
+    const TODAY        = 'TODAY';
+    const TOMORROW     = 'TOMORROW';
+    const NEXT_3_DAYS  = 'NEXT_3_DAYS';
+    const NEXT_7_DAYS  = 'NEXT_7_DAYS';
+    const NEXT_30_DAYS = 'NEXT_30_DAYS';
+
     use ApiResponse;
 
     public function resolveBrandIdOutletId(Reservation $reservation){
@@ -97,23 +105,6 @@ class ReservationController extends HoiController{
         return view('reservations.thank-you');
     }
 
-//    public function buildAppState(ApiRequest $req, Reservation $reservation){
-//
-//
-//        $paypal_token = (new PayPalController)->generateToken();
-//
-//        $selected_outlet = $reservation->outlet;
-//
-//        $state = [
-//            'base_url'       => url()->current(),
-//            'selected_outlet'=> $selected_outlet,
-//            'reservation'    => $reservation,
-//            'paypal_token'   => $paypal_token,
-//        ];
-//
-//        return $state;
-//    }
-
     /**
      * @param ApiRequest $req
      * @return $this
@@ -186,9 +177,64 @@ class ReservationController extends HoiController{
     }
 
     public function fetchUpdateReservations(){
-        //$reservations = Reservation::last30Days()->where('status', '>=', Reservation::RESERVED)->get();
-//        $reservations = Reservation::fromToday()->where('status', '>=', Reservation::RESERVED)->get();
-        $reservations = Reservation::fromToday()->where('status', '!=', Reservation::REQUIRED_DEPOSIT)->get();
+        //$reservations = Reservation::fromToday()->where('status', '!=', Reservation::REQUIRED_DEPOSIT)->get();
+        $reservations = $this->fetchReservationsByDay(By::TODAY);
+
+        return $reservations;
+    }
+
+    public function fetchReservationsByDay($day_str = null){
+
+        $start_day = Carbon::today(Setting::timezone());
+
+        switch($day_str){
+            // Consider nothing submit as fetch by today
+            case null:
+            case By::TODAY:
+                $num_days = 1;
+                break;
+
+            case By::TOMORROW:
+                // as tomorrow case, start day is early of tomorrow
+                // ok, at one more
+                $start_day = $start_day->copy()->addDays(1);
+                $num_days = 1;
+                break;
+
+            case By::NEXT_3_DAYS:
+                // why at 4 in 3_days case
+                // bcs we want to reach up to 23:59:59
+                // when filter in between as [)
+                // equal at first start
+                // less than at last end
+                $num_days = 4;
+                break;
+
+            case By::NEXT_7_DAYS:
+                $num_days = 8;
+                break;
+
+            case By::NEXT_30_DAYS:
+                $num_days = 31;
+                break;
+
+            default:
+                try{
+                    $start_day = Carbon::createFromFormat('Y-m-d', $day_str, Setting::timezone());
+                    // Unlinke other days wrapper, Carbon inject current hours, minutes, seconds
+                    // Into Y-m-d format, so explicit check it back to first of day
+                    $start_day->setTime(0, 0, 0);
+                    $num_days  = 1;
+                }catch(\Exception $e){
+                    throw new \Exception('Fail to parse submited day_str');
+                }
+                break;
+        }
+
+        // Query reservation in between of start & end
+        $end_day = $start_day->copy()->addDays($num_days);
+
+        $reservations = Reservation::alreadyReserved()->byDayBetween($start_day, $end_day)->get();
 
         return $reservations;
     }

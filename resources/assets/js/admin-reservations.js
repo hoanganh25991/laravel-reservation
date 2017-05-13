@@ -64,6 +64,10 @@ const REFRESHING = 'REFRESHING';
 
 const CALLING_AJAX = 'CALLING_AJAX';
 
+const FETCH_RESERVATIONS_BY_DAY = 'FETCH_RESERVATIONS_BY_DAY';
+const AJAX_FETCH_RESERVATIONS_BY_DAY = 'AJAX_FETCH_RESERVATIONS_BY_DAY';
+const AJAX_FETCH_RESERVATIONS_BY_DAY_SUCCESS = 'AJAX_FETCH_RESERVATIONS_BY_DAY_SUCCESS';
+
 class AdminReservations {
 	/** @namespace res.errorMsg */
 	/**
@@ -113,6 +117,11 @@ class AdminReservations {
 				case CALLING_AJAX: {
 					let {is_calling_ajax} = action;
 					return Object.assign({}, state, {is_calling_ajax});
+				}
+				case FETCH_RESERVATIONS_BY_DAY:{
+					let {day: filter_day, day_str: custom_pick_day} = action;
+
+					return Object.assign({}, state, {filter_day, custom_pick_day});
 				}
 				default:
 					return state;
@@ -927,12 +936,19 @@ class AdminReservations {
 
 					// execute run
 					run(long_check);
+				},
+				
+				_fetchReservationsByDay(day, day_str = null){
+					console.log('fetch for me, please');
+					store.dispatch({
+						type: FETCH_RESERVATIONS_BY_DAY,
+						day,
+						day_str
+					});
 				}
 			}
 		});
 	}
-
-
 
 	reservationDialogContentReducer(state, action){
 		switch(action.type){
@@ -1049,9 +1065,36 @@ class AdminReservations {
 				window.Toast.show();
 			}
 
-			if(action == REFETCHING_DATA){
-				let {outlet_id} = state;
-				self.ajax_call({type: AJAX_REFETCHING_DATA, outlet_id});
+			if(action === REFETCHING_DATA){
+				let {filter_day: day} = state;
+				let {outlet_id}       = state;
+
+				if(day == CUSTOM){
+					day = state.custom_pick_day;
+				}
+
+				self.ajax_call({
+					type: AJAX_FETCH_RESERVATIONS_BY_DAY,
+					day,
+					outlet_id,
+				});
+			}
+
+			if(action == FETCH_RESERVATIONS_BY_DAY){
+
+				let {filter_day: day} = state;
+				let {outlet_id}       = state;
+
+				// When CUSTOM, read day from what input set
+				if(day == CUSTOM){
+					day = state.custom_pick_day;
+				}
+
+				self.ajax_call({
+					type: AJAX_FETCH_RESERVATIONS_BY_DAY,
+					day,
+					outlet_id,
+				});
 			}
 
 			// if(action == SYNC_DATA){
@@ -1101,6 +1144,13 @@ class AdminReservations {
 				$.ajax({url, data});
 				break;
 			}
+			case AJAX_FETCH_RESERVATIONS_BY_DAY:{
+				let url         = self.url('');
+				let data        = Object.assign({}, action);
+
+				$.ajax({url, data});
+				break;
+			}
 			default:
 				console.log('client side. ajax call not recognize the current acttion', action);
 				break;
@@ -1144,6 +1194,22 @@ class AdminReservations {
 					data: res.data
 				});
 
+				break;
+			}
+			case AJAX_FETCH_RESERVATIONS_BY_DAY_SUCCESS: {
+				store.dispatch({
+					type: TOAST_SHOW,
+					toast: {
+						title: 'Fetch data from outlet',
+						content: 'Received'
+					}
+				});
+
+				store.dispatch({
+					type: SYNC_DATA,
+					data: res.data
+				});
+				
 				break;
 			}
 			case AJAX_VALIDATE_FAIL: {
