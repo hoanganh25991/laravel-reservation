@@ -121,7 +121,10 @@ class ReservationController extends HoiController{
                 $validator = null;
                 $msg_bag   = collect([]);
 
+                $reservations_id = collect([]);
+
                 foreach($reservations as $reservation_data){
+                    $reservations_id->push($reservation_data['id']);
                     //$validator = Reservation::validateOnCRUD($reservation_data);
                     $validator = Reservation::validateOnCRUD($reservation_data);
 
@@ -145,7 +148,7 @@ class ReservationController extends HoiController{
 
                 //which means no reservations submit
                 if(is_null($validator)){
-                    $data = ['reservations' =>  $this->fetchUpdateReservations()];
+                    $data = ['reservations' =>  $this->fetchUpdateReservations($reservations_id)];
                     $code = 200;
                     $msg  = Call::AJAX_SUCCESS;
                     break;
@@ -162,7 +165,7 @@ class ReservationController extends HoiController{
                 }
 
                 //everything is fine
-                $data = ['reservations' =>  $this->fetchUpdateReservations()];
+                $data = ['reservations' =>  $this->fetchUpdateReservations($reservations_id)];
                 $code = 200;
                 $msg  = Call::AJAX_SUCCESS;
                 break;
@@ -176,11 +179,12 @@ class ReservationController extends HoiController{
         return $this->apiResponse($data, $code, $msg);
     }
 
-    public function fetchUpdateReservations(){
-        //$reservations = Reservation::fromToday()->where('status', '!=', Reservation::REQUIRED_DEPOSIT)->get();
-        $reservations = $this->fetchReservationsByDay(By::TODAY);
+    public function fetchUpdateReservations($reservations_id = null){
+        if(is_null($reservations_id)){
+            return $this->fetchReservationsByDay(By::TODAY);
+        }
 
-        return $reservations;
+        return Reservation::whereIn('id', $reservations_id)->get();
     }
 
     public function fetchReservationsByDay($day_str = null){

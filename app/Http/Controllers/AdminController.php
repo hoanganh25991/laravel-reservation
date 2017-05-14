@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 //use App\Session;
-use App\Exceptions\DontHavePermissionException;
 use App\Outlet;
 use Carbon\Carbon;
 use App\ReservationUser;
@@ -12,7 +11,10 @@ use App\Http\Requests\ApiRequest;
 use Illuminate\Support\Facades\Auth;
 use App\Libraries\HoiAjaxCall as Call;
 use App\OutletReservationSetting as Setting;
+use App\Exceptions\DontHavePermissionException;
+use App\Http\Controllers\ReservationController as By;
 use App\Http\Controllers\OutletReservationSettingController as SettingController;
+
 
 class AdminController extends HoiController {
 
@@ -122,7 +124,7 @@ class AdminController extends HoiController {
         $state = [
             'base_url'     => url()->current(),
             'outlet_id'    => Setting::outletId(),
-            'reservations' => (new ReservationController)->fetchUpdateReservations(),
+            'reservations' => (new ReservationController)->fetchReservationsByDay(By::TODAY),
             'user'         => $user,
         ];
 
