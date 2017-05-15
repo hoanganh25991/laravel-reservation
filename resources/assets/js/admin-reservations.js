@@ -223,6 +223,15 @@ class AdminReservations {
 					vue_state: window.vue_state
 				});
 			},
+			updated(){
+				let {is_flatpickr_mounted: lastState} = this;
+				let is_flatpickr_mounted = document.getElementById('flatpickr');
+				if(!lastState && is_flatpickr_mounted){
+					let dp = flatpickr('#flatpickr');
+					dp.open();
+				}
+				this.is_flatpickr_mounted = is_flatpickr_mounted;
+			},
 			computed:{
 				updateFilteredReservations() {
 					// it's only required to reference those properties

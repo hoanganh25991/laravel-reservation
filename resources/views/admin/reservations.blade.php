@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 @push('css')
     <link href="{{ url_mix('css/animate.css') }}" rel="stylesheet"/>
+    <link href="{{ url('css/flatpickr_material_blue.css') }}" rel="stylesheet"/>
 @endpush
 @section('content')
     <div id='app'>
@@ -54,12 +55,11 @@
                             </transition>
                         </div>
 
-                        <transition name="slide">
-                            <div v-if="filter_date_picker & filter_panel" style="width: 100%; text-align: right; margin-bottom: 20px;">
-                                <input type="date" style="width: 135px; height: 30px; border-radius: 3px"
-                                       v-model="custom_pick_day" v-on:change="_fetchReservationsByDay(CUSTOM, $event.target.value)">
-                            </div>
-                        </transition>
+                        <div v-if="filter_date_picker & filter_panel" style="width: 100%; text-align: right; margin-bottom: 20px;">
+                            <input id="flatpickr" class="flatpickr flatpickr-input" type="text" placeholder="Select Date.." data-id="inline" readonly="readonly"
+                                   style="width: 135px; height: 30px; border-radius: 3px"
+                                   v-model="custom_pick_day" v-on:change="_fetchReservationsByDay(CUSTOM, $event.target.value)">
+                        </div>
 
                         <div  v-if="filter_panel"  style="width: 100%; text-align: right; margin-bottom: 20px;">
                             <div  v-if="filter_panel" class="btn-group">
@@ -165,6 +165,7 @@
 @endsection
 
 @push('script')
+<script src="{{ url('js/flatpickr.min.js') }}"></script>
 <script>@php
         $state_json = json_encode($state);
         echo "window.state = $state_json;";
