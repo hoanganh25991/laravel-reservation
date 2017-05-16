@@ -61,9 +61,12 @@ Route::group(['middleware' => 'administrator'], function (){
  */
 Route::group(['prefix' => 'api','middleware' => 'api'], function (){
     //Setting::injectBrandId(1);
-    Route::any('', 'BookingController@getBookingForm');
-    Route::any('outlets', 'OutletController@fetchAllOutlet');
-    Route::any('brands', 'BrandController@fetchBrands');
+    Route::post('', 'BookingController@getBookingForm');
+    Route::post('outlets', 'OutletController@fetchAllOutlet');
+    Route::post('brands', 'BrandController@fetchBrands');
+
+    // Confirm reservation page
+    Route::post('reservations', 'ReservationController@apiConfirmPage');
 });
 
 

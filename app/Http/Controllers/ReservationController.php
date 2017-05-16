@@ -31,11 +31,97 @@ class ReservationController extends HoiController{
         Setting::injectBrandId($brand_id);
     }
     
+    public function apiConfirmPage(ApiRequest $req){
+        
+        if($req->method() == 'POST'){
+
+            $action_type = $req->get('type');
+            
+            switch($action_type){
+                case Call::AJAX_FIND_RESERVATION:
+                    $confirm_id = $req->get('confirm_id');
+
+                    // Try to parse the confirm_id
+                    try{
+                        $reservation_id = Setting::hash()->decode($confirm_id);
+                        
+                    }catch(\Exception $e){
+                        
+                        throw new \Exception("Sorry, confirm id is invalid.");
+                    }
+
+                    // Find reservation base on id
+                    $reservation = Reservation::find($reservation_id);
+
+                    if(is_null($reservation)){
+                        throw new \Exception("Sorry, we cant find your reservation.");
+                    }
+
+                    // Build response
+                    $data = compact('reservation');
+                    $code = 200;
+                    $msg  = Call::AJAX_FIND_RESERVATION_SUCCESS;
+                    
+                    $response = $this->apiResponse($data, $code, $msg);
+                    break;
+
+                case Call::AJAX_CONFIRM_RESERVATION:
+                    $confirm_id = $req->get('confirm_id');
+
+                    // Try to parse the confirm_id
+                    try{
+                        $reservation_id = Setting::hash()->decode($confirm_id);
+
+                    }catch(\Exception $e){
+
+                        throw new \Exception("Sorry, confirm id is invalid.");
+                    }
+
+                    // Find reservation base on id
+                    $reservation = Reservation::find($reservation_id);
+
+                    if(is_null($reservation)){
+                        throw new \Exception("Sorry, we cant find your reservation.");
+                    }
+                    // Only change status of reservation to CONFIRMED
+                    // When reservation booked
+                    if($reservation->status >= Reservation::RESERVED){
+                        $reservation->status = Reservation::CONFIRMED;
+                        $reservation->save();
+
+                        $data = compact('reservation');
+                        $code = 200;
+                        $msg  = Call::AJAX_CONFIRM_RESERVATION_SUCCESS;
+                        
+                        $response = $this->apiResponse($data, $code, $msg);
+                        break;
+                    }
+
+                    // Reservation not changed to confirm
+                    // It should be RESERVED first
+                    $data = compact('reservation');
+                    $code = 422;
+                    $msg  = Call::AJAX_RESERVATION_STILL_NOT_RESERVED;
+
+                    $response = $this->apiResponse($data, $code, $msg);
+                    break;
+                
+                default:
+                    $data = [];
+                    $code = 422;
+                    $msg  = Call::AJAX_UNKNOWN_CASE;
+                    $response = $this->apiResponse($data, $code, $msg);
+                    break;
+            }
+            
+            return $response;
+        }
+    }
+    
     public function getConfirmPage(ApiRequest $req, Reservation $reservation){
+        // Self inject brand_id, outlet_id
         $this->resolveBrandIdOutletId($reservation);
-        /**
-         * Customer confirm resrevation
-         */
+
         if($req->method() == 'POST'){
             
             $action_type = $req->get('type');
@@ -47,9 +133,12 @@ class ReservationController extends HoiController{
             $response = null;
             
             switch($action_type){
+                
+
                 case Call::AJAX_PAYMENT_REQUEST:
                     $response = (new PayPalController)->handlePayment($req);
                     break;
+
                 case Call::AJAX_CONFIRM_RESERVATION:
                     // Only change status of reservation to CONFIRMED
                     // When reservation booked
@@ -69,6 +158,7 @@ class ReservationController extends HoiController{
                     $code = 422;
                     $msg  = Call::AJAX_RESERVATION_STILL_NOT_RESERVED;
                     break;
+
                 default:{
                     $data = [];
                     $code = 422;
@@ -83,10 +173,10 @@ class ReservationController extends HoiController{
         }
         
         if(is_null($reservation)){
-            return redirect('');
+            throw new \Exception("Sorry, we cant find your reservation.");
         }
 
-        //$state = $this->buildAppState($req, $reservation);
+        // State for this page
         $paypal_token    = (new PayPalController)->generateToken();
         $selected_outlet = $reservation->outlet;
 
