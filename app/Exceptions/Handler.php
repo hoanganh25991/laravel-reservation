@@ -81,7 +81,7 @@ class Handler extends ExceptionHandler {
                     break;
                 default:
                     $data = [];
-                    $code = 500;
+                    $code = 422;
                     $msg  = Call::SERVER_THROWN_EXCEPTION;
                     break;
             }
