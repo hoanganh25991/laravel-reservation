@@ -132,6 +132,7 @@ class Reservation extends HoiModel {
         'deposit',
         'time',
         'paypal_currency',
+        //'outlet_name',
     ];
 
     /**
@@ -571,7 +572,7 @@ class Reservation extends HoiModel {
      * Relationship with Outlet
      */
     public function outlet(){
-        return $this->hasOne(Outlet::class, 'id', 'outlet_id');
+        return $this->hasOne(Outlet::class, 'id', 'outlet_id')->withoutGlobalScope('brand_id');
     }
 
     /**

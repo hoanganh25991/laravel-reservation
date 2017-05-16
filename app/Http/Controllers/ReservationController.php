@@ -30,6 +30,27 @@ class ReservationController extends HoiController{
         $brand_id  = $outlet->brand_id;
         Setting::injectBrandId($brand_id);
     }
+
+    public function findByConfirmId($confirm_id){
+        // Try to parse the confirm_id
+        try{
+            $reservation_id = Setting::hash()->decode($confirm_id);
+
+        }catch(\Exception $e){
+
+            throw new \Exception("Sorry, confirm id is invalid.");
+        }
+
+        // Find reservation base on id
+        /** @var Reservation $reservation */
+        $reservation = Reservation::find($reservation_id);
+
+        if(is_null($reservation)){
+            throw new \Exception("Sorry, we cant find your reservation.");
+        }
+
+        return $reservation;
+    }
     
     public function apiConfirmPage(ApiRequest $req){
         
@@ -39,26 +60,12 @@ class ReservationController extends HoiController{
             
             switch($action_type){
                 case Call::AJAX_FIND_RESERVATION:
-                    $confirm_id = $req->get('confirm_id');
-
-                    // Try to parse the confirm_id
-                    try{
-                        $reservation_id = Setting::hash()->decode($confirm_id);
-                        
-                    }catch(\Exception $e){
-                        
-                        throw new \Exception("Sorry, confirm id is invalid.");
-                    }
-
-                    // Find reservation base on id
-                    $reservation = Reservation::find($reservation_id);
-
-                    if(is_null($reservation)){
-                        throw new \Exception("Sorry, we cant find your reservation.");
-                    }
+                    $confirm_id  = $req->get('confirm_id');
+                    $reservation = $this->findByConfirmId($confirm_id);
+                    $outlet      = Outlet::find($reservation->outlet_id);
 
                     // Build response
-                    $data = compact('reservation');
+                    $data = compact('reservation', 'outlet');
                     $code = 200;
                     $msg  = Call::AJAX_FIND_RESERVATION_SUCCESS;
                     
@@ -66,30 +73,17 @@ class ReservationController extends HoiController{
                     break;
 
                 case Call::AJAX_CONFIRM_RESERVATION:
-                    $confirm_id = $req->get('confirm_id');
+                    $confirm_id  = $req->get('confirm_id');
+                    $reservation = $this->findByConfirmId($confirm_id);
+                    $outlet      = Outlet::find($reservation->outlet_id);
 
-                    // Try to parse the confirm_id
-                    try{
-                        $reservation_id = Setting::hash()->decode($confirm_id);
-
-                    }catch(\Exception $e){
-
-                        throw new \Exception("Sorry, confirm id is invalid.");
-                    }
-
-                    // Find reservation base on id
-                    $reservation = Reservation::find($reservation_id);
-
-                    if(is_null($reservation)){
-                        throw new \Exception("Sorry, we cant find your reservation.");
-                    }
                     // Only change status of reservation to CONFIRMED
                     // When reservation booked
                     if($reservation->status >= Reservation::RESERVED){
                         $reservation->status = Reservation::CONFIRMED;
                         $reservation->save();
 
-                        $data = compact('reservation');
+                        $data = compact('reservation', 'outlet');
                         $code = 200;
                         $msg  = Call::AJAX_CONFIRM_RESERVATION_SUCCESS;
                         
@@ -99,7 +93,7 @@ class ReservationController extends HoiController{
 
                     // Reservation not changed to confirm
                     // It should be RESERVED first
-                    $data = compact('reservation');
+                    $data = compact('reservation', 'outlet');
                     $code = 422;
                     $msg  = Call::AJAX_RESERVATION_STILL_NOT_RESERVED;
 
