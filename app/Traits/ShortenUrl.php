@@ -14,7 +14,7 @@ class ShortenUrl {
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://www.googleapis.com/urlshortener/v1/url?key=AIzaSyCoGG2mr0cmwKyyvOBLeUa6R06icj-EjjU",
+            CURLOPT_URL => "https://www.googleapis.com/urlshortener/v1/url?key=AIzaSyDeJXYYD1u4bpLiKcDO7Y5XEgo_0uBG_yw",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
