@@ -620,6 +620,7 @@ class Reservation extends HoiModel {
             $msg .= " for $this->adult_pax adults";
 
         $msg .= " at $time_str at $this->outlet_name.";
+        $msg .= "Reservation No. $this->confirm_id";
         $msg .= " Please confirm that you are coming $this->confirm_coming_url";
 
         return $msg;
