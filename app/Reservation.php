@@ -488,16 +488,19 @@ class Reservation extends HoiModel {
     /**
      * Confirm url for reservation
      * @return string
+     * @throws \Exception
      */
     public function getConfirmComingUrlAttribute(){
         $confirm_id = $this->confirm_id;
         //$url        = route('reservation_confirm', compact('confirm_id'));
         $base_url     = env('APP_URL');
-        $endWithSlash = substr($base_url, -1) == '/';
-        $base_url     = $endWithSlash ? substr($base_url, strlen($base_url) - 1) : $base_url;
 
-        $url       = "$base_url/?confirmId=$confirm_id";
-        $short_url = ShortenUrl::make($url);
+        if(is_null(env('APP_URL'))){throw new \Exception('Please submit APP_URL in .env to build confirm coming url for reservation');};
+
+        $endWithSlash = substr($base_url, -1) == '/';
+        $base_url     = $endWithSlash ? substr($base_url, 0, strlen($base_url) - 1) : $base_url;
+        $url          = "$base_url/?confirmId=$confirm_id";
+        $short_url    = ShortenUrl::make($url);
 
         if(!is_null($short_url)){
             $url    = $short_url;
