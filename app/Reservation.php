@@ -491,8 +491,13 @@ class Reservation extends HoiModel {
      */
     public function getConfirmComingUrlAttribute(){
         $confirm_id = $this->confirm_id;
-        $url        = route('reservation_confirm', compact('confirm_id'));
-        $short_url  = ShortenUrl::make($url);
+        //$url        = route('reservation_confirm', compact('confirm_id'));
+        $base_url     = env('APP_URL');
+        $endWithSlash = substr($base_url, -1) == '/';
+        $base_url     = $endWithSlash ? substr($base_url, strlen($base_url) - 1) : $base_url;
+
+        $url       = "$base_url/?confirmId=$confirm_id";
+        $short_url = ShortenUrl::make($url);
 
         if(!is_null($short_url)){
             $url    = $short_url;
