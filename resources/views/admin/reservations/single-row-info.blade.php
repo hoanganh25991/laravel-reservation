@@ -60,7 +60,7 @@
         <div v-show="reservation.payment_status > 25">
             <p>@{{ reservation.payment_amount }} @{{ reservation.payment_currency }} [
                 <strong>@{{ reservation.payment_status == 50 ? 'VOID'
-                          : reservation.payment_status == 100 ? 'PAID'
+                          : reservation.payment_status == 100 ? 'AUTHORIZED'
                           : reservation.payment_status == 200 ? 'CHARGE' : ''}}</strong>]
             </p>
         </div>
