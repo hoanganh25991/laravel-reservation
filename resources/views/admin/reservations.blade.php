@@ -99,7 +99,7 @@
                             <div class="btn-group">
                                 <button class="btn" style="padding: 1px;">
                                     <input type="text" class="form-control" placeholder="Reservation No."
-                                           style="text-transform:uppercase"
+                                           style="text-transform:uppercase; height: 30px;"
                                            v-model="filter_confirm_id">
                                 </button>
                                 <button class="btn bg-info"
@@ -175,6 +175,10 @@
                                 class="btn bg-info"
                                 v-on:click="_createNewReservation"
                         >Save</button>
+                        <button
+                                class="btn bg-info"
+                                v-on:click="_createNewReservation({sms_message_on_reserved: true})"
+                        >Save & SMS Customer</button>
                     </div>
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->

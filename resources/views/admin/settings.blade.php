@@ -6,12 +6,12 @@
                 <div id="reservations_content" class="col-md-2">
                     <div class="navbar navbar-default" style="max-width: 200px;">
                         <ul class="nav navbar-nav" id="go-container">
-                            <li><a destination="weekly_sessions_view"  class="btn go">Weekly Sessions</a></li>
-                            <li><a destination="special_sessions_view" class="btn go">Special Sessions</a></li>
-                            <li><a destination="buffer"                class="btn go">Buffer</a></li>
-                            <li><a destination="notification"          class="btn go">Notification</a></li>
-                            <li><a destination="settings"              class="btn go">Settings</a></li>
-                            <li><a destination="deposit"               class="btn go">Payment Authorization</a></li>
+                            <li style="float: none"><a destination="weekly_sessions_view"  class="btn go">Weekly Sessions</a></li>
+                            <li style="float: none"><a destination="special_sessions_view" class="btn go">Special Sessions</a></li>
+                            <li style="float: none"><a destination="buffer"                class="btn go">Buffer</a></li>
+                            <li style="float: none"><a destination="notification"          class="btn go">Notification</a></li>
+                            <li style="float: none"><a destination="settings"              class="btn go">Settings</a></li>
+                            <li style="float: none"><a destination="deposit"               class="btn go">Payment Authorization</a></li>
                         </ul>
                     </div>
                 </div>
@@ -101,7 +101,8 @@
 
                             <div class="bg-info">
                                 <p class="text-muted">Max number of days in advance – The maximum number of days in
-                                    advance a customer may make a reservation. Min hours in advance prior to a
+                                    advance a customer may make a reservation.</p>
+                                <p class="text-muted">Min hours in advance prior to a
                                     reservation time – The minimum number of hours buffer before a reservation timing is
                                     no longer available for booking.</p>
                                 <p class="text-muted">Min hours in advance prior to a session – The minimum number of

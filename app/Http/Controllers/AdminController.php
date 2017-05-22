@@ -6,8 +6,10 @@ namespace App\Http\Controllers;
 use App\Outlet;
 use App\Reservation;
 use Carbon\Carbon;
+use App\Traits\SendSMS;
 use App\ReservationUser;
 use App\Traits\ApiResponse;
+use App\Events\SentReminderSMS;
 use App\Http\Requests\ApiRequest;
 use Illuminate\Support\Facades\Auth;
 use App\Libraries\HoiAjaxCall as Call;
@@ -15,11 +17,13 @@ use App\OutletReservationSetting as Setting;
 use App\Exceptions\DontHavePermissionException;
 use App\Http\Controllers\ReservationController as By;
 use App\Http\Controllers\OutletReservationSettingController as SettingController;
+use Illuminate\Support\Facades\Log;
 
 
 class AdminController extends HoiController {
 
     use ApiResponse;
+    use SendSMS;
 
     public function __construct(){}
 
@@ -161,8 +165,31 @@ class AdminController extends HoiController {
                      */
 
                     $reservation = new Reservation($req->all());
+                    $reservation->status = Reservation::RESERVED;
                     //Store reservation
                     $reservation->save();
+                    
+                    // Only sent when default not config sent sms
+                    // And request required send sms on reserved
+                    $should_send = $req->get('sms_message_on_reserved') 
+                                   && $reservation->shouldSendSMSOnBooking() == false;
+                    
+                    if($should_send){
+                        $telephone   = $reservation->full_phone_number;
+                        $message     = $reservation->confirmation_sms_message;
+                        $sender_name = Setting::smsSenderName();
+
+                        $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);
+
+                        if($success_sent === true){
+                            Log::info('Success send sms to reminder');
+                            event(new SentReminderSMS($reservation));
+                        }else{
+                            $error_info = $success_sent;
+                            Log::info($error_info);
+                        }
+                    }
+                    
                     $data = compact('reservation');
                     $code = 200;
                     $msg  = Call::AJAX_RESERVATION_SUCCESS_CREATE;

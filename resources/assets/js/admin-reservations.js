@@ -182,11 +182,11 @@ class AdminReservations {
 
 					let new_reservation = Object.assign({}, current_reservation, {reservation_timestamp});
 
-					// Self call ajax, which much faster than
-					// self.ajax_call({
-					// 	type: AJAX_CREATE_NEW_RESERVATION,
-					// 	reservation: new_reservation
-					// });
+					// Update what sent from action
+					let {new_reservation: updated_info} = action;
+					Object.assign(new_reservation, updated_info);
+					// Test success sent through action
+					console.log(new_reservation.sms_message_on_reserved);
 
 					return Object.assign({}, state, {new_reservation});
 				}
@@ -314,6 +314,7 @@ class AdminReservations {
 			time_str: null,
 			// Show available_time for staff pick
 			available_time: [],
+			sms_message_on_reserved: null,
 		}
 
 		let date     =  moment();
@@ -1135,7 +1136,7 @@ class AdminReservations {
 					store.dispatch({type: CHANGE_NEW_RESERVATION_TIME, time_str});
 				},
 
-				_createNewReservation(){
+				_createNewReservation({sms_message_on_reserved}){
 					//
 					let {new_reservation} = vue_state;
 					// Quick check for empty str
@@ -1164,7 +1165,8 @@ class AdminReservations {
 					if(empty_fields.length > 0){
 						window.alert('Please fill in all fields');
 					}else{
-						store.dispatch({type: CREATE_NEW_RESERVATION});
+						let new_reservation = {sms_message_on_reserved};
+						store.dispatch({type: CREATE_NEW_RESERVATION, new_reservation});
 					}
 
 				}
@@ -1508,12 +1510,12 @@ class AdminReservations {
 
 				store.dispatch({type: CLOSE_NEW_RESERVATION_DIALOG});
 
-				let toast = {
-					title: 'New Reservation',
-					content: 'Created successfully'
-				};
-
-				store.dispatch({type: TOAST_SHOW, toast});
+				// let toast = {
+				// 	title: 'New Reservation',
+				// 	content: 'Created successfully'
+				// };
+				//
+				// store.dispatch({type: TOAST_SHOW, toast});
 
 				store.dispatch({type: REFETCHING_DATA});
 
