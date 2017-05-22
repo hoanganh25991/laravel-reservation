@@ -70,6 +70,8 @@ const AJAX_FETCH_RESERVATIONS_BY_DAY_SUCCESS = 'AJAX_FETCH_RESERVATIONS_BY_DAY_S
 
 const OPEN_NEW_RESERVATION_DIALOG = 'OPEN_NEW_RESERVATION_DIALOG';
 
+const SELF_DISPATCH_THUNK = 'SELF_DISPATCH_THUNK';
+
 class AdminReservations {
 	/** @namespace res.errorMsg */
 	/**
@@ -155,16 +157,25 @@ class AdminReservations {
 
 		window.store = Redux.createStore(rootReducer);
 
-		let store = window.store;
 		/**
 		 * Helper function
 		 */
+		let store      = window.store;
 		let o_dispatch = store.dispatch;
+
 		store.dispatch = function(action){
-			console.info(action.type);
+			//action.type = action.type ? action.type : SELF_DISPATCH_THUNK;
+			console.info(action.type ? action.type : SELF_DISPATCH_THUNK);
+
+			if(typeof action == 'function'){
+				// Bring dispatch & getState into action
+				// as thunk
+				action(store.dispatch, store.getState);
+			}
+
 			store.prestate = store.getState();
 			store.last_action = action.type;
-			o_dispatch(action);
+			return o_dispatch(action);
 		}
 
 		store.getPrestate = function(){
@@ -244,6 +255,8 @@ class AdminReservations {
 				this.startIntervalAutoRefresh();
 			},
 			beforeUpdate(){
+				let store = window.store;
+
 				store.dispatch({
 					type: SYNC_VUE_STATE,
 					vue_state: window.vue_state
@@ -983,8 +996,14 @@ class AdminReservations {
 				},
 
 				_openNewReservationDialog(){
-					let store = window.store;
-					store.dispatch({type: OPEN_NEW_RESERVATION_DIALOG});
+					//let store = window.store;
+					//store.dispatch({type: OPEN_NEW_RESERVATION_DIALOG});
+					let thunkNewReservation = (dispatch, getState) => {
+						dispatch({type: OPEN_NEW_RESERVATION_DIALOG});
+					};
+					// Dispatch as thunk, if need can fetch data from here
+					// this.pleaseDispatchAction = thunkNewReservation;
+					store.dispatch(thunkNewReservation)
 				}
 			}
 		});

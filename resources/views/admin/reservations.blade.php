@@ -22,7 +22,7 @@
                     <div class="modal-body">
                         <div style="width: 100%; height: 38px; display: flex; flex-direction: row">
                             <button class="btn btn-default"
-                                v-on:click="_openNewReservationDialog"
+                                v-on:click="_openNewReservationDialog()"
                             >New reservation</button>
                             <div style="display: flex; flex: 1"></div>
                             <span class="text-muted" style="font-size: 1.67em">Filter reservations</span>
@@ -191,5 +191,6 @@
         $state_json = json_encode($state);
         echo "window.state = $state_json;";
     @endphp</script>
+<script src="{{ url('js/redux-thunk.min.js') }}"></script>
 <script src="{{ url_mix('js/admin-reservations.js') }}"></script>
 @endpush
