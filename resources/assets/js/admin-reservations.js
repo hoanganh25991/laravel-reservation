@@ -68,6 +68,8 @@ const FETCH_RESERVATIONS_BY_DAY = 'FETCH_RESERVATIONS_BY_DAY';
 const AJAX_FETCH_RESERVATIONS_BY_DAY = 'AJAX_FETCH_RESERVATIONS_BY_DAY';
 const AJAX_FETCH_RESERVATIONS_BY_DAY_SUCCESS = 'AJAX_FETCH_RESERVATIONS_BY_DAY_SUCCESS';
 
+const OPEN_NEW_RESERVATION_DIALOG = 'OPEN_NEW_RESERVATION_DIALOG';
+
 class AdminReservations {
 	/** @namespace res.errorMsg */
 	/**
@@ -123,6 +125,29 @@ class AdminReservations {
 
 					return Object.assign({}, state, {filter_day, custom_pick_day});
 				}
+				case OPEN_NEW_RESERVATION_DIALOG: {
+					let new_reservation = {
+						salutation: 'Mr.',
+						adult_pax: 0,
+						children_pax: 0,
+
+						send_sms_confirmation: true,
+					};
+
+					let date     =  moment();
+					let date_str = date.format('YYYY-MM-DD');
+					let time_str = date.format('HH:mm');
+
+					// Update some fields on reservation
+					// Which need to present date
+					Object.assign(new_reservation, {
+						reservation_timestamp: date,
+						date_str,
+						time_str,
+					});
+
+					return Object.assign({}, state, {new_reservation});
+				}
 				default:
 					return state;
 			}
@@ -167,6 +192,7 @@ class AdminReservations {
 			outlet_id: null,
 			user: {},
 			reservation_dialog_content: {},
+			new_reservation: {},
 			toast: {
 				title: 'Title',
 				content: 'Content'
@@ -954,6 +980,11 @@ class AdminReservations {
 						day,
 						day_str
 					});
+				},
+
+				_openNewReservationDialog(){
+					let store = window.store;
+					store.dispatch({type: OPEN_NEW_RESERVATION_DIALOG});
 				}
 			}
 		});
@@ -998,6 +1029,8 @@ class AdminReservations {
 		this._hasFindView = true;
 
 		this.reservation_dialog = $('#reservation-dialog');
+
+		this.new_reservation_dialog = $('#new-reservation-dialog');
 	}
 
 	event(){
@@ -1104,6 +1137,10 @@ class AdminReservations {
 					day,
 					outlet_id,
 				});
+			}
+
+			if(action == OPEN_NEW_RESERVATION_DIALOG){
+				self.new_reservation_dialog.modal('show');
 			}
 
 			// if(action == SYNC_DATA){

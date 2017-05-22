@@ -21,7 +21,9 @@
                     <!-- This div used to filterd reservations -->
                     <div class="modal-body">
                         <div style="width: 100%; height: 38px; display: flex; flex-direction: row">
-                            <button class="btn btn-default">New reservation</button>
+                            <button class="btn btn-default"
+                                v-on:click="_openNewReservationDialog"
+                            >New reservation</button>
                             <div style="display: flex; flex: 1"></div>
                             <span class="text-muted" style="font-size: 1.67em">Filter reservations</span>
                         </div>
@@ -146,6 +148,26 @@
                     <div class="modal-body">
                         @endverbatim
                         @include('admin.reservations.detail-dialog')
+                        @verbatim
+                    </div>
+                    <div class="modal-footer" style="border-top: 1px solid #e5e5e5;">
+                        <button
+                                class="btn bg-info"
+                                v-on:click="_updateSingleReservation"
+                        >Save</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+        <div class="modal fade" id="new-reservation-dialog">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">New Reservation</h4>
+                    </div>
+                    <div class="modal-body">
+                        @endverbatim
+                        @include('admin.reservations.new-dialog')
                         @verbatim
                     </div>
                     <div class="modal-footer" style="border-top: 1px solid #e5e5e5;">
