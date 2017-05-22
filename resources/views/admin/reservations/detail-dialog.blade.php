@@ -14,23 +14,23 @@
             <input
                     type="text" style="width: 100px"
                     v-model="reservation_dialog_content.first_name"
-            >
+            />
             <input
                     type="text" style="display: inline-block; max-width: 200px"
                     v-model="reservation_dialog_content.last_name"
-            >
+            />
         </div>
 
         <div class="form-group">
-            <label class="col-md-3 text-right">Phone Number</label>
+            <label class="col-md-3 text-right">Phone</label>
             <input
                     type="text" style="width: 30px"
                     v-model="reservation_dialog_content.phone_country_code"
-            >
+            />
             <input
                     type="text" style="display: inline-block; max-width: 200px"
                     v-model="reservation_dialog_content.phone"
-            >
+            />
         </div>
 
         <div class="form-group">
@@ -38,8 +38,9 @@
             <input
                     type="text" style="display: inline-block; max-width: 200px"
                     v-model="reservation_dialog_content.email"
-            >
+            />
         </div>
+
 
         <div class="form-group">
             <div class="col-md-3">
