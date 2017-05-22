@@ -76,6 +76,8 @@ const AJAX_SEARCH_AVAILABLE_TIME = 'AJAX_SEARCH_AVAILABLE_TIME';
 const AJAX_AVAILABLE_TIME_FOUND  = 'AJAX_AVAILABLE_TIME_FOUND';
 const UPDATE_AVAILABLE_TIME      = 'UPDATE_AVAILABLE_TIME';
 const CHANGE_NEW_RESERVATION_TIME= 'CHANGE_NEW_RESERVATION_TIME';
+const CREATE_NEW_RESERVATION     = 'CREATE_NEW_RESERVATION';
+const AJAX_CREATE_NEW_RESERVATION= 'AJAX_CREATE_NEW_RESERVATION';
 
 class AdminReservations {
 	/** @namespace res.errorMsg */
@@ -160,6 +162,26 @@ class AdminReservations {
 					let {new_reservation: current_reservation} = state;
 
 					let new_reservation = Object.assign({}, current_reservation, {time_str});
+
+					return Object.assign({}, state, {new_reservation});
+				}
+				case CREATE_NEW_RESERVATION: {
+					let {new_reservation: current_reservation} = state;
+
+					let {date_str, time_str} = current_reservation;
+					let date_timestamp       = `${date_str} ${time_str}`;
+					// Format as YYYY-MM-DD HH:mm
+					let date = moment(date_timestamp, 'YYYY-MM-DD HH:mm');
+					// Submit reservation_timestamp as str
+					let reservation_timestamp = date.format('YYYY-MM-DD HH:mm:ss');
+
+					let new_reservation = Object.assign({}, current_reservation, {reservation_timestamp});
+
+					// Self call ajax, which much faster than
+					self.ajax_call({
+						type: AJAX_CREATE_NEW_RESERVATION,
+						reservation: new_reservation
+					});
 
 					return Object.assign({}, state, {new_reservation});
 				}
@@ -1092,8 +1114,34 @@ class AdminReservations {
 				},
 
 				_pickTime(time_str){
-					console.log('_pickTime, see you click');
+					//console.log('_pickTime, see you click');
 					store.dispatch({type: CHANGE_NEW_RESERVATION_TIME, time_str});
+				},
+
+				_createNewReservation(){
+					//
+					let {new_reservation} = vue_state;
+					// Quick check for empty str
+					const required_keys = [
+						'salutation',
+						'first_name',
+						'last_name',
+						'email',
+						'phone_country_code',
+						'phone',
+						'adult_pax',
+						'children_pax',
+						'reservation_timestamp',
+					];
+
+					let empty_fields = Object.keys(required_keys).filter(key => !new_reservation[key]);
+
+					if(empty_fields.length > 0){
+						window.alert('Please fill in all fields');
+					}else{
+						store.dispatch({type: CREATE_NEW_RESERVATION});
+					}
+
 				}
 			}
 		});
@@ -1310,6 +1358,13 @@ class AdminReservations {
 				let url         = self.url('');
 				let data        = Object.assign({}, action);
 				
+				$.jsonAjax({url, data});
+				break;
+			}
+			case AJAX_CREATE_NEW_RESERVATION: {
+				let url         = self.url('');
+				let data        = Object.assign({}, action);
+
 				$.jsonAjax({url, data});
 				break;
 			}
