@@ -2,7 +2,7 @@
 <div class="row">
     <div class="col-md-7">
         <div class="form-group">
-            <label class="col-md-3 text-right">XXX</label>
+            <label class="col-md-3 text-right">Name</label>
             <select
                     v-model="new_reservation.salutation"
             >
