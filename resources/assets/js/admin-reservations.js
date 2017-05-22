@@ -275,8 +275,11 @@ class AdminReservations {
 	}
 
 	newReservation(){
+		let store = window.store;
+		let {outlet_id} = store.getState();
+
 		let new_reservation = {
-			outlet_id:1,
+			outlet_id,
 			salutation:"Mr.",
 			first_name:null,
 			last_name: null,
@@ -1154,6 +1157,7 @@ class AdminReservations {
 					let {new_reservation} = vue_state;
 					// Quick check for empty str
 					const required_keys = [
+						'outlet_id',
 						'salutation',
 						'first_name',
 						'last_name',
