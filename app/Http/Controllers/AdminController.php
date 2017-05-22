@@ -90,6 +90,26 @@ class AdminController extends HoiController {
                     $response = $this->apiResponse($data, $code, $msg);
                     break;
 
+                case CAll::AJAX_SEARCH_AVAILABLE_TIME:
+                    $booking_controller = new BookingController();
+                    // Bring search into to booking controller
+                    $req->merge([
+                        'outlet_id'    => $req->json('outlet_id'),
+                        'adult_pax'    => $req->json('adult_pax'),
+                        'children_pax' => $req->json('children_pax'),
+                    ]);
+
+                    // Ask him when available
+                    $booking_controller->setUpBookingConditions($req);
+                    $available_time = $booking_controller->availableTime();
+
+                    $data = compact('available_time');
+                    $code = 200;
+                    $msg  = Call::AJAX_AVAILABLE_TIME_FOUND;
+
+                    $response = $this->apiResponse($data, $code, $msg);
+                    break;
+
                 default:
                     $data = [];
                     $code = 200;

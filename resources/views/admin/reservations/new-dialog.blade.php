@@ -123,10 +123,23 @@
         </div>
         <div class="form-group">
             <label class="col-md-3 text-right">Time</label>
-            <input
-                    type="time" style="width: 80px; height: 30px"
-                    v-model="new_reservation.time_str"
-            >
+            <button class="btn btn-default"
+                v-on:click="_searchAvailableTime"
+            >Search available</button>
+        </div>
+
+        <div class="form-group">
+            <label class="col-md-3 text-right"></label>
+            <div style="display: inline-block">
+                <div style="display: flex; flex-direction: row">
+                    <p v-if="is_calling_ajax" class="bg-info">
+                        Searching...
+                    </p>
+                    <template v-for="(chunk, chunk_index) in new_reservation.available_time">
+                        <p>{{ chunk.time }}</p>
+                    </template>
+                </div>
+            </div>
         </div>
     </div>
     <div class="col-md-5">

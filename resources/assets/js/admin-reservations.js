@@ -72,6 +72,10 @@ const OPEN_NEW_RESERVATION_DIALOG = 'OPEN_NEW_RESERVATION_DIALOG';
 
 const SELF_DISPATCH_THUNK = 'SELF_DISPATCH_THUNK';
 
+const AJAX_SEARCH_AVAILABLE_TIME = 'AJAX_SEARCH_AVAILABLE_TIME';
+const AJAX_AVAILABLE_TIME_FOUND  = 'AJAX_AVAILABLE_TIME_FOUND';
+const UPDATE_AVAILABLE_TIME      = 'UPDATE_AVAILABLE_TIME';
+
 class AdminReservations {
 	/** @namespace res.errorMsg */
 	/**
@@ -128,26 +132,25 @@ class AdminReservations {
 					return Object.assign({}, state, {filter_day, custom_pick_day});
 				}
 				case OPEN_NEW_RESERVATION_DIALOG: {
-					let new_reservation = {
-						salutation: 'Mr.',
-						adult_pax: 0,
-						children_pax: 0,
+					let new_reservation = self.newReservation();
 
-						send_sms_confirmation: true,
-					};
-
-					let date     =  moment();
-					let date_str = date.format('YYYY-MM-DD');
-					let time_str = date.format('HH:mm');
-
-					// Update some fields on reservation
-					// Which need to present date
-					Object.assign(new_reservation, {
-						reservation_timestamp: date,
-						date_str,
-						time_str,
-					});
-
+					return Object.assign({}, state, {new_reservation});
+				}
+				case UPDATE_AVAILABLE_TIME: {
+					// This is available_time for whole range of date-range
+					let {available_time: whole_range_time} = action;
+					// Only get what we need
+					let {new_reservation: current_reservation} = state;
+					// Consider as default empty array if no thing available
+					let {date_str} = current_reservation;
+					// Get him out
+					let available_time = whole_range_time[date_str] ? whole_range_time[date_str] : [];
+					if(available_time.length == 0){
+						window.alert('No available time found on your booking conditions');
+					}
+					// Build new reservation
+					let new_reservation = Object.assign({}, current_reservation, {available_time});
+					
 					return Object.assign({}, state, {new_reservation});
 				}
 				default:
@@ -231,6 +234,61 @@ class AdminReservations {
 			auto_refresh_status: null,
 			is_calling_ajax: null,
 		};
+	}
+
+	newReservation(){
+		let new_reservation = {
+			outlet_id:1,
+			salutation:"Mr.",
+			first_name:null,
+			last_name: null,
+			email: null,
+			phone_country_code: '+65',
+			phone: null,
+			status: null,
+			adult_pax: 0,
+			children_pax: 0,
+			reservation_timestamp: null,
+			customer_remarks: null,
+			is_outdoor:null,
+			send_sms_confirmation:true,
+			send_email_confirmation:null,
+			table_layout_id:null,
+			table_layout_name:null,
+			table_name:null,
+			staff_read_state:null,
+			staff_remarks:null,
+			payment_required:null,
+			payment_authorization_id: null,
+			payment_amount: null,
+			payment_currency: null,
+			payment_status: null,
+			payment_timestamp: null,
+			created_timestamp: null,
+			modified_timestamp: null,
+			confirm_id: null,
+			send_confirmation_by_timestamp: null,
+			deposit: null,
+			time: null,
+			paypal_currency: null,
+			date: null,
+			date_str: null,
+			time_str: null,
+			// Show available_time for staff pick
+			available_time: [],
+		}
+
+		let date     =  moment();
+		let date_str = date.format('YYYY-MM-DD');
+		let time_str = date.format('HH:mm');
+
+		Object.assign(new_reservation, {
+			reservation_timestamp: date,
+			date_str,
+			time_str,
+		});
+
+		return new_reservation;
 	}
 
 	buildVue(){
@@ -1004,6 +1062,22 @@ class AdminReservations {
 					// Dispatch as thunk, if need can fetch data from here
 					// this.pleaseDispatchAction = thunkNewReservation;
 					store.dispatch(thunkNewReservation)
+				},
+
+				_searchAvailableTime(){
+					let vue_state   = window.vue_state;
+					let {outlet_id} = vue_state;
+					
+					let {adult_pax, children_pax} = vue_state.new_reservation;
+					
+					let action = {
+						type: AJAX_SEARCH_AVAILABLE_TIME,
+						outlet_id,
+						adult_pax,
+						children_pax,
+					};
+					
+					self.ajax_call(action);
 				}
 			}
 		});
@@ -1199,21 +1273,28 @@ class AdminReservations {
 				let outlet_id = state.outlet_id;
 				let data      = Object.assign({}, action, {outlet_id});
 				
-				$.ajax({url, data});
+				$.jsonAjax({url, data});
 				break;
 			}
 			case AJAX_REFETCHING_DATA: {
 				let url         = self.url('');
 				let data        = Object.assign({}, action);
 				
-				$.ajax({url, data});
+				$.jsonAjax({url, data});
 				break;
 			}
 			case AJAX_FETCH_RESERVATIONS_BY_DAY:{
 				let url         = self.url('');
 				let data        = Object.assign({}, action);
 
-				$.ajax({url, data});
+				$.jsonAjax({url, data});
+				break;
+			}
+			case AJAX_SEARCH_AVAILABLE_TIME:{
+				let url         = self.url('');
+				let data        = Object.assign({}, action);
+				
+				$.jsonAjax({url, data});
 				break;
 			}
 			default:
@@ -1303,6 +1384,11 @@ class AdminReservations {
 
 				break;
 			}
+			case AJAX_AVAILABLE_TIME_FOUND: {
+				let {available_time} = res.data;
+				
+				store.dispatch({type: UPDATE_AVAILABLE_TIME, available_time})
+			}
 			default:
 				break;
 
@@ -1353,7 +1439,7 @@ class AdminReservations {
 		let self = this;
 
 		let o_ajax = $.ajax;
-		$.ajax = function(options){
+		$.jsonAjax = function(options){
 			// Dispatch calling ajax
 			let store = window.store;
 			store.dispatch({type: CALLING_AJAX, is_calling_ajax: true});
