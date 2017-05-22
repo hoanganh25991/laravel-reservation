@@ -1107,12 +1107,15 @@ class AdminReservations {
 				_openNewReservationDialog(){
 					//let store = window.store;
 					//store.dispatch({type: OPEN_NEW_RESERVATION_DIALOG});
-					let thunkNewReservation = (dispatch, getState) => {
-						dispatch({type: OPEN_NEW_RESERVATION_DIALOG});
-					};
+					// let thunkNewReservation = (dispatch, getState) => {
+					// 	dispatch({type: OPEN_NEW_RESERVATION_DIALOG});
+					// };
 					// Dispatch as thunk, if need can fetch data from here
 					// this.pleaseDispatchAction = thunkNewReservation;
-					store.dispatch(thunkNewReservation)
+					// store.dispatch(thunkNewReservation);
+
+					// reuse normal dispatch
+					store.dispatch({type: OPEN_NEW_RESERVATION_DIALOG});
 				},
 
 				_searchAvailableTime(){
