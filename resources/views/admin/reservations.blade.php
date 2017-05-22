@@ -173,7 +173,7 @@
                     <div class="modal-footer" style="border-top: 1px solid #e5e5e5;">
                         <button
                                 class="btn bg-info"
-                                v-on:click="_updateSingleReservation"
+                                v-on:click="_createNewReservation"
                         >Save</button>
                     </div>
                 </div><!-- /.modal-content -->

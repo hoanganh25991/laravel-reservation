@@ -2375,3 +2375,68 @@ label:hover:before {
 .i-multiple-select:focus {
     height: auto;
 }
+
+/*Admin reservation*/
+/*Style available time*/
+.LI_1 {
+    cursor: pointer;
+    display: inline-block;
+    /*height: 25px;*/
+    /*width: 80px;*/
+    perspective-origin: 43px 33.5px;
+    transform-origin: 43px 33.5px;
+    border: 1px solid rgb(197, 197, 197);
+    font: normal normal normal normal 16px / normal "Open Sans", sans-serif;
+    list-style: none outside none;
+    margin: 5px 2px;
+    padding: 20px 2px;
+}/*#LI_1*/
+
+.P_2 {
+    color: rgb(197, 197, 197);
+    cursor: pointer;
+    height: 12px;
+    text-align: center;
+    text-decoration: none solid rgb(197, 197, 197);
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+    width: 80px;
+    column-rule-color: rgb(197, 197, 197);
+    perspective-origin: 40px 6px;
+    transform-origin: 40px 6px;
+    caret-color: rgb(197, 197, 197);
+    border: 0px none rgb(197, 197, 197);
+    font: normal normal normal normal 10px / 12px "Open Sans", sans-serif;
+    list-style: none outside none;
+    margin: -5px 0px 0px;
+    outline: rgb(197, 197, 197) none 0px;
+    overflow: hidden;
+}/*#P_2*/
+
+.H2_3 {
+    color: rgb(89, 89, 89);
+    cursor: pointer;
+    height: 25px;
+    text-align: center;
+    text-decoration: none solid rgb(89, 89, 89);
+    text-transform: uppercase;
+    width: 80px;
+    column-rule-color: rgb(89, 89, 89);
+    perspective-origin: 40px 12.5px;
+    transform-origin: 40px 12.5px;
+    caret-color: rgb(89, 89, 89);
+    border: 0px none rgb(89, 89, 89);
+    font: normal normal 600 normal 20px / 25px "Open Sans", sans-serif;
+    list-style: none outside none;
+    margin: 0px;
+    outline: rgb(89, 89, 89) none 0px;
+}/*#H2_3*/
+
+.selected-time {
+    border: 2px solid #FF7A00
+}
+
+.btn {
+    font-size: 1em;
+}

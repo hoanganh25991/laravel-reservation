@@ -75,6 +75,7 @@ const SELF_DISPATCH_THUNK = 'SELF_DISPATCH_THUNK';
 const AJAX_SEARCH_AVAILABLE_TIME = 'AJAX_SEARCH_AVAILABLE_TIME';
 const AJAX_AVAILABLE_TIME_FOUND  = 'AJAX_AVAILABLE_TIME_FOUND';
 const UPDATE_AVAILABLE_TIME      = 'UPDATE_AVAILABLE_TIME';
+const CHANGE_NEW_RESERVATION_TIME= 'CHANGE_NEW_RESERVATION_TIME';
 
 class AdminReservations {
 	/** @namespace res.errorMsg */
@@ -153,6 +154,15 @@ class AdminReservations {
 					
 					return Object.assign({}, state, {new_reservation});
 				}
+				case CHANGE_NEW_RESERVATION_TIME: {
+					let {time_str} = action;
+
+					let {new_reservation: current_reservation} = state;
+
+					let new_reservation = Object.assign({}, current_reservation, {time_str});
+
+					return Object.assign({}, state, {new_reservation});
+				}
 				default:
 					return state;
 			}
@@ -204,6 +214,7 @@ class AdminReservations {
 			init_view: false,
 			base_url: null,
 			outlet_id: null,
+			outlet: {},
 			user: {},
 			reservation_dialog_content: {},
 			new_reservation: {},
@@ -1078,6 +1089,11 @@ class AdminReservations {
 					};
 					
 					self.ajax_call(action);
+				},
+
+				_pickTime(time_str){
+					console.log('_pickTime, see you click');
+					store.dispatch({type: CHANGE_NEW_RESERVATION_TIME, time_str});
 				}
 			}
 		});

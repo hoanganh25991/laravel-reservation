@@ -144,6 +144,7 @@ class AdminController extends HoiController {
         $state = [
             'base_url'     => url()->current(),
             'outlet_id'    => Setting::outletId(),
+            'outlet'       => Outlet::find(Setting::outletId()),
             'reservations' => (new ReservationController)->fetchReservationsByDay(By::TODAY),
             'user'         => $user,
         ];

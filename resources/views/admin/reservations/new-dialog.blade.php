@@ -42,6 +42,7 @@
         </div>
 
 
+
         <div class="form-group">
             <div class="col-md-3">
                 <label class="pull-right switch">
@@ -55,6 +56,7 @@
         </div>
 
         <hr>
+
         <div class="form-group">
             <label class="col-md-3 text-right">Adult Pax</label>
             <select
@@ -115,6 +117,13 @@
         </div>
 
         <div class="form-group">
+            <label class="col-md-3"></label>
+            <div style="display: inline-block">
+                <span class="small text-muted">Notice. Min Pax: {{ outlet.overall_min_pax }}. Max Pax: {{ outlet.overall_max_pax  }}</span>
+            </div>
+        </div>
+
+        <div class="form-group">
             <label class="col-md-3 text-right">Date</label>
             <input
                     type="date" style="width: 135px; height: 30px"
@@ -131,14 +140,24 @@
         <div class="form-group">
             <label class="col-md-3 text-right"></label>
             <div style="display: inline-block">
-                <div style="display: flex; flex-direction: row">
-                    <p v-if="is_calling_ajax" class="bg-info">
+                <ul style="list-style-type: none; margin: 0; padding: 0;">
+                    <li v-if="is_calling_ajax" class="bg-info">
                         Searching...
-                    </p>
+                    </li>
                     <template v-for="(chunk, chunk_index) in new_reservation.available_time">
-                        <p>{{ chunk.time }}</p>
+                        <li class="LI_1"
+                            :class="chunk.time == new_reservation.time_str ? 'selected-time' : ''"
+                            v-on:click="_pickTime(chunk.time)"
+                        >
+                            <p class="P_2">
+                                {{ outlet.outlet_name }}
+                            </p>
+                            <h2 class="H2_3">
+                                {{ chunk.time }}
+                            </h2>
+                        </li>
                     </template>
-                </div>
+                </ul>
             </div>
         </div>
     </div>
