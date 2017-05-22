@@ -322,12 +322,12 @@ class AdminReservations {
 
 		let date     =  moment();
 		let date_str = date.format('YYYY-MM-DD');
-		let time_str = date.format('HH:mm');
+		// let time_str = date.format('HH:mm');
 
 		Object.assign(new_reservation, {
 			reservation_timestamp: date,
 			date_str,
-			time_str,
+			// time_str,
 		});
 
 		if(state.base_url && state.base_url.includes('reservation.dev') || state.base_url.includes('localhost')){
@@ -1164,23 +1164,18 @@ class AdminReservations {
 						'email',
 						'phone_country_code',
 						'phone',
-						'adult_pax',
-						'children_pax',
-						'reservation_timestamp',
+						'time_str',
 					];
 
 					let empty_fields = required_keys.filter(key => {
 						let value = new_reservation[key];
 
-						if(!isNaN(value)){
-							return false;
-						}
-
 						return !value;
 					});
 
 					if(empty_fields.length > 0){
-						window.alert('Please fill in all fields');
+						let first_empty_key = empty_fields[0];
+						window.alert(`Please fill in all fields. Ex: ${first_empty_key} is empty`);
 					}else{
 						let new_reservation = {sms_message_on_reserved};
 						store.dispatch({type: CREATE_NEW_RESERVATION, new_reservation});
@@ -1545,31 +1540,19 @@ class AdminReservations {
 	}
 
 	ajax_call_error(res_literal){
-
-
 		console.log(res_literal);
 		// Please don't modify these code
 		let res = res_literal.responseJSON;
 
-		try{
-			switch(res.statusMsg){
-				default:
-					window.alert(res.errorMsg);
-					break;
-			}
-		}catch(e){
+		if(res && res.statusMsg && res.errorMsg){
+			window.alert(res.errorMsg);
+		}else{
 			window.alert(JSON.stringify(res_literal));
 		}
-
 		// When fall case happen
 		// Should refetch page
-		let self  = this;
 		let store = window.store;
-		let state = store.getState();
-		let {outlet_id} = state;
-
 		window.alert('We are refetching data');
-
 		store.dispatch({type: REFETCHING_DATA});
 	}
 	

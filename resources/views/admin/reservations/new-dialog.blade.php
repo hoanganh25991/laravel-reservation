@@ -139,7 +139,7 @@
 
         <div class="form-group">
             <label class="col-md-3 text-right"></label>
-            <div style="display: inline-block">
+            <div style="display: inline-block; max-height: 500px; overflow-y: auto; padding: 0" class="col-md-9">
                 <ul style="list-style-type: none; margin: 0; padding: 0;">
                     <li v-if="is_calling_ajax" class="bg-info">
                         Searching...
