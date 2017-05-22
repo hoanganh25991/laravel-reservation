@@ -78,6 +78,8 @@ const UPDATE_AVAILABLE_TIME      = 'UPDATE_AVAILABLE_TIME';
 const CHANGE_NEW_RESERVATION_TIME= 'CHANGE_NEW_RESERVATION_TIME';
 const CREATE_NEW_RESERVATION     = 'CREATE_NEW_RESERVATION';
 const AJAX_CREATE_NEW_RESERVATION= 'AJAX_CREATE_NEW_RESERVATION';
+const AJAX_RESERVATION_SUCCESS_CREATE = 'AJAX_RESERVATION_SUCCESS_CREATE';
+const CLOSE_NEW_RESERVATION_DIALOG = 'CLOSE_NEW_RESERVATION_DIALOG';
 
 class AdminReservations {
 	/** @namespace res.errorMsg */
@@ -139,6 +141,9 @@ class AdminReservations {
 
 					return Object.assign({}, state, {new_reservation});
 				}
+				case CLOSE_NEW_RESERVATION_DIALOG: {
+					return state;
+				}
 				case UPDATE_AVAILABLE_TIME: {
 					// This is available_time for whole range of date-range
 					let {available_time: whole_range_time} = action;
@@ -178,10 +183,10 @@ class AdminReservations {
 					let new_reservation = Object.assign({}, current_reservation, {reservation_timestamp});
 
 					// Self call ajax, which much faster than
-					self.ajax_call({
-						type: AJAX_CREATE_NEW_RESERVATION,
-						reservation: new_reservation
-					});
+					// self.ajax_call({
+					// 	type: AJAX_CREATE_NEW_RESERVATION,
+					// 	reservation: new_reservation
+					// });
 
 					return Object.assign({}, state, {new_reservation});
 				}
@@ -320,6 +325,18 @@ class AdminReservations {
 			date_str,
 			time_str,
 		});
+
+		if(state.base_url && state.base_url.includes('reservation.dev') || state.base_url.includes('localhost')){
+			Object.assign(new_reservation, {
+				salutation: 'Mr.',
+				first_name: 'Anh',
+				last_name : 'Le Hoang',
+				email: 'lehoanganh25991@gmail.com',
+				phone_country_code: '+84',
+				phone: '903865657',
+				customer_remarks: 'hello world'
+			});
+		}
 
 		return new_reservation;
 	}
@@ -1134,7 +1151,15 @@ class AdminReservations {
 						'reservation_timestamp',
 					];
 
-					let empty_fields = Object.keys(required_keys).filter(key => !new_reservation[key]);
+					let empty_fields = required_keys.filter(key => {
+						let value = new_reservation[key];
+
+						if(!isNaN(value)){
+							return false;
+						}
+
+						return !value;
+					});
 
 					if(empty_fields.length > 0){
 						window.alert('Please fill in all fields');
@@ -1300,6 +1325,20 @@ class AdminReservations {
 				self.new_reservation_dialog.modal('show');
 			}
 
+			if(action == CLOSE_NEW_RESERVATION_DIALOG){
+				self.new_reservation_dialog.modal('hide');
+			}
+
+			if(action == CREATE_NEW_RESERVATION){
+				let {new_reservation} = state;
+
+				let action = Object.assign(new_reservation, {
+					type: AJAX_CREATE_NEW_RESERVATION
+				});
+
+				self.ajax_call(action);
+			}
+
 			// if(action == SYNC_DATA){
 			Object.assign(window.vue_state, store.getState());
 			// }
@@ -1458,7 +1497,27 @@ class AdminReservations {
 			case AJAX_AVAILABLE_TIME_FOUND: {
 				let {available_time} = res.data;
 				
-				store.dispatch({type: UPDATE_AVAILABLE_TIME, available_time})
+				store.dispatch({type: UPDATE_AVAILABLE_TIME, available_time});
+
+				break;
+			}
+			case AJAX_RESERVATION_SUCCESS_CREATE: {
+				let {reservation} = res.data;
+
+				console.log(reservation);
+
+				store.dispatch({type: CLOSE_NEW_RESERVATION_DIALOG});
+
+				let toast = {
+					title: 'New Reservation',
+					content: 'Created successfully'
+				};
+
+				store.dispatch({type: TOAST_SHOW, toast});
+
+				store.dispatch({type: REFETCHING_DATA});
+
+				break;
 			}
 			default:
 				break;

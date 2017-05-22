@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 //use App\Session;
 use App\Outlet;
+use App\Reservation;
 use Carbon\Carbon;
 use App\ReservationUser;
 use App\Traits\ApiResponse;
@@ -90,14 +91,12 @@ class AdminController extends HoiController {
                     $response = $this->apiResponse($data, $code, $msg);
                     break;
 
-                case CAll::AJAX_SEARCH_AVAILABLE_TIME:
+                case Call::AJAX_SEARCH_AVAILABLE_TIME:
                     $booking_controller = new BookingController();
                     // Bring search into to booking controller
-                    $req->merge([
-                        'outlet_id'    => $req->json('outlet_id'),
-                        'adult_pax'    => $req->json('adult_pax'),
-                        'children_pax' => $req->json('children_pax'),
-                    ]);
+                    $req_data = $req->json()->all();
+                    // Bring search into to booking controller
+                    $req->merge($req_data);
 
                     // Ask him when available
                     $booking_controller->setUpBookingConditions($req);
@@ -108,6 +107,68 @@ class AdminController extends HoiController {
                     $msg  = Call::AJAX_AVAILABLE_TIME_FOUND;
 
                     $response = $this->apiResponse($data, $code, $msg);
+                    break;
+
+                case Call::AJAX_CREATE_NEW_RESERVATION:
+                    $booking_controller = new BookingController();
+                    $req_data = $req->json()->all();
+                    // Bring search into to booking controller
+                    $req->merge($req_data);
+
+                    $validator = Reservation::validateOnCRUD($req->all());
+
+                    if($validator->fails()){
+                        $data = $validator->getMessageBag()->toArray();
+                        $code = 422;
+                        $msg  = Call::AJAX_RESERVATION_VALIDATE_FAIL;
+
+                        $response = $this->apiResponse($data, $code, $msg);
+                        break;
+                    }
+
+                    //Setting::injectOutletId($req->get('outlet_id'));
+
+                    /**
+                     * If booking out of overall min|max pax
+                     */
+                    if(!$booking_controller->bookingInOverallRange($req)){
+                        $data = ['pax' => 'total pax out of overall_range'];
+                        $code = 422;
+                        $msg  = Call::AJAX_RESERVATION_VALIDATE_FAIL;
+
+                        $response = $this->apiResponse($data, $code, $msg);
+                        break;
+                    }
+
+                    /**
+                     * Recheck if customer with reservation info still available
+                     * Customer may search through any condition
+                     * But only Submit hit, info send
+                     * In that longtime, not sure reservation still available
+                     */
+                    if(!$booking_controller->bookingStillAvailable($req)){
+                        $data = [];
+                        $code = 422;
+                        $msg  = Call::AJAX_RESERVATION_NO_LONGER_AVAILABLE;
+
+                        $response = $this->apiResponse($data, $code, $msg);
+                        break;
+                    }
+
+                    /**
+                     * Create reservation INSIDE ADMIN PAGE
+                     * NO CHECK FOR PAYMENT AUTHORIZATION CASE
+                     */
+
+                    $reservation = new Reservation($req->all());
+                    //Store reservation
+                    $reservation->save();
+                    $data = compact('reservation');
+                    $code = 200;
+                    $msg  = Call::AJAX_RESERVATION_SUCCESS_CREATE;
+
+                    $response = $this->apiResponse($data, $code, $msg);
+
                     break;
 
                 default:

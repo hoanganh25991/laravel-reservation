@@ -69,5 +69,10 @@ class HoiAjaxCall {
     const AJAX_FIND_RESERVATION = 'AJAX_FIND_RESERVATION';
     
     const AJAX_FIND_RESERVATION_SUCCESS = 'AJAX_FIND_RESERVATION_SUCCESS';
+    
+    // Different form customer side self booking
+    // This create from admin inside reservations page
+    // No check on payment authorization
+    const AJAX_CREATE_NEW_RESERVATION = 'AJAX_CREATE_NEW_RESERVATION';
 
 }
