@@ -50,7 +50,7 @@
                     <div class="slider round"></div>
                 </label>
             </div>
-            <p>Send SMS to reminder confirmation</p>
+            <p>Send SMS to remind confirmation</p>
         </div>
 
         <hr>

@@ -20,11 +20,10 @@
                     </div>
                     <!-- This div used to filterd reservations -->
                     <div class="modal-body">
-                        <div style="width: 100%; height: 38px; text-align: right">
-                            <span class="h3 text-muted">Filter reservations</span>
-                            <!-- <span  class="fa fa-filter btn bg-info"
-                                   v-on:click="filter_panel = !filter_panel"
-                            ></span> -->
+                        <div style="width: 100%; height: 38px; display: flex; flex-direction: row">
+                            <button class="btn btn-default">New reservation</button>
+                            <div style="display: flex; flex: 1"></div>
+                            <span class="text-muted" style="font-size: 1.67em">Filter reservations</span>
                         </div>
                         <div style="width: 100%; text-align: right; margin-bottom: 20px; ">
                             <transition name="slide">
