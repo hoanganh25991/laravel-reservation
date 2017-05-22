@@ -191,6 +191,5 @@
         $state_json = json_encode($state);
         echo "window.state = $state_json;";
     @endphp</script>
-<script src="{{ url('js/redux-thunk.min.js') }}"></script>
 <script src="{{ url_mix('js/admin-reservations.js') }}"></script>
 @endpush
