@@ -220,7 +220,7 @@ class PayPalController extends HoiController{
 
         }else{
 
-            $msg = "Voi transaction fail. Transaction id $trasaction_id. ";
+            $msg = "Void transaction fail. Transaction id $trasaction_id. ";
 
             try{
 

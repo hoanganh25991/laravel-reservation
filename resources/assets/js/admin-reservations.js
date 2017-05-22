@@ -592,39 +592,49 @@ class AdminReservations {
 					self.ajax_call(action);
 				},
 
-				_updateReservationPayment(e){
-					console.log(e);
+				_updateReservationPayment(e, which_payment){
+					//console.log(e);
 					let vue = this;
 					let button = e.target;
 					if(button.tagName == 'BUTTON'){
 						try{
-							let action = button.getAttribute('action');
+							//let action = button.getAttribute('action');
 							let reservation_index  = button.getAttribute('reservation-index');
 							let picked_reservation = vue.reservations[reservation_index];
 							
 							let payment_status;
+							let action;
 
-							switch(action){
+							switch(which_payment){
 								default:
 									//payment_status = PAYMENT_PAID;
 									break;
-								case 'refund':
+								case PAYMENT_REFUNDED:
 									payment_status = PAYMENT_REFUNDED;
+									action = 'void';
 									break;
-								case 'charge':
+								case PAYMENT_CHARGED:
 									payment_status = PAYMENT_CHARGED;
+									action = 'charge';
 									break;
 							}
 
-							if(payment_status){
-								picked_reservation.payment_status = payment_status;
+							// Admin may touch to this button by accident
+							// Last check before execute
+							let {payment_amount, payment_currency} = picked_reservation;
+							let confirmed = window.confirm(`Are you sure you want to ${action} the authorization of ${payment_amount} ${payment_currency}?`);
+
+							if(confirmed){
+								if(payment_status){
+									picked_reservation.payment_status = payment_status;
+								}
+
+								//Stop bubble event
+								//e.stopPropagation();
+								//let it touch to tr to resolve as read
+								this._updateReservations();
 							}
 
-							//Stop bubble event
-							//e.stopPropagation();
-							//let it touch to tr to resolve as read
-
-							this._updateReservations();
 						}
 						catch(e){}
 					}
