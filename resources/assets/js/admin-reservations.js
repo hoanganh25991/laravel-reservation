@@ -1304,7 +1304,7 @@ class AdminReservations {
 				window.Toast.show();
 			}
 
-			if(action === REFETCHING_DATA){
+			if(action == REFETCHING_DATA){
 				let {filter_day: day} = state;
 				let {outlet_id}       = state;
 
@@ -1566,7 +1566,7 @@ class AdminReservations {
 
 		window.alert('We are refetching data');
 
-		self.ajax_call({type: AJAX_REFETCHING_DATA, outlet_id});
+		store.dispatch({type: REFETCHING_DATA});
 	}
 	
 	ajax_call_complete(res){
