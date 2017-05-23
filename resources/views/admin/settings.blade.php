@@ -100,16 +100,13 @@
                             </div>
 
                             <div class="bg-info">
-                                <p class="text-muted">Max number of days in advance – The maximum number of days in
+                                <p class="text-muted">Max number of days in advance: The maximum number of days in
                                     advance a customer may make a reservation.</p>
                                 <p class="text-muted">Min hours in advance prior to a
-                                    reservation time – The minimum number of hours buffer before a reservation timing is
+                                    reservation time: The minimum number of hours buffer before a reservation timing is
                                     no longer available for booking.</p>
-                                <p class="text-muted">Min hours in advance prior to a session – The minimum number of
-                                    hours buffer before a reservation session is no longer available for booking.</p>
-                                <p class="text-muted">The session’s start timing is defined as the earliest time within
-                                    that session.</p>
-                                <p class="text-muted">Set value to -100 to <strong>ignore checks</strong> for minimum hours in advance prior to session</p>
+                                <p class="text-muted">Min hours in advance prior to a session: The minimum number of
+                                    hours buffer before a reservation session is no longer available for booking. The session’s start timing is defined as the earliest time within that session. Set value to -1000 to <strong>ignore checks</strong> for minimum hours in advance prior to session.</p>
                             </div>
                             @endverbatim
                         </div>
@@ -128,26 +125,21 @@
                             <div class="row">
                                 <div class="col-md-7">
                                     <div class="form-group row">
-                                        <label for="notification_SEND_SMS_ON_BOOKING" class="col-md-4">Send SMS on booking</label>
+                                        <label class="col-md-4">Send SMS on booking</label>
                                         <!-- Rounded switch -->
                                         <label class="switch">
-                                            <input type="checkbox"
-                                                   v-model="notification.SEND_SMS_ON_BOOKING"
-                                                   :value="notification.SEND_SMS_ON_BOOKING"
-                                                   id="notification_SEND_SMS_ON_BOOKING">
+                                            <input v-on:click="notification.SEND_SMS_ON_BOOKING = !+notification.SEND_SMS_ON_BOOKING"
+                                                   :class="+notification.SEND_SMS_ON_BOOKING ? 'switchOn' : ''">
                                             <div class="slider round"></div>
                                         </label>
                                     </div>
 
                                     <div class="form-group row">
-                                        <label for="notification_SEND_SMS_CONFIRMATION" class="col-md-4">Send SMS to confirm reservation</label>
+                                        <label class="col-md-4">Send SMS to confirm reservation</label>
                                         <!-- Rounded switch -->
                                         <label class="switch">
-                                            <input type="checkbox"
-                                                   v-model="notification.SEND_SMS_CONFIRMATION"
-                                                   :value="notification.SEND_SMS_CONFIRMATION"
-                                                   id="notification_SEND_SMS_CONFIRMATION"
-                                            >
+                                            <input v-on:click="notification.SEND_SMS_CONFIRMATION = !+notification.SEND_SMS_CONFIRMATION"
+                                                   :class="+notification.SEND_SMS_CONFIRMATION ? 'switchOn' : ''">
                                             <div class="slider round"></div>
                                         </label>
                                     </div>
@@ -280,10 +272,8 @@
                             <div class="row">
                                 <div style="padding: 0 15px">
                                     <label class="switch" style="transform: translateY(5px)">
-                                        <input type="checkbox"
-                                               v-model="deposit.REQUIRE_DEPOSIT"
-                                               :value="deposit.REQUIRE_DEPOSIT"
-                                               id="deposit_REQUIRE_DEPOSIT"
+                                        <input v-on:click="deposit.REQUIRE_DEPOSIT = !+deposit.REQUIRE_DEPOSIT"
+                                               :class="+deposit.REQUIRE_DEPOSIT ? 'switchOn' : ''"
                                         >
                                         <div class="slider round"></div>
                                     </label>
