@@ -109,6 +109,7 @@
                                     hours buffer before a reservation session is no longer available for booking.</p>
                                 <p class="text-muted">The session’s start timing is defined as the earliest time within
                                     that session.</p>
+                                <p class="text-muted">Set value to -100 to <strong>ignore checks</strong> for minimum hours in advance prior to session</p>
                             </div>
                             @endverbatim
                         </div>
