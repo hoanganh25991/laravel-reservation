@@ -83,6 +83,8 @@ use App\OutletReservationSetting as Setting;
  * @see App\Reservation::scopeByDayBetween
  * @method alreadyReserved
  * @see App\Reservation::scopeAlreadyReserved
+ * @method notRequiredDeposit
+ * @see App\Reservation::scopeNotRequiredDeposit
  */
 class Reservation extends HoiModel {
 
@@ -754,6 +756,10 @@ class Reservation extends HoiModel {
 
     public function scopeAlreadyReserved($query){
         return $query->where('status', '>=', Reservation::RESERVED);
+    }
+    
+    public function scopeNotRequiredDeposit($query){
+        return $query->where('status', '!=', Reservation::REQUIRED_DEPOSIT);
     }
 
 }

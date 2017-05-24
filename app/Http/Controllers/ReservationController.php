@@ -323,7 +323,10 @@ class ReservationController extends HoiController{
         $end_day = $start_day->copy()->addDays($num_days);
 
         //$reservations = Reservation::alreadyReserved()->byDayBetween($start_day, $end_day)->get();
-        $reservations = Reservation::byDayBetween($start_day, $end_day)->get();
+        //$reservations = Reservation::byDayBetween($start_day, $end_day)->get();
+        // Currently we not support a booking require ahthorization but still not pay
+        // Obmit these reservation from fetch to admin page
+        $reservations = Reservation::notRequiredDeposit()->byDayBetween($start_day, $end_day)->get();
 
         return $reservations;
     }
