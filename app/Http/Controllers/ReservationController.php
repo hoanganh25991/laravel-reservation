@@ -322,7 +322,8 @@ class ReservationController extends HoiController{
         // Query reservation in between of start & end
         $end_day = $start_day->copy()->addDays($num_days);
 
-        $reservations = Reservation::alreadyReserved()->byDayBetween($start_day, $end_day)->get();
+        //$reservations = Reservation::alreadyReserved()->byDayBetween($start_day, $end_day)->get();
+        $reservations = Reservation::byDayBetween($start_day, $end_day)->get();
 
         return $reservations;
     }
