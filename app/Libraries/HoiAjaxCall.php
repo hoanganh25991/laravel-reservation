@@ -75,4 +75,12 @@ class HoiAjaxCall {
     // No check on payment authorization
     const AJAX_CREATE_NEW_RESERVATION = 'AJAX_CREATE_NEW_RESERVATION';
 
+    const AJAX_LOGIN_SUCCESS = 'AJAX_LOGIN_SUCCESS';
+    const AJAX_LOGIN_FAIL = 'AJAX_LOGIN_FAIL';
+    
+    const AJAX_LOGIN = 'AJAX_LOGIN';
+    const AJAX_LOGOUT = 'AJAX_LOGOUT';
+    
+    const AJAX_LOGOUT_SUCCESS = 'AJAX_LOGOUT_SUCCESS';
+
 }

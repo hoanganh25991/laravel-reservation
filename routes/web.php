@@ -175,42 +175,9 @@ Route::get('test', function (App\Http\Controllers\BookingController $c, App\Http
 
 
 
-Route::group(['prefix' => 'api', 'middleware' => 'react'], function (){
-//Route::group(['prefix' => 'api', 'middleware' => 'api'], function (){
-//Route::group(['prefix' => 'api', 'middleware' => 'cors'], function (){
-//Route::group(['prefix' => 'api'], function (){
-    Route::any('admin/login', function(\App\Http\Requests\ApiRequest $req){
-        $user_name = $req->get('user_name');
-        $password = $req->get('password');
-
-        //$user = ReservationUser::where('username', $username);
-
-        $logined = Auth::attempt([
-            'user_name' => $user_name,
-            'password'  => $password
-        ], true);
-
-        if($logined){
-            //$req->session()->regenerate();
-            return ['msg' => 'ok'];
-        }
-
-        return ['msg' => 'fail'];
-    });
-
-    Route::any('admin/logout', function(\App\Http\Requests\ApiRequest $req){
-        Auth::logout();
-
-        return ['msg' => 'ok'];
-    });
-
-
-    Route::middleware('reservations')->any('admin/reservations', function(){
-        Setting::injectBrandId(1);
-        Setting::injectOutletId(1);
-
-        $reservations = App\Reservation::fromToday()->where('status', '>=', 100)->get();
-
-        return $reservations;
-    });
+Route::group(['prefix' => 'api/admin', 'middleware' => 'react'], function (){
+    // api call auth
+    Route::any('auth', 'Auth\LoginController@apiLogin');
+    // api call to reservations
+    Route::middleware('reservations')->any('reservations', 'AdminController@getReservationDashboard');
 });

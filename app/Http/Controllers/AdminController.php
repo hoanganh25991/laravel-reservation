@@ -57,167 +57,167 @@ class AdminController extends HoiController {
      * @throws \Exception
      */
     public function getReservationDashboard(ApiRequest $req){
-        // Handle post case
-        if($req->method() == 'POST'){
+        
+        if($req->method() == 'GET'){
+            // Handle default case
+            // Why have to resolve
+            // When staff access admin/reservations
+            // No explicit outlet_id told, resolve as the first one
+            $this->resolveOutletIdToInject();
 
-            /** @var ReservationUser $user */
-            $user = $req->user();
+            $state = $this->reservationsState();
 
-            if(!$user->hasReservationsPermissionOnCurrentOutlet()){
-                throw new \Exception('Sorry, current account cant modify reservations page');
-            }
-
-            $action_type = $req->json('type');
-
-            $reservation_controller = new ReservationController;
-
-            switch($action_type){
-                case Call::AJAX_UPDATE_RESERVATIONS:
-                    $response = $reservation_controller->update($req);
-                    break;
-
-                case Call::AJAX_REFETCHING_DATA:
-                    $data = $this->reservationsState();
-                    $code = 200;
-                    $msg  = Call::AJAX_REFETCHING_DATA_SUCCESS;
-                    
-                    $response = $this->apiResponse($data, $code, $msg);
-                    break;
-
-                case Call::AJAX_FETCH_RESERVATIONS_BY_DAY:
-                    $day_str  = $req->json('day');
-                    $reservations = $reservation_controller->fetchReservationsByDay($day_str);
-                    
-                    $data = compact('reservations');
-                    $code = 200;
-                    $msg  = Call::AJAX_FETCH_RESERVATIONS_BY_DAY_SUCCESS;
-
-                    $response = $this->apiResponse($data, $code, $msg);
-                    break;
-
-                case Call::AJAX_SEARCH_AVAILABLE_TIME:
-                    $booking_controller = new BookingController();
-                    // Bring search into to booking controller
-                    $req_data = $req->json()->all();
-                    // Bring search into to booking controller
-                    $req->merge($req_data);
-
-                    // Ask him when available
-                    $booking_controller->setUpBookingConditions($req);
-                    $available_time = $booking_controller->availableTime();
-
-                    $data = compact('available_time');
-                    $code = 200;
-                    $msg  = Call::AJAX_AVAILABLE_TIME_FOUND;
-
-                    $response = $this->apiResponse($data, $code, $msg);
-                    break;
-
-                case Call::AJAX_CREATE_NEW_RESERVATION:
-                    $booking_controller = new BookingController();
-                    $req_data = $req->json()->all();
-                    // Bring search into to booking controller
-                    $req->merge($req_data);
-
-                    $validator = Reservation::validateOnCRUD($req->all());
-
-                    if($validator->fails()){
-                        $data = $validator->getMessageBag()->toArray();
-                        $code = 422;
-                        $msg  = Call::AJAX_RESERVATION_VALIDATE_FAIL;
-
-                        $response = $this->apiResponse($data, $code, $msg);
-                        break;
-                    }
-
-                    //Setting::injectOutletId($req->get('outlet_id'));
-
-                    /**
-                     * If booking out of overall min|max pax
-                     */
-                    if(!$booking_controller->bookingInOverallRange($req)){
-                        $data = ['pax' => 'total pax out of overall_range'];
-                        $code = 422;
-                        $msg  = Call::AJAX_RESERVATION_VALIDATE_FAIL;
-
-                        $response = $this->apiResponse($data, $code, $msg);
-                        break;
-                    }
-
-                    /**
-                     * Recheck if customer with reservation info still available
-                     * Customer may search through any condition
-                     * But only Submit hit, info send
-                     * In that longtime, not sure reservation still available
-                     */
-                    if(!$booking_controller->bookingStillAvailable($req)){
-                        $data = [];
-                        $code = 422;
-                        $msg  = Call::AJAX_RESERVATION_NO_LONGER_AVAILABLE;
-
-                        $response = $this->apiResponse($data, $code, $msg);
-                        break;
-                    }
-
-                    /**
-                     * Create reservation INSIDE ADMIN PAGE
-                     * NO CHECK FOR PAYMENT AUTHORIZATION CASE
-                     */
-
-                    $reservation = new Reservation($req->all());
-                    $reservation->status = Reservation::RESERVED;
-                    //Store reservation
-                    $reservation->save();
-                    
-                    // Only sent when default not config sent sms
-                    // And request required send sms on reserved
-                    $should_send = $req->get('sms_message_on_reserved') 
-                                   && $reservation->shouldSendSMSOnBooking() == false;
-                    
-                    if($should_send){
-                        $telephone   = $reservation->full_phone_number;
-                        $message     = $reservation->confirmation_sms_message;
-                        $sender_name = Setting::smsSenderName();
-
-                        $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);
-
-                        if($success_sent === true){
-                            Log::info('Success send sms to reminder');
-                            event(new SentReminderSMS($reservation));
-                        }else{
-                            $error_info = $success_sent;
-                            Log::info($error_info);
-                        }
-                    }
-                    
-                    $data = compact('reservation');
-                    $code = 200;
-                    $msg  = Call::AJAX_RESERVATION_SUCCESS_CREATE;
-
-                    $response = $this->apiResponse($data, $code, $msg);
-
-                    break;
-
-                default:
-                    $data = [];
-                    $code = 200;
-                    $msg  = Call::AJAX_UNKNOWN_CASE;
-                    $response = $this->apiResponse($data, $code, $msg);
-                    break;
-            }
-
-            return $response;
+            return view('admin.reservations')->with(compact('state'));
         }
 
-        // Handle default case
-        // Why have to resolve
-        // When staff access admin/reservations
-        // No explicit outlet_id told, resolve as the first one
-        $this->resolveOutletIdToInject();
+        // Handle post case
+        /** @var ReservationUser $user */
+        $user = $req->user();
 
-        $state = $this->reservationsState();
+        if(!$user->hasReservationsPermissionOnCurrentOutlet()){
+            throw new \Exception('Sorry, current account cant modify reservations page');
+        }
 
-        return view('admin.reservations')->with(compact('state'));
+        $action_type = $req->json('type');
+
+        $reservation_controller = new ReservationController;
+
+        switch($action_type){
+            case Call::AJAX_UPDATE_RESERVATIONS:
+                $response = $reservation_controller->update($req);
+                break;
+
+            case Call::AJAX_REFETCHING_DATA:
+                $data = $this->reservationsState();
+                $code = 200;
+                $msg  = Call::AJAX_REFETCHING_DATA_SUCCESS;
+                
+                $response = $this->apiResponse($data, $code, $msg);
+                break;
+
+            case Call::AJAX_FETCH_RESERVATIONS_BY_DAY:
+                $day_str  = $req->json('day');
+                $reservations = $reservation_controller->fetchReservationsByDay($day_str);
+                
+                $data = compact('reservations');
+                $code = 200;
+                $msg  = Call::AJAX_FETCH_RESERVATIONS_BY_DAY_SUCCESS;
+
+                $response = $this->apiResponse($data, $code, $msg);
+                break;
+
+            case Call::AJAX_SEARCH_AVAILABLE_TIME:
+                $booking_controller = new BookingController();
+                // Bring search into to booking controller
+                $req_data = $req->json()->all();
+                // Bring search into to booking controller
+                $req->merge($req_data);
+
+                // Ask him when available
+                $booking_controller->setUpBookingConditions($req);
+                $available_time = $booking_controller->availableTime();
+
+                $data = compact('available_time');
+                $code = 200;
+                $msg  = Call::AJAX_AVAILABLE_TIME_FOUND;
+
+                $response = $this->apiResponse($data, $code, $msg);
+                break;
+
+            case Call::AJAX_CREATE_NEW_RESERVATION:
+                $booking_controller = new BookingController();
+                $req_data = $req->json()->all();
+                // Bring search into to booking controller
+                $req->merge($req_data);
+
+                $validator = Reservation::validateOnCRUD($req->all());
+
+                if($validator->fails()){
+                    $data = $validator->getMessageBag()->toArray();
+                    $code = 422;
+                    $msg  = Call::AJAX_RESERVATION_VALIDATE_FAIL;
+
+                    $response = $this->apiResponse($data, $code, $msg);
+                    break;
+                }
+
+                //Setting::injectOutletId($req->get('outlet_id'));
+
+                /**
+                 * If booking out of overall min|max pax
+                 */
+                if(!$booking_controller->bookingInOverallRange($req)){
+                    $data = ['pax' => 'total pax out of overall_range'];
+                    $code = 422;
+                    $msg  = Call::AJAX_RESERVATION_VALIDATE_FAIL;
+
+                    $response = $this->apiResponse($data, $code, $msg);
+                    break;
+                }
+
+                /**
+                 * Recheck if customer with reservation info still available
+                 * Customer may search through any condition
+                 * But only Submit hit, info send
+                 * In that longtime, not sure reservation still available
+                 */
+                if(!$booking_controller->bookingStillAvailable($req)){
+                    $data = [];
+                    $code = 422;
+                    $msg  = Call::AJAX_RESERVATION_NO_LONGER_AVAILABLE;
+
+                    $response = $this->apiResponse($data, $code, $msg);
+                    break;
+                }
+
+                /**
+                 * Create reservation INSIDE ADMIN PAGE
+                 * NO CHECK FOR PAYMENT AUTHORIZATION CASE
+                 */
+
+                $reservation = new Reservation($req->all());
+                $reservation->status = Reservation::RESERVED;
+                //Store reservation
+                $reservation->save();
+                
+                // Only sent when default not config sent sms
+                // And request required send sms on reserved
+                $should_send = $req->get('sms_message_on_reserved') 
+                               && $reservation->shouldSendSMSOnBooking() == false;
+                
+                if($should_send){
+                    $telephone   = $reservation->full_phone_number;
+                    $message     = $reservation->confirmation_sms_message;
+                    $sender_name = Setting::smsSenderName();
+
+                    $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);
+
+                    if($success_sent === true){
+                        Log::info('Success send sms to reminder');
+                        event(new SentReminderSMS($reservation));
+                    }else{
+                        $error_info = $success_sent;
+                        Log::info($error_info);
+                    }
+                }
+                
+                $data = compact('reservation');
+                $code = 200;
+                $msg  = Call::AJAX_RESERVATION_SUCCESS_CREATE;
+
+                $response = $this->apiResponse($data, $code, $msg);
+
+                break;
+
+            default:
+                $data = [];
+                $code = 200;
+                $msg  = Call::AJAX_UNKNOWN_CASE;
+                $response = $this->apiResponse($data, $code, $msg);
+                break;
+        }
+
+        return $response;
     }
 
     private function reservationsState(){
