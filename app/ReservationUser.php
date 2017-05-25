@@ -252,7 +252,7 @@ class ReservationUser extends User {
      */
     public function outletsCanAccess(){
         $outlet_ids = $this->allowedOutletIds();
-        $outlets    = Outlet::whereIn('id', $outlet_ids)->get();
+        $outlets    = Outlet::withoutGlobalScope('brand_id')->whereIn('id', $outlet_ids)->get();
         
         return $outlets;
     }

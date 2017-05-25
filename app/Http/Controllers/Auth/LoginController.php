@@ -71,7 +71,9 @@ class LoginController extends Controller {
                 if($logined){
                     /** @var ReservationUser $user */
                     $user = Auth::user();
-                    $data = compact('user');
+                    $allowed_outlets = $user->outletsCanAccess();
+
+                    $data = compact('user', 'allowed_outlets');
                     $code = 200;
                     $msg  = Call::AJAX_LOGIN_SUCCESS;
                     
