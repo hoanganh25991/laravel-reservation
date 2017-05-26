@@ -182,8 +182,12 @@ class AdminController extends HoiController {
                 
                 // Only sent when default not config sent sms
                 // And request required send sms on reserved
-                $should_send = $req->get('sms_message_on_reserved') 
-                               && $reservation->shouldSendSMSOnBooking() == false;
+                //$should_send = $req->get('sms_message_on_reserved')
+                //               && $reservation->shouldSendSMSOnBooking() == false;
+                // Sent it out immediately
+                // As status REMINDER_SENT
+                // Auto 5 minutes run cron-jobs stil not duplicate the task
+                $should_send = $req->get('sms_message_on_reserved');
                 
                 if($should_send){
                     $telephone   = $reservation->full_phone_number;
