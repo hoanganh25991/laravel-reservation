@@ -11,6 +11,7 @@ use App\ReservationUser;
 use App\Traits\ApiResponse;
 use App\Events\SentReminderSMS;
 use App\Http\Requests\ApiRequest;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use App\Libraries\HoiAjaxCall as Call;
 use App\OutletReservationSetting as Setting;
@@ -107,17 +108,23 @@ class AdminController extends HoiController {
                 break;
 
             case Call::AJAX_SEARCH_AVAILABLE_TIME:
-                $booking_controller = new BookingController();
-                // Bring search into to booking controller
+                // BookinController get data as form-data or url-encoded
+                // So... attach form-data or url-encoded from json
                 $req_data = $req->json()->all();
-                // Bring search into to booking controller
                 $req->merge($req_data);
-
+                
                 // Ask him when available
+                $booking_controller = new BookingController();
                 $booking_controller->setUpBookingConditions($req);
                 $available_time = $booking_controller->availableTime();
-
-                $data = compact('available_time');
+                
+                // Support make decision for required credit card authorization
+                $reservation           = new Reservation($req_data);
+                $deposit               = $reservation->deposit;
+                $paypal_currency       = $reservation->paypal_currency;
+                $payment_authorization = compact('deposit', 'paypal_currency');
+                
+                $data = compact('available_time', 'payment_authorization');
                 $code = 200;
                 $msg  = Call::AJAX_AVAILABLE_TIME_FOUND;
 
@@ -125,13 +132,16 @@ class AdminController extends HoiController {
                 break;
 
             case Call::AJAX_CREATE_NEW_RESERVATION:
-                $booking_controller = new BookingController();
+                // BookinController get data as form-data or url-encoded
+                // So... attach form-data or url-encoded from json
                 $req_data = $req->json()->all();
-                // Bring search into to booking controller
                 $req->merge($req_data);
+                
+                // Ask him to solve the reservation book case
+                $booking_controller = new BookingController();
 
                 $validator = Reservation::validateOnCRUD($req->all());
-
+                // Validate fail
                 if($validator->fails()){
                     $data = $validator->getMessageBag()->toArray();
                     $code = 422;
@@ -141,11 +151,7 @@ class AdminController extends HoiController {
                     break;
                 }
 
-                //Setting::injectOutletId($req->get('outlet_id'));
-
-                /**
-                 * If booking out of overall min|max pax
-                 */
+                // If booking out of overall min|max pax
                 if(!$booking_controller->bookingInOverallRange($req)){
                     $data = ['pax' => 'total pax out of overall_range'];
                     $code = 422;
@@ -170,28 +176,32 @@ class AdminController extends HoiController {
                     break;
                 }
 
-                /**
-                 * Create reservation INSIDE ADMIN PAGE
-                 * NO CHECK FOR PAYMENT AUTHORIZATION CASE
-                 */
-
+                // Everythign is fine
+                // Create reservation
                 $reservation = new Reservation($req->all());
-                $reservation->status = Reservation::RESERVED;
-                //Store reservation
+                // Create reservation INSIDE ADMIN PAGE
+                // Check reservation authorization base on 'Admin decision'
+                $required_credit_card_authorization   = $req->json('required_credit_card_authorization');
+                $should_ask_for_payment_authorization = $reservation->requiredDeposit()
+                                                        && $required_credit_card_authorization;
+                $status = $should_ask_for_payment_authorization ?
+                                Reservation::REQUIRED_DEPOSIT
+                                : Reservation::RESERVED;
+                // Update status
+                $reservation->status = $status;
+                // Store reservation
                 $reservation->save();
-                
-                // Only sent when default not config sent sms
-                // And request required send sms on reserved
-                //$should_send = $req->get('sms_message_on_reserved')
-                //               && $reservation->shouldSendSMSOnBooking() == false;
-                // Sent it out immediately
-                // As status REMINDER_SENT
-                // Auto 5 minutes run cron-jobs stil not duplicate the task
-                $should_send = $req->get('sms_message_on_reserved');
-                
+
+                // Should sent SMS immediately
+                // Dont wait for cron-jobs, when reservation status updated
+                // No duplicate task on send SMS
+                $should_send = $req->json('sms_message_on_reserved');
+
                 if($should_send){
                     $telephone   = $reservation->full_phone_number;
-                    $message     = $reservation->confirmation_sms_message;
+                    $message     = $should_ask_for_payment_authorization ?
+                                        $reservation->confirmation_sms_ask_payment_authorization_message
+                                        :$reservation->sms_message_on_reserved;
                     $sender_name = Setting::smsSenderName();
 
                     $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);
@@ -204,7 +214,7 @@ class AdminController extends HoiController {
                         Log::info($error_info);
                     }
                 }
-                
+
                 $data = compact('reservation');
                 $code = 200;
                 $msg  = Call::AJAX_RESERVATION_SUCCESS_CREATE;
