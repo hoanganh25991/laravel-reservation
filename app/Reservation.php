@@ -630,9 +630,32 @@ class Reservation extends HoiModel {
         else
             $msg .= " for $this->adult_pax adults";
 
-        $msg .= " at $time_str at $this->outlet_name.";
-        $msg .= "Reservation No. $this->confirm_id";
-        $msg .= " Please confirm that you are coming $this->confirm_coming_url";
+        $msg .= " at $time_str at $this->outlet_name. ";
+        $msg .= "Reservation No. $this->confirm_id. ";
+        $msg .= "Please confirm that you are coming $this->confirm_coming_url";
+
+        return $msg;
+    }
+
+    /** SMS message when admin create booking for customer in side admin reservations page */
+    public function getConfirmationSMSAskPaymentAuthorizationAttribute(){
+        //send out an SMS
+        $date_str = $this->date->format('d M Y');
+        $time_str = $this->date->format('H:i');
+
+        $msg = "Your reservation is not yet confirmed! To complete your reservation at $this->outlet_name on $date_str at $time_str";
+
+        //how many pax
+        if ($this->adult_pax > 0 && $this->children_pax > 0)
+            $msg .= " for $this->adult_pax adults, $this->children_pax children";
+        else if ($this->children_pax > 0)
+            $msg .= " for $this->children_pax children";
+        else
+            $msg .= " for $this->adult_pax adults";
+
+        // Add punctation
+        $msg .= ". ";
+        $msg .= "Please make a credit card authorization via the following link: $this->confirm_coming_url. ";
 
         return $msg;
     }
