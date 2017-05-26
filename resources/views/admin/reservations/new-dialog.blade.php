@@ -1,6 +1,6 @@
 @verbatim
 <div class="row">
-    <div class="col-md-7">
+    <div class="col-md-7" style="padding: 0">
         <div class="form-group">
             <label class="col-md-3 text-right">Name</label>
             <select
@@ -41,9 +41,7 @@
             />
         </div>
 
-
-
-        <div class="form-group">
+        <div class="row">
             <div class="col-md-3">
                 <label class="pull-right switch">
                     <input type="checkbox"
@@ -57,7 +55,7 @@
 
         <hr>
 
-        <div class="form-group">
+        <div class="row">
             <label class="col-md-3 text-right">Adult Pax</label>
             <select
                     v-model="new_reservation.adult_pax"
@@ -86,7 +84,8 @@
                 <option value="20">20</option>
             </select>
         </div>
-        <div class="form-group">
+
+        <div class="row">
             <label class="col-md-3 text-right">Children Pax</label>
             <select
                     v-model="new_reservation.children_pax"
@@ -116,31 +115,32 @@
             </select>
         </div>
 
-        <div class="form-group">
+        <div class="row">
             <label class="col-md-3"></label>
             <div style="display: inline-block">
                 <span class="small text-muted">Notice. Min Pax: {{ outlet.overall_min_pax }}. Max Pax: {{ outlet.overall_max_pax  }}</span>
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="row">
             <label class="col-md-3 text-right">Date</label>
             <input
                     type="date" style="width: 135px; height: 30px"
                     v-model="new_reservation.date_str"
             >
         </div>
-        <div class="form-group">
+
+        <div class="row">
             <label class="col-md-3 text-right">Time</label>
             <button class="btn btn-default"
                 v-on:click="_searchAvailableTime"
             >Search available</button>
         </div>
 
-        <div class="form-group">
-            <label class="col-md-3 text-right"></label>
-            <div style="display: inline-block; max-height: 500px; overflow-y: auto; padding: 0" class="col-md-9">
-                <ul style="list-style-type: none; margin: 0; padding: 0;">
+        <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-9" style="padding: 0">
+                <ul style="list-style-type: none; margin: 0; padding: 0; max-height: 350px; overflow-y: auto;">
                     <li v-if="is_calling_ajax" class="bg-info">
                         Searching...
                     </li>
@@ -160,7 +160,34 @@
                 </ul>
             </div>
         </div>
+
+        <hr/>
+
+        <div v-if="1 == 1">
+            <div class="row">
+                <div class="col-md-3">
+                    <label class="switch  pull-right">
+                        <input type="text">
+                        <div class="slider round"></div>
+                    </label>
+                </div>
+                <div class="col-md-9" style="padding: 0">
+                    <div>Required  Credit Card Authorization</div>
+                    <small>System will automatically SMS the customer with credit card authorization link.</small>
+                    <br/>
+                    <small>Customer must authorize credit card before the reservation is confirmed.</small>
+                </div>
+            </div>
+
+            <div class="row">
+                <label class="col-md-3 text-right">Amount</label>
+                <div>
+                    <input type="text" value="xxx SGD"/>
+                </div>
+            </div>
+        </div>
     </div>
+    <!-- Customer & staf remark -->
     <div class="col-md-5">
         <div class="panel panel-default">
             <div class="panel-heading">Customer Remarks</div>
