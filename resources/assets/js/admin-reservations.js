@@ -81,6 +81,9 @@ const AJAX_CREATE_NEW_RESERVATION= 'AJAX_CREATE_NEW_RESERVATION';
 const AJAX_RESERVATION_SUCCESS_CREATE = 'AJAX_RESERVATION_SUCCESS_CREATE';
 const CLOSE_NEW_RESERVATION_DIALOG = 'CLOSE_NEW_RESERVATION_DIALOG';
 
+const AJAX_RESERVATION_REQUIRED_DEPOSIT = 'AJAX_RESERVATION_REQUIRED_DEPOSIT';
+const UPDATE_NEW_RESERVATION = 'UPDATE_NEW_RESERVATION';
+
 class AdminReservations {
 	/** @namespace res.errorMsg */
 	/**
@@ -188,6 +191,13 @@ class AdminReservations {
 					// Test success sent through action
 					console.log(new_reservation.sms_message_on_reserved);
 
+					return Object.assign({}, state, {new_reservation});
+				}
+				case UPDATE_NEW_RESERVATION:{
+					let {new_reservation: curr_new_reservation} = state;
+					
+					let new_reservation = Object.assign({}, curr_new_reservation, action.new_reservation);
+					
 					return Object.assign({}, state, {new_reservation});
 				}
 				default:
@@ -309,6 +319,9 @@ class AdminReservations {
 			modified_timestamp: null,
 			confirm_id: null,
 			send_confirmation_by_timestamp: null,
+			// This branch store decision from admin
+			// In payment authorization case, ask customer to pay or not
+			required_credit_card_authorization: true,
 			deposit: null,
 			time: null,
 			paypal_currency: null,
@@ -1509,9 +1522,26 @@ class AdminReservations {
 				break;
 			}
 			case AJAX_AVAILABLE_TIME_FOUND: {
+				// Update available time
 				let {available_time} = res.data;
-				
 				store.dispatch({type: UPDATE_AVAILABLE_TIME, available_time});
+
+				// Just for better experience
+				// But it couple data
+				let total_available_times = Object.keys(available_time).reduce((carry, key) => {
+					let available_times_on_date = available_time[key];
+					carry += available_times_on_date.length;
+
+					return carry;
+				}, 0);
+
+				if(total_available_times > 0){
+					// Update info for this new_reservation
+					let {payment_authorization}    = res.data;
+					let {deposit, paypal_currency} = payment_authorization;
+					let new_reservation            = {deposit, paypal_currency};
+					store.dispatch({type: UPDATE_NEW_RESERVATION, new_reservation});
+				}
 
 				break;
 			}
@@ -1533,8 +1563,24 @@ class AdminReservations {
 
 				break;
 			}
-			default:
+			// case AJAX_RESERVATION_REQUIRED_DEPOSIT:{
+			// 	// Show diff & ask customer for doing xyz
+			// 	let {reservation: new_reservation} = res.data;
+			//
+			// 	console.log(new_reservation);
+			//
+			// 	window.alert('This reservation required payment authorization. Please decide SMS customer to pay or not')
+			//
+			// 	store.dispatch({type: UPDATE_NEW_RESERVATION, new_reservation});
+			//
+			// 	break;
+			// }
+			default:{
+				// This default cant resolve
+				// Ok toast out what happen
+				window.alert(JSON.stringify(res));
 				break;
+			}
 
 		}
 	}

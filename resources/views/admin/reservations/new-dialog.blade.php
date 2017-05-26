@@ -161,13 +161,14 @@
             </div>
         </div>
 
-        <hr/>
+        <div v-if="typeof new_reservation.deposit != 'undefined' && new_reservation.deposit != null">
+            <hr/>
 
-        <div v-if="1 == 1">
             <div class="row">
                 <div class="col-md-3">
                     <label class="switch  pull-right">
-                        <input type="text">
+                        <input v-on:click="new_reservation.required_credit_card_authorization = !+new_reservation.required_credit_card_authorization"
+                               :class="+new_reservation.required_credit_card_authorization ? 'switchOn' : ''" />
                         <div class="slider round"></div>
                     </label>
                 </div>
@@ -182,7 +183,7 @@
             <div class="row">
                 <label class="col-md-3 text-right">Amount</label>
                 <div>
-                    <input type="text" value="xxx SGD"/>
+                    <input type="text" :value="new_reservation.deposit + ' '+ new_reservation.paypal_currency" disabled/>
                 </div>
             </div>
         </div>

@@ -178,7 +178,7 @@ class AdminController extends HoiController {
 
                 // Everythign is fine
                 // Create reservation
-                $reservation = new Reservation($req->all());
+                $reservation = new Reservation($req_data);
                 // Create reservation INSIDE ADMIN PAGE
                 // Check reservation authorization base on 'Admin decision'
                 $required_credit_card_authorization   = $req->json('required_credit_card_authorization');
