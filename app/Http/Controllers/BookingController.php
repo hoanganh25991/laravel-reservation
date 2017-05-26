@@ -427,140 +427,144 @@ class BookingController extends HoiController {
      * @return $this|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function getBookingForm(ApiRequest $req){
-        if($req->method() == 'POST'){
-            $action_type = $req->get('type');
 
-            // $response built when this controller
-            // base on other controller to handle request
-            // WHY??? same end point idea
-            // GET|POST at one place
-            $response = null;
-            switch($action_type){
-                default:
-                    $data = [];
-                    $code = 200;
-                    $msg  = Call::AJAX_UNKNOWN_CASE;
-                    break;
-                /**
-                 * Customer query to get available time
-                 */
-                case Call::AJAX_SEARCH_AVAILABLE_TIME:
-                    /* @var Validator $validator*/
-                    $validator = $this->validateBookingCondition($req->all());
+        if($req->method() == 'GET'){
+            //Handle get
+            $outlets = Outlet::all();
+            /**
+             * Server state
+             * Base on that frontend client render
+             */
+            $state = [
+                'base_url'        => url()->current(),
+                'outlets'         => $outlets,
+            ];
 
-                    if($validator->fails()){
-                        $data = $validator->getMessageBag()->toArray();
-                        $code = 422;
-                        $msg  = Call::AJAX_BOOKING_CONDITION_VALIDATE_FAIL;
-                        break;
-                    }
-
-                    /**
-                     * Inject customer booking condition into booking controller
-                     */
-                    $this->setUpBookingConditions($req->all());
-
-                    /**
-                     * Compute available time
-                     */
-                    $available_time = $this->availableTime();
-
-                    /**
-                     * @warn need update to has it own statusMsg
-                     * rather than implicit tell available time on return
-                     */
-                    $data = compact('available_time');
-                    $code = 200;
-                    $msg  = Call::AJAX_AVAILABLE_TIME_FOUND;
-                    break;
-                /**
-                 * Customer submit complete form
-                 * to create reservation
-                 */
-                case Call::AJAX_SUBMIT_BOOKING:
-                    $validator = Reservation::validateOnCRUD($req->all());
-
-                    if($validator->fails()){
-                        $data = $validator->getMessageBag()->toArray();
-                        $code = 422;
-                        $msg  = Call::AJAX_RESERVATION_VALIDATE_FAIL;
-                        break;
-                    }
-
-                    Setting::injectOutletId($req->get('outlet_id'));
-
-                    /**
-                     * If booking out of overall min|max pax
-                     */
-                    if(!$this->bookingInOverallRange($req)){
-                        $data = ['pax' => 'total pax out of overall_range'];
-                        $code = 422;
-                        $msg  = Call::AJAX_RESERVATION_VALIDATE_FAIL;
-                        break;
-                    }
-
-                    /**
-                     * Recheck if customer with reservation info still available
-                     * Customer may search through any condition
-                     * But only Submit hit, info send
-                     * In that longtime, not sure reservation still available
-                     */
-                    if(!$this->bookingStillAvailable($req)){
-                        $data = [];
-                        $code = 422;
-                        $msg  = Call::AJAX_RESERVATION_NO_LONGER_AVAILABLE;
-                        break;
-                    }
-
-                    $reservation = new Reservation($req->all());
-
-                    //Store reservation
-                    $reservation->save();
-
-                    /**
-                     * Case: Reservation with deposit require
-                     */
-                    if($reservation->requiredDeposit()){
-                        $paypal_token = (new PayPalController)->generateToken();
-
-                        $data = compact('reservation', 'paypal_token');
-                        $code = 200;
-                        $msg  = Call::AJAX_RESERVATION_REQUIRED_DEPOSIT;
-                        break;
-                    }
-
-                    /**
-                     * Normal case: Reservation created
-                     * RESERVED
-                     */
-
-                    $data = compact('reservation');
-                    $code = 200;
-                    $msg  = Call::AJAX_RESERVATION_SUCCESS_CREATE;
-                    break;
-                case Call::AJAX_PAYMENT_REQUEST:
-                    $response = (new PayPalController)->handlePayment($req);
-                    break;
-            }
-
-            // Return $response built by other controllers
-            if($response)
-                return $response;
-
-            return $this->apiResponse($data, $code, $msg);
+            return view('reservations.booking-form', compact('state'));
         }
 
-        //Handle get
-        $outlets = Outlet::all();
-        /**
-         * Server state
-         * Base on that frontend client render
-         */
-        $state = [
-            'base_url'        => url()->current(),
-            'outlets'         => $outlets,
-        ];
+        // Handle POST case
+        $action_type = $req->get('type');
 
-        return view('reservations.booking-form', compact('state'));
+        // $response built when this controller
+        // base on other controller to handle request
+        // WHY??? same end point idea
+        // GET|POST at one place
+        $response = null;
+        switch($action_type){
+            /**
+             * Customer query to get available time
+             */
+            case Call::AJAX_SEARCH_AVAILABLE_TIME:
+                /* @var Validator $validator*/
+                $validator = $this->validateBookingCondition($req->all());
+
+                if($validator->fails()){
+                    $data = $validator->getMessageBag()->toArray();
+                    $code = 422;
+                    $msg  = Call::AJAX_BOOKING_CONDITION_VALIDATE_FAIL;
+                    break;
+                }
+
+                /**
+                 * Inject customer booking condition into booking controller
+                 */
+                $this->setUpBookingConditions($req->all());
+
+                /**
+                 * Compute available time
+                 */
+                $available_time = $this->availableTime();
+
+                /**
+                 * @warn need update to has it own statusMsg
+                 * rather than implicit tell available time on return
+                 */
+                $data = compact('available_time');
+                $code = 200;
+                $msg  = Call::AJAX_AVAILABLE_TIME_FOUND;
+                break;
+            /**
+             * Customer submit complete form
+             * to create reservation
+             */
+
+            case Call::AJAX_SUBMIT_BOOKING:
+                $validator = Reservation::validateOnCRUD($req->all());
+
+                if($validator->fails()){
+                    $data = $validator->getMessageBag()->toArray();
+                    $code = 422;
+                    $msg  = Call::AJAX_RESERVATION_VALIDATE_FAIL;
+                    break;
+                }
+
+                Setting::injectOutletId($req->get('outlet_id'));
+
+                /**
+                 * If booking out of overall min|max pax
+                 */
+                if(!$this->bookingInOverallRange($req)){
+                    $data = ['pax' => 'total pax out of overall_range'];
+                    $code = 422;
+                    $msg  = Call::AJAX_RESERVATION_VALIDATE_FAIL;
+                    break;
+                }
+
+                /**
+                 * Recheck if customer with reservation info still available
+                 * Customer may search through any condition
+                 * But only Submit hit, info send
+                 * In that longtime, not sure reservation still available
+                 */
+                if(!$this->bookingStillAvailable($req)){
+                    $data = [];
+                    $code = 422;
+                    $msg  = Call::AJAX_RESERVATION_NO_LONGER_AVAILABLE;
+                    break;
+                }
+
+                $reservation = new Reservation($req->all());
+
+                //Store reservation
+                $reservation->save();
+
+                /**
+                 * Case: Reservation with deposit require
+                 */
+                if($reservation->requiredDeposit()){
+                    $paypal_token = (new PayPalController)->generateToken();
+
+                    $data = compact('reservation', 'paypal_token');
+                    $code = 200;
+                    $msg  = Call::AJAX_RESERVATION_REQUIRED_DEPOSIT;
+                    break;
+                }
+
+                /**
+                 * Normal case: Reservation created
+                 * RESERVED
+                 */
+                $data = compact('reservation');
+                $code = 200;
+                $msg  = Call::AJAX_RESERVATION_SUCCESS_CREATE;
+                break;
+
+            case Call::AJAX_PAYMENT_REQUEST:
+                $response = (new PayPalController)->handlePayment($req);
+                break;
+
+            default:
+                $data = [];
+                $code = 422;
+                $msg  = Call::AJAX_UNKNOWN_CASE;
+                break;
+        }
+
+        // Return $response built by other controllers
+        if($response)
+            return $response;
+
+        return $this->apiResponse($data, $code, $msg);
     }
 }
