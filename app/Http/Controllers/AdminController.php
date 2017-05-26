@@ -208,7 +208,9 @@ class AdminController extends HoiController {
 
                     if($success_sent === true){
                         Log::info('Success send sms to reminder');
-                        event(new SentReminderSMS($reservation));
+                        //event(new SentReminderSMS($reservation));
+                        $reservation->status = Reservation::REMINDER_SENT;
+                        $reservation->save();
                     }else{
                         $error_info = $success_sent;
                         Log::info($error_info);
