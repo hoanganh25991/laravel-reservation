@@ -117,17 +117,21 @@
 
         <div class="row">
             <label class="col-md-3"></label>
-            <div style="display: inline-block">
-                <span class="small text-muted">Notice. Min Pax: {{ outlet.overall_min_pax }}. Max Pax: {{ outlet.overall_max_pax  }}</span>
+            <div  class="col-md-9" style="padding: 0">
+                <div class="small text-muted">Overall Pax, allowed range, min: {{ outlet.overall_min_pax }}, max: {{ outlet.overall_max_pax  }}.</div>
             </div>
         </div>
 
         <div class="row">
             <label class="col-md-3 text-right">Date</label>
-            <input
-                    type="date" style="width: 135px; height: 30px"
-                    v-model="new_reservation.date_str"
-            >
+            <div  class="col-md-9" style="padding: 0">
+                <input type="date" style="width: 135px; height: 30px"
+                       v-model="new_reservation.date_str"
+                />
+                <div class="small text-muted">Max days in advance: {{ outlet.max_days_in_advance }}.
+                    So, only available before {{ moment().add(+outlet.max_days_in_advance + 1, 'days').format('YYYY-MM-DD') }}</div>
+            </div>
+
         </div>
 
         <div class="row">
@@ -141,7 +145,7 @@
             <div class="col-md-3"></div>
             <div class="col-md-9" style="padding: 0">
                 <ul style="list-style-type: none; margin: 0; padding: 0; max-height: 350px; overflow-y: auto;">
-                    <li v-if="is_calling_ajax" class="bg-info">
+                    <li v-if="is_calling_ajax == AJAX_SEARCH_AVAILABLE_TIME" class="bg-info">
                         Searching...
                     </li>
                     <template v-for="(chunk, chunk_index) in new_reservation.available_time">

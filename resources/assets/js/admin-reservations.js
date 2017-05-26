@@ -1394,6 +1394,10 @@ class AdminReservations {
 			}
 		});
 
+    // Dispatch calling ajax
+    let {type} = action;
+    store.dispatch({type: CALLING_AJAX, is_calling_ajax: type});
+
 
 		let state = store.getState();
 
@@ -1528,14 +1532,10 @@ class AdminReservations {
 
 				// Just for better experience
 				// But it couple data
-				let total_available_times = Object.keys(available_time).reduce((carry, key) => {
-					let available_times_on_date = available_time[key];
-					carry += available_times_on_date.length;
+        let {new_reservation: {date_str}} = store.getState();
+				let available_times_on_date = available_time[date_str];
 
-					return carry;
-				}, 0);
-
-				if(total_available_times > 0){
+				if(available_times_on_date && available_times_on_date.length > 0){
 					// Update info for this new_reservation
 					let {payment_authorization}    = res.data;
 					let {deposit, paypal_currency} = payment_authorization;
@@ -1618,10 +1618,6 @@ class AdminReservations {
 
 		let o_ajax = $.ajax;
 		$.jsonAjax = function(options){
-			// Dispatch calling ajax
-			let store = window.store;
-			store.dispatch({type: CALLING_AJAX, is_calling_ajax: true});
-
 			let data = options.data;
 			let data_json = JSON.stringify(data);
 			//console.log(data_json);

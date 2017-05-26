@@ -170,16 +170,32 @@
                         @include('admin.reservations.new-dialog')
                         @verbatim
                     </div>
-                    <div class="modal-footer" style="border-top: 1px solid #e5e5e5;">
-                        <button
-                                class="btn bg-info"
+                    <!-- Footer when normal -->
+                    <div v-if="is_calling_ajax != AJAX_CREATE_NEW_RESERVATION"
+                         class="modal-footer" style="border-top: 1px solid #e5e5e5;">
+                        <button class="btn bg-info"
                                 v-on:click="_createNewReservation"
                         >Save</button>
-                        <button
-                                class="btn bg-info"
+                        <button class="btn bg-info"
                                 v-on:click="_createNewReservation({sms_message_on_reserved: true})"
                         >Save & SMS Customer</button>
                     </div>
+                    <!-- Footer when click on button waiting for server response -->
+                    @endverbatim
+                    <div  v-if="is_calling_ajax == AJAX_CREATE_NEW_RESERVATION"
+                          class="modal-footer" style="border-top: 1px solid #e5e5e5;">
+                        <button v-if="new_reservation.sms_message_on_reserved != true"
+                                class="btn bg-info" disabled >
+                            <img src="{{ url('images/ring.svg') }}" height="25" />
+                            Saving
+                        </button>
+                        <button v-if="new_reservation.sms_message_on_reserved == true"
+                                class="btn bg-info" disabled>
+                            <img src="{{ url('images/ring.svg') }}" height="25" />
+                            Saving & SMS Customer
+                        </button>
+                    </div>
+                    @verbatim
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
         </div><!-- /.modal -->
