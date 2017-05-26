@@ -64,8 +64,12 @@ class ReservationController extends HoiController{
                     $reservation = $this->findByConfirmId($confirm_id);
                     $outlet      = Outlet::find($reservation->outlet_id);
 
+                    // Inject paypal_token
+                    Setting::injectOutletId($reservation->outlet_id);
+                    $paypal_token = (new PayPalController)->generateToken();
+
                     // Build response
-                    $data = compact('reservation', 'outlet');
+                    $data = compact('reservation', 'outlet', 'paypal_token');
                     $code = 200;
                     $msg  = Call::AJAX_FIND_RESERVATION_SUCCESS;
                     
