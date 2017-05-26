@@ -85,6 +85,8 @@ use App\OutletReservationSetting as Setting;
  * @see App\Reservation::scopeAlreadyReserved
  * @method notRequiredDeposit
  * @see App\Reservation::scopeNotRequiredDeposit
+ * @property mixed confirmation_sms_ask_payment_authorization_message
+ * @see App\Reservation::getConfirmationSMSAskPaymentAuthorizationMessageAttribute
  */
 class Reservation extends HoiModel {
 
@@ -638,7 +640,7 @@ class Reservation extends HoiModel {
     }
 
     /** SMS message when admin create booking for customer in side admin reservations page */
-    public function getConfirmationSMSAskPaymentAuthorizationAttribute(){
+    public function getConfirmationSMSAskPaymentAuthorizationMessageAttribute(){
         //send out an SMS
         $date_str = $this->date->format('d M Y');
         $time_str = $this->date->format('H:i');
@@ -655,7 +657,7 @@ class Reservation extends HoiModel {
 
         // Add punctation
         $msg .= ". ";
-        $msg .= "Please make a credit card authorization via the following link: $this->confirm_coming_url. ";
+        $msg .= "Please make a credit card authorization via the following link: $this->confirm_coming_url";
 
         return $msg;
     }
