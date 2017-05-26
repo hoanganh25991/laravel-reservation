@@ -22,6 +22,7 @@ class Outlet extends HoiModel {
         'send_sms_on_booking',
         'paypal_currency',
         'sms_sender_name',
+        'deposit_threshold_pax',
     ];
     
     public function getNameAttribute(){
@@ -161,4 +162,28 @@ class Outlet extends HoiModel {
 
         return $setting_config(Setting::SMS_SENDER_NAME);
     }
+
+    /**
+     * Get DEPOSIT_THRESHOLD_PAX in admin reservation
+     * Why? allow staff create reservation for customer
+     * So... if required payment authorization occur
+     * SMS sent with url ask CUSTOMER TO PAY for confirm
+     * Ok, we need this info back into outlet model
+     * @return mixed|null
+     * @throws \Exception
+     */
+    public function getDepositThresholdPaxAttribute(){
+        $outlet_id = $this->id;
+
+        if(is_null($outlet_id)){
+            // Outlet still not created
+            // Can get its config
+            throw new \Exception('Outlet doenst have id');
+        }
+
+        $deposit_config = Setting::depositConfig($outlet_id);
+
+        return $deposit_config(Setting::DEPOSIT_THRESHOLD_PAX);
+    }
+
 }
