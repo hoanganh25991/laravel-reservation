@@ -155,7 +155,10 @@ class BookingController extends HoiController {
 
                     $is_cap_available   = ($chunk->$cap_name > 0) && ($chunk->max_table_size >= $reservation_pax_size);
                     $is_chilren_allowed = $chunk->children_allowed || !$this->bookingHasChildren();
-                    $ignore_max_pax     = $chunk->max_pax == 0;
+                    // New condition, ultimate max_pax
+                    // Previous max_pax understand as max_table_size
+                    // When max_pax available, it is a new threshold for number of ovrall pax allowed
+                    $ignore_max_pax     = $chunk->max_pax <= 0;
                     $is_under_max_pax   = $reservation_pax_size <= $chunk->max_pax || $ignore_max_pax;
 
                     $available          = $is_under_max_pax && $is_cap_available && $is_chilren_allowed;
