@@ -242,6 +242,8 @@ class ReservationUser extends User {
         switch($this->permission_level){
             case ReservationUser::RESERVATIONS:
                 return 'Reservations';
+            case ReservationUser::MASTER_RESERVATIONS:
+                return 'Master Reservations';
             case ReservationUser::ADMINISTRATOR:
                 return 'Administrator';
             default:
