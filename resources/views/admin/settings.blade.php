@@ -247,6 +247,7 @@
                                                 <td>
                                                     <select v-model="user.permission_level">
                                                         <option value="0">Reservations</option>
+                                                        <option value="5">Master Reservations</option>
                                                         <option value="10">Administrator</option>
                                                     </select>
                                                 </td>

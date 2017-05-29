@@ -56,6 +56,7 @@
                     <select v-model="user_dialog_content.permission_level"
                     >
                         <option value="0">Reservations</option>
+                        <option value="5">Master Reservations</option>
                         <option value="10">Administrator</option>
                     </select>
                 </div>
