@@ -35,9 +35,9 @@ class ReservationUser extends User {
     
     use Notifiable;
 
-    const RESERVATIONS  = 0;
+    const RESERVATIONS        = 0;
     const MASTER_RESERVATIONS = 5;
-    const ADMINISTRATOR = 10;
+    const ADMINISTRATOR       = 10;
 
     protected $guarded = ['id'];
 

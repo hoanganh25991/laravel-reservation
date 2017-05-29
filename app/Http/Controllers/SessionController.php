@@ -106,11 +106,11 @@ class SessionController extends HoiController{
                 }catch(\Exception $e){
                    if($e->getMessage() == Call::AJAX_VALIDATE_FAIL){
                        $data = $validator->getMessageBag()->toArray();
-                       $code = 200;
+                       $code = 422;
                        $msg  = Call::AJAX_VALIDATE_FAIL;
                    }else{
                        $data = $e->getMessage();
-                       $code = 200;
+                       $code = 422;
                        $msg = Call::AJAX_ERROR;
                    }
                 }

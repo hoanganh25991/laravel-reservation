@@ -119,7 +119,7 @@ class OutletReservationSetting extends HoiModel{
     /**
      * Default fallback when max pax not set
      */
-    const TIMING_MAX_PAX = 20;
+    const DEFAULT_TIMING_MAX_TABLE_SIZE = 20;
 
     /**
      * Hash id SALT

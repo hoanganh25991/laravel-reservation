@@ -206,7 +206,7 @@ class AdminController extends HoiController {
 
                     $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);
 
-                    if($success_sent === true){
+                    if($success_sent === true && $status >= Reservation::RESERVED){
                         Log::info('Success send sms to reminder');
                         //event(new SentReminderSMS($reservation));
                         $reservation->status = Reservation::REMINDER_SENT;

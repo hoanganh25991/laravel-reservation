@@ -153,7 +153,7 @@ class Timing extends HoiModel {
             "capacity_5_6"       => 'required|numeric',
             "capacity_7_x"       => 'required|numeric',
             "max_table_size"     => 'required|numeric',
-            "max_pax"            => 'required|numeric',
+            //"max_pax"            => 'required|numeric',
             "children_allowed"   => 'required|boolean',
         ]);
 
@@ -288,5 +288,22 @@ class Timing extends HoiModel {
      */
     public function scopeAvailableToBook($query){
         return Timing::filterAvailableToBook($query);
+    }
+
+    /**
+     * Wrap max_pax set case
+     * when max_pax from input as ''
+     * insert into int column > fail
+     * wrap it, turn into null value when user submit clumsy val
+     * @param $value
+     */
+    public function setMaxPaxAttribute($value){
+        $max_pax = $value;
+
+        if(!is_numeric($value)){
+            $max_pax = null;
+        }
+
+        $this->attributes['max_pax'] = $max_pax;
     }
 }

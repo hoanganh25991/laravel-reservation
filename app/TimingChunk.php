@@ -17,11 +17,9 @@ class TimingChunk implements Arrayable, Jsonable{
     protected $capacity_3_4;
     protected $capacity_5_6;
     protected $capacity_7_x;
+    protected $max_table_size;
     protected $max_pax;
     protected $children_allowed;
-    /**
-     * 
-     */
     protected $min_pax_bookinf_for_deposit;
     protected $min_pax_for_booking_deposit;
     protected $booking_deposit_amount;
@@ -37,6 +35,7 @@ class TimingChunk implements Arrayable, Jsonable{
         'capacity_3_4'       ,
         'capacity_5_6'       ,
         'capacity_7_x'       ,
+        'max_table_size'     ,
         'max_pax'            ,
         'children_allowed'   ,
     ];
@@ -47,8 +46,8 @@ class TimingChunk implements Arrayable, Jsonable{
         }
     }
 
-    public function getMaxPaxAttribute(){
-        return $this->max_pax ?: Setting::TIMING_MAX_PAX;
+    public function getMaxTableSizeAttribute(){
+        return $this->max_table_size ?: Setting::DEFAULT_TIMING_MAX_TABLE_SIZE;
     }
 
     /**

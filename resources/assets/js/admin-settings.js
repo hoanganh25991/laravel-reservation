@@ -1062,16 +1062,16 @@ class AdminSettings {
 				break;
 			}
 			case AJAX_VALIDATE_FAIL: {
-				let toast = {
-					title: 'Validate Fail',
-					content: JSON.stringify(res.data)
-				}
-
-				store.dispatch({
-					type: TOAST_SHOW,
-					toast
-				});
-				
+				// let toast = {
+				// 	title: 'Validate Fail',
+				// 	content: JSON.stringify(res.data)
+				// }
+        //
+				// store.dispatch({
+				// 	type: TOAST_SHOW,
+				// 	toast
+				// });
+				window.alert(JSON.stringify(res))
 				break;
 			}
 			case AJAX_REFETCHING_DATA_SUCCESS: {
@@ -1099,25 +1099,7 @@ class AdminSettings {
 
 	ajax_call_error(res_literal){
 		console.log(res_literal);
-		// Please don't change these code
-		let res = res_literal.responseJSON;
-
-		try{
-			switch(res.statusMsg){
-				case DONT_HAVE_PERMISSION:{
-					window.alert(res.errorMsg);
-					break;
-				}
-				default: {
-					window.alert(res.errorMsg);
-					break;
-				}
-			}
-		}catch(e){
-			window.alert(JSON.stringify(res_literal));
-		}
-
-
+		window.alert(JSON.stringify(res_literal));
 	}
 	
 	ajax_call_complete(){}
