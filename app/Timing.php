@@ -29,6 +29,7 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
  * @property mixed $min_pax_for_booking_deposit
  * @property mixed $disabled
  * @property mixed $children_allowed
+ * @property mixed max_table_size
  */
 class Timing extends HoiModel {
     
@@ -87,6 +88,7 @@ class Timing extends HoiModel {
         'capacity_3_4',
         'capacity_5_6',
         'capacity_7_x',
+        'max_table_size',
         'max_pax',
         'children_allowed',
         'is_outdoor',
@@ -150,6 +152,7 @@ class Timing extends HoiModel {
             "capacity_3_4"       => 'required|numeric',
             "capacity_5_6"       => 'required|numeric',
             "capacity_7_x"       => 'required|numeric',
+            "max_table_size"     => 'required|numeric',
             "max_pax"            => 'required|numeric',
             "children_allowed"   => 'required|boolean',
         ]);
@@ -219,6 +222,7 @@ class Timing extends HoiModel {
                 'capacity_3_4'       => $this->capacity_3_4,
                 'capacity_5_6'       => $this->capacity_5_6,
                 'capacity_7_x'       => $this->capacity_7_x,
+                'max_table_size'     => $this->max_table_size,
                 'max_pax'            => $this->max_pax,
                 'children_allowed'   => $this->children_allowed,
             ]);
