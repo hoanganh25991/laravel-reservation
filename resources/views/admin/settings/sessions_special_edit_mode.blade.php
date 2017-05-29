@@ -55,6 +55,7 @@
                                 <th>Capacity 3_4</th>
                                 <th>Capacity 5_6</th>
                                 <th>Capacity 8_x</th>
+                                <th>Max table size</th>
                                 <th>Max pax</th>
                                 <th>Children</th>
                             </tr>

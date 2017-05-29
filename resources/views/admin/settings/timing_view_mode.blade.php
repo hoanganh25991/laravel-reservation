@@ -11,6 +11,7 @@
         <td>{{ timing.capacity_3_4 }}</td>
         <td>{{ timing.capacity_5_6 }}</td>
         <td>{{ timing.capacity_7_x }}</td>
+        <td>{{ timing.max_table_size }}</td>
         <td>{{ timing.max_pax }}</td>
         <td>
             <input type="checkbox"

@@ -78,6 +78,12 @@
         <td>
             <input type="number"
                    style="width: 40px"
+                   :id="'timing_' + timing.id + 'max_table_size'"
+                   v-model="timing['max_table_size']">
+        </td>
+        <td>
+            <input type="number"
+                   style="width: 40px"
                    :id="'timing_' + timing.id + 'max_pax'"
                    v-model="timing['max_pax']">
         </td>
