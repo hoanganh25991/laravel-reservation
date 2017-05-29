@@ -193,8 +193,8 @@ class AdminController extends HoiController {
                 $reservation->save();
 
                 // Should sent SMS immediately
-                // Dont wait for cron-jobs, when reservation status updated
-                // No duplicate task on send SMS
+                // I ALWAYS MIS UNDERSTAND OF SMS ON BOOKING & SMS FOR CONFIRMATION
+                // STILL GOT BUGS OF DUPLICATE MSG
                 $should_send = $req->json('sms_message_on_reserved');
 
                 if($should_send){
@@ -206,11 +206,8 @@ class AdminController extends HoiController {
 
                     $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);
 
-                    if($success_sent === true && !$should_ask_for_payment_authorization){
-                        Log::info('Success send sms to reminder');
-                        //event(new SentReminderSMS($reservation));
-                        $reservation->status = Reservation::REMINDER_SENT;
-                        $reservation->save();
+                    if($success_sent === true){
+                        Log::info('Success send sms on booking in admin page');
                     }else{
                         $error_info = $success_sent;
                         Log::info($error_info);
