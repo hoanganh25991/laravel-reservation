@@ -36,6 +36,7 @@ class ReservationUser extends User {
     use Notifiable;
 
     const RESERVATIONS  = 0;
+    const MASTER_RESERVATIONS = 5;
     const ADMINISTRATOR = 10;
 
     protected $guarded = ['id'];
@@ -127,8 +128,24 @@ class ReservationUser extends User {
         // Administrator over the reservations role
         // If it is administrator >>> can use any role from reservations
         $is_admin = $this->isAdministrator();
+        // Master reservations has hight permission
+        // Override on reservations only
+        $is_master_reservations = $this->isMasterReservations();
 
-        return $is_admin || $is_reservations;
+        return $is_admin || $is_master_reservations|| $is_reservations;
+    }
+
+    /**
+     * Master reservations role
+     */
+    public function isMasterReservations(){
+        $is_master_reservations = $this->permission_level == ReservationUser::MASTER_RESERVATIONS;
+
+        // Administrator over the reservations role
+        // If it is administrator >>> can use any role from reservations
+        $is_admin = $this->isAdministrator();
+
+        return $is_admin || $is_master_reservations;
     }
 
     /**
@@ -292,5 +309,22 @@ class ReservationUser extends User {
 
         }
     }
+
+    public function hasMasterReservationsPermissionOnCurrentOutlet(){
+        try {
+            $outlet_id      = Setting::outletId();
+            $isMasterResv   = $this->isMasterReservations();
+            $allowed_outlet = $this->allowedOutletIds()->contains($outlet_id);
+
+            return $isMasterResv && $allowed_outlet;
+
+        } catch(\Exception $e){
+
+            return false;
+
+        }
+    }
+
+
     
 }

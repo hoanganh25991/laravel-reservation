@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\Administrator;
+use App\Http\Middleware\MasterReservations;
 use App\Http\Middleware\Reservations;
 use App\Http\Middleware\ResolveBrandOutletId;
 use App\Http\Middleware\Staff;
@@ -77,5 +78,6 @@ class Kernel extends HttpKernel
         'administrator' => Administrator::class,
         'reservations'  => Reservations::class,
         'cors'          => \Barryvdh\Cors\HandleCors::class,
+        'master-reservations' => MasterReservations::class,
     ];
 }

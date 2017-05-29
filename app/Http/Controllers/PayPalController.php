@@ -176,18 +176,11 @@ class PayPalController extends HoiController{
     public static function void($trasaction_id){
         // This action now REQUIRED permission level as administrator
         // Bring logic inside User model it self
-        try{
-            /* @var ReservationUser $user*/
-            $user = Auth::user();
+        /* @var ReservationUser $user*/
+        $user = Auth::user();
 
-            if(!$user->hasAdministratorPermissionOnCurrentOutlet()){
-                throw new \Exception('Current account cant void');
-            }
-
-        } catch(\Exception $e){
-
-            throw new \Exception('Void authorization payment need administrator permission');
-
+        if(!($user && $user->hasMasterReservationsPermissionOnCurrentOutlet())){
+            throw new \Exception('Void authorization payment need master reservations permission');
         }
 
         // Check status to call void or refund
@@ -247,18 +240,11 @@ class PayPalController extends HoiController{
     public static function charge($trasaction_id){
         // This action now REQUIRED permission level as administrator
         // Bring logic inside User model it self
-        try{
-            /* @var ReservationUser $user*/
-            $user = Auth::user();
+        /* @var ReservationUser $user*/
+        $user = Auth::user();
 
-            if(!$user->hasAdministratorPermissionOnCurrentOutlet()){
-                throw new \Exception();
-            }
-
-        } catch(\Exception $e){
-
-            throw new \Exception('Charge authorization payment need administrator permission');
-
+        if(!($user && $user->hasMasterReservationsPermissionOnCurrentOutlet())){
+            throw new \Exception('Charge authorization payment need master reservations permission');
         }
         
         // Settle it down to get money
