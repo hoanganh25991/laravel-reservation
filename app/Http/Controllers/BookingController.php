@@ -153,10 +153,12 @@ class BookingController extends HoiController {
                     //$chunk->max_pax       = $chunk->max_pax ?: Setting::TIMING_MAX_PAX;
                     $cap_name             = Timing::getCapacityName($reservation_pax_size);
 
-                    $is_cap_available   = ($chunk->$cap_name > 0) && ($chunk->max_pax >= $reservation_pax_size);
+                    $is_cap_available   = ($chunk->$cap_name > 0) && ($chunk->max_table_size >= $reservation_pax_size);
                     $is_chilren_allowed = $chunk->children_allowed || !$this->bookingHasChildren();
+                    $ignore_max_pax     = $chunk->max_pax == 0;
+                    $is_under_max_pax   = $reservation_pax_size <= $chunk->max_pax || $ignore_max_pax;
 
-                    $available          = $is_cap_available && $is_chilren_allowed;
+                    $available          = $is_under_max_pax && $is_cap_available && $is_chilren_allowed;
 
                     return $available;
                 })
