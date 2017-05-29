@@ -66,7 +66,7 @@
         </div>
         <!--Ok only administrator can see this action
         Be cross-checked on server -->
-        <div v-show="reservation.payment_status == 100 && user.permission_level == 10">
+        <div v-show="reservation.payment_status == 100 && (user.permission_level == 10 || user.permission_level == 5)">
             <button action="refund" :reservation-index='reservation_index'  class="bg-info" style="width: 100%"
                     v-on:click="_updateReservationPayment($event, PAYMENT_REFUNDED)"
             >Void</button>
