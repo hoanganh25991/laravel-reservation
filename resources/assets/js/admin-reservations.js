@@ -321,7 +321,7 @@ class AdminReservations {
 			send_confirmation_by_timestamp: null,
 			// This branch store decision from admin
 			// In payment authorization case, ask customer to pay or not
-			required_credit_card_authorization: true,
+			//payment_required: null,
 			deposit: null,
 			time: null,
 			paypal_currency: null,
@@ -1194,6 +1194,20 @@ class AdminReservations {
 						store.dispatch({type: CREATE_NEW_RESERVATION, new_reservation});
 					}
 
+				},
+				// Only allow user turn on required authorization
+				// When he actually make search time call
+				_togglePaymentRequired(){
+					let vue_state = window.vue_state;
+					let {new_reservation} = vue_state;
+					let {available_time} = new_reservation;
+					if(!(available_time.length > 0)){
+						window.alert('Please pick up time first');
+						return;
+					}
+					// Ok toggle it
+					let {payment_required: curr} = new_reservation;
+					new_reservation.payment_required = !curr;
 				}
 			}
 		});
@@ -1532,16 +1546,18 @@ class AdminReservations {
 
 				// Just for better experience
 				// But it couple data
-        let {new_reservation: {date_str}} = store.getState();
-				let available_times_on_date = available_time[date_str];
+        // let {new_reservation: {date_str}} = store.getState();
+				// let available_times_on_date = available_time[date_str];
 
-				if(available_times_on_date && available_times_on_date.length > 0){
+				//if(available_times_on_date && available_times_on_date.length > 0){
 					// Update info for this new_reservation
 					let {payment_authorization}    = res.data;
-					let {deposit, paypal_currency} = payment_authorization;
-					let new_reservation            = {deposit, paypal_currency};
+					let {deposit, deposit: payment_amount, paypal_currency: payment_currency} = payment_authorization;
+					// Apply deposit case on admin check for credit card authorization
+					let payment_required = deposit != null;
+					let new_reservation  = {payment_amount, payment_currency, payment_required};
 					store.dispatch({type: UPDATE_NEW_RESERVATION, new_reservation});
-				}
+				//}
 
 				break;
 			}

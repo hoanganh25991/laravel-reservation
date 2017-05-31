@@ -165,29 +165,28 @@
             </div>
         </div>
 
-        <div v-if="typeof new_reservation.deposit != 'undefined' && new_reservation.deposit != null">
+        <div>
             <hr/>
-
             <div class="row">
                 <div class="col-md-3">
                     <label class="switch  pull-right">
-                        <input v-on:click="new_reservation.required_credit_card_authorization = !+new_reservation.required_credit_card_authorization"
-                               :class="+new_reservation.required_credit_card_authorization ? 'switchOn' : ''" />
+                        <input v-on:click="_togglePaymentRequired"
+                               :class="+new_reservation.payment_required ? 'switchOn' : ''" />
                         <div class="slider round"></div>
                     </label>
                 </div>
                 <div class="col-md-9" style="padding: 0">
                     <div>Required  Credit Card Authorization</div>
-                    <small>System will automatically SMS the customer with credit card authorization link.</small>
-                    <br/>
-                    <small>Customer must authorize credit card before the reservation is confirmed.</small>
+                    <small class="text-muted">System will automatically SMS the customer with credit card authorization link. <br/>Customer must authorize credit card before the reservation is confirmed.</small>
+
                 </div>
             </div>
 
             <div class="row">
                 <label class="col-md-3 text-right">Amount</label>
-                <div>
-                    <input type="text" :value="new_reservation.deposit + ' '+ new_reservation.paypal_currency" disabled/>
+                <div class="input-group">
+                    <span class="input-group-addon">{{new_reservation.payment_currency}}</span>
+                    <input type="text" v-model="new_reservation.payment_amount" :disabled="!new_reservation.payment_required"/>
                 </div>
             </div>
         </div>
