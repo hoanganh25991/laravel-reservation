@@ -181,21 +181,21 @@ class AdminController extends HoiController {
                 $reservation = new Reservation($req_data);
                 // Create reservation INSIDE ADMIN PAGE
                 // Check reservation authorization base on 'Admin decision'
-                $required_credit_card_authorization   = $req->json('required_credit_card_authorization');
-                $should_ask_for_payment_authorization = $reservation->requiredDeposit()
-                                                        && $required_credit_card_authorization;
-                $status = $should_ask_for_payment_authorization ?
-                                Reservation::REQUIRED_DEPOSIT
-                                : Reservation::RESERVED;
-                // Update status
+                $should_ask_for_payment_authorization = $req->json('payment_required');
+                $status = $should_ask_for_payment_authorization ? Reservation::REQUIRED_DEPOSIT : Reservation::RESERVED;
+                 // Update status
                 $reservation->status = $status;
-                // Store reservation
+                // Info about payment stored auto
+                // Bcs Reservation model now, allowed fillable in these info
                 $reservation->save();
-
                 // Should sent SMS immediately
-                // I ALWAYS MIS UNDERSTAND OF SMS ON BOOKING & SMS FOR CONFIRMATION
-                // STILL GOT BUGS OF DUPLICATE MSG
-                $should_send = $req->json('sms_message_on_reserved');
+                // I ALWAYS MISTAKE OF SMS ON BOOKING & SMS FOR CONFIRMATION
+                // SMS on booking decided to send right after reservation created
+                // So still get 2 sms if $should send run on one more time
+                $admin_wish_sms_on_booking = $req->json('sms_message_on_reserved');
+                $default_sms_on_booking    = $reservation->shouldSendSMSOnBooking() && $reservation->status == Reservation::RESERVED;
+                // Decide sent it or not
+                $should_send = !$default_sms_on_booking && $admin_wish_sms_on_booking;
 
                 if($should_send){
                     $telephone   = $reservation->full_phone_number;
@@ -203,8 +203,7 @@ class AdminController extends HoiController {
                                         $reservation->confirmation_sms_ask_payment_authorization_message
                                         :$reservation->sms_message_on_reserved;
                     $sender_name = Setting::smsSenderName();
-
-                    $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);
+                    $success_sent= $this->sendOverNexmo($telephone, $message, $sender_name);
 
                     if($success_sent === true){
                         Log::info('Success send sms on booking in admin page');

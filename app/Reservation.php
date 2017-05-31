@@ -86,6 +86,7 @@ use App\OutletReservationSetting as Setting;
  * @method notRequiredDeposit
  * @see App\Reservation::scopeNotRequiredDeposit
  * @property mixed confirmation_sms_ask_payment_authorization_message
+ * @property mixed payment_required
  * @see App\Reservation::getConfirmationSMSAskPaymentAuthorizationMessageAttribute
  */
 class Reservation extends HoiModel {
@@ -183,9 +184,10 @@ class Reservation extends HoiModel {
         'session_name',
         'staff_read_state',
         'payment_id',
+        'payment_required',
         'payment_timestamp',
         'payment_amount',
-        'payment_required',
+        'payment_currency',
         'payment_status',
         'is_outdoor',
     ];
@@ -517,6 +519,7 @@ class Reservation extends HoiModel {
      * Need pay in advance
      * When reservation over specific pax
      * Base on deposit config : DEPOSIT_THRESHOLD_PAX
+     * Add admin_wish, which override default config
      */
 
     /**
@@ -524,23 +527,35 @@ class Reservation extends HoiModel {
      * @return bool
      */
     public function requiredDeposit(){
+        // Allow check requiredDeposit as admin want
+        // When he create booking inside admin page
+        // admin wish override on default config
+        $admin_wish = $this->payment_required;
+        if(!is_null($admin_wish)){
+            return $admin_wish;
+        }
+
         $deposit_config = Setting::depositConfig($this->outlet_id);
         $deposit_threshold_pax = $deposit_config(Setting::DEPOSIT_THRESHOLD_PAX);
 
-        if($this->pax_size > $deposit_threshold_pax){
-            return true;
-        }
+        $required = $this->pax_size > $deposit_threshold_pax;
 
-        return false;
+        return $required;
     }
 
     /**
      * If require, compute as $deposit property
+     * Now deposit will rely on payment_amount also
+     * When payment_amount set > use it override on default config
      * @return int|mixed
      * @throws \Exception
      */
     public function getDepositAttribute(){
         if($this->requiredDeposit()){
+            $payment_amount = $this->payment_amount;
+            if(!is_null($payment_amount)){
+                return $payment_amount;
+            }
             //inject which outlet_id use to get config
             //Setting::injectOutletId($this->outlet_id);
             $deposit_config = Setting::depositConfig($this->outlet_id);
