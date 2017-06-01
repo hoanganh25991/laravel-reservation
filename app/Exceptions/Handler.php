@@ -12,6 +12,7 @@ use Psr\Log\LoggerInterface;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use App\Libraries\HoiAjaxCall as Call;
+use Symfony\Component\DependencyInjection\Tests\Compiler\C;
 
 class Handler extends ExceptionHandler {
 
@@ -63,29 +64,14 @@ class Handler extends ExceptionHandler {
      * @return \Illuminate\Http\Response
      */
     public function render($request, Exception $exception){
-        // When render error for api
-        // Render as
-        // code: 500
 
         $fromApiGroup = preg_match('/api/', $request->url());
-
+        // When render error for api
         if($request->ajax() || $fromApiGroup){
+            $code = 422;
+            $msg  = Call::SERVER_THROWN_EXCEPTION;
+            $data = [];
 
-            switch(get_class($exception)){
-                case DontHavePermissionException::class:
-                    /** @var ReservationUser $user */
-                    $user = Auth::user();
-                    $data = compact('user');
-                    $code = 422;
-                    $msg  = Call::DONT_HAVE_PERMISSION;
-                    break;
-                default:
-                    $data = [];
-                    $code = 422;
-                    $msg  = Call::SERVER_THROWN_EXCEPTION;
-                    break;
-            }
-            
             return Response::json([
                 'statusCode' => $code,
                 'statusMsg'  => $msg,
