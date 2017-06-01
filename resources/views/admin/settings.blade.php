@@ -79,7 +79,8 @@
                             </div>
 
                             <div class="form-group row">
-                                <label for="buffer_MIN_HOURS_IN_ADVANCE_SLOT_TIME" class="col-md-3">Min hours in advance prior to a reservation time</label>
+                                <label for="buffer_MIN_HOURS_IN_ADVANCE_SLOT_TIME" class="col-md-3">
+                                    Min hours in advance to allow new bookings prior to a reservation time</label>
                                 <div class="col-md-4">
                                     <input class="form-control" type="number"
                                            v-model="buffer.MIN_HOURS_IN_ADVANCE_SLOT_TIME"
@@ -88,7 +89,8 @@
                             </div>
 
                             <div class="form-group row">
-                                <label for="buffer.MIN_HOURS_IN_ADVANCE_SESSION_TIME" class="col-md-3">Min hours in advance prior to a session</label>
+                                <label for="buffer.MIN_HOURS_IN_ADVANCE_SESSION_TIME" class="col-md-3">
+                                    Min hours in advance to allow new bookings prior to a session</label>
                                 <div class="col-md-4">
                                     <input class="form-control" type="number"
                                            v-model="buffer.MIN_HOURS_IN_ADVANCE_SESSION_TIME"
