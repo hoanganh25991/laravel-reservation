@@ -158,6 +158,7 @@ class OutletReservationSettingController extends Controller {
             Setting::MIN_HOURS_IN_ADVANCE_SLOT_TIME,
             Setting::MIN_HOURS_IN_ADVANCE_SESSION_TIME,
             Setting::MIN_HOURS_IN_ADVANCE_TO_ALLOW_CANCELLATION_AMENDMENT_PRIOR_TO_RESERVATION_TIME,
+            Setting::MAX_PAX_FOR_SELF_CANCELLATION_AMENDMENT,
         ];
         
         return Setting::buildKeyValueOfConfig($buffer_config, $buffer_keys);

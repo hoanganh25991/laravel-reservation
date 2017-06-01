@@ -15,7 +15,7 @@ use App\OutletReservationSetting as Setting;
 
 /**
  * @property mixed reservation_timestamp
- * @see Reservation::getReservationTimestampAttribute
+ * @see protected $dates, which cast data
  * 
  * @property Carbon date
  * @see Reservation::getDateAttribute

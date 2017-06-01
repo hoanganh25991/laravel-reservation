@@ -35,7 +35,9 @@ class OutletReservationSetting extends HoiModel{
 
     const MIN_HOURS_IN_ADVANCE_TO_ALLOW_CANCELLATION_AMENDMENT_PRIOR_TO_RESERVATION_TIME = 
         'MIN_HOURS_IN_ADVANCE_TO_ALLOW_CANCELLATION_AMENDMENT_PRIOR_TO_RESERVATION_TIME';
-    //const DEFAULT_MIN_HOURS_IN_ADVANCE_TO_ALLOW_CANCELLATION_AMENDMENT_PRIOR_TO_RESERVATION_TIME = 3;
+
+    const MAX_PAX_FOR_SELF_CANCELLATION_AMENDMENT = 'MAX_PAX_FOR_SELF_CANCELLATION_AMENDMENT';
+    const DEFAULT_MAX_PAX_FOR_SELF_CANCELLATION_AMENDMENT = 16;
 
     /**
      * SETTING default config
@@ -198,6 +200,7 @@ class OutletReservationSetting extends HoiModel{
             Setting::MIN_HOURS_IN_ADVANCE_SLOT_TIME,
             Setting::MIN_HOURS_IN_ADVANCE_SESSION_TIME,
             Setting::MIN_HOURS_IN_ADVANCE_TO_ALLOW_CANCELLATION_AMENDMENT_PRIOR_TO_RESERVATION_TIME,
+            Setting::MAX_PAX_FOR_SELF_CANCELLATION_AMENDMENT,
             //for notification
             Setting::SEND_SMS_ON_BOOKING,
             Setting::SEND_SMS_CONFIRMATION,
@@ -541,5 +544,28 @@ class OutletReservationSetting extends HoiModel{
 
     public static function getSupportedPaypalCurrency(){
         return Setting::DEFAULT_SUPPORTED_PAYPAL_CURRENCY;
+    }
+
+    /**
+     * Check if customer allowed to edit reservation
+     * @param Reservation $reservation
+     * @return bool
+     */
+    public static function isCustomerAllowedToEditReservation($reservation){
+        // Load config
+        $buffer_config = Setting::bufferConfig();
+        $min_hours_customer_allowed_edit = $buffer_config(Setting::MIN_HOURS_IN_ADVANCE_TO_ALLOW_CANCELLATION_AMENDMENT_PRIOR_TO_RESERVATION_TIME);
+        $max_pax_allowed_edit            = $buffer_config(Setting::MAX_PAX_FOR_SELF_CANCELLATION_AMENDMENT);
+
+        $now = Carbon::now(Setting::timezone());
+        $reservation_time = $reservation->date;
+
+        $diff_in_hours = $now->diffInHours($reservation_time, false);
+        $still_not_pass= $now->lte($reservation_time);
+        
+        $respect_time  = $diff_in_hours >= $min_hours_customer_allowed_edit && $still_not_pass;
+        $respect_pax   = $reservation->pax_size <= $max_pax_allowed_edit;
+        
+        return $respect_time && $respect_pax;
     }
 }

@@ -547,10 +547,15 @@ class BookingController extends HoiController {
                 }
 
                 /**
+                 * New setting check for if customer can edit the reservation
+                 */
+                $allowed_edit = Setting::isCustomerAllowedToEditReservation($reservation);
+
+                /**
                  * Normal case: Reservation created
                  * RESERVED
                  */
-                $data = compact('reservation');
+                $data = compact('reservation', 'allowed_edit');
                 $code = 200;
                 $msg  = Call::AJAX_RESERVATION_SUCCESS_CREATE;
                 break;
