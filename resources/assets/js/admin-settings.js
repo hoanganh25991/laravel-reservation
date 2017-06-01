@@ -54,6 +54,8 @@ const SYNC_VUE_STATE   = 'SYNC_VUE_STATE';
 
 const DONT_HAVE_PERMISSION = 'DONT_HAVE_PERMISSION';
 
+const MIN_HOURS_ALLOW_CANCELLATION = 'MIN_HOURS_IN_ADVANCE_TO_ALLOW_CANCELLATION_AMENDMENT_PRIOR_TO_RESERVATION_TIME'
+
 
 class AdminSettings {
 	/** @namespace user.permission_level */
@@ -622,6 +624,13 @@ class AdminSettings {
 								}
 							});
 					});
+				},
+
+				_updateBufferMinHoursAllowCancellationOrAmendment(value){
+					console.log('see update', value);
+					let vue_state = window.vue_state;
+					let buffer    = vue_state.buffer;
+					buffer[MIN_HOURS_ALLOW_CANCELLATION] = value;
 				}
 			}
 

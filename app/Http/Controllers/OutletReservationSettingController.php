@@ -144,7 +144,8 @@ class OutletReservationSettingController extends Controller {
         $buffer_keys   = [
             Setting::MAX_DAYS_IN_ADVANCE,
             Setting::MIN_HOURS_IN_ADVANCE_SLOT_TIME,
-            Setting::MIN_HOURS_IN_ADVANCE_SESSION_TIME
+            Setting::MIN_HOURS_IN_ADVANCE_SESSION_TIME,
+            Setting::MIN_HOURS_IN_ADVANCE_TO_ALLOW_CANCELLATION_AMENDMENT_PRIOR_TO_RESERVATION_TIME,
         ];
         
         return Setting::buildKeyValueOfConfig($buffer_config, $buffer_keys);

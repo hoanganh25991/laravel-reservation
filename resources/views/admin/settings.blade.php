@@ -74,7 +74,6 @@
                                 <div class="col-md-4">
                                     <input class="form-control" type="number"
                                            v-model="buffer.MAX_DAYS_IN_ADVANCE"
-                                           :value="buffer.MAX_DAYS_IN_ADVANCE"
                                            id="buffer_MAX_DAYS_IN_ADVANCE">
                                 </div>
                             </div>
@@ -84,7 +83,6 @@
                                 <div class="col-md-4">
                                     <input class="form-control" type="number"
                                            v-model="buffer.MIN_HOURS_IN_ADVANCE_SLOT_TIME"
-                                           :value="buffer.MIN_HOURS_IN_ADVANCE_SLOT_TIME"
                                            id="buffer_MIN_HOURS_IN_ADVANCE_SLOT_TIME">
                                 </div>
                             </div>
@@ -94,8 +92,18 @@
                                 <div class="col-md-4">
                                     <input class="form-control" type="number"
                                            v-model="buffer.MIN_HOURS_IN_ADVANCE_SESSION_TIME"
-                                           :value="buffer.MIN_HOURS_IN_ADVANCE_SESSION_TIME"
                                            id="buffer.MIN_HOURS_IN_ADVANCE_SESSION_TIME">
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label for="buffer.MIN_HOURS_IN_ADVANCE_TO_ALLOW_CANCELLATION_AMENDMENT_PRIOR_TO_RESERVATION_TIME"
+                                       class="col-md-3">Min hours in advance to allow cancellation/amendment prior to a reservation time</label>
+                                <div class="col-md-4">
+                                    <input class="form-control" type="number"
+                                           v-model="buffer.MIN_HOURS_IN_ADVANCE_TO_ALLOW_CANCELLATION_AMENDMENT_PRIOR_TO_RESERVATION_TIME"
+                                           v-on:change="_updateBufferMinHoursAllowCancellationOrAmendment($event.target.value)"
+                                           id="buffer.MIN_HOURS_IN_ADVANCE_TO_ALLOW_CANCELLATION_AMENDMENT_PRIOR_TO_RESERVATION_TIME">
                                 </div>
                             </div>
 
