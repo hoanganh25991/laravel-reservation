@@ -504,8 +504,6 @@ class BookingController extends HoiController {
                     break;
                 }
 
-                Setting::injectOutletId($req->get('outlet_id'));
-
                 /**
                  * If booking out of overall min|max pax
                  */
