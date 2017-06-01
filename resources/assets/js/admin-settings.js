@@ -55,6 +55,8 @@ const SYNC_VUE_STATE   = 'SYNC_VUE_STATE';
 const DONT_HAVE_PERMISSION = 'DONT_HAVE_PERMISSION';
 
 const MIN_HOURS_ALLOW_CANCELLATION = 'MIN_HOURS_IN_ADVANCE_TO_ALLOW_CANCELLATION_AMENDMENT_PRIOR_TO_RESERVATION_TIME'
+const MIN_HOURS_IN_ADVANCE_PRIOR_TO_RESERVATION_TIME = 'MIN_HOURS_IN_ADVANCE_SLOT_TIME';
+const MIN_HOURS_IN_ADVANCE_PRIOR_TO_SESSION_TIME     = 'MIN_HOURS_IN_ADVANCE_SESSION_TIME';
 
 
 class AdminSettings {
@@ -630,7 +632,20 @@ class AdminSettings {
 					console.log('see update', value);
 					let vue_state = window.vue_state;
 					let buffer    = vue_state.buffer;
-					buffer[MIN_HOURS_ALLOW_CANCELLATION] = value;
+					// Check min hour allow cancellation must respect
+					// new booking
+					let min_hours_prior_to_reservation_time = buffer[MIN_HOURS_IN_ADVANCE_PRIOR_TO_RESERVATION_TIME];
+					let min_hours_prior_to_session_time     = buffer[MIN_HOURS_IN_ADVANCE_PRIOR_TO_SESSION_TIME];
+					let is_respect_booking_time = value > min_hours_prior_to_reservation_time && value > min_hours_prior_to_session_time;
+					if(is_respect_booking_time){
+						buffer[MIN_HOURS_ALLOW_CANCELLATION] = value;
+					}else{
+						let msg = 'Min hours in advance to allow cancellation/amendment must respect the config of booking time. Please set it up higher.';
+						window.alert(msg);
+						// Set back to previous value
+						let newBuffer = Object.assign({}, buffer);
+						vue_state.buffer = newBuffer;
+					}
 				}
 			}
 
@@ -1108,7 +1123,14 @@ class AdminSettings {
 
 	ajax_call_error(res_literal){
 		console.log(res_literal);
-		window.alert(JSON.stringify(res_literal));
+		// Please don't modify these code
+		let res = res_literal.responseJSON;
+
+		if(res && res.statusMsg && res.errorMsg){
+			window.alert(res.errorMsg);
+		}else{
+			window.alert(JSON.stringify(res_literal));
+		}
 	}
 	
 	ajax_call_complete(){}

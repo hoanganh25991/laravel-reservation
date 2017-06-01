@@ -35,7 +35,7 @@ class OutletReservationSetting extends HoiModel{
 
     const MIN_HOURS_IN_ADVANCE_TO_ALLOW_CANCELLATION_AMENDMENT_PRIOR_TO_RESERVATION_TIME = 
         'MIN_HOURS_IN_ADVANCE_TO_ALLOW_CANCELLATION_AMENDMENT_PRIOR_TO_RESERVATION_TIME';
-    const DEFAULT_MIN_HOURS_IN_ADVANCE_TO_ALLOW_CANCELLATION_AMENDMENT_PRIOR_TO_RESERVATION_TIME = 3;
+    //const DEFAULT_MIN_HOURS_IN_ADVANCE_TO_ALLOW_CANCELLATION_AMENDMENT_PRIOR_TO_RESERVATION_TIME = 3;
 
     /**
      * SETTING default config
@@ -416,6 +416,36 @@ class OutletReservationSetting extends HoiModel{
         return $setting_config(Setting::SMS_SENDER_NAME);
     }
 
+    public static function getMinHoursInAdvanceAllowCancellation(){
+        $value = null;
+        // Ask database first
+        $outletSettingAtKey = Setting::where('setting_key', Setting::MIN_HOURS_IN_ADVANCE_TO_ALLOW_CANCELLATION_AMENDMENT_PRIOR_TO_RESERVATION_TIME)
+                                ->get()->first();
+        if($outletSettingAtKey && !is_null($outletSettingAtKey->setting_value)){
+            $value = $outletSettingAtKey->setting_value;
+        }
+
+        // Nothign setup, try to create one
+        if(is_null($value)){
+            // Self build, this key base on both min hours prior to reservation time & session time
+            $buffer_config = Setting::bufferConfig();
+            $value = max($buffer_config(Setting::MIN_HOURS_IN_ADVANCE_SLOT_TIME), $buffer_config(Setting::MIN_HOURS_IN_ADVANCE_SESSION_TIME));
+        }
+
+        return $value;
+    }
+
+    public static function validateMinHoursInAdvanceAllowCancellation($value){
+        $buffer_config = Setting::bufferConfig();
+        $is_respect_booking_time = $value > max($buffer_config(Setting::MIN_HOURS_IN_ADVANCE_SLOT_TIME),
+                                                $buffer_config(Setting::MIN_HOURS_IN_ADVANCE_SESSION_TIME));
+        if($is_respect_booking_time){
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * Config stored in closure function
      * ex:
@@ -427,6 +457,12 @@ class OutletReservationSetting extends HoiModel{
      */
     private function buildConfigAsMap($group){
         $group->getKey = function ($key){
+            // This key base on both min hours prior to reservation time & session time
+            // So when get it first time, build by get/set
+            if($key == Setting::MIN_HOURS_IN_ADVANCE_TO_ALLOW_CANCELLATION_AMENDMENT_PRIOR_TO_RESERVATION_TIME){
+                $value = Setting::getMinHoursInAdvanceAllowCancellation();
+                return $value;
+            }
             /* @var Collection $this */
             //Find item has key
             $item = $this->filter(function ($i) use ($key){ return $i->setting_key == $key; })->first();

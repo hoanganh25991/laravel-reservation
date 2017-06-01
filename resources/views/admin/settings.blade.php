@@ -101,7 +101,7 @@
                                        class="col-md-3">Min hours in advance to allow cancellation/amendment prior to a reservation time</label>
                                 <div class="col-md-4">
                                     <input class="form-control" type="number"
-                                           v-model="buffer.MIN_HOURS_IN_ADVANCE_TO_ALLOW_CANCELLATION_AMENDMENT_PRIOR_TO_RESERVATION_TIME"
+                                           :value="buffer.MIN_HOURS_IN_ADVANCE_TO_ALLOW_CANCELLATION_AMENDMENT_PRIOR_TO_RESERVATION_TIME"
                                            v-on:change="_updateBufferMinHoursAllowCancellationOrAmendment($event.target.value)"
                                            id="buffer.MIN_HOURS_IN_ADVANCE_TO_ALLOW_CANCELLATION_AMENDMENT_PRIOR_TO_RESERVATION_TIME">
                                 </div>
