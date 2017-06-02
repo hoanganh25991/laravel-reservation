@@ -274,5 +274,62 @@ class PayPalController extends HoiController{
 
         return false;
     }
+    
+    public static function voidBcsCustomerEditReservation($transaction_id){
+        try{
+            $success = PayPalController::voidWithoutPermission($transaction_id);
+        }catch(\Exception $e){
+            $success = false;
+        }
+        
+        return $success;
+    }
+    
+    public static function voidWithoutPermission($transaction_id){
+        // Check status to call void or refund
+        $paypal_controller = new PayPalController;
+        $paypal_controller->initGateway();
+
+        $transaction = $paypal_controller->gateway->transaction()->find($transaction_id);
+
+        if(is_null($transaction)){
+            throw new \Exception('Find transaction fail.');
+        }
+
+        switch($transaction->status){
+
+            case Transaction::AUTHORIZED:
+                $result = $paypal_controller->gateway->transaction()->void($transaction_id);
+                break;
+
+            case Transaction::SETTLED:
+                $result = $paypal_controller->gateway->transaction()->refund($transaction_id);
+                break;
+
+            default:
+                break;
+        }
+
+        if(isset($result) && $result->success){
+
+            return true;
+
+        }else{
+
+            $msg = "Void transaction fail. Transaction id $transaction_id. ";
+
+            try{
+
+                $msg .= $result->__get('message');
+
+            }catch(\Exception $e){}
+
+            throw new \Exception($msg);
+
+            //return false;
+        }
+
+        return false;
+    }
 
 }

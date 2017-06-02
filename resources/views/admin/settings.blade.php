@@ -109,6 +109,16 @@
                                 </div>
                             </div>
 
+                            <div class="form-group row">
+                                <label for="buffer.MAX_PAX_FOR_SELF_CANCELLATION_AMENDMENT"
+                                       class="col-md-3">Max pax for self cancellation/amenment</label>
+                                <div class="col-md-4">
+                                    <input class="form-control" type="number"
+                                           v-model="buffer.MAX_PAX_FOR_SELF_CANCELLATION_AMENDMENT"
+                                           id="buffer.MAX_PAX_FOR_SELF_CANCELLATION_AMENDMENT">
+                                </div>
+                            </div>
+
                             <div class="bg-info">
                                 <p class="text-muted">Max number of days in advance: The maximum number of days in
                                     advance a customer may make a reservation.</p>
@@ -117,6 +127,7 @@
                                     no longer available for booking.</p>
                                 <p class="text-muted">Min hours in advance prior to a session: The minimum number of
                                     hours buffer before a reservation session is no longer available for booking. The session’s start timing is defined as the earliest time within that session. Set value to -1000 to <strong>ignore checks</strong> for minimum hours in advance prior to session.</p>
+                                <p class="text-muted">The max pax for self cancellation/amendment after which customer is not allowed to make their own cancellation/amendment. e.g. if max pax = 16. If reservation has 17 or more pax, customer cannot make changes to reservation themselves. Set 0 if <strong>don't allow</strong> customer to modify their own reservation, set 1000 if <strong>allow all</strong> reservations to be modified by customers</p>
                             </div>
                             @endverbatim
                         </div>

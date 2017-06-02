@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Validator;
 use App\Outlet;
 use App\Timing;
@@ -430,6 +431,7 @@ class BookingController extends HoiController {
      * Booking Form step 1
      * @param ApiRequest $req
      * @return $this|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @throws \Exception
      */
     public function getBookingForm(ApiRequest $req){
 
@@ -547,19 +549,74 @@ class BookingController extends HoiController {
                 /**
                  * New setting check for if customer can edit the reservation
                  */
-                $allowed_edit = Setting::isCustomerAllowedToEditReservation($reservation);
+                $allowed_edit_by_customer = $reservation->allowedEditByCustomer();
 
                 /**
                  * Normal case: Reservation created
                  * RESERVED
                  */
-                $data = compact('reservation', 'allowed_edit');
+                $data = compact('reservation', 'allowed_edit_by_customer');
                 $code = 200;
                 $msg  = Call::AJAX_RESERVATION_SUCCESS_CREATE;
                 break;
 
             case Call::AJAX_PAYMENT_REQUEST:
                 $response = (new PayPalController)->handlePayment($req);
+                break;
+
+            case Call::AJAX_EDIT_RESERVATION:
+                // Check for what reservation need edited
+                $confirm_id = $req->get('confirm_id');
+                // Stop here if confirm_id not submitted
+                if(is_null($confirm_id)){
+                    $msg = "Please submit the confirm id to edit. Submit under key: 'confirm_id'";
+                    throw new \Exception($msg);
+                }
+                // Hash id to find the reservation_id
+                try{
+                    $reservation_id = Setting::hash()->decode($confirm_id);
+                }catch(\Exception $e){
+                    $msg = "Your confirm_id in wrong format. Please submit the right one.";
+                    throw new \Exception($msg);
+                }
+                // Find out the reservation, customer want to change
+                /** @var Reservation $reservation */
+                $reservation    = Reservation::find($reservation_id);
+                if(is_null($reservation)){
+                    $msg = "The reservation you want to edit, no longer exist";
+                    throw new \Exception($msg);
+                }
+
+                // Check if this reservation can be edit
+                if(!$reservation->allowedEditByCustomer()){
+                    $msg = "Your reservation no longer availble to be editted";
+                    throw new \Exception($msg);
+                }
+
+                // Change this reservation status
+                // Bcs if not, it affect the workflow of searching avaible
+                // Still considered as a reserved reservation
+                $reservation->status = Reservation::AMENDMENTED;
+                // Refund the payment if needed
+                $payment_authorization_paid = $reservation->payment_status == Reservation::PAYMENT_PAID;
+                if($payment_authorization_paid){
+                    // Auto void it
+                    $transaction_id = $reservation->payment_id;
+                    $success = PayPalController::voidBcsCustomerEditReservation($transaction_id);
+                    if($success){
+                        $reservation->payment_amount = Reservation::PAYMENT_REFUNDED;
+                    }
+
+                    // What should do when refund fail?
+                    Log::info("Customer edit reservation, BUT refund on authorization reservation fail. Confirm id: $reservation->confirm_id");
+                }
+                // Save what change on the last reservation
+                $reservation->save();
+
+
+                // Reuse what checked inside submit booking
+                $req->merge(['type' => Call::AJAX_SUBMIT_BOOKING]);
+                $response = $this->getBookingForm($req);
                 break;
 
             default:

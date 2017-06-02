@@ -97,6 +97,7 @@ class Reservation extends HoiModel {
      * Reservation status
      */
     const REQUIRED_DEPOSIT= 50;
+    const AMENDMENTED     = 75;
     const RESERVED        = 100; //init at first
     const REMINDER_SENT   = 200; //sms sent to summary info
     const CONFIRMED       = 300; //remider with CONFIRM link
@@ -799,7 +800,14 @@ class Reservation extends HoiModel {
     }
     
     public function scopeNotRequiredDeposit($query){
-        return $query->where('status', '!=', Reservation::REQUIRED_DEPOSIT);
+        return $query->where([
+            ['status', '!=', Reservation::REQUIRED_DEPOSIT],
+            ['status', '!=', Reservation::AMENDMENTED],
+        ]);
+    }
+    
+    public function allowedEditByCustomer(){
+        return Setting::isCustomerAllowedToEditReservation($this);
     }
 
 }
