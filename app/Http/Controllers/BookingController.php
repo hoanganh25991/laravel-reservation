@@ -565,34 +565,7 @@ class BookingController extends HoiController {
                 break;
 
             case Call::AJAX_EDIT_RESERVATION:
-                // Check for what reservation need edited
-                $confirm_id = $req->get('confirm_id');
-                // Stop here if confirm_id not submitted
-                if(is_null($confirm_id)){
-                    $msg = "Please submit the confirm id to edit. Submit under key: 'confirm_id'";
-                    throw new \Exception($msg);
-                }
-                // Hash id to find the reservation_id
-                try{
-                    $reservation_id = Setting::hash()->decode($confirm_id);
-                }catch(\Exception $e){
-                    $msg = "Your confirm_id in wrong format. Please submit the right one.";
-                    throw new \Exception($msg);
-                }
-                // Find out the reservation, customer want to change
-                /** @var Reservation $reservation */
-                $reservation    = Reservation::find($reservation_id);
-                if(is_null($reservation)){
-                    $msg = "The reservation you want to edit, no longer exist";
-                    throw new \Exception($msg);
-                }
-
-                // Check if this reservation can be edit
-                if(!$reservation->allowedEditByCustomer()){
-                    $msg = "Your reservation no longer availble to be editted";
-                    throw new \Exception($msg);
-                }
-
+                $reservation = $this->findReservationByConfirmId($req);
                 // Change this reservation status
                 // Bcs if not, it affect the workflow of searching avaible
                 // Still considered as a reserved reservation
@@ -619,6 +592,15 @@ class BookingController extends HoiController {
                 $response = $this->getBookingForm($req);
                 break;
 
+            case Call::AJAX_CANCEL_RESERVATION:
+                $reservation = $this->findReservationByConfirmId($req);
+                $reservation->status = Reservation::USER_CANCELLED;
+
+                $data = compact('reservation');
+                $code = 200;
+                $msg  = Call::AJAX_CANCEL_RESERVATION_SUCCESS;
+                break;
+
             default:
                 $data = [];
                 $code = 422;
@@ -631,5 +613,31 @@ class BookingController extends HoiController {
             return $response;
 
         return $this->apiResponse($data, $code, $msg);
+    }
+
+    public function findReservationByConfirmId($req){
+        // Check for what reservation need edited
+        $confirm_id = $req->get('confirm_id');
+        // Stop here if confirm_id not submitted
+        if(is_null($confirm_id)){
+            $msg = "Please submit the confirm id to edit. Submit under key: 'confirm_id'";
+            throw new \Exception($msg);
+        }
+        // Hash id to find the reservation_id
+        try{
+            $reservation_id = Setting::hash()->decode($confirm_id);
+        }catch(\Exception $e){
+            $msg = "Your confirm_id in wrong format. Please submit the right one.";
+            throw new \Exception($msg);
+        }
+        // Find out the reservation, customer want to change
+        /** @var Reservation $reservation */
+        $reservation    = Reservation::find($reservation_id);
+        if(is_null($reservation)){
+            $msg = "The reservation you want to edit, no longer exist";
+            throw new \Exception($msg);
+        }
+
+        return $reservation;
     }
 }

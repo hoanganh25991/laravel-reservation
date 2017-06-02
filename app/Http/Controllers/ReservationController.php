@@ -68,8 +68,14 @@ class ReservationController extends HoiController{
                     Setting::injectOutletId($reservation->outlet_id);
                     $paypal_token = (new PayPalController)->generateToken();
 
+                    // New logic on reservation can be edit by customer
+                    /**
+                     * New setting check for if customer can edit the reservation
+                     */
+                    $allowed_edit_by_customer = $reservation->allowedEditByCustomer();
+
                     // Build response
-                    $data = compact('reservation', 'outlet', 'paypal_token');
+                    $data = compact('reservation', 'outlet', 'paypal_token', 'allowed_edit_by_customer');
                     $code = 200;
                     $msg  = Call::AJAX_FIND_RESERVATION_SUCCESS;
                     
@@ -104,6 +110,23 @@ class ReservationController extends HoiController{
                     $response = $this->apiResponse($data, $code, $msg);
                     break;
                 
+                case Call::AJAX_CANCEL_RESERVATION:
+                    $confirm_id  = $req->get('confirm_id');
+                    $reservation = $this->findByConfirmId($confirm_id);
+                    $outlet      = Outlet::find($reservation->outlet_id);
+
+                    // Only change status of reservation to CONFIRMED
+                    // When reservation booked
+                    $reservation->status = Reservation::USER_CANCELLED;
+                    $reservation->save();
+
+                    $data = compact('reservation', 'outlet');
+                    $code = 200;
+                    $msg  = Call::AJAX_CANCEL_RESERVATION_SUCCESS;
+
+                    $response = $this->apiResponse($data, $code, $msg);
+                    break;
+
                 default:
                     $data = [];
                     $code = 422;

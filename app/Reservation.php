@@ -88,6 +88,8 @@ use App\OutletReservationSetting as Setting;
  * @property mixed confirmation_sms_ask_payment_authorization_message
  * @property mixed payment_required
  * @see App\Reservation::getConfirmationSMSAskPaymentAuthorizationMessageAttribute
+ * @property mixed view_details_url
+ * @see App\Reservation::getViewDetailsUrlAttribute
  */
 class Reservation extends HoiModel {
 
@@ -515,6 +517,28 @@ class Reservation extends HoiModel {
 
         return $url;
     }
+
+    /**
+     * View detail url
+     */
+    public function getViewDetailsUrlAttribute(){
+        $confirm_id = $this->confirm_id;
+        //$url        = route('reservation_confirm', compact('confirm_id'));
+        $base_url     = env('APP_URL');
+
+        if(is_null(env('APP_URL'))){throw new \Exception('Please submit APP_URL in .env to build confirm coming url for reservation');};
+
+        $endWithSlash = substr($base_url, -1) == '/';
+        $base_url     = $endWithSlash ? substr($base_url, 0, strlen($base_url) - 1) : $base_url;
+        $url          = "$base_url/?confirmId=$confirm_id&review=true";
+        $short_url    = ShortenUrl::make($url);
+
+        if(!is_null($short_url)){
+            $url    = $short_url;
+        }
+
+        return $url;
+    }
     
     /**
      * Need pay in advance
@@ -621,7 +645,10 @@ class Reservation extends HoiModel {
         $date_str = $this->date->format('d M Y');
         $time_str = $this->date->format('H:i');
 
-        return "Your reservation at $this->outlet_name on $date_str at $time_str has been received. Reservation No. $this->confirm_id";
+        $msg = "Your reservation at $this->outlet_name on $date_str at $time_str has been received. Reservation No. $this->confirm_id. ";
+        $msg .= "View your reservation details: $this->view_details_url";
+
+        return $msg;
     }
 
     /**
