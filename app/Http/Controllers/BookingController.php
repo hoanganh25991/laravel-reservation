@@ -570,6 +570,7 @@ class BookingController extends HoiController {
                 // Bcs if not, it affect the workflow of searching avaible
                 // Still considered as a reserved reservation
                 $reservation->status = Reservation::AMENDMENTED;
+                $reservation->save();
                 // Refund the payment if needed
                 $payment_authorization_paid = $reservation->payment_status == Reservation::PAYMENT_PAID;
                 if($payment_authorization_paid){
@@ -577,15 +578,19 @@ class BookingController extends HoiController {
                     $transaction_id = $reservation->payment_id;
                     $success = PayPalController::voidBcsCustomerEditReservation($transaction_id);
                     if($success){
-                        $reservation->payment_amount = Reservation::PAYMENT_REFUNDED;
+                        // Obmit event is good, BUT, obmit in same thread code
+                        // Lead to other code be affected
+                        // Reservation::flushEventListeners();
+                        // Play a cheat on
+                        $reservation->payment_status = -100;
+                        $reservation->syncOriginal();
+                        $reservation->payment_status = Reservation::PAYMENT_REFUNDED;
+                        $reservation->save();
+                    }else{
+                        // What should do when refund fail?
+                        Log::info("Customer edit reservation, BUT refund on authorization reservation fail. Confirm id: $reservation->confirm_id");
                     }
-
-                    // What should do when refund fail?
-                    Log::info("Customer edit reservation, BUT refund on authorization reservation fail. Confirm id: $reservation->confirm_id");
                 }
-                // Save what change on the last reservation
-                $reservation->save();
-
 
                 // Reuse what checked inside submit booking
                 $req->merge(['type' => Call::AJAX_SUBMIT_BOOKING]);
