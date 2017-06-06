@@ -107,6 +107,18 @@ class AdminController extends HoiController {
                 $response = $this->apiResponse($data, $code, $msg);
                 break;
 
+            case Call::AJAX_FIND_RESERVATION:
+                $confirm_id = $req->json('confirm_id');
+                $reservation = Reservation::findByConfirmId($confirm_id);
+                $reservations = [$reservation];
+
+                $data = compact('reservations');
+                $code = 200;
+                $msg  = Call::AJAX_FIND_RESERVATION_SUCCESS;
+
+                $response = $this->apiResponse($data, $code, $msg);
+                break;
+
             case Call::AJAX_SEARCH_AVAILABLE_TIME:
                 // BookinController get data as form-data or url-encoded
                 // So... attach form-data or url-encoded from json

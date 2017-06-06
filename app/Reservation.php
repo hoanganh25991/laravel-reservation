@@ -832,9 +832,44 @@ class Reservation extends HoiModel {
             ['status', '!=', Reservation::AMENDMENTED],
         ]);
     }
-    
+
+    /**
+     * Check if with current condition of setting
+     * With current booking made by customer
+     * Can he make an amendment?
+     * @return bool
+     */
     public function allowedEditByCustomer(){
         return Setting::isCustomerAllowedToEditReservation($this);
+    }
+
+    /**
+     * Find Reservation through confirm id
+     * Many place use it
+     * So now write it down in Reservation Model
+     * @param $confirm_id
+     * @return Reservation
+     * @throws \Exception
+     */
+    public static function findByConfirmId($confirm_id){
+        // Try to parse the confirm_id
+        try{
+            $reservation_id = Setting::hash()->decode($confirm_id);
+
+        }catch(\Exception $e){
+
+            throw new \Exception("Sorry, confirm id is invalid.");
+        }
+
+        // Find reservation base on id
+        /** @var Reservation $reservation */
+        $reservation = Reservation::find($reservation_id);
+
+        if(is_null($reservation)){
+            throw new \Exception("Sorry, we cant find your reservation.");
+        }
+
+        return $reservation;
     }
 
 }
