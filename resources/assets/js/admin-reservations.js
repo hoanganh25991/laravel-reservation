@@ -65,8 +65,11 @@ const REFRESHING = 'REFRESHING';
 const CALLING_AJAX = 'CALLING_AJAX';
 
 const FETCH_RESERVATIONS_BY_DAY = 'FETCH_RESERVATIONS_BY_DAY';
+const FETCH_RESERVATIONS_BY_CONFIRM_ID = 'FETCH_RESERVATIONS_BY_CONFIRM_ID';
 const AJAX_FETCH_RESERVATIONS_BY_DAY = 'AJAX_FETCH_RESERVATIONS_BY_DAY';
 const AJAX_FETCH_RESERVATIONS_BY_DAY_SUCCESS = 'AJAX_FETCH_RESERVATIONS_BY_DAY_SUCCESS';
+const AJAX_FIND_RESERVATION = 'AJAX_FIND_RESERVATION'
+const AJAX_FIND_RESERVATION_SUCCESS = 'AJAX_FIND_RESERVATION_SUCCESS'
 
 const OPEN_NEW_RESERVATION_DIALOG = 'OPEN_NEW_RESERVATION_DIALOG';
 
@@ -138,6 +141,10 @@ class AdminReservations {
 					let {day: filter_day, day_str: custom_pick_day} = action;
 
 					return Object.assign({}, state, {filter_day, custom_pick_day});
+				}
+				case FETCH_RESERVATIONS_BY_CONFIRM_ID:{
+					let {confirm_id: filter_confirm_id} = action;
+					return Object.assign({}, state, {filter_confirm_id});
 				}
 				case OPEN_NEW_RESERVATION_DIALOG: {
 					let new_reservation = self.newReservation();
@@ -1043,25 +1050,11 @@ class AdminReservations {
 				},
 
 				_addFilterByConfirmId(confirm_id){
-					let filter = (reservation) => {
-						return reservation.confirm_id == confirm_id;
-					};
-
-					if(confirm_id == ""){
-						//filter = () => {return true};
-						// I want a default filter as return true
-						// But check in array of filters, if it appear
-						// Only run it, not other
-
-						// Ok, remove it
-						let new_filter_options = this.filter_options.filter(filter => filter.type != FILTER_TYPE_CONFIRM_ID);
-						this.filter_options    = new_filter_options;
-						return;
-					}
-
-					let iFilter = this._createFilter(filter, {name: 'filter by confirm id', type: FILTER_TYPE_CONFIRM_ID, priority: 1});
-
-					this._addNewFilter(iFilter);
+					console.log('fetch for me, please');
+					store.dispatch({
+						type: FETCH_RESERVATIONS_BY_CONFIRM_ID,
+						confirm_id
+					});
 				},
 
 				_toggleFilterSearch(){
@@ -1362,6 +1355,17 @@ class AdminReservations {
 				});
 			}
 
+			if(action == FETCH_RESERVATIONS_BY_CONFIRM_ID){
+				let {filter_confirm_id: confirm_id} = state;
+				let {outlet_id}       = state;
+
+				self.ajax_call({
+					type: AJAX_FIND_RESERVATION,
+					outlet_id,
+					confirm_id
+				})
+			}
+
 			if(action == OPEN_NEW_RESERVATION_DIALOG){
 				self.new_reservation_dialog.modal('show');
 			}
@@ -1432,6 +1436,13 @@ class AdminReservations {
 				break;
 			}
 			case AJAX_FETCH_RESERVATIONS_BY_DAY:{
+				let url         = self.url('');
+				let data        = Object.assign({}, action);
+
+				$.jsonAjax({url, data});
+				break;
+			}
+			case AJAX_FIND_RESERVATION:{
 				let url         = self.url('');
 				let data        = Object.assign({}, action);
 
@@ -1511,6 +1522,22 @@ class AdminReservations {
 					data: res.data
 				});
 				
+				break;
+			}
+			case AJAX_FIND_RESERVATION_SUCCESS: {
+				store.dispatch({
+					type: TOAST_SHOW,
+					toast: {
+						title: 'Fetch data from outlet',
+						content: 'Received'
+					}
+				});
+
+				store.dispatch({
+					type: SYNC_DATA,
+					data: res.data
+				});
+
 				break;
 			}
 			case AJAX_VALIDATE_FAIL: {
