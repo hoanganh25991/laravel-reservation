@@ -4,13 +4,14 @@ namespace App\Mail;
 
 use App\Outlet;
 use App\Reservation;
+use App\Traits\CleanString;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class EmailOnBooking extends Mailable {
     use Queueable, SerializesModels;
+    use CleanString;
 
     /** @var Reservation  */
     public $reservation;
@@ -29,10 +30,24 @@ class EmailOnBooking extends Mailable {
 
     /**
      * Build the message.
-     *
      * @return $this
+     * @throws \Exception
      */
     public function build() {
-        return $this->view('email.email-on-booking');
+        $outlet = $this->outlet;
+        $address = env('MAIL_FROM_ADDRESS');
+        // Config need explicit tell which email address used to send email
+        // If nothing config, thrown exception
+        if(is_null($address)){
+            throw new \Exception('Please add MAIL_FROM_ADDRESS in .env file');
+        }
+        // In email, name sender with special character NOT ACCEPTED
+        // Remove move it first
+        $name = $this->clean($outlet->outlet_name);
+
+        return $this->from($address, $name)
+                    ->view('email.email-on-booking');
     }
+
+
 }

@@ -4,12 +4,11 @@ namespace App\Listeners;
 
 use App\Reservation;
 use App\Traits\SendSMS;
-use App\Events\SentReminderSMS;
-//use App\Jobs\SendConfirmSMS;
-//use App\Events\SentReminderSMS;
+use App\Mail\EmailOnBooking;
 use App\Exceptions\SMSException;
 use App\Events\ReservationReserved;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use App\OutletReservationSetting as Setting;
 
 class ReservationReservedListener{
@@ -50,19 +49,12 @@ class ReservationReservedListener{
             }
         }
         
-        /**
-         * Base on config for reservation
-         * Should send reminder sms
-         * (send confirmation sms)
-         */
-//        if($reservation->shouldSendConfirmSMS()){
-//            $send_confirm_sms = (new SendConfirmSMS($reservation))->delay($reservation->confirm_sms_date);
-//            dispatch($send_confirm_sms);
-//        }
-        /**
-         * Replace with interval jobs
-         * Which pop out reservations to send
-         */
-
+        /** Base on send email on booking config, decide send */
+        if($reservation->shouldSendSMSOnBooking()){
+            $customer_name = "$reservation->salutation $reservation->first_name $reservation->last_name";
+            $customer      = (object)['email' => $reservation->email, 'name' => $customer_name];
+            
+            Mail::to($customer)->send(new EmailOnBooking($reservation));
+        }
     }
 }
