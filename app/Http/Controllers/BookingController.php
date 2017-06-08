@@ -600,6 +600,27 @@ class BookingController extends HoiController {
             case Call::AJAX_CANCEL_RESERVATION:
                 $reservation = $this->findReservationByConfirmId($req);
                 $reservation->status = Reservation::USER_CANCELLED;
+                $reservation->save();
+
+//                $payment_authorization_paid = $reservation->payment_status == Reservation::PAYMENT_PAID;
+//                if($payment_authorization_paid){
+//                    // Auto void it
+//                    $transaction_id = $reservation->payment_id;
+//                    $success = PayPalController::voidBcsCustomerEditReservation($transaction_id);
+//                    if($success){
+//                        // Obmit event is good, BUT, obmit in same thread code
+//                        // Lead to other code be affected
+//                        // Reservation::flushEventListeners();
+//                        // Play a cheat on
+//                        $reservation->payment_status = -100;
+//                        $reservation->syncOriginal();
+//                        $reservation->payment_status = Reservation::PAYMENT_REFUNDED;
+//                        $reservation->save();
+//                    }else{
+//                        // What should do when refund fail?
+//                        Log::info("Customer edit reservation, BUT refund on authorization reservation fail. Confirm id: $reservation->confirm_id");
+//                    }
+//                }
 
                 $data = compact('reservation');
                 $code = 200;
