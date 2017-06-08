@@ -63,7 +63,7 @@ class ReservationController extends HoiController{
 
                 case Call::AJAX_CONFIRM_RESERVATION:
                     $confirm_id  = $req->get('confirm_id');
-                    $reservation = $this->findByConfirmId($confirm_id);
+                    $reservation = Reservation::findByConfirmId($confirm_id);
                     $outlet      = Outlet::find($reservation->outlet_id);
 
                     // Only change status of reservation to CONFIRMED

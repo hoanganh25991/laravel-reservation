@@ -567,6 +567,7 @@ class BookingController extends HoiController {
             case Call::AJAX_EDIT_RESERVATION:
                 $confirm_id = $req->get('confirm_id');
                 $reservation = Reservation::findByConfirmId($confirm_id);
+                $last_status = $reservation->status;
                 // Change this reservation status
                 // Bcs if not, it affect the workflow of searching avaible
                 // Still considered as a reserved reservation
@@ -577,7 +578,20 @@ class BookingController extends HoiController {
 
                 // Reuse what checked inside submit booking
                 $req->merge(['type' => Call::AJAX_SUBMIT_BOOKING, 'last_confirm_id' => $reservation->confirm_id]);
+
                 $response = $this->getBookingForm($req);
+                $resData  = $response->getData();
+                $data     = $resData->data;
+
+                $isNewReservationCreated = isset($data->reservation);
+
+                // Should reverse status of last reservation
+                // When no new one come to replace him
+                if(!$isNewReservationCreated){
+                    $reservation->status = $last_status;
+                    $reservation->save();
+                }
+
                 break;
 
             case Call::AJAX_CANCEL_RESERVATION:
