@@ -156,6 +156,16 @@
                                     </div>
 
                                     <div class="form-group row">
+                                        <label class="col-md-4">Send Email on booking</label>
+                                        <!-- Rounded switch -->
+                                        <label class="switch">
+                                            <input v-on:click="notification.SEND_EMAIL_ON_BOOKING = !+notification.SEND_EMAIL_ON_BOOKING"
+                                                   :class="+notification.SEND_EMAIL_ON_BOOKING ? 'switchOn' : ''">
+                                            <div class="slider round"></div>
+                                        </label>
+                                    </div>
+
+                                    <div class="form-group row">
                                         <label class="col-md-4">Send SMS to confirm reservation</label>
                                         <!-- Rounded switch -->
                                         <label class="switch">

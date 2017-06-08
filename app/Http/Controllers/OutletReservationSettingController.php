@@ -168,6 +168,7 @@ class OutletReservationSettingController extends Controller {
         $notification_config = Setting::notificationConfig();
         $notification_keys = [
             Setting::SEND_SMS_ON_BOOKING,
+            Setting::SEND_EMAIL_ON_BOOKING,
             Setting::SEND_SMS_CONFIRMATION,
             Setting::HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM
         ];

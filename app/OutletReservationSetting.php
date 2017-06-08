@@ -63,6 +63,9 @@ class OutletReservationSetting extends HoiModel{
 
     const SEND_SMS_ON_BOOKING = 'SEND_SMS_ON_BOOKING';
     const DEFAULT_SEND_SMS_ON_BOOKING = 1;
+    
+    const SEND_EMAIL_ON_BOOKING = 'SEND_EMAIL_ON_BOOKING';
+    const DEFAULT_SEND_EMAIL_ON_BOOKING = 0;
 
     const HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM = 'HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM';
     const DEFAULT_HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM = 2;
@@ -203,6 +206,7 @@ class OutletReservationSetting extends HoiModel{
             Setting::MAX_PAX_FOR_SELF_CANCELLATION_AMENDMENT,
             //for notification
             Setting::SEND_SMS_ON_BOOKING,
+            Setting::SEND_EMAIL_ON_BOOKING,
             Setting::SEND_SMS_CONFIRMATION,
             Setting::HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM,
             //for deposit
