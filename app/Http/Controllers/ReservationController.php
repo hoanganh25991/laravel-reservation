@@ -31,27 +31,6 @@ class ReservationController extends HoiController{
         Setting::injectBrandId($brand_id);
     }
 
-    public function findByConfirmId($confirm_id){
-        // Try to parse the confirm_id
-        try{
-            $reservation_id = Setting::hash()->decode($confirm_id);
-
-        }catch(\Exception $e){
-
-            throw new \Exception("Sorry, confirm id is invalid.");
-        }
-
-        // Find reservation base on id
-        /** @var Reservation $reservation */
-        $reservation = Reservation::find($reservation_id);
-
-        if(is_null($reservation)){
-            throw new \Exception("Sorry, we cant find your reservation.");
-        }
-
-        return $reservation;
-    }
-    
     public function apiConfirmPage(ApiRequest $req){
         
         if($req->method() == 'POST'){
@@ -61,7 +40,7 @@ class ReservationController extends HoiController{
             switch($action_type){
                 case Call::AJAX_FIND_RESERVATION:
                     $confirm_id  = $req->get('confirm_id');
-                    $reservation = $this->findByConfirmId($confirm_id);
+                    $reservation = Reservation::findByConfirmId($confirm_id);
                     $outlet      = Outlet::find($reservation->outlet_id);
 
                     // Inject paypal_token
@@ -112,7 +91,7 @@ class ReservationController extends HoiController{
                 
                 case Call::AJAX_CANCEL_RESERVATION:
                     $confirm_id  = $req->get('confirm_id');
-                    $reservation = $this->findByConfirmId($confirm_id);
+                    $reservation = Reservation::findByConfirmId($confirm_id);
                     $outlet      = Outlet::find($reservation->outlet_id);
 
                     // Only change status of reservation to CONFIRMED

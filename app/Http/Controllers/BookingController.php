@@ -572,28 +572,10 @@ class BookingController extends HoiController {
                 $reservation->status = Reservation::AMENDMENTED;
                 $reservation->save();
                 // Refund the payment if needed
-                $payment_authorization_paid = $reservation->payment_status == Reservation::PAYMENT_PAID;
-                if($payment_authorization_paid){
-                    // Auto void it
-                    $transaction_id = $reservation->payment_id;
-                    $success = PayPalController::voidBcsCustomerEditReservation($transaction_id);
-                    if($success){
-                        // Obmit event is good, BUT, obmit in same thread code
-                        // Lead to other code be affected
-                        // Reservation::flushEventListeners();
-                        // Play a cheat on
-                        $reservation->payment_status = -100;
-                        $reservation->syncOriginal();
-                        $reservation->payment_status = Reservation::PAYMENT_REFUNDED;
-                        $reservation->save();
-                    }else{
-                        // What should do when refund fail?
-                        Log::info("Customer edit reservation, BUT refund on authorization reservation fail. Confirm id: $reservation->confirm_id");
-                    }
-                }
+                $reservation->autoRefundWhenPaymentAlreadyPaid();
 
                 // Reuse what checked inside submit booking
-                $req->merge(['type' => Call::AJAX_SUBMIT_BOOKING]);
+                $req->merge(['type' => Call::AJAX_SUBMIT_BOOKING, 'last_confirm_id' => $reservation->confirm_id]);
                 $response = $this->getBookingForm($req);
                 break;
 
@@ -601,26 +583,8 @@ class BookingController extends HoiController {
                 $reservation = $this->findReservationByConfirmId($req);
                 $reservation->status = Reservation::USER_CANCELLED;
                 $reservation->save();
-
-//                $payment_authorization_paid = $reservation->payment_status == Reservation::PAYMENT_PAID;
-//                if($payment_authorization_paid){
-//                    // Auto void it
-//                    $transaction_id = $reservation->payment_id;
-//                    $success = PayPalController::voidBcsCustomerEditReservation($transaction_id);
-//                    if($success){
-//                        // Obmit event is good, BUT, obmit in same thread code
-//                        // Lead to other code be affected
-//                        // Reservation::flushEventListeners();
-//                        // Play a cheat on
-//                        $reservation->payment_status = -100;
-//                        $reservation->syncOriginal();
-//                        $reservation->payment_status = Reservation::PAYMENT_REFUNDED;
-//                        $reservation->save();
-//                    }else{
-//                        // What should do when refund fail?
-//                        Log::info("Customer edit reservation, BUT refund on authorization reservation fail. Confirm id: $reservation->confirm_id");
-//                    }
-//                }
+                // Refund the payment if needed
+                $reservation->autoRefundWhenPaymentAlreadyPaid();
 
                 $data = compact('reservation');
                 $code = 200;

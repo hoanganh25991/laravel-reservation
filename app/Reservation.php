@@ -89,6 +89,7 @@ use App\OutletReservationSetting as Setting;
  * @property mixed payment_required
  * @see App\Reservation::getConfirmationSMSAskPaymentAuthorizationMessageAttribute
  * @property mixed view_details_url
+ * @property mixed last_confirm_id
  * @see App\Reservation::getViewDetailsUrlAttribute
  */
 class Reservation extends HoiModel {
@@ -164,6 +165,7 @@ class Reservation extends HoiModel {
      * Protect model from unwanted column when build query
      */
     protected $fillable = [
+        'last_confirm_id',
         'outlet_id',
         'customer_id',
         'salutation',
@@ -430,6 +432,10 @@ class Reservation extends HoiModel {
      * @return string
      */
     public function getConfirmIdAttribute(){
+        if(!is_null($this->last_confirm_id)){
+            return $this->last_confirm_id;
+        }
+
         $id         = $this->id;
         $confirm_id = Setting::hash()->encode($id);
         
@@ -876,13 +882,45 @@ class Reservation extends HoiModel {
 
         // Find reservation base on id
         /** @var Reservation $reservation */
-        $reservation = Reservation::find($reservation_id);
+        $reservation = Reservation::withoutGlobalScopes()->where([
+            ['id', $reservation_id],
+            ['status', '!=', Reservation::AMENDMENTED]
+        ])->orWhere([
+            ['last_confirm_id', $confirm_id],
+            ['status', '!=', Reservation::AMENDMENTED]
+        ])->first();
 
         if(is_null($reservation)){
             throw new \Exception("Sorry, we cant find your reservation.");
         }
 
         return $reservation;
+    }
+
+    /**
+     * Refund in case customer edit this reservation
+     * Create completely new one
+     */
+    public function autoRefundWhenPaymentAlreadyPaid(){
+        $payment_authorization_paid = $this->payment_status == Reservation::PAYMENT_PAID;
+        if($payment_authorization_paid){
+            // Auto void it
+            $transaction_id = $this->payment_id;
+            $success = PayPalController::voidBcsCustomerEditReservation($transaction_id);
+            if($success){
+                // Obmit event is good, BUT, obmit in same thread code
+                // Lead to other code be affected
+                // Reservation::flushEventListeners();
+                // Play a cheat on
+                $this->payment_status = -100;
+                $this->syncOriginal();
+                $this->payment_status = Reservation::PAYMENT_REFUNDED;
+                $this->save();
+            }else{
+                // What should do when refund fail?
+                Log::info("Customer edit reservation, BUT refund on authorization reservation fail. Confirm id: $this->confirm_id");
+            }
+        }
     }
 
 }

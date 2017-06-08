@@ -30,25 +30,15 @@ class RouteServiceProvider extends ServiceProvider
         parent::boot();
 
         Route::bind('confirm_id', function($confirm_id){
-            $reservation_id = Setting::hash()->decode($confirm_id);
-
-            return Reservation::find($reservation_id);
+            return Reservation::findByConfirmId($confirm_id);
         });
 
         /**
          * This is the best place to resolve brand_id
          */
         Route::bind('brand_id', function($brand_id){
-//            Setting::injectBrandId($brand_id);
             return $brand_id;
         });
-
-//        /** @var ReservationUser $user */
-//        $user = Auth::user();
-//
-//        if(!is_null($user)){
-//            $user->injectBrandId();
-//        }
     }
 
     /**
