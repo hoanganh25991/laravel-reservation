@@ -622,6 +622,7 @@ class Reservation extends HoiModel {
 
     /**
      * Relationship with Outlet
+     * @return Outlet
      */
     public function outlet(){
         return $this->hasOne(Outlet::class, 'id', 'outlet_id')->withoutGlobalScope('brand_id');
