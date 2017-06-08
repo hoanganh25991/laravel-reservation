@@ -565,7 +565,8 @@ class BookingController extends HoiController {
                 break;
 
             case Call::AJAX_EDIT_RESERVATION:
-                $reservation = $this->findReservationByConfirmId($req);
+                $confirm_id = $req->get('confirm_id');
+                $reservation = Reservation::findByConfirmId($confirm_id);
                 // Change this reservation status
                 // Bcs if not, it affect the workflow of searching avaible
                 // Still considered as a reserved reservation
@@ -580,7 +581,8 @@ class BookingController extends HoiController {
                 break;
 
             case Call::AJAX_CANCEL_RESERVATION:
-                $reservation = $this->findReservationByConfirmId($req);
+                $confirm_id = $req->get('confirm_id');
+                $reservation = Reservation::findByConfirmId($confirm_id);
                 $reservation->status = Reservation::USER_CANCELLED;
                 $reservation->save();
                 // Refund the payment if needed
