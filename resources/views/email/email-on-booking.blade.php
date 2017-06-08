@@ -41,7 +41,7 @@
               </div>
             </div>
             <div class="inf">
-              <p><b>Time:</b> {{ $reservation->date->format('d M Y') }}, {{ $reservation->date->format('H:i') }}</p>
+              <p><b>Time:</b> {{ $reservation->date->format('dS M Y') }}, {{ $reservation->date->format('h:i a') }}</p>
               <p><b>Outlet:</b> {{ $outlet->outlet_name }}</p>
               <p><b>Pax:</b>
                 <span>{{ $reservation->adult_pax }} Adults </span>
@@ -50,7 +50,7 @@
               <p><b>Email:</b> {{ $reservation->email }}</p>
             </div>
             <div class="confirm">
-              <a>Edit/Cancel</a>
+              <a href="{{ $reservation->view_details_url }}">Edit/Cancel</a>
             </div>
           </div>
         </div>
