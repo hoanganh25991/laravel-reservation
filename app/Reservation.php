@@ -487,6 +487,18 @@ class Reservation extends HoiModel {
     }
 
     /**
+     * Should send reservaiotn email on booking
+     * Base on notification config: SEND_SMS_ON_BOOKING
+     * @return bool
+     */
+    public function shouldSendEmailOnBooking(){
+        $notification_config = Setting::notificationConfig();
+        $should_send_email_on_booking = $notification_config(Setting::SEND_EMAIL_ON_BOOKING) == Setting::SHOULD_SEND;
+
+        return $should_send_email_on_booking;
+    }
+
+    /**
      * Alias of should send SMS on booking
      * @return bool
      */
