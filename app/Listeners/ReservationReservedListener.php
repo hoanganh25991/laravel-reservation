@@ -42,10 +42,11 @@ class ReservationReservedListener{
             $sender_name  = Setting::smsSenderName();
             $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);
 
-            if($success_sent){
-                Log::info('Success send sms on reserved');
-            }else{
-                throw new SMSException('SMS not sent');
+            if(!$success_sent){
+                $msg = "Fail to send SMS on booking. ";
+                $msg .= $success_sent;
+
+                Log::info($msg);
             }
         }
         
@@ -54,7 +55,15 @@ class ReservationReservedListener{
             $customer_name = "$reservation->salutation $reservation->first_name $reservation->last_name";
             $customer      = (object)['email' => $reservation->email, 'name' => $customer_name];
             
-            Mail::to($customer)->send(new EmailOnBooking($reservation));
+            try{
+                Mail::to($customer)->send(new EmailOnBooking($reservation));
+            }catch(\Exception $e){
+                $msg = "Fail to send email on booking. ";
+                $exception_msg = $e->getMessage();
+                $msg .= "$exception_msg.";
+
+                Log::info($msg);
+            }
         }
     }
 }
