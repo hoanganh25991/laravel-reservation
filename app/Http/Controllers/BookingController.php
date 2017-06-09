@@ -620,30 +620,4 @@ class BookingController extends HoiController {
 
         return $this->apiResponse($data, $code, $msg);
     }
-
-    public function findReservationByConfirmId($req){
-        // Check for what reservation need edited
-        $confirm_id = $req->get('confirm_id');
-        // Stop here if confirm_id not submitted
-        if(is_null($confirm_id)){
-            $msg = "Please submit the confirm id to edit. Submit under key: 'confirm_id'";
-            throw new \Exception($msg);
-        }
-        // Hash id to find the reservation_id
-        try{
-            $reservation_id = Setting::hash()->decode($confirm_id);
-        }catch(\Exception $e){
-            $msg = "Your confirm_id in wrong format. Please submit the right one.";
-            throw new \Exception($msg);
-        }
-        // Find out the reservation, customer want to change
-        /** @var Reservation $reservation */
-        $reservation    = Reservation::find($reservation_id);
-        if(is_null($reservation)){
-            $msg = "The reservation you want to edit, no longer exist";
-            throw new \Exception($msg);
-        }
-
-        return $reservation;
-    }
 }
