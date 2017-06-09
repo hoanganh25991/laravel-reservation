@@ -1201,7 +1201,25 @@ class AdminReservations {
 					// Ok toggle it
 					let {payment_required: curr} = new_reservation;
 					new_reservation.payment_required = !curr;
-				}
+				},
+
+        _getReservationRowClass(reservation){
+          let {staff_read_state, is_edited_by_customer} = reservation;
+
+          let className = '';
+          // Update className in different case
+          // ClassName as override
+          // Bcs we only use background-color
+          if(!staff_read_state){
+            className = 'active';
+          }
+
+          if(is_edited_by_customer){
+            className = 'hightlight';
+          }
+
+          return className;
+        }
 			}
 		});
 	}

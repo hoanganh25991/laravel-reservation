@@ -1,4 +1,4 @@
-<tr :class="reservation.staff_read_state ? '' : 'active'"
+<tr :class="_getReservationRowClass(reservation)"
     :id="'reservation_' + reservation.id"
     :reservation-id="reservation.id"
     v-on:click="_reservationDetailDialog"
