@@ -2454,3 +2454,7 @@ label:hover:before {
 .btn {
     font-size: 1em;
 }
+
+.hightlight {
+    background-color: #ffff00;
+}
