@@ -14,6 +14,7 @@ class ReservationController extends HoiController{
 
     // Fetch reservations by day
     const TODAY        = 'TODAY';
+    const NEXT_3_HOURS = 'NEXT_3_HOURS';
     const TOMORROW     = 'TOMORROW';
     const NEXT_3_DAYS  = 'NEXT_3_DAYS';
     const NEXT_7_DAYS  = 'NEXT_7_DAYS';
@@ -280,19 +281,26 @@ class ReservationController extends HoiController{
     public function fetchReservationsByDay($day_str = null){
 
         $start_day = Carbon::today(Setting::timezone());
+        $method    = 'addDays';
 
         switch($day_str){
             // Consider nothing submit as fetch by today
             case null:
             case By::TODAY:
-                $num_days = 1;
+                $add_up_val = 1;
+                break;
+
+            case By::NEXT_3_HOURS:
+                $start_day = Carbon::now(Setting::timezone());
+                $add_up_val = 4;
+                $method = 'addHours';
                 break;
 
             case By::TOMORROW:
                 // as tomorrow case, start day is early of tomorrow
                 // ok, at one more
                 $start_day = $start_day->copy()->addDays(1);
-                $num_days = 1;
+                $add_up_val = 1;
                 break;
 
             case By::NEXT_3_DAYS:
@@ -301,24 +309,26 @@ class ReservationController extends HoiController{
                 // when filter in between as [)
                 // equal at first start
                 // less than at last end
-                $num_days = 4;
+                $add_up_val = 4;
                 break;
 
             case By::NEXT_7_DAYS:
-                $num_days = 8;
+                $add_up_val = 8;
                 break;
 
             case By::NEXT_30_DAYS:
-                $num_days = 31;
+                $add_up_val = 31;
                 break;
 
+            // Default case
+            // Handle on random pick day from staff
             default:
                 try{
                     $start_day = Carbon::createFromFormat('Y-m-d', $day_str, Setting::timezone());
                     // Unlinke other days wrapper, Carbon inject current hours, minutes, seconds
                     // Into Y-m-d format, so explicit check it back to first of day
                     $start_day->setTime(0, 0, 0);
-                    $num_days  = 1;
+                    $add_up_val  = 1;
                 }catch(\Exception $e){
                     throw new \Exception('Fail to parse submited day_str');
                 }
@@ -326,7 +336,7 @@ class ReservationController extends HoiController{
         }
 
         // Query reservation in between of start & end
-        $end_day = $start_day->copy()->addDays($num_days);
+        $end_day = $start_day->copy()->$method($add_up_val);
 
         //$reservations = Reservation::alreadyReserved()->byDayBetween($start_day, $end_day)->get();
         //$reservations = Reservation::byDayBetween($start_day, $end_day)->get();

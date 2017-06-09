@@ -36,6 +36,7 @@ const PAYMENT_CHARGED  = 200;
 
 const TODAY        = 'TODAY';
 const TOMORROW     = 'TOMORROW';
+const NEXT_3_HOURS = 'NEXT_3_HOURS';
 const NEXT_3_DAYS  = 'NEXT_3_DAYS';
 const NEXT_7_DAYS  = 'NEXT_7_DAYS';
 const NEXT_30_DAYS = 'NEXT_30_DAYS';

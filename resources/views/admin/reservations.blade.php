@@ -33,6 +33,9 @@
                                     <button :class="(TODAY == filter_day? 'active' : '') + ' ' + 'btn btn-default'"
                                             v-on:click="_fetchReservationsByDay(TODAY)"       >Today</button>
 
+                                    <button :class="(NEXT_3_HOURS == filter_day? 'active' : '') + ' ' +  'btn btn-default'"
+                                            v-on:click="_fetchReservationsByDay(NEXT_3_HOURS)" >Next 3 hours</button>
+
                                     <button :class="(TOMORROW == filter_day? 'active' : '') + ' ' +  'btn btn-default'"
                                             v-on:click="_fetchReservationsByDay(TOMORROW)"    >Tomorrow</button>
 
