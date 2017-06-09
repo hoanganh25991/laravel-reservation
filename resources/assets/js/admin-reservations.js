@@ -12,7 +12,7 @@ const REFETCHING_DATA        = 'REFETCHING_DATA';
 const TOAST_SHOW = 'TOAST_SHOW';
 
 const REFETCHING_DATA_SUCCESS     = 'REFETCHING_DATA_SUCCESS';
-
+const SEND_SMS_REMINDER_ON_RESERVATION = 'SEND_SMS_REMINDER_ON_RESERVATION'
 // AJAX ACTION
 const AJAX_UPDATE_RESERVATIONS    = 'AJAX_UPDATE_RESERVATIONS';
 
@@ -28,6 +28,9 @@ const AJAX_SUCCESS  = 'AJAX_SUCCESS';
 const AJAX_ERROR    = 'AJAX_ERROR';
 const AJAX_VALIDATE_FAIL = 'AJAX_VALIDATE_FAIL';
 const AJAX_REFETCHING_DATA_SUCCESS = 'AJAX_REFETCHING_DATA_SUCCESS';
+const AJAX_SEND_REMINDER_SMS_ON_RESERVATION = 'AJAX_SEND_REMINDER_SMS_ON_RESERVATION';
+const AJAX_SEND_REMINDER_SMS_ON_RESERVATION_SUCCESS = 'AJAX_SEND_REMINDER_SMS_ON_RESERVATION_SUCCESS';
+const AJAX_SEND_REMINDER_SMS_ON_RESERVATION_FAIL = 'AJAX_SEND_REMINDER_SMS_ON_RESERVATION_FAIL';
 
 //Paypal
 const PAYMENT_REFUNDED = 50;
@@ -88,6 +91,8 @@ const CLOSE_NEW_RESERVATION_DIALOG = 'CLOSE_NEW_RESERVATION_DIALOG';
 
 const AJAX_RESERVATION_REQUIRED_DEPOSIT = 'AJAX_RESERVATION_REQUIRED_DEPOSIT';
 const UPDATE_NEW_RESERVATION = 'UPDATE_NEW_RESERVATION';
+
+
 
 class AdminReservations {
 	/** @namespace res.errorMsg */
@@ -209,6 +214,12 @@ class AdminReservations {
 					
 					return Object.assign({}, state, {new_reservation});
 				}
+        case SEND_SMS_REMINDER_ON_RESERVATION:{
+          let {confirm_id, outlet_id} = action;
+          let send_sms_on_reservation = {confirm_id, outlet_id};
+
+          return Object.assign({}, state, {send_sms_on_reservation});
+        }
 				default:
 					return state;
 			}
@@ -290,6 +301,10 @@ class AdminReservations {
 			// auto refresh
 			auto_refresh_status: null,
 			is_calling_ajax: null,
+      // Store the outlet_id, confirm_id
+      // When ask for send, send it to server
+      // Ask for manual send reminder SMS
+      send_sms_on_reservation: {},
 		};
 	}
 
@@ -1192,6 +1207,15 @@ class AdminReservations {
         _isAllowedToEdit(status){
           let canEdit = status != RESERVATION_AMENDMENTED && status != RESERVATION_REQUIRED_PAYMENT;
           return canEdit;
+        },
+
+        _sendReminderSMS(reservation){
+          let {confirm_id, outlet_id} = reservation;
+          store.dispatch({
+            type: SEND_SMS_REMINDER_ON_RESERVATION,
+            confirm_id,
+            outlet_id,
+          })
         }
 			}
 		});
@@ -1375,6 +1399,19 @@ class AdminReservations {
 				self.ajax_call(action);
 			}
 
+      if(action == SEND_SMS_REMINDER_ON_RESERVATION){
+        let {send_sms_on_reservation} = state;
+        let {outlet_id, confirm_id} = send_sms_on_reservation
+
+        let action = {
+          type: AJAX_SEND_REMINDER_SMS_ON_RESERVATION,
+          outlet_id,
+          confirm_id,
+        }
+
+        self.ajax_call(action);
+      }
+
 			// if(action == SYNC_DATA){
 			Object.assign(window.vue_state, store.getState());
 			// }
@@ -1454,6 +1491,12 @@ class AdminReservations {
 				$.jsonAjax({url, data});
 				break;
 			}
+      case AJAX_SEND_REMINDER_SMS_ON_RESERVATION:{
+        let url         = self.url('');
+        let data        = Object.assign({}, action);
+
+        $.jsonAjax({url, data});
+      }
 			default:
 				console.log('client side. ajax call not recognize the current acttion', action);
 				break;
@@ -1597,18 +1640,19 @@ class AdminReservations {
 
 				break;
 			}
-			// case AJAX_RESERVATION_REQUIRED_DEPOSIT:{
-			// 	// Show diff & ask customer for doing xyz
-			// 	let {reservation: new_reservation} = res.data;
-			//
-			// 	console.log(new_reservation);
-			//
-			// 	window.alert('This reservation required payment authorization. Please decide SMS customer to pay or not')
-			//
-			// 	store.dispatch({type: UPDATE_NEW_RESERVATION, new_reservation});
-			//
-			// 	break;
-			// }
+      case AJAX_SEND_REMINDER_SMS_ON_RESERVATION_SUCCESS:{
+        let toast = {
+          title: 'Send reminder',
+          content: 'Success'
+        };
+        store.dispatch({
+          type: TOAST_SHOW,
+          toast,
+        })
+
+        store.dispatch({type: REFETCHING_DATA})
+        break;
+      }
 			default:{
 				// This default cant resolve
 				// Ok toast out what happen

@@ -53,6 +53,12 @@
       </select>
     </td>
     <td>
+      <div class="alignCenter">
+        <button class="btn btn-default" v-on:click="_sendReminderSMS(reservation)"
+                style="width: 75px; margin: 0 auto">Send</button>
+      </div>
+    </td>
+    <td>
         <div v-show="reservation.payment_status > 25">
             <p>@{{ reservation.payment_amount }} @{{ reservation.payment_currency }} [
                 <strong>@{{ reservation.payment_status == 50 ? 'VOID'

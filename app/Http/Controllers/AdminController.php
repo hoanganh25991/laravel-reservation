@@ -238,6 +238,36 @@ class AdminController extends HoiController {
                 $response = $this->apiResponse($data, $code, $msg);
 
                 break;
+            
+            case Call::AJAX_SEND_REMINDER_SMS_ON_RESERVATION:
+                $confirm_id = $req->json('confirm_id');
+                $reservation = Reservation::findByConfirmId($confirm_id);
+
+                $telephone   = $reservation->full_phone_number;
+                $message     = $reservation->confirmation_sms_message;
+                $sender_name = Setting::smsSenderName();
+
+                $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);;
+                
+                if($success_sent){
+                    // Only update status, when current one is not reach reminder_sent
+                    $last_status = $reservation->status;
+                    if($last_status <= Reservation::REMINDER_SENT){
+                        $reservation->status = Reservation::REMINDER_SENT;
+                        $reservation->save();
+                    }
+
+                    $data = [];
+                    $code = 200;
+                    $msg  = Call::AJAX_SEND_REMINDER_SMS_ON_RESERVATION_SUCCESS;
+                }else{
+                    $data = [];
+                    $code = 422;
+                    $msg  = Call::AJAX_SEND_REMINDER_SMS_ON_RESERVATION_FAIL;
+                }
+
+                $response = $this->apiResponse($data, $code, $msg);
+                break;
 
             default:
                 $data = [];

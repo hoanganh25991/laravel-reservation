@@ -127,6 +127,7 @@
                                 <th>Customer Remarks</th>
                                 <th>Staff Remarks</th>
                                 <th>Status</th>
+                                <th>Send Reminder SMS</th>
                                 <th>Payment Authorization</th>
                             </tr>
                             </thead>
