@@ -50,7 +50,7 @@ class ReservationReservedListener{
         }
         
         /** Base on send email on booking config, decide send */
-        if($reservation->shouldSendSMSOnBooking()){
+        if($reservation->shouldSendEmailOnBooking()){
             $customer_name = "$reservation->salutation $reservation->first_name $reservation->last_name";
             $customer      = (object)['email' => $reservation->email, 'name' => $customer_name];
             
