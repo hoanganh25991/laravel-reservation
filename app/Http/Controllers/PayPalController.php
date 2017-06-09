@@ -82,11 +82,7 @@ class PayPalController extends HoiController{
                     break;
                 }
 
-                // Make payment as pending to capture (authorization payment)
-                //Find out reservation to build up info
-                $reservation_id = Setting::hash()->decode($req->get('confirm_id'));
-                /** @var Reservation $reservation */
-                $reservation    = Reservation::find($reservation_id);
+                $reservation = Reservation::findByConfirmId($req->get('confirm_id'));
 
                 if(is_null($reservation)){
                     $data = [];
