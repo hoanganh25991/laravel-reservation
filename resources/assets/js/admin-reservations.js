@@ -1125,7 +1125,7 @@ class AdminReservations {
 						'salutation',
 						'first_name',
 						'last_name',
-						'email',
+						// 'email',
 						'phone_country_code',
 						'phone',
 						'time_str',

@@ -153,13 +153,17 @@ class AdminController extends HoiController {
                 
                 // Ask him to solve the reservation book case
                 $booking_controller = new BookingController();
-
-                $validator = Reservation::validateOnCRUD($req->all());
+                // Email is optional > need different validate for reservation in admin page
+                $validator = Reservation::validateOnCRUDInAdminPage($req->all());
                 // Validate fail
                 if($validator->fails()){
                     $data = $validator->getMessageBag()->toArray();
                     $code = 422;
                     $msg  = Call::AJAX_RESERVATION_VALIDATE_FAIL;
+                    
+                    if(isset($data['email'])){
+                        
+                    }
 
                     $response = $this->apiResponse($data, $code, $msg);
                     break;
