@@ -91,6 +91,8 @@ use App\OutletReservationSetting as Setting;
  * @property mixed view_details_url
  * @property mixed last_confirm_id
  * @see App\Reservation::getViewDetailsUrlAttribute
+ * @property mixed is_edited_by_customer
+ * @see App\Reservation::getIsEditedByCustomerAttribute
  */
 class Reservation extends HoiModel {
 
@@ -141,7 +143,7 @@ class Reservation extends HoiModel {
         'deposit',
         'time',
         'paypal_currency',
-        //'outlet_name',
+        'is_edited_by_customer',
     ];
 
     /**
@@ -921,6 +923,21 @@ class Reservation extends HoiModel {
                 Log::info("Customer edit reservation, BUT refund on authorization reservation fail. Confirm id: $this->confirm_id");
             }
         }
+    }
+
+    /**
+     * Check if customer already edit on this reservation
+     * If he did, reservation has 'last_confirm_id;, which point to confirm_iD of last reservation
+     *
+     * @logic edit on reservation means create a new one with SAME confirm_id
+     * @return bool
+     */
+    public function getIsEditedByCustomerAttribute(){
+        $has_last_confirm_id = !is_null($this->last_confirm_id);
+
+        $is_edited_by_customer = $has_last_confirm_id;
+
+        return $is_edited_by_customer;
     }
 
 }
