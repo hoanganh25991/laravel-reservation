@@ -5,6 +5,7 @@ namespace App;
 use Carbon\Carbon;
 use App\Traits\ApiUtils;
 use App\Traits\ShortenUrl;
+use App\Traits\CleanString;
 use Illuminate\Validation\Rule;
 use App\Events\ReservationReserved;
 use Illuminate\Support\Facades\Log;
@@ -93,10 +94,13 @@ use App\OutletReservationSetting as Setting;
  * @see App\Reservation::getViewDetailsUrlAttribute
  * @property mixed is_edited_by_customer
  * @see App\Reservation::getIsEditedByCustomerAttribute
+ * @method namePhoneEmailLikeSearchTerm
+ * @see App\Reservation::scopeNamePhoneEmailLikeSearchTerm
  */
 class Reservation extends HoiModel {
 
     use ApiUtils;
+    use CleanString;
 
     /**
      * Reservation status
@@ -938,6 +942,16 @@ class Reservation extends HoiModel {
         $is_edited_by_customer = $has_last_confirm_id;
 
         return $is_edited_by_customer;
+    }
+
+    public function scopeNamePhoneEmailLikeSearchTerm($query, $term){
+        $clean_term = $this->clean($term);
+        return $query->where('first_name', 'LIKE', "%$clean_term%")
+            ->orWhere('last_name', 'LIKE', "%$clean_term%")
+            ->orWhere('phone', 'LIKE', "%$clean_term%")
+            ->orWhere('email', 'LIKE', "%$clean_term%")
+            ->skip(0)
+            ->take(15);
     }
 
 }

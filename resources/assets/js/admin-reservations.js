@@ -48,9 +48,10 @@ const MODE_BETWEEN = 'MODE_BETWEEN';
 const SYNC_VUE_STATE = 'SYNC_VUE_STATE';
 
 const RESERVATION_NO_SHOW          = -300;
-const RESERVATION_STAFF_CANCELLED = -200;
-const RESERVATION_USER_CANCELLED      = -100;
-const RESERVATION_DEPOSIT          = 50;
+const RESERVATION_STAFF_CANCELLED  = -200;
+const RESERVATION_USER_CANCELLED   = -100;
+const RESERVATION_REQUIRED_PAYMENT = 50;
+const RESERVATION_AMENDMENTED      = 75;
 const RESERVATION_RESERVED         = 100;
 const RESERVATION_REMINDER_SENT    = 200;
 const RESERVATION_CONFIRMATION     = 300;
@@ -419,26 +420,6 @@ class AdminReservations {
 				// Any time see reservations changed
 				// Ok assign date obj to him
 				reservations(reservations){
-					// let reservations_with_date =
-					// 	reservations.map(reservation => {
-					// 		// Only run when date not assing
-					// 		// Of course, don't do silly thing > infinite loop
-					// 		// ᕕ( ᐛ )ᕗ
-					// 		if(!reservation.date){
-					// 			let timestamp = reservation.reservation_timestamp;
-					// 			let date      = moment(timestamp, 'YYYY-MM-DD HH:mm:ss');
-					// 			// Assign date
-					// 			reservation.date = date;
-					// 		}
-					//
-					// 		return reservation;
-					// 	});
-					//
-					// // Ok update it to vue state explicit
-					// // By calling in this style
-					// // Redux state also be synced
-					// this.reservations = reservations_with_date;
-
 					// Assign date
 					reservations.forEach(reservation => {
 						let timestamp = reservation.reservation_timestamp;
@@ -1050,36 +1031,12 @@ class AdminReservations {
 					this._addFilterByDay(new_filter_day);
 				},
 
-				_addFilterByConfirmId(confirm_id){
-					console.log('fetch for me, please');
-					store.dispatch({
+				_addFilterByConfirmId(){
+          let {filter_confirm_id: confirm_id} = this;
+          store.dispatch({
 						type: FETCH_RESERVATIONS_BY_CONFIRM_ID,
-						confirm_id
+            confirm_id
 					});
-				},
-
-				_toggleFilterSearch(){
-					// Toggle it
-					this.filter_search = !this.filter_search;
-					// If staff want to search
-					// Build confirm id to search
-					// If not remove filter
-					let new_filter_confirm_id;
-					if(this.filter_search){
-						// Get confirm_id from input
-						let confirm_id = this.filter_confirm_id;
-						// Transform to uppercase
-						let uppercase_confirm_id = confirm_id ? confirm_id.toUpperCase() : '';
-						// Update vue state
-						new_filter_confirm_id    = uppercase_confirm_id;
-					}else{
-						new_filter_confirm_id    = "";
-					}
-
-					// Update vue state
-					this.filter_confirm_id = new_filter_confirm_id;
-
-					this._addFilterByConfirmId(new_filter_confirm_id);
 				},
 
 				_refreshOutletData(){
@@ -1205,21 +1162,36 @@ class AdminReservations {
 				},
 
         _getReservationRowClass(reservation){
-          let {staff_read_state, is_edited_by_customer} = reservation;
+          let {staff_read_state, is_edited_by_customer, status} = reservation;
 
           let className = '';
-          // Update className in different case
-          // ClassName as override
-          // Bcs we only use background-color
-          if(!staff_read_state){
-            className = 'active';
+
+          // Only update class for 'allowed to edit' reservation
+          if(this._isAllowedToEdit(status)){
+            // Update className in different case
+            // ClassName as override
+            // Bcs we only use background-color
+            if(!staff_read_state){
+              className = 'active';
+            }
+
+            if(is_edited_by_customer){
+              className = 'hightlight';
+            }
           }
 
-          if(is_edited_by_customer){
-            className = 'hightlight';
+          // Disable click on reservation
+          // Just by update class style as pointer-events -> none
+          if(!this._isAllowedToEdit(status)){
+            className = `${className} disabled text-muted`;
           }
 
           return className;
+        },
+        
+        _isAllowedToEdit(status){
+          let canEdit = status != RESERVATION_AMENDMENTED && status != RESERVATION_REQUIRED_PAYMENT;
+          return canEdit;
         }
 			}
 		});

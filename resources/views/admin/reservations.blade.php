@@ -102,12 +102,12 @@
                             <div class="btn-group">
                                 <button class="btn" style="padding: 1px;">
                                     <input type="text" class="form-control" placeholder="Reservation No."
-                                           style="text-transform:uppercase; height: 30px;"
+                                           style="height: 30px;"
                                            v-model="filter_confirm_id">
                                 </button>
                                 <button class="btn bg-info"
-                                    v-on:click="_toggleFilterSearch"
-                                ><i :class="!filter_search ? 'fa fa-search' : 'fa fa-times'"></i></button>
+                                    v-on:click="_addFilterByConfirmId"
+                                ><i class="fa fa-search"></i></button>
                             </div>
                         </div>
                     </div>

@@ -2458,3 +2458,7 @@ label:hover:before {
 .hightlight {
     background-color: #ffff00;
 }
+
+.disabled {
+    pointer-events: none;
+}

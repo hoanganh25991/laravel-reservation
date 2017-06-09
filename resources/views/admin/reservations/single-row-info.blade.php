@@ -17,7 +17,10 @@
         <p style="margin: 0">@{{ reservation.phone_country_code }}@{{ reservation.phone }}</p>
         <p style="margin: 0">@{{ reservation.email }}</p>
     </td>
-    <td style="width: 150px">@{{ reservation.reservation_timestamp }}</td>
+    <td style="width: 200px">@{{ reservation.reservation_timestamp }}
+      <br/>
+      <p style="font-size: 0.8em;">created at: @{{ reservation.created_timestamp }}</p>
+    </td>
     <td style="width: 100px">@{{ reservation.adult_pax }}+@{{ reservation.children_pax }}</td>
     <td>
         <input
@@ -46,15 +49,8 @@
         ></textarea>
     </td>
     <td>
-        <select v-model="reservation.status" v-on:change="_autoSave(reservation, 'status')">
-            <option value="400" class="bg-success">Arrived</option>
-            <option value="300" class="bg-success">Confirmed</option>
-            <option value="200" class="bg-info">Reminder Sent</option>
-            <option value="100" class="bg-info">Reserved</option>
-            <option value="-100" class="bg-info">User cancelled</option>
-            <option value="-200" class="bg-warning">Staff cancelled</option>
-            <option value="-300" class="bg-danger">No show</option>
-        </select>
+        @include('admin.reservations.status')
+      </select>
     </td>
     <td>
         <div v-show="reservation.payment_status > 25">

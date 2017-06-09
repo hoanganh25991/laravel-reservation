@@ -346,4 +346,17 @@ class ReservationController extends HoiController{
 
         return $reservations;
     }
+
+    public function findReservation($search_term){
+        try{
+            $reservation = Reservation::findByConfirmId($search_term);
+            $reservations = [$reservation];
+        }catch(\Exception $e){
+            // Cant find reservation by confirm_id, just means that
+            // We should find it by other try
+            $reservations = Reservation::namePhoneEmailLikeSearchTerm($search_term)->get();
+        }
+
+        return $reservations;
+    }
 }

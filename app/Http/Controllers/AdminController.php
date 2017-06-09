@@ -107,10 +107,12 @@ class AdminController extends HoiController {
                 $response = $this->apiResponse($data, $code, $msg);
                 break;
 
+            // Find reservation, receive the confirm_id
+            // But it just the string search from staff
+            // Bcs, now allow search through name, phone, email 
             case Call::AJAX_FIND_RESERVATION:
                 $confirm_id = $req->json('confirm_id');
-                $reservation = Reservation::findByConfirmId($confirm_id);
-                $reservations = [$reservation];
+                $reservations = $reservation_controller->findReservation($confirm_id);
 
                 $data = compact('reservations');
                 $code = 200;
