@@ -101,9 +101,11 @@
                         <div style="width: 100%; text-align: right; /** margin-bottom: 20px; */">
                             <div class="btn-group">
                                 <button class="btn" style="padding: 1px;">
-                                    <input type="text" class="form-control" placeholder="Reservation No."
-                                           style="height: 30px;"
-                                           v-model="filter_confirm_id">
+                                    <input type="text" class="form-control" placeholder="CONFIRM ID, name, phone or email"
+                                           style="height: 30px; width: 275px"
+                                           v-model="filter_confirm_id"
+                                           v-on:keyup.enter="_addFilterByConfirmId"
+                                    >
                                 </button>
                                 <button class="btn bg-info"
                                     v-on:click="_addFilterByConfirmId"

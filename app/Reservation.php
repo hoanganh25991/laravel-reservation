@@ -989,8 +989,16 @@ class Reservation extends HoiModel {
         return $is_edited_by_customer;
     }
 
+    /**
+     * Find in database, which reservation by customer info
+     * Name, Phone or Email
+     * Limit as 15 one
+     * @param $query
+     * @param $term
+     * @return mixed
+     */
     public function scopeNamePhoneEmailLikeSearchTerm($query, $term){
-        $clean_term = $this->clean($term);
+        $clean_term = trim($term);
         return $query->where('first_name', 'LIKE', "%$clean_term%")
             ->orWhere('last_name', 'LIKE', "%$clean_term%")
             ->orWhere('phone', 'LIKE', "%$clean_term%")

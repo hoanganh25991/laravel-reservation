@@ -2456,9 +2456,14 @@ label:hover:before {
 }
 
 .hightlight {
-    background-color: #ffff00;
+    background-color: #FFF176;
 }
 
 .disabled {
     pointer-events: none;
+}
+
+.alignCenter {
+    display: flex;
+    align-items: center;
 }

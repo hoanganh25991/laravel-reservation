@@ -349,7 +349,7 @@ class ReservationController extends HoiController{
 
     public function findReservation($search_term){
         try{
-            $reservation = Reservation::findByConfirmId($search_term);
+            $reservation = Reservation::findByConfirmIdScopeOutlet($search_term);
             $reservations = [$reservation];
         }catch(\Exception $e){
             // Cant find reservation by confirm_id, just means that
