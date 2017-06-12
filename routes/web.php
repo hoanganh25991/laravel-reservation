@@ -169,7 +169,8 @@ Route::get('test', function (App\Http\Controllers\BookingController $c, App\Http
     //return Session::token();
     //return  Auth::getName();
     $cookies_name = "remember_web_59ba36addc2b2f9401580f014c7f58ea4e30989d";
-    $user = (object)['email' => 'lehoanganh25991@gmail.com', 'name' => 'Anh Le Hoang'];
+    //$user = (object)['email' => 'lehoanganh25991@gmail.com', 'name' => 'Anh Le Hoang'];
+    $user = (object)['email' => '', 'name' => ''];
     $reservation = \App\Reservation::find(331);
     Mail::to($user)->send(new App\Mail\EmailOnBooking($reservation));
 });
