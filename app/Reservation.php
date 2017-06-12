@@ -1007,7 +1007,7 @@ class Reservation extends HoiModel {
             ->orWhere('phone', 'LIKE', "%$clean_term%")
             ->orWhere('email', 'LIKE', "%$clean_term%")
             ->skip(0)
-            ->take(15);
+            ->take(30);
     }
     
     public function getFullNameAttribute(){

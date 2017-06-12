@@ -7,9 +7,11 @@
     table, th, td {
       border: 1px solid black;
       border-collapse: collapse;
-      page-break-before: avoid;
-      page-break-inside: avoid;
-      page-break-after: avoid;
+    }
+    table, tr, td, th, tbody, thead, tfoot {
+      page-break-before: avoid !important;
+      page-break-inside: avoid !important;
+      page-break-after: avoid !important;
     }
     th {
       background-color: #9E9E9E;
