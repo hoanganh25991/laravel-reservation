@@ -2467,3 +2467,11 @@ label:hover:before {
     display: flex;
     align-items: center;
 }
+
+.flexRow {
+    display: flex;
+}
+
+.justifyContentCenter {
+    justify-content: center;
+}

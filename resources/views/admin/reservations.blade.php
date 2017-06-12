@@ -116,6 +116,11 @@
 
                     <!-- This div used to SHOW filterd reservations -->
                     <div class="modal-body">
+                        <div class="flexRow justifyContentCenter" style="padding-bottom: 15px;">
+                            <button class="btn btn-default"
+                                    v-on:click="_goToPrintPage"
+                            >Print this list</button>
+                        </div>
                         <table class="table table-hover table-condensed table-bordered">
                             <thead>
                             <tr class="bg-info">

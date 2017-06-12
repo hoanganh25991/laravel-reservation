@@ -54,7 +54,7 @@
     </td>
     <td>
       <div class="alignCenter">
-        <button class="btn btn-default" v-on:click="_sendReminderSMS(reservation)"
+        <button class="btn" v-on:click="_sendReminderSMS(reservation)"
                 style="width: 75px; margin: 0 auto">Send</button>
       </div>
     </td>

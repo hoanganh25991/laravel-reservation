@@ -96,6 +96,8 @@ use App\OutletReservationSetting as Setting;
  * @see App\Reservation::getIsEditedByCustomerAttribute
  * @method namePhoneEmailLikeSearchTerm
  * @see App\Reservation::scopeNamePhoneEmailLikeSearchTerm
+ * @property full_name
+ * @see App\Reservation::getFullNameAttribute
  */
 class Reservation extends HoiModel {
 
@@ -148,6 +150,7 @@ class Reservation extends HoiModel {
         'time',
         'paypal_currency',
         'is_edited_by_customer',
+        'full_name',
     ];
 
     /**
@@ -1005,6 +1008,11 @@ class Reservation extends HoiModel {
             ->orWhere('email', 'LIKE', "%$clean_term%")
             ->skip(0)
             ->take(15);
+    }
+    
+    public function getFullNameAttribute(){
+        $full_name = "$this->salutation $this->first_name $this->last_name";
+        return $full_name;
     }
 
 }

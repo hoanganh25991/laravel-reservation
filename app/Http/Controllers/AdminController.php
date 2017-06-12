@@ -422,4 +422,22 @@ class AdminController extends HoiController {
             Setting::injectOutletId($outlet_id);
         }
     }
+    
+    public function getReservationsPrintPage(ApiRequest $req){
+        // Handle post case
+        /** @var ReservationUser $user */
+        $user = $req->user();
+
+        if(!$user->hasReservationsPermissionOnCurrentOutlet()){
+            throw new \Exception('Sorry, current account cant modify reservations page');
+        }
+        
+        $reservation_ids_str = $req->get('reservation_ids');
+        try{$reservation_ids = explode(',', $reservation_ids_str);
+        }catch(\Exception $e){throw new \Exception("Fail to parse submited reservation ids");}
+        
+        $reservations = Reservation::whereIn('id', $reservation_ids)->get();
+        
+        return view('admin.reservations.print-page')->with(compact('reservations'));
+    }
 }

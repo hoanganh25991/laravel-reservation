@@ -621,7 +621,7 @@ class AdminReservations {
 							//let action = button.getAttribute('action');
 							let reservation_index  = button.getAttribute('reservation-index');
 							let picked_reservation = vue.reservations[reservation_index];
-							
+
 							let payment_status;
 							let action;
 
@@ -999,7 +999,7 @@ class AdminReservations {
 					// Ok, now call search
 					this._addFilterByStatus(...new_filter_statuses);
 				},
-				
+
 				_toggleFilterByDay(which_day){
 					let current_state = this.filter_day == which_day;
 					// toggle it
@@ -1086,7 +1086,7 @@ class AdminReservations {
 					// execute run
 					run(long_check);
 				},
-				
+
 				_fetchReservationsByDay(day, day_str = null){
 					console.log('fetch for me, please');
 					store.dispatch({
@@ -1113,16 +1113,16 @@ class AdminReservations {
 				_searchAvailableTime(){
 					let vue_state   = window.vue_state;
 					let {outlet_id} = vue_state;
-					
+
 					let {adult_pax, children_pax} = vue_state.new_reservation;
-					
+
 					let action = {
 						type: AJAX_SEARCH_AVAILABLE_TIME,
 						outlet_id,
 						adult_pax,
 						children_pax,
 					};
-					
+
 					self.ajax_call(action);
 				},
 
@@ -1203,7 +1203,7 @@ class AdminReservations {
 
           return className;
         },
-        
+
         _isAllowedToEdit(status){
           let canEdit = status != RESERVATION_AMENDMENTED && status != RESERVATION_REQUIRED_PAYMENT;
           return canEdit;
@@ -1216,7 +1216,16 @@ class AdminReservations {
             confirm_id,
             outlet_id,
           })
-        }
+        },
+
+				_goToPrintPage(){
+					console.log(self.url());
+					let {reservations, outlet_id} = this;
+					let reservation_ids = reservations.map(r => r.id).join(',');
+					let query_params = `print/?outlet_id=${outlet_id}&reservation_ids=${reservation_ids}`;
+					let redirect_url = self.url(query_params);
+					window.open(redirect_url);
+				}
 			}
 		});
 	}
@@ -1719,7 +1728,7 @@ class AdminReservations {
 		let base_url = state.base_url || '';
 
 		if(base_url.endsWith('/')){
-			base_url = path.substr(1);
+			base_url = base_url.substr(0, base_url.length - 1);
 		}
 
 		if(path.startsWith('/')){
@@ -1729,7 +1738,7 @@ class AdminReservations {
 		let url = `${base_url}/${path}`;
 
 		if(url.endsWith('/')){
-			url = path.substr(1);
+			url = url.substr(0, url.length - 1);
 		}
 
 		return url;
