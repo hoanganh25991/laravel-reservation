@@ -11,6 +11,9 @@
       page-break-inside: avoid;
       page-break-after: avoid;
     }
+    th {
+      background-color: #9E9E9E;
+    }
     p {
       margin: 0;
       padding: 0 5px;
@@ -65,7 +68,7 @@
         <p><strong>{{ $reservation->pax_size }}</strong> pax</p>
       </td>
       <td>
-        <p>{{ $reservation->table_layout_name }} - {{ $reservation->table_name }}</p>
+        <p>{{ $reservation->table_layout_name }} {{ $reservation->table_name }}</p>
       </td>
       <td>
         <p>{{ $reservation->customer_remarks }}</p>
