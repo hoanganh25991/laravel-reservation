@@ -573,23 +573,32 @@ class BookingController extends HoiController {
                 // Still considered as a reserved reservation
                 $reservation->status = Reservation::AMENDMENTED;
                 $reservation->save();
-                // Refund the payment if needed
-                $reservation->autoRefundWhenPaymentAlreadyPaid();
 
-                // Reuse what checked inside submit booking
-                $req->merge(['type' => Call::AJAX_SUBMIT_BOOKING, 'last_confirm_id' => $reservation->confirm_id]);
+                try{
+                    // Refund the payment if needed
+                    $reservation->autoRefundWhenPaymentAlreadyPaid();
+                    // Reuse what checked inside submit booking
+                    $req->merge(['type' => Call::AJAX_SUBMIT_BOOKING,
+                                 'last_confirm_id' => $reservation->confirm_id]);
 
-                $response = $this->getBookingForm($req);
-                $resData  = $response->getData();
-                $data     = $resData->data;
+                    $response = $this->getBookingForm($req);
+                    $resData  = $response->getData();
+                    $data     = $resData->data;
 
-                $isNewReservationCreated = isset($data->reservation);
-
-                // Should reverse status of last reservation
-                // When no new one come to replace him
-                if(!$isNewReservationCreated){
+                    $isNewReservationCreated = isset($data->reservation);
+                    // Should reverse status of last reservation
+                    // When no new one come to replace him
+                    if(!$isNewReservationCreated){
+                        $reservation->status = $last_status;
+                        $reservation->save();
+                    }
+                }catch(\Exception $e) {
+                    // Restore the reservation status
+                    // When fail to update to the new one
                     $reservation->status = $last_status;
                     $reservation->save();
+                    // Continue throw the exception out
+                    throw $e;
                 }
 
                 break;
