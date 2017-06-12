@@ -903,23 +903,43 @@ class Reservation extends HoiModel {
      */
     public static function findByConfirmId($confirm_id){
         // Try to parse the confirm_id
-        try{
-            $reservation_id = Setting::hash()->decode($confirm_id);
+        try{ $reservation_id = Setting::hash()->decode($confirm_id);
+        }catch(\Exception $e){throw new \Exception("Sorry, confirm id is invalid.");}
 
-        }catch(\Exception $e){
-
-            throw new \Exception("Sorry, confirm id is invalid.");
-        }
-
+        $bag = compact('confirm_id', 'reservation_id');
         // Find reservation base on id
         /** @var Reservation $reservation */
-        $reservation = Reservation::withoutGlobalScopes()->where([
-            ['id', $reservation_id],
-            ['status', '!=', Reservation::AMENDMENTED]
-        ])->orWhere([
-            ['last_confirm_id', $confirm_id],
-            ['status', '!=', Reservation::AMENDMENTED]
-        ])->first();
+        $reservation = Reservation::withoutGlobalScopes()
+            // Find reservation status <> AMENDMENTED
+            ->where('status', '!=', Reservation::AMENDMENTED)
+            ->where(function($query) use ($bag){
+                // Try compare as id or last_confirm_id
+                $query->where('id', $bag['reservation_id'])
+                      ->orWhere('last_confirm_id', $bag['confirm_id']);
+            })->first();
+
+        if(is_null($reservation)){
+            throw new \Exception("Sorry, we cant find your reservation.");
+        }
+
+        return $reservation;
+    }
+
+    public static function findByConfirmIdScopeOutlet($confirm_id){
+        // Try to parse the confirm_id
+        try{ $reservation_id = Setting::hash()->decode($confirm_id);
+        }catch(\Exception $e){throw new \Exception("Sorry, confirm id is invalid.");}
+
+        $bag = compact('confirm_id', 'reservation_id', 'outlet_id');
+        // Find reservation base on id
+        /** @var Reservation $reservation */
+        $reservation = Reservation::where('status', '!=', Reservation::AMENDMENTED)
+            // Reservation with global scope > affected by outlet_id scope
+            ->where(function($query) use ($bag){
+                // Try compare as id or last_confirm_id
+                $query->where('id', $bag['reservation_id'])
+                    ->orWhere('last_confirm_id', $bag['confirm_id']);
+            })->first();
 
         if(is_null($reservation)){
             throw new \Exception("Sorry, we cant find your reservation.");
