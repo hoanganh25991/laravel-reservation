@@ -26,10 +26,9 @@
             <div class="col-md-10" id="outlet_select">
                 <div id="navbar" class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
-                        <li><a v-on:click="_goToPage('reservations')">Reservations</a></li>
-                        <li><a v-on:click="_goToPage('settings')">Settings</a></li>
+                        <li><a style="cursor: hand;cursor: pointer;" v-on:click="_goToPage('reservations')">Reservations</a></li>
+                        <li><a style="cursor: hand;cursor: pointer;" v-on:click="_goToPage('settings')">Settings</a></li>
                     </ul>
-
 
                     <ul class="nav navbar-nav navbar-right">
                         {{--For Outlet Select--}}
@@ -124,7 +123,16 @@
 
                 _goToPage(whichPage){
                     let {base_url} = this;
+                    let current_url = window.location.href;
                     let redirect_url = `${base_url}/${whichPage}`;
+
+                    let is_on_admin_page = base_url == current_url;
+                    // On admin base self redirect
+                    // On reservation or setting page
+                    // Let them self redirect
+                    if(is_on_admin_page){
+                        window.location.href = redirect_url;
+                    }
                     // notify it out
                     let data = {redirect_url};
                     document.dispatchEvent(new CustomEvent('go-to-page', {detail: data}));

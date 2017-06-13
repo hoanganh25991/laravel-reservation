@@ -367,7 +367,7 @@ class Reservation extends HoiModel {
      */
     public static function orderByRerservationTimestamp(){
         static::addGlobalScope('order_by_reservation_timestamp', function(Builder $builder){
-            $builder->orderBy('reservation_timestamp', 'dec');
+            $builder->orderBy('reservation_timestamp', 'asc');
         });
     }
 
