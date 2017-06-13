@@ -35,6 +35,7 @@ class EmailOnBooking extends Mailable {
      */
     public function build() {
         $outlet = $this->outlet;
+        $reservation = $this->reservation;
         $address = env('MAIL_FROM_ADDRESS');
         // Config need explicit tell which email address used to send email
         // If nothing config, thrown exception
@@ -43,9 +44,11 @@ class EmailOnBooking extends Mailable {
         }
         // In email, name sender with special character NOT ACCEPTED
         // Remove move it first
-        $name = $this->clean($outlet->outlet_name);
+        $name    = $this->clean($outlet->outlet_name);
+        $subject = $reservation->email_subject;
 
         return $this->from($address, $name)
+                    ->subject($subject)
                     ->view('email.email-on-booking');
     }
 
