@@ -56,7 +56,8 @@ class AppServiceProvider extends ServiceProvider
             }
             
             $navigator_state = [
-                'outlets'   => $outlets
+                'outlets'   => $outlets,
+                'base_url'  => url('admin'),
             ];
             
             $view->with(compact('navigator_state'));

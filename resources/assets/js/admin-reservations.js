@@ -1304,6 +1304,14 @@ class AdminReservations {
 			 */
 			self.ajax_call(action);
 		});
+
+		document.addEventListener('go-to-page', (e) => {
+			let store = window.store;
+			let {outlet_id} = store.getState();
+			let {redirect_url: base_url} = e.detail;
+			let redirect_url = `${base_url}?outlet_id=${outlet_id}`;
+			window.location.href = redirect_url;
+		})
 	}
 
 	view(){

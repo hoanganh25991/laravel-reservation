@@ -23,19 +23,18 @@
                 </div>
             </div>
 
-            <div class="col-md-10">
+            <div class="col-md-10" id="outlet_select">
                 <div id="navbar" class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
-                        <li><a href="{{ url('admin/reservations') }}">Reservations</a></li>
-                        {{--<li><a href="#customers_content"         >Customers</a></li>--}}
-                        <li><a href="{{ url('admin/settings') }}">Settings</a></li>
+                        <li><a v-on:click="_goToPage('reservations')">Reservations</a></li>
+                        <li><a v-on:click="_goToPage('settings')">Settings</a></li>
                     </ul>
 
 
                     <ul class="nav navbar-nav navbar-right">
                         {{--For Outlet Select--}}
                         @verbatim
-                        <li class="dropdown" id="outlet_select">
+                        <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-btn fa-sign-out"></i><span v-if="selected_outlet">{{ selected_outlet.outlet_name }}</span>
                             </a>
@@ -53,7 +52,6 @@
                          <!-- Authentication Links -->
                         @if (Auth::guest())
                             <li><a href="{{ url('/login') }}">Login</a></li>
-                            {{--<li><a href="{{ url('/register') }}">Register</a></li>--}}
                         @else
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -79,12 +77,11 @@
 <!--suppress JSUnresolvedVariable window.naviagtor_state -->
 <script>
     (function(){
-        //let outlets = window.outlets;
-        //console.log(window.navigator_state);
         let vue_state = {
             selected_outlet: null,
             outlet_id: null,
             outlets: [],
+            base_url: null,
         };
 
         // What server give us
@@ -123,6 +120,14 @@
                     let data      = {outlet_id};
                     //notify it out, who catch get data to move on
                     document.dispatchEvent(new CustomEvent('switch-outlet', {detail: data}));
+                },
+
+                _goToPage(whichPage){
+                    let {base_url} = this;
+                    let redirect_url = `${base_url}/${whichPage}`;
+                    // notify it out
+                    let data = {redirect_url};
+                    document.dispatchEvent(new CustomEvent('go-to-page', {detail: data}));
                 }
             }
         });
