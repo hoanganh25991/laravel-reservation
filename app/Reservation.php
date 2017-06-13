@@ -96,8 +96,10 @@ use App\OutletReservationSetting as Setting;
  * @see App\Reservation::getIsEditedByCustomerAttribute
  * @method namePhoneEmailLikeSearchTerm
  * @see App\Reservation::scopeNamePhoneEmailLikeSearchTerm
- * @property full_name
+ * @property string full_name
  * @see App\Reservation::getFullNameAttribute
+ * @property string email_subject
+ * @see App\Reservation::getEmailSubjectAttribute
  */
 class Reservation extends HoiModel {
 
@@ -1013,6 +1015,12 @@ class Reservation extends HoiModel {
     public function getFullNameAttribute(){
         $full_name = "$this->salutation $this->first_name $this->last_name";
         return $full_name;
+    }
+
+    public function getEmailSubjectAttribute(){
+        $date_time = $this->date->format('dS M');
+        $subject   = "Your $this->outlet_name Reservation On $date_time";
+        return $subject;
     }
 
 }
