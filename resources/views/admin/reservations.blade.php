@@ -218,6 +218,7 @@
 
 @push('script')
 <script src="{{ url('js/flatpickr.min.js') }}"></script>
+<script src="{{ url('js/hashids.min.js') }}"></script>
 <script>@php
         $state_json = json_encode($state);
         echo "window.state = $state_json;";

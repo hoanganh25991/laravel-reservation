@@ -1219,11 +1219,15 @@ class AdminReservations {
         },
 
 				_goToPrintPage(){
-					console.log(self.url());
+					//console.log(self.url());
+					var hashids = new Hashids();
 					let {reservations, outlet_id} = this;
-					let reservation_ids = reservations.map(r => r.id).join(',');
-					let query_params = `print?outlet_id=${outlet_id}&reservation_ids=${reservation_ids}`;
-					let redirect_url = self.url(query_params);
+					// let reservation_ids = reservations.map(r => r.id).join(',');
+					let reservation_ids = reservations.map(r => r.id);
+					let hash_ids_str    = hashids.encode(reservation_ids);
+					let query_params    = `print?outlet_id=${outlet_id}&reservation_ids=${hash_ids_str}`;
+					let redirect_url    = self.url(query_params);
+					// Open new tab for print page
 					window.open(redirect_url);
 				}
 			}

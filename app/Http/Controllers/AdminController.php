@@ -11,6 +11,7 @@ use App\ReservationUser;
 use App\Traits\ApiResponse;
 use App\Events\SentReminderSMS;
 use App\Http\Requests\ApiRequest;
+use Hashids\Hashids;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use App\Libraries\HoiAjaxCall as Call;
@@ -432,8 +433,10 @@ class AdminController extends HoiController {
             throw new \Exception('Sorry, current account cant modify reservations page');
         }
         
-        $reservation_ids_str = $req->get('reservation_ids');
-        try{$reservation_ids = explode(',', $reservation_ids_str);
+        $hash_ids_str = $req->get('reservation_ids');
+        $hash_ids     = new Hashids();
+
+        try{$reservation_ids = $hash_ids->decode($hash_ids_str);
         }catch(\Exception $e){throw new \Exception("Fail to parse submited reservation ids");}
         
         $reservations = Reservation::whereIn('id', $reservation_ids)->get();
