@@ -60,14 +60,6 @@ class AdminController extends HoiController {
     public function getReservationDashboard(ApiRequest $req){
         
         if($req->method() == 'GET'){
-            // Work around for url redirect case on server
-            // /dev/admin/reservations/print/?... > redirect
-            // Dont know why
-            $is_print_page = $req->get('action') == 'print';
-
-            if($is_print_page){
-                return $this->getReservationsPrintPage($req);
-            }
             // Handle default case
             // Why have to resolve
             // When staff access admin/reservations
