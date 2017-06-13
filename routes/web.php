@@ -47,7 +47,6 @@ Route::any('paypal', 'PayPalController@handlePayment')->where('brand_id', '[0-9]
 Route::group(['middleware' => 'reservations'], function (){
     Route::any('admin', 'AdminController@getDashboard')->name('admin');
     Route::any('admin/reservations', 'AdminController@getReservationDashboard');
-    Route::any('admin/reservations/print', 'AdminController@getReservationsPrintPage');
 });
 
 //administartor detail

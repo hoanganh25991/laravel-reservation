@@ -1222,7 +1222,7 @@ class AdminReservations {
 					console.log(self.url());
 					let {reservations, outlet_id} = this;
 					let reservation_ids = reservations.map(r => r.id).join(',');
-					let query_params = `print/?outlet_id=${outlet_id}&reservation_ids=${reservation_ids}`;
+					let query_params = `?action=print&outlet_id=${outlet_id}&reservation_ids=${reservation_ids}`;
 					let redirect_url = self.url(query_params);
 					window.open(redirect_url);
 				}
