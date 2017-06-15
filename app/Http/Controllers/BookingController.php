@@ -539,8 +539,9 @@ class BookingController extends HoiController {
                  */
                 if($reservation->requiredDeposit()){
                     $paypal_token = (new PayPalController)->generateToken();
+                    $allowed_edit_by_customer = $reservation->allowedEditByCustomer();
 
-                    $data = compact('reservation', 'paypal_token');
+                    $data = compact('reservation', 'paypal_token', 'allowed_edit_by_customer');
                     $code = 200;
                     $msg  = Call::AJAX_RESERVATION_REQUIRED_DEPOSIT;
                     break;
