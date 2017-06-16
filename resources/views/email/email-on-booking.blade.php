@@ -15,7 +15,6 @@
       color: #363E3F;
       background-color: #f8f8f8;
       margin: 0 auto;
-      overflow: overlay;
       height: calc(100vh - 170px);
       -vendor-animation-duration: 3s;
       -vendor-animation-delay: 2s;
@@ -71,7 +70,6 @@
       width: 100%;
       margin: 0;
       display: block;
-      height: 150px;
       position: relative;
       background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 10%, rgba(0, 0, 0, 0.8) 100%);
       -vendor-animation-duration: 3s;
@@ -84,9 +82,8 @@
     }
 
     .page-hearder .parallax-container {
-      overflow: hidden;
-      height: 150px;
-      position: relative;
+      background: url({{ $outlet->outlet_cover_image }}) no-repeat;
+      background-size: cover;
     }
 
     .page-hearder .parallax-container .parallax {
@@ -117,7 +114,7 @@
       bottom: -15px;
       color: #a09f9c;
       width: 70%;
-      z-index: 1;
+      padding: 30px 0 0 0;
     }
 
     .page-hearder .info p {
@@ -168,16 +165,14 @@
 <body>
 <div class="page-hearder">
   <div class="parallax-container">
-    <h1>{{ $outlet->outlet_cover_img }}</h1>
-    <div class="parallax"><img src="{{ $outlet->outlet_cover_image }}">
+    <div class="info" style="transform: translateY(-100%)">
+      <p>
+        {{ $outlet->outlet_address }}
+      </p>
+      <div class="outlet-name">
+        <h1>{{ $outlet->outlet_name }}</h1>
+      </div>
     </div>
-  </div>
-  <div class="info">
-    <p>
-      {{ $outlet->outlet_address }}
-    </p>
-    <div class="outlet-name">
-      <h1>{{ $outlet->outlet_name }}</h1>
     </div>
   </div>
 </div>
