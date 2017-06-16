@@ -2,9 +2,8 @@
 <html>
 <head>
     <link href="{{ url('css/bootstrap.min.css') }}" rel="stylesheet" media="screen">
-    {{--<link href="{{ url('css/flat-ui.min.css') }}" rel="stylesheet" media="screen">--}}
     <link href="{{ url('css/font-awesome.min.css') }}" rel="stylesheet" media="screen">
-    <link href="{{ url_mix('css/reservation.css') }}" rel="stylesheet">
+    <link href="{{ url_mix('css/admin.css') }}" rel="stylesheet">
     <style>
         .table>thead>tr>th, .table>tbody>tr>th, .table>tfoot>tr>th, .table>thead>tr>td, .table>tbody>tr>td, .table>tfoot>tr>td {
             padding: 2px;

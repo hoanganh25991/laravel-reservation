@@ -22,6 +22,11 @@ let css_output_dir = 'public/css';
 mix.styles(['resources/assets/css/reservation.css'], css_output_dir + '/reservation.css');
 
 /**
+ * Css code for admin page
+ */
+mix.styles(['resources/assets/css/admin.css'], css_output_dir + '/admin.css');
+
+/**
  * Css code handle animation
  */
 mix.styles(['resources/assets/css/animate.css'], css_output_dir + '/animate.css');
@@ -60,4 +65,3 @@ mix.babel(['resources/assets/js/paypal-authorize.js'], js_output_dir + '/paypal-
  * Sourcemap self check in code
  */
 mix.version();
-// mix.sourceMaps();
