@@ -1242,7 +1242,16 @@ class AdminReservations {
 					if(inRange){
 						this.new_reservation = Object.assign(currNewReservation, {date_str});
 					}else{
-						window.alert('Pick date should in available range.');
+						window.alert(`Pick date should in available range. Max days in advance: ${outlet.max_days_in_advance}`);
+					}
+				},
+
+				_alertOutOfRange(){
+					let {new_reservation: {adult_pax, children_pax}, outlet} = this;
+					let paxSize = (+adult_pax) + (+children_pax);
+					let inRange = paxSize >= outlet.overall_min_pax && paxSize <= outlet.overall_max_pax;
+					if(!inRange){
+						window.alert(`Please reselect pax, total pax should between: [${outlet.overall_min_pax}, ${outlet.overall_max_pax}]`);
 					}
 				}
 			}

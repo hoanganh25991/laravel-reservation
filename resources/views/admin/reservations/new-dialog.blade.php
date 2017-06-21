@@ -59,6 +59,7 @@
             <label class="col-md-3 text-right">Adult Pax</label>
             <select
                     v-model="new_reservation.adult_pax"
+                    v-on:change="_alertOutOfRange"
             >
                 <!-- This is hard code range of selectable pax -->
                 <option value="0">0</option>
@@ -89,6 +90,7 @@
             <label class="col-md-3 text-right">Children Pax</label>
             <select
                     v-model="new_reservation.children_pax"
+                    v-on:change="_alertOutOfRange"
             >
                 <!-- This is hard code range of selectable pax -->
                 <option value="0">0</option>
