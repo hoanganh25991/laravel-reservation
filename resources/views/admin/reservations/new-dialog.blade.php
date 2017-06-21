@@ -125,9 +125,12 @@
         <div class="row">
             <label class="col-md-3 text-right">Date</label>
             <div  class="col-md-9" style="padding: 0">
-                <input type="date" style="width: 135px; height: 30px"
-                       v-model="new_reservation.date_str"
-                />
+                <div style="position: relative">
+                    <span style="position: absolute; left: 0; padding: 5px;">{{ moment(new_reservation.date_str, 'YYYY-MM-DD').format('DD/MM/YYYY') }}</span>
+                    <input type="date" style="width: 135px; height: 30px; text-indent: -9999px;"
+                           v-on:change="_updateNewReservationDate($event.target.value)"
+                    />
+                </div>
                 <div class="small text-muted">Max days in advance: {{ outlet.max_days_in_advance }}.
                     So, only available before {{ moment().add(+outlet.max_days_in_advance + 1, 'days').format('YYYY-MM-DD') }}</div>
             </div>

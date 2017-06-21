@@ -1229,6 +1229,21 @@ class AdminReservations {
 					let redirect_url    = self.url(query_params);
 					// Open new tab for print page
 					window.open(redirect_url);
+				},
+
+				// Add logic with min max of outlet available time
+				_updateNewReservationDate(date_str){
+					let {new_reservation: currNewReservation, outlet} = this;
+					let earlyToday = moment().set({hours: 0, minutes: 0, seconds: 0});
+					let pickDate = moment(date_str, 'YYYY-MM-DD')
+					let maxDate = earlyToday.clone().add(outlet.max_days_in_advance, 'days');
+
+					let inRange = pickDate.isAfter(earlyToday) && pickDate.isBefore(maxDate);
+					if(inRange){
+						this.new_reservation = Object.assign(currNewReservation, {date_str});
+					}else{
+						window.alert('Pick date should in available range.');
+					}
 				}
 			}
 		});
