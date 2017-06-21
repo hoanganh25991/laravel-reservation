@@ -1060,7 +1060,7 @@ class Reservation extends HoiModel {
         $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);
 
         if(!$success_sent){
-            $msg = "Fail to send SMS on booking. ";
+            $msg = "Fail to send SMS on user cancel. ";
             $msg .= $success_sent;
 
             Log::info($msg);
