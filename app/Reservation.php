@@ -2,13 +2,16 @@
 
 namespace App;
 
+use App\Traits\SendSMS;
 use Carbon\Carbon;
 use App\Traits\ApiUtils;
 use App\Traits\ShortenUrl;
 use App\Traits\CleanString;
 use Illuminate\Validation\Rule;
+use App\Mail\EmailOnUserCancel;
 use App\Events\ReservationReserved;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\Eloquent\Builder;
 use App\Http\Controllers\PayPalController;
@@ -100,11 +103,16 @@ use App\OutletReservationSetting as Setting;
  * @see App\Reservation::getFullNameAttribute
  * @property string email_subject
  * @see App\Reservation::getEmailSubjectAttribute
+ * @property mixed sms_message_on_user_cancel
+ * @see App\Reservation::getSMSMessageOnUserCancelAttribute
+ * @property mixed email_subject_on_user_cancel
+ * @see App\Reservation::getEmailSubjectOnUserCancelAttribute
  */
 class Reservation extends HoiModel {
 
     use ApiUtils;
     use CleanString;
+    use SendSMS;
 
     /**
      * Reservation status
@@ -1021,6 +1029,57 @@ class Reservation extends HoiModel {
         $date_time = $this->date->format('dS M');
         $subject   = "Your $this->outlet_name Reservation On $date_time";
         return $subject;
+    }
+
+    public function getEmailSubjectOnUserCancelAttribute(){
+        $date_str = $this->date->format('dS M');
+        $subject  = "You Have Cancelled Your $this->outlet_name Reservation on $date_str";
+
+        return $subject;
+    }
+
+    public function autoSendSMSEmailConfirmWhenUserCancel(){
+        $this->autoSendSMSWhenUserCancel();
+        $this->autoSendEmailWhenUserCancel();
+    }
+
+    public function getSMSMessageOnUserCancelAttribute(){
+        //send out an SMS
+        $date_str = $this->date->format('dS M Y');
+        $time_str = $this->date->format('H:i a');
+
+        $msg = "Your reservation at $this->outlet_name on $date_str at $time_str has been cancelled.";
+
+        return $msg;
+    }
+
+    public function autoSendSMSWhenUserCancel(){
+        $telephone    = $this->full_phone_number;
+        $message      = $this->sms_message_on_user_cancel;
+        $sender_name  = Setting::smsSenderName();
+        $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);
+
+        if(!$success_sent){
+            $msg = "Fail to send SMS on booking. ";
+            $msg .= $success_sent;
+
+            Log::info($msg);
+        }
+    }
+
+    public function autoSendEmailWhenUserCancel(){
+        $customer_name = "$this->salutation $this->first_name $this->last_name";
+        $customer      = (object)['email' => $this->email, 'name' => $customer_name];
+        // Send SMS
+        try{
+            Mail::to($customer)->send(new EmailOnUserCancel($this));
+        }catch(\Exception $e){
+            $msg = "Fail to send email on user cancel. ";
+            $exception_msg = $e->getMessage();
+            $msg .= "$exception_msg.";
+
+            Log::info($msg);
+        }
     }
 
 }

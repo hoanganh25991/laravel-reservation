@@ -568,6 +568,11 @@ class BookingController extends HoiController {
             case Call::AJAX_EDIT_RESERVATION:
                 $confirm_id = $req->get('confirm_id');
                 $reservation = Reservation::findByConfirmId($confirm_id);
+
+                if(!$reservation->allowedEditByCustomer()){
+                    throw new \Exception('Reservation no longer available to edit');
+                }
+
                 $last_status = $reservation->status;
                 // Change this reservation status
                 // Bcs if not, it affect the workflow of searching avaible
@@ -607,10 +612,17 @@ class BookingController extends HoiController {
             case Call::AJAX_CANCEL_RESERVATION:
                 $confirm_id = $req->get('confirm_id');
                 $reservation = Reservation::findByConfirmId($confirm_id);
+
+                if(!$reservation->allowedEditByCustomer()){
+                    throw new \Exception('Reservation no longer available to cancel');
+                }
+
                 $reservation->status = Reservation::USER_CANCELLED;
                 $reservation->save();
                 // Refund the payment if needed
                 $reservation->autoRefundWhenPaymentAlreadyPaid();
+                
+                $reservation->autoSendSMSEmailConfirmWhenUserCancel();
 
                 $data = compact('reservation');
                 $code = 200;
