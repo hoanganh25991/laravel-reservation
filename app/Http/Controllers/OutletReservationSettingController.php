@@ -32,7 +32,7 @@ class OutletReservationSettingController extends Controller {
                     if($key === Setting::MIN_HOURS_IN_ADVANCE_TO_ALLOW_CANCELLATION_AMENDMENT_PRIOR_TO_RESERVATION_TIME){
                         $isValidateSuccess = Setting::validateMinHoursInAdvanceAllowCancellation($value);
                         if(!$isValidateSuccess){
-                            $msg = 'Min hours in advance to allow cancellation/amendment must respect the config of booking time. Please set it up higher.';
+                            $msg = 'Please ensure that the minimum hours in advance to allow cancellation/amendment is equal or larger than the minimum hours in advance to allow booking.';
                             throw new \Exception($msg);
                         }
                         // If everything is fine
