@@ -444,7 +444,7 @@ class OutletReservationSetting extends HoiModel{
 
     public static function validateMinHoursInAdvanceAllowCancellation($value){
         $buffer_config = Setting::bufferConfig();
-        $is_respect_booking_time = $value > max($buffer_config(Setting::MIN_HOURS_IN_ADVANCE_SLOT_TIME),
+        $is_respect_booking_time = $value >= max($buffer_config(Setting::MIN_HOURS_IN_ADVANCE_SLOT_TIME),
                                                 $buffer_config(Setting::MIN_HOURS_IN_ADVANCE_SESSION_TIME));
         if($is_respect_booking_time){
             return true;
