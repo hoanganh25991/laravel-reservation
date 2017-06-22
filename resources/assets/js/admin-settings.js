@@ -636,11 +636,11 @@ class AdminSettings {
 					// new booking
 					let min_hours_prior_to_reservation_time = buffer[MIN_HOURS_IN_ADVANCE_PRIOR_TO_RESERVATION_TIME];
 					let min_hours_prior_to_session_time     = buffer[MIN_HOURS_IN_ADVANCE_PRIOR_TO_SESSION_TIME];
-					let is_respect_booking_time = value > min_hours_prior_to_reservation_time && value > min_hours_prior_to_session_time;
+					let is_respect_booking_time = value >= min_hours_prior_to_reservation_time && value >= min_hours_prior_to_session_time;
 					if(is_respect_booking_time){
 						buffer[MIN_HOURS_ALLOW_CANCELLATION] = value;
 					}else{
-						let msg = 'Min hours in advance to allow cancellation/amendment must respect the config of booking time. Please set it up higher.';
+						let msg = 'Please ensure that the minimum hours in advance to allow cancellation/amendment is equal or larger than the minimum hours in advance to allow booking.';
 						window.alert(msg);
 						// Set back to previous value
 						let newBuffer = Object.assign({}, buffer);
