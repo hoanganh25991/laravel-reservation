@@ -267,3 +267,12 @@ label:hover:before {
 .justifyContentCenter {
     justify-content: center;
 }
+.btn-default:focus, .btn-default:active {
+    background-color: inherit;
+}
+
+.btn-default.active{
+    color: #333;
+    background-color: #e6e6e6;
+    border-color: #adadad;
+}
