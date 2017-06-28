@@ -66,8 +66,9 @@ class Handler extends ExceptionHandler {
     public function render($request, Exception $exception){
 
         $fromApiGroup = preg_match('/api/', $request->url());
+        $isPostMethod = $request->method() == 'POST';
         // When render error for api
-        if($request->ajax() || $fromApiGroup){
+        if($request->ajax() || $fromApiGroup || $isPostMethod){
             $code = 422;
             $msg  = Call::SERVER_THROWN_EXCEPTION;
             $data = [];
