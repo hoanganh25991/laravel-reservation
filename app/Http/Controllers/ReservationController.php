@@ -205,6 +205,8 @@ class ReservationController extends HoiController{
 
         //Flag to notify context of this function
         //Should resuse it or not
+        $response = null;
+
         switch($action_type){
             case Call::AJAX_UPDATE_RESERVATIONS:
                 $reservations = $req->json('reservations');
@@ -232,7 +234,16 @@ class ReservationController extends HoiController{
                         continue;
                     }
 
-                    $reservation = Reservation::findOrNew($reservation_data['id']);
+//                    $reservation = Reservation::findOrNew($reservation_data['id']);
+                    $reservation = Reservation::find($reservation_data['id']);
+                    if(is_null($reservation)){
+                        $reservation_id = $reservation_data['id'];
+                        $error_msg = "Reservation id. $reservation_id: Cant find";
+                        $msg_bag->push($error_msg);
+                        // Move on
+                        continue;
+                    }
+
                     $reservation->fill($reservation_data);
                     $reservation->save();
                 }
@@ -250,8 +261,10 @@ class ReservationController extends HoiController{
                     //$data = $validator->getMessageBag()->toArray();
                 if($msg_bag->count() > 0){
                     $data = $msg_bag;
-                    $code = 200;
+                    $code = 422;
                     $msg  = Call::AJAX_VALIDATE_FAIL;
+                    $errorMsg = $msg_bag->implode(",");
+                    $response = $this->errorResponse($data, $code, $msg, $errorMsg);
                     break;
                 }
 
@@ -265,6 +278,10 @@ class ReservationController extends HoiController{
                 $code = 200;
                 $msg  = Call::AJAX_UNKNOWN_CASE;
                 break;
+        }
+
+        if($response){
+            return $response;
         }
 
         return $this->apiResponse($data, $code, $msg);

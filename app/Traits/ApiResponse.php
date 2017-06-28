@@ -22,4 +22,13 @@ trait ApiResponse{
             'data' => $data
         ], $statusCode)->setEncodingOptions(JSON_NUMERIC_CHECK);
     }
+
+    public function errorResponse($data, $statusCode, $statusMsg, $errorMsg){
+        return Response::json([
+            'statusCode' => $statusCode,
+            'statusMsg'  => $statusMsg,
+            'errorMsg'   => $errorMsg,
+            'data'       => $data,
+        ], $statusCode)->setEncodingOptions(JSON_NUMERIC_CHECK);
+    }
 }
