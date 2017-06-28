@@ -60,11 +60,7 @@ class Handler extends ExceptionHandler {
      * @return \Illuminate\Http\Response
      */
     public function render($request, Exception $exception){
-
-        $fromApiGroup = preg_match('/api/', $request->url());
-        $isPostMethod = $request->method() == 'POST';
-        // When render error for api
-        if($request->ajax() || $fromApiGroup || $isPostMethod){
+        if($request->expectsJson()){
             $code = 422;
             $msg = Call::SERVER_THROWN_EXCEPTION;
             $data = [];
@@ -83,13 +79,8 @@ class Handler extends ExceptionHandler {
      * @param  \Illuminate\Auth\AuthenticationException  $exception
      * @return \Illuminate\Http\Response
      */
-    protected function unauthenticated($request, AuthenticationException $exception)
-    {
-        $fromApiGroup = preg_match('/api/', $request->url());
-        $isPostMethod = $request->method() == 'POST';
-        $isAjax       = $request->ajax();
-
-        if ($request->expectsJson() || $fromApiGroup || $isPostMethod || $isAjax) {
+    protected function unauthenticated($request, AuthenticationException $exception){
+        if ($request->expectsJson()) {
             return response()->json(['error' => 'Unauthenticated.'], 401);
         }
 
