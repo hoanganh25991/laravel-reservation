@@ -276,3 +276,11 @@ label:hover:before {
     background-color: #e6e6e6;
     border-color: #adadad;
 }
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.table-responsive th, tr {
+    white-space: nowrap;
+}

@@ -121,31 +121,33 @@
                                     v-on:click="_goToPrintPage"
                             >Print this list</button>
                         </div>
-                        <table class="table table-hover table-condensed table-bordered">
-                            <thead>
-                            <tr class="bg-info">
-                                <th></th>
-                                <th>Read</th>
-                                <th>No.</th>
-                                <th>Customer Info</th>
-                                <th>Time</th>
-                                <th>Pax Size</th>
-                                <th>Table Name</th>
-                                <th>Customer Remarks</th>
-                                <th>Staff Remarks</th>
-                                <th>Status</th>
-                                <th>Send Reminder SMS</th>
-                                <th>Payment Authorization</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <template v-for="(reservation, reservation_index) in filtered_reservations">
-                                @endverbatim
-                                @include('admin.reservations.single-row-info')
-                                @verbatim
-                            </template>
-                            </tbody>
-                        </table>
+                        <div class="table-responsive"> 
+                            <table class="table table-hover table-condensed table-bordered">
+                                <thead>
+                                <tr class="bg-info">
+                                    <th></th>
+                                    <th>Read</th>
+                                    <th>No.</th>
+                                    <th>Customer Info</th>
+                                    <th>Time</th>
+                                    <th>Pax Size</th>
+                                    <th>Table Name</th>
+                                    <th>Customer Remarks</th>
+                                    <th>Staff Remarks</th>
+                                    <th>Status</th>
+                                    <th>Send Reminder SMS</th>
+                                    <th>Payment Authorization</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <template v-for="(reservation, reservation_index) in filtered_reservations">
+                                    @endverbatim
+                                    @include('admin.reservations.single-row-info')
+                                    @verbatim
+                                </template>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
