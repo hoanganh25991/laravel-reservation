@@ -7,7 +7,6 @@ use Illuminate\Log\Writer;
 use App\Traits\ApiResponse;
 use Psr\Log\LoggerInterface;
 use App\Libraries\HoiAjaxCall as Call;
-use Illuminate\Support\Facades\Response;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
@@ -86,7 +85,11 @@ class Handler extends ExceptionHandler {
      */
     protected function unauthenticated($request, AuthenticationException $exception)
     {
-        if ($request->expectsJson()) {
+        $fromApiGroup = preg_match('/api/', $request->url());
+        $isPostMethod = $request->method() == 'POST';
+        $isAjax       = $request->ajax();
+
+        if ($request->expectsJson() || $fromApiGroup || $isPostMethod || $isAjax) {
             return response()->json(['error' => 'Unauthenticated.'], 401);
         }
 
