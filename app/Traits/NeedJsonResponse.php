@@ -10,10 +10,10 @@ trait NeedJsonResponse{
      */
     public function needJsonResponse($request) {
 //        $fromApiGroup = preg_match('/api/', $request->url());
-//        $isPostMethod = $request->method() == 'POST';
+        $isPostMethod = $request->method() == 'POST';
 //        $isAjax       = $request->ajax();
 //        
 //        return $fromApiGroup || $isPostMethod || $isAjax;
-        return $request->expectsJson();
+        return $request->expectsJson() || $isPostMethod;
     }
 }

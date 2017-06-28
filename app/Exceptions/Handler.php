@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Log\Writer;
 use App\Traits\ApiResponse;
 use Psr\Log\LoggerInterface;
+use App\Traits\NeedJsonResponse;
 use App\Libraries\HoiAjaxCall as Call;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
@@ -13,6 +14,7 @@ use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 class Handler extends ExceptionHandler {
 
     use ApiResponse;
+    use NeedJsonResponse;
 
     /**
      * A list of the exception types that should not be reported.
@@ -60,7 +62,7 @@ class Handler extends ExceptionHandler {
      * @return \Illuminate\Http\Response
      */
     public function render($request, Exception $exception){
-        if($request->expectsJson()){
+        if($this->needJsonResponse($request)){
             $code = 422;
             $msg = Call::SERVER_THROWN_EXCEPTION;
             $data = [];
@@ -80,7 +82,7 @@ class Handler extends ExceptionHandler {
      * @return \Illuminate\Http\Response
      */
     protected function unauthenticated($request, AuthenticationException $exception){
-        if ($request->expectsJson()) {
+        if ($this->needJsonResponse($request)) {
             return response()->json(['error' => 'Unauthenticated.'], 401);
         }
 
