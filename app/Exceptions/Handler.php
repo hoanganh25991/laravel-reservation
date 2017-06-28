@@ -2,17 +2,14 @@
 
 namespace App\Exceptions;
 
-use App\ReservationUser;
-use App\Traits\ApiResponse;
 use Exception;
 use Illuminate\Log\Writer;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Response;
+use App\Traits\ApiResponse;
 use Psr\Log\LoggerInterface;
+use App\Libraries\HoiAjaxCall as Call;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use App\Libraries\HoiAjaxCall as Call;
-use Symfony\Component\DependencyInjection\Tests\Compiler\C;
 
 class Handler extends ExceptionHandler {
 
@@ -70,15 +67,11 @@ class Handler extends ExceptionHandler {
         // When render error for api
         if($request->ajax() || $fromApiGroup || $isPostMethod){
             $code = 422;
-            $msg  = Call::SERVER_THROWN_EXCEPTION;
+            $msg = Call::SERVER_THROWN_EXCEPTION;
             $data = [];
+            $errorMsg = $exception->getMessage();
 
-            return Response::json([
-                'statusCode' => $code,
-                'statusMsg'  => $msg,
-                'errorMsg'   => $exception->getMessage(),
-                'data'       => $data,
-            ], $code)->setEncodingOptions(JSON_NUMERIC_CHECK);
+            return $this->errorResponse($data, $code, $msg, $errorMsg);
         }
 
         return parent::render($request, $exception);
