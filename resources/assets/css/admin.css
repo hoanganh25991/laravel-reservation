@@ -367,3 +367,11 @@ table tr.active{
     background-color: #e6e6e6;
     border-color: #adadad;
 }
+
+.height35 {
+    height: 35px;
+}
+
+.marginLeftMinus2 {
+    margin-left: -2px;
+}

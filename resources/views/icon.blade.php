@@ -41,5 +41,9 @@
     background: url("{{ url('images/filter-tool-black-shape.png') }}") 0 0;
     display:inline-block;width:24px;height:24px;
   }
+  .homeIcon {
+    background: url("{{ url('images/ic_location_city_black_24px.svg') }}") 0 0;
+    display:inline-block;width:16px;height:16px;
+  }
 </style>
 @endpush

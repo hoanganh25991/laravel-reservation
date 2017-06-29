@@ -35,7 +35,7 @@
                         @verbatim
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                <i class="fa fa-btn fa-sign-out"></i><span v-if="selected_outlet">{{ selected_outlet.outlet_name }}</span>
+                                <span class="homeIcon"></span><span v-if="selected_outlet">{{ selected_outlet.outlet_name }}</span>
                             </a>
 
                             <ul class="dropdown-menu">

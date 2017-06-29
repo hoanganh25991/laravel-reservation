@@ -28,15 +28,13 @@
                         ><span class="glyphicon filterIcon"></span></button>
                         <div class="flex1"></div>
                         <div style="text-align: right;">
-                            <div class="btn-group">
-                                <div class="btn" style="padding: 1px;">
-                                    <input type="text" class="form-control" placeholder="CONFIRM ID, name, phone or email"
-                                           style="width: 275px"
-                                           v-model="filter_confirm_id"
-                                           v-on:keyup.enter="_addFilterByConfirmId"
-                                    >
-                                </div>
-                                <button class="btn bg-info"
+                            <div class="flexRow height35">
+                                <input type="text" class="form-control" placeholder="CONFIRM ID, name, phone or email"
+                                       style="width: 275px"
+                                       v-model="filter_confirm_id"
+                                       v-on:keyup.enter="_addFilterByConfirmId"
+                                >
+                                <button class="btn bg-info marginLeftMinus2"
                                         v-on:click="_addFilterByConfirmId"
                                 ><i class="fa fa-search"></i></button>
                             </div>
