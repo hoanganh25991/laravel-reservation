@@ -13,7 +13,7 @@
     </td>
     <td>
         <p class="noMargin">@{{ reservation.confirm_id }}</p>
-        <p class="noMargin">Pax: @{{ reservation.adult_pax }}+@{{ reservation.children_pax }}</p>
+        <p class="noMargin"><span class="glyphicon contactIcon"></span> @{{ reservation.adult_pax }}+@{{ reservation.children_pax }}</p>
         <div v-if="reservation.table_name != '' && reservation.table_name != null && reservation.table_name != undefined">
             <span class="glyphicon tableIcon"></span> @{{ reservation.table_name }}
         </div>
