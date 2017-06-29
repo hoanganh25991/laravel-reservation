@@ -25,7 +25,7 @@
         <p class="noMargin"><span class="glyphicon contactIcon"></span>: @{{ reservation.full_name}}</p>
         <p class="noMargin"><span class="glyphicon phoneIcon"></span>: (@{{ reservation.phone_country_code }}) @{{ reservation.phone }}</p>
         <p class="noMargin"><span class="glyphicon emailIcon"></span>: @{{ reservation.email }}</p>
-        <p class="noMargin" style="margin-top: 3px"><span class="glyphicon timeIcon"></span>: @{{ moment(reservation.reservation_timestamp).format('DD-MM-YYYY HH:mm:ss') }}</p>
+        <p class="noMargin" style="margin-top: 3px"><span class="glyphicon timeIcon"></span>: @{{ moment(reservation.reservation_timestamp).format('Do-MM-YYYY HH:mm:ss') }}</p>
     </td>
     <td>
         <textarea
