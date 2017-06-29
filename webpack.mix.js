@@ -63,6 +63,10 @@ mix.babel(['resources/assets/js/paypal-authorize.js'], js_output_dir + '/paypal-
  */
 mix.babel(['resources/assets/js/admin-navigator.js'], js_output_dir + '/admin-navigator.js');
 
+/**
+ * Js code for admin > index page
+ */
+mix.babel(['resources/assets/js/admin-index.js'], js_output_dir + '/admin-index.js');
 
 
 /**
