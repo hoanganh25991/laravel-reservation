@@ -296,7 +296,7 @@ label:hover:before {
 }
 
 td textarea {
-   background-image: -webkit-linear-gradient(left, transparent 10px, transparent 10px), -webkit-linear-gradient(right, transparent 10px, transparent 10px), -webkit-linear-gradient(top, transparent 20px, #cccccc 21px, #cccccc 20px, transparent 21px);
+   background-image: -webkit-linear-gradient(left, transparent 10px, transparent 10px), -webkit-linear-gradient(right, transparent 10px, transparent 10px), -webkit-linear-gradient(top, transparent 20px, #e6e6e6 21px, #e6e6e6 20px, transparent 21px);
    background-size: 100% 100%, 100% 100%, 100% 21px;
    border: none;
    border-radius: 8px;
