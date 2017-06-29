@@ -1,5 +1,5 @@
 <div>
-  <select v-model="reservation.status" style="width: 100%; height: 26px"
+  <select v-model="reservation.status" style="width: 100%; padding: 6px 12px"
           v-on:change="_autoSave(reservation, 'status')"
   >
     <option value="400" class="bg-success">Arrived</option>

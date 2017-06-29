@@ -42,7 +42,7 @@
     </td>
     <td style="width: 150px;">
         @include('admin.reservations.status')
-        <button class="bg-info" v-on:click="_sendReminderSMS(reservation)" style="width: 100%; margin: 10px 0 auto"
+        <button class="hoiBtn bg-info marginTop20" v-on:click="_sendReminderSMS(reservation)" style="width: 100%;"
                 style="">Send Reminder SMS</button>
       </select>
     </td>
@@ -58,12 +58,12 @@
         Be cross-checked on server -->
         <div v-show="reservation.payment_status == 100 && (user.permission_level == 10 || user.permission_level == 5)">
             <div>
-                <button action="refund" :reservation-index='reservation_index'  class="bg-info" style="width: 100%"
+                <button action="refund" :reservation-index='reservation_index'  class="hoiBtn bg-info" style="width: 100%;"
                         v-on:click="_updateReservationPayment($event, PAYMENT_REFUNDED)"
                 >Void</button>
             </div>
             <div>
-                <button action="charge" :reservation-index='reservation_index' class="bg-danger" style="width: 100%"
+                <button action="charge" :reservation-index='reservation_index' class="hoiBtn bg-danger marginTop20" style="width: 100%;"
                         v-on:click="_updateReservationPayment($event, PAYMENT_CHARGED)"
                 >Charge</button>
             </div>

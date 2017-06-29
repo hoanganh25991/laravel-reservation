@@ -32,6 +32,11 @@ mix.styles(['resources/assets/css/admin.css'], css_output_dir + '/admin.css');
 mix.styles(['resources/assets/css/animate.css'], css_output_dir + '/animate.css');
 
 /**
+ * Css code handle animation
+ */
+mix.styles(['resources/assets/css/flex.css'], css_output_dir + '/flex.css');
+
+/**
  * Js code handle reservation booking page
  */
 mix.babel(['resources/assets/js/calendar.js'], js_output_dir + '/calendar.js');
