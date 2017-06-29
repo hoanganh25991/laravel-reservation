@@ -29,7 +29,7 @@
     </td>
     <td>
         <textarea
-                col="15" row="2"
+                col="15" row="2" style="width: 100%"
                 v-model="reservation.customer_remarks"
                 :value="reservation.customer_remarks"
                 placeholder="Customer Remarks"
@@ -38,19 +38,17 @@
     </td>
     <td>
         <textarea
-          col="15" row="2"
+          col="15" row="2" style="width: 100%"
           v-model="reservation.staff_remarks"
           :value="reservation.staff_remarks"
           placeholder="Staff Remarks"
           v-on:change="_autoSave(reservation, 'staff_remarks')"
         ></textarea>
     </td>
-    <td>
+    <td style="width: 150px;">
         @include('admin.reservations.status')
-        <div class="flexCenter">
-            <button class="bg-info" v-on:click="_sendReminderSMS(reservation)"
-                    style="margin: 20px 0 auto">Send Reminder SMS</button>
-        </div>
+        <button class="bg-info" v-on:click="_sendReminderSMS(reservation)" style="width: 100%; margin: 10px 0 auto"
+                style="">Send Reminder SMS</button>
       </select>
     </td>
     <td>
