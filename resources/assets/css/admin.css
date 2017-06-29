@@ -276,6 +276,7 @@ label:hover:before {
     background-color: #e6e6e6;
     border-color: #adadad;
 }
+
 .noMargin {
     margin: 0;
 }
@@ -286,8 +287,10 @@ label:hover:before {
     justify-content: center;
 }
 
-/*@media only screen and (min-width: 1024px) {*/
-    /*body {*/
-        /*background-color: lightblue;*/
-    /*}*/
-/*}*/
+.table-responsive {
+    overflow-x: auto;
+}
+
+.table-responsive th, tr {
+    white-space: nowrap;
+}
