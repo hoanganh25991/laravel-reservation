@@ -1,46 +1,44 @@
 @extends('layouts.admin')
 
+@push('css')
+<link href="{{ url_mix('css/flex.css') }}" rel="stylesheet" media="screen">
+@endpush
+
 @section('content')
-    <div id="app">
+    <div id="app" class="padding15LeftRight">
         @verbatim
-        <div class="row">
-            <div class="col-md-10 col-md-offset-1">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <span class="h1">Admin</span>
-                    </div>
-                    <div class="modal-body">
-                        <div style="box-shadow: 0 5px 15px rgba(0,0,0,.5);">
-                            <h3 class="bg-info">Outlet</h3>
-                            <div class="panel-body">
-                                <select v-model="selected_outlet_id">
-                                    <option value="null" disabled>Please select an outlet</option>
-                                    <template v-for="(outlet, outlet_index) in outlets">
-                                        <option :value="outlet.id">{{ outlet.outlet_name }}</option>
-                                    </template>
-                                </select>
-                                <div v-show="outlets.length == 0"
-                                     style="padding: 10px; width: 300px; margin: 20px 0;"
-                                     class="bg-warning"
-                                >
-                                    <p>Please wait for your administrator assign which outlet you can go</p>
-                                </div>
-                            </div>
+        <div>
+            <div class="hasBorder bg-info">
+                <h3 class="noMargin">Outlet</h3>
+            </div>
+            <div class="hasBorder paddingAll">
+                <h4 class="noMargin">Please select an outlet</h4>
+                <div class="flexRow flexWrap flexContentSpace">
+                    <template v-for="(outlet, outlet_index) in outlets">
+                        <button class="btn btn-default width25Per marginTop20"
+                                v-on:click="_goToAdminReservations(outlet.id)"
+                        >{{ outlet.outlet_name }}</button>
+                    </template>
+                </div>
+                <div v-show="outlets.length == 0"
+                     style="padding: 10px; width: 300px; margin: 20px 0;"
+                     class="bg-warning"
+                >
+                    <p>Please wait for your administrator assign which outlet you can go</p>
+                </div>
+            </div>
 
-                        </div>
+        </div>
 
-                        <div style="box-shadow: 0 5px 15px rgba(0,0,0,.5);">
-                            <h3 class="bg-info">Info</h3>
-                            <div class="panel-body">
-                                <div style="width: 300px">
-                                    <p>Hi, <strong>{{ user.display_name }}</strong></p>
-                                    <p>Your role: {{ user.role }}</p>
-                                    <p v-show="user.role == 'Logined'" class="bg-danger">At current role, you can't change reservations, settings, etc..</p>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
+        <div class="marginTop20">
+            <div class="hasBorder bg-info">
+                <h3 class="noMargin">Info</h3>
+            </div>
+            <div class="hasBorder paddingAll">
+                <div style="width: 300px">
+                    <p>Hi, <strong>{{ user.display_name }}</strong></p>
+                    <p>Your role: {{ user.role }}</p>
+                    <p v-show="user.role == 'Logined'" class="bg-danger">At current role, you can't change reservations, settings, etc..</p>
                 </div>
             </div>
         </div>

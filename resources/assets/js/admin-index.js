@@ -10,18 +10,10 @@
     mounted(){
       document.dispatchEvent(new CustomEvent('vue-mounted'));
     },
-    updated(){
-      this._goToAdminReservations();
-    },
     methods: {
-      _goToAdminReservations(){
+      _goToAdminReservations(outlet_id = null){
         let vue = this;
-
-        //noinspection JSUnresolvedVariable
-        let outlet_id = vue.selected_outlet_id;
-
         let redirect_url = `admin/reservations?outlet_id=${outlet_id}`;
-
         window.location.href = vue._url(redirect_url);
       },
 

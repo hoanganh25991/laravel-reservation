@@ -12,3 +12,12 @@
     display: flex;
     flex: 1;
 }
+
+.flexWrap {
+    flex-wrap: wrap;
+}
+
+.flexContentSpace {
+    align-content: space-around;
+    justify-content: space-between;
+}

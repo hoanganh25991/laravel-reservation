@@ -375,3 +375,19 @@ table tr.active{
 .marginLeftMinus2 {
     margin-left: -2px;
 }
+
+.removeBootrapPadding {
+    padding: 0;
+}
+
+.width25Per {
+    width: 30%;
+}
+
+.hasBorder {
+    border: 1px solid #ddd;
+}
+
+.paddingAll {
+    padding: 20px 15px 10px 15px;
+}
