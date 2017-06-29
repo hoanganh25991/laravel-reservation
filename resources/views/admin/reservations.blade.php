@@ -44,7 +44,8 @@
                 <!-- This div used to filterd reservations -->
                 <transition name="slide">
                     <div v-if="filter_panel">
-                        <div style="width: 100%; text-align: right; margin-bottom: 20px; ">
+                        <div class="flexRow">
+                            <div class="flex1"></div>
                             <div  class="btn-group">
                                 <button :class="(TODAY == filter_day? 'active' : '') + ' ' + 'btn btn-default'"
                                         v-on:click="_fetchReservationsByDay(TODAY)"       >Today</button>
@@ -70,14 +71,16 @@
                             </div>
                         </div>
 
-                        <div v-if="filter_date_picker">
+                        <div v-if="filter_date_picker" class="flexRow marginTop20">
+                            <div class="flex1"></div>
                             <input id="flatpickr" class="flatpickr flatpickr-input" type="text" placeholder="Select Date.." data-id="inline" readonly="readonly"
                                    style="width: 135px; height: 30px; border-radius: 3px"
                                    v-model="custom_pick_day" v-on:change="_fetchReservationsByDay(CUSTOM, $event.target.value)">
                         </div>
 
-                        <div style="width: 100%; text-align: right; margin-bottom: 20px;">
-                            <div  v-if="filter_panel" class="btn-group">
+                        <div class="flexRow marginTop20 marginBottom20">
+                            <div class="flex1"></div>
+                            <div  class="btn-group">
                                 <button :class="(filter_statuses.includes(RESERVATION_ARRIVED) ? 'active' : '') + ' ' +'btn btn-default'"
                                         v-on:click="_toggleFilterStatus(RESERVATION_ARRIVED, $event)"
                                 >Arrived</button>
