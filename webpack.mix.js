@@ -38,25 +38,30 @@ mix.babel(['resources/assets/js/calendar.js'], js_output_dir + '/calendar.js');
 mix.babel(['resources/assets/js/booking-form.js'], js_output_dir + '/booking-form.js');
 mix.babel(['resources/assets/js/syntax-highlight.js'], js_output_dir + '/syntax-highlight.js');
 
-/**
- * Js code for reservation>confirm page
+ /**
+ * Js code for reservation > confirm page
  */
 mix.babel(['resources/assets/js/reservation-confirm.js'], js_output_dir + '/reservation-confirm.js');
 
 /**
- * Js code for admin>settings page
+ * Js code for admin > settings page
  */
 mix.babel(['resources/assets/js/admin-settings.js'], js_output_dir + '/admin-settings.js');
 
 /**
- * Js code for admin>reservations page
+ * Js code for admin > reservations page
  */
 mix.babel(['resources/assets/js/admin-reservations.js'], js_output_dir + '/admin-reservations.js');
 
 /**
- * Js code for admin>reservations page
+ * Js code for paypal-authorize page
  */
 mix.babel(['resources/assets/js/paypal-authorize.js'], js_output_dir + '/paypal-authorize.js');
+
+/**
+ * Js code for admin > navigator page
+ */
+mix.babel(['resources/assets/js/admin-navigator.js'], js_output_dir + '/admin-navigator.js');
 
 
 
