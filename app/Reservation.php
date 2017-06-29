@@ -364,7 +364,6 @@ class Reservation extends HoiModel {
             'salutation'   => 'required',
             'first_name'   => 'required',
             'last_name'    => 'required',
-//            'email'        => 'required|email',
             'phone_country_code' => 'required|regex:/\d{2,}$/',
             'phone'        => 'required|regex:/\d{6,}/',
         ]);
