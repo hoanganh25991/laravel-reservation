@@ -14,12 +14,9 @@
     <td>
         <p class="noMargin">@{{ reservation.confirm_id }}</p>
         <p class="noMargin">Pax: @{{ reservation.adult_pax }}+@{{ reservation.children_pax }}</p>
-        <span>Table: </span><input
-          type="text" style="width: 70px"
-          v-model="reservation.table_name"
-          :value="reservation.table_name"
-          v-on:change="_autoSave(reservation, 'table_name')"
-        >
+        <div v-if="reservation.table_name != '' && reservation.table_name != null && reservation.table_name != undefined">
+            <span class="glyphicon tableIcon"></span> @{{ reservation.table_name }}
+        </div>
     </td>
     <td>
         <p class="noMargin"><span class="glyphicon contactIcon"></span>: @{{ reservation.full_name}}</p>
@@ -27,22 +24,20 @@
         <p class="noMargin"><span class="glyphicon emailIcon"></span>: @{{ reservation.email }}</p>
         <p class="noMargin" style="margin-top: 3px"><span class="glyphicon timeIcon"></span>: @{{ moment(reservation.reservation_timestamp).format('Do-MM-YYYY HH:mm:ss') }}</p>
     </td>
-    <td>
+    <td class="textAlignCenter">
         <textarea
-                col="15" row="2" style="width: 100%"
-                v-model="reservation.customer_remarks"
-                :value="reservation.customer_remarks"
-                placeholder="Customer Remarks"
-                v-on:change="_autoSave(reservation, 'customer_remarks')"
+            v-model="reservation.customer_remarks"
+            :value="reservation.customer_remarks"
+            placeholder="Customer Remarks"
+            v-on:change="_autoSave(reservation, 'customer_remarks')"
         ></textarea>
     </td>
-    <td>
+    <td class="textAlignCenter">
         <textarea
-          col="15" row="2" style="width: 100%"
-          v-model="reservation.staff_remarks"
-          :value="reservation.staff_remarks"
-          placeholder="Staff Remarks"
-          v-on:change="_autoSave(reservation, 'staff_remarks')"
+            v-model="reservation.staff_remarks"
+            :value="reservation.staff_remarks"
+            placeholder="Staff Remarks"
+            v-on:change="_autoSave(reservation, 'staff_remarks')"
         ></textarea>
     </td>
     <td style="width: 150px;">

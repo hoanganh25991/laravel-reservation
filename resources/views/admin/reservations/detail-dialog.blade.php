@@ -115,6 +115,11 @@
         </div>
 
         <div class="form-group">
+            <label class="col-md-3 text-right">Table Name</label>
+            <input type="text" style="wi: 135px;" v-model="reservation_dialog_content.table_name" />
+        </div>
+
+        <div class="form-group">
             <label class="col-md-3 text-right">Date</label>
             <input
                     type="date" style="width: 135px; height: 30px"
