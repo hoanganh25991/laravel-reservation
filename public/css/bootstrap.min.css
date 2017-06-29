@@ -8,34 +8,6 @@
 
 .glyphicon{
 	font-family: none;
-}
-.glyphicon-pencil{
-	background-image:url("../img/glyphicons-halflings-black.png");
-	background-position:0 -72px;
-	display:inline-block;width:14px;height:14px;
-}
-
-.glyphicon-lock{
-	background-image:url("../img/glyphicons-halflings-black.png");
-	background-position: -287px -24px;
-	display:inline-block;width:14px;height:14px;	
-}
-
-
-.glyphicon-envelope{
-	background-image:url("../img/glyphicons-halflings-black.png");
-	background-position: -72px 0;
-	display:inline-block;width:14px;height:14px;
-}
-
-
-.glyphicon-remove, .glyphicon-trash{
-	background-image:url("../img/glyphicons-halflings-white2.png");
-  background-position: -312px 0;
-
-	display:inline-block;width:14px;height:14px;
-}
-
-.glyphicon-pencil:before, .glyphicon-lock:before, .glyphicon-envelope:before, .glyphicon-remove:before, .glyphicon-trash:before {
-	content:" ";
+	position: relative;
+	top: 4px;
 }

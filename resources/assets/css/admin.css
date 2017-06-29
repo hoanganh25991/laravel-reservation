@@ -276,3 +276,18 @@ label:hover:before {
     background-color: #e6e6e6;
     border-color: #adadad;
 }
+.noMargin {
+    margin: 0;
+}
+
+.flexCenter {
+    display: flex;
+    align-content: center;
+    justify-content: center;
+}
+
+/*@media only screen and (min-width: 1024px) {*/
+    /*body {*/
+        /*background-color: lightblue;*/
+    /*}*/
+/*}*/

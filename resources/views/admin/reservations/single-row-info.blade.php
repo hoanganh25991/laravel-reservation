@@ -11,28 +11,25 @@
                v-on:change="_autoSave(reservation, 'staff_read_state')"
         >
     </td>
-    <td>@{{ reservation.confirm_id }}</td>
-    <td style="width: 200px">
-        <p style="margin: 0">@{{ reservation.salutation }} @{{ reservation.first_name }} @{{ reservation.last_name }}</p>
-        <p style="margin: 0">@{{ reservation.phone_country_code }}@{{ reservation.phone }}</p>
-        <p style="margin: 0">@{{ reservation.email }}</p>
-    </td>
-    <td style="width: 200px">@{{ reservation.reservation_timestamp }}
-      <br/>
-      <p style="font-size: 0.8em;">created at: @{{ reservation.created_timestamp }}</p>
-    </td>
-    <td style="width: 100px">@{{ reservation.adult_pax }}+@{{ reservation.children_pax }}</td>
     <td>
-        <input
-                type="text" style="width: 70px"
-                v-model="reservation.table_name"
-                :value="reservation.table_name"
-                v-on:change="_autoSave(reservation, 'table_name')"
+        <p class="noMargin">@{{ reservation.confirm_id }}</p>
+        <p class="noMargin">Pax: @{{ reservation.adult_pax }}+@{{ reservation.children_pax }}</p>
+        <span>Table: </span><input
+          type="text" style="width: 70px"
+          v-model="reservation.table_name"
+          :value="reservation.table_name"
+          v-on:change="_autoSave(reservation, 'table_name')"
         >
     </td>
     <td>
+        <p class="noMargin"><span class="glyphicon contactIcon"></span>: @{{ reservation.full_name}}</p>
+        <p class="noMargin"><span class="glyphicon phoneIcon"></span>: (@{{ reservation.phone_country_code }}) @{{ reservation.phone }}</p>
+        <p class="noMargin"><span class="glyphicon emailIcon"></span>: @{{ reservation.email }}</p>
+        <p class="noMargin" style="margin-top: 3px"><span class="glyphicon timeIcon"></span>: @{{ moment(reservation.reservation_timestamp).format('DD-MM-YYYY HH:mm:ss') }}</p>
+    </td>
+    <td>
         <textarea
-                rows="2" col="20" style="height: 50px; width: 100px"
+                col="15" row="2"
                 v-model="reservation.customer_remarks"
                 :value="reservation.customer_remarks"
                 placeholder="Customer Remarks"
@@ -41,22 +38,20 @@
     </td>
     <td>
         <textarea
-                rows="2" col="20" style="height: 50px"
-                v-model="reservation.staff_remarks"
-                :value="reservation.staff_remarks"
-                placeholder="Staff Remarks"
-                v-on:change="_autoSave(reservation, 'staff_remarks')"
+          col="15" row="2"
+          v-model="reservation.staff_remarks"
+          :value="reservation.staff_remarks"
+          placeholder="Staff Remarks"
+          v-on:change="_autoSave(reservation, 'staff_remarks')"
         ></textarea>
     </td>
     <td>
         @include('admin.reservations.status')
+        <div class="flexCenter">
+            <button class="bg-info" v-on:click="_sendReminderSMS(reservation)"
+                    style="margin: 20px 0 auto">Send Reminder SMS</button>
+        </div>
       </select>
-    </td>
-    <td>
-      <div class="alignCenter">
-        <button class="btn" v-on:click="_sendReminderSMS(reservation)"
-                style="width: 75px; margin: 0 auto">Send</button>
-      </div>
     </td>
     <td>
         <div v-show="reservation.payment_status > 25">

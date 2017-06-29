@@ -2,6 +2,7 @@
 @push('css')
     <link href="{{ url_mix('css/animate.css') }}" rel="stylesheet"/>
     <link href="{{ url('css/flatpickr_material_blue.css') }}" rel="stylesheet"/>
+    @include('icon')
 @endpush
 @section('content')
     <div id='app'>
@@ -125,16 +126,12 @@
                             <thead>
                             <tr class="bg-info">
                                 <th></th>
-                                <th>Read</th>
+                                <th></th>
                                 <th>No.</th>
                                 <th>Customer Info</th>
-                                <th>Time</th>
-                                <th>Pax Size</th>
-                                <th>Table Name</th>
                                 <th>Customer Remarks</th>
                                 <th>Staff Remarks</th>
                                 <th>Status</th>
-                                <th>Send Reminder SMS</th>
                                 <th>Payment Authorization</th>
                             </tr>
                             </thead>
@@ -162,10 +159,15 @@
                         @verbatim
                     </div>
                     <div class="modal-footer" style="border-top: 1px solid #e5e5e5;">
-                        <button
-                                class="btn bg-info"
-                                v-on:click="_updateSingleReservation"
-                        >Save</button>
+                        <div style="display: flex">
+                            <div class="text-muted">Created At: {{ moment(reservation_dialog_content.created_timestamp).format('DD/MM/YYYY HH:mm:ss') }}</div>
+                            <div style="flex: 1"></div>
+                            <button
+                              class="btn bg-info"
+                              v-on:click="_updateSingleReservation"
+                            >Save</button>
+                        </div>
+
                     </div>
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
@@ -213,7 +215,6 @@
         @endverbatim
         @include('partial.toast')
     </div>
-    @include('debug.redux-state')
 @endsection
 
 @push('script')
