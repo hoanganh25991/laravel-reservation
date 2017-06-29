@@ -281,7 +281,7 @@ class AdminReservations {
 			},
 			reservations: [],
 			// Decide show|hide
-			filter_panel: true,
+			filter_panel: false,
 			// Manage filterd on reservations
 			filtered_reservations: [],
 			// contains all filters
