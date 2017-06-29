@@ -1016,6 +1016,7 @@ class Reservation extends HoiModel {
             ->orWhere('last_name', 'LIKE', "%$clean_term%")
             ->orWhere('phone', 'LIKE', "%$clean_term%")
             ->orWhere('email', 'LIKE', "%$clean_term%")
+            ->fromLast3Days()
             ->skip(0)
             ->take(30);
     }
@@ -1080,6 +1081,11 @@ class Reservation extends HoiModel {
 
             Log::info($msg);
         }
+    }
+
+    public function scopeFromLast3Days($query){
+        $last_3_days = Carbon::now(Setting::timezone())->setTime(0, 0, 0)->subDays(3);
+        return $query->where('reservation_timestamp', '>=', $last_3_days->format('Y-m-d H:i:s'));
     }
 
 }
