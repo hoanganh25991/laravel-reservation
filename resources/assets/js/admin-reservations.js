@@ -1179,7 +1179,7 @@ class AdminReservations {
         _getReservationRowClass(reservation){
           let {staff_read_state, is_edited_by_customer, status} = reservation;
 
-          let className = '';
+          let className = 'active';
 
           // Only update class for 'allowed to edit' reservation
           if(this._isAllowedToEdit(status)){
@@ -1187,7 +1187,7 @@ class AdminReservations {
             // ClassName as override
             // Bcs we only use background-color
             if(!staff_read_state){
-              className = 'active';
+              className = '';
             }
 
             if(is_edited_by_customer){

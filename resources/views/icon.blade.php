@@ -37,5 +37,9 @@
     background: url("{{ url('images/ring.svg') }}") 0 0;
     display:inline-block;width:24px;height:24px;
   }
+  .filterIcon {
+    background: url("{{ url('images/filter-tool-black-shape.png') }}") 0 0;
+    display:inline-block;width:24px;height:24px;
+  }
 </style>
 @endpush

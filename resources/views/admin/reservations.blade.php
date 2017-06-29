@@ -11,143 +11,131 @@
         <div class="row" style="margin: 0">
             <div>
                 @verbatim
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <div class="flexRow">
-                            <div>
-                                <span class="h1">Reservations</span>
-                            </div>
-                            <div class="flex1"></div>
-                            <div class="btn btn-default " v-on:click="_refreshOutletData">
-                                @endverbatim
-                                <img src="{{ url('images/ring.svg') }}" height="25" v-show="auto_refresh_status == REFRESHING">
-                                @verbatim
-                                <span class="glyphicon refreshIcon" v-show="auto_refresh_status != REFRESHING"></span>
-                            </div>
-                            <button class="btn btn-default"
-                                    v-on:click="_goToPrintPage"
-                            ><span class="glyphicon printIcon"></span></button>
-                            <button class="btn btn-default"
-                                    v-on:click="_openNewReservationDialog()"
-                            ><span class="glyphicon addIcon"></span></button>
-                            <div style="text-align: right;">
-                                <div class="btn-group">
-                                    <div class="btn" style="padding: 1px;">
-                                        <input type="text" class="form-control" placeholder="CONFIRM ID, name, phone or email"
-                                               style="height: 30px; width: 275px"
-                                               v-model="filter_confirm_id"
-                                               v-on:keyup.enter="_addFilterByConfirmId"
-                                        >
-                                    </div>
-                                    <button class="btn bg-info"
-                                            v-on:click="_addFilterByConfirmId"
-                                    ><i class="fa fa-search"></i></button>
+                <div class="modal-header">
+                    <div class="flexRow">
+                        <div class="btn btn-default " v-on:click="_refreshOutletData">
+                            @endverbatim <img src="{{ url('images/ring.svg') }}" height="25" v-show="auto_refresh_status == REFRESHING"> @verbatim
+                            <span class="glyphicon refreshIcon" v-show="auto_refresh_status != REFRESHING"></span>
+                        </div>
+                        <button class="btn btn-default marginLeft20"
+                                v-on:click="_goToPrintPage"
+                        ><span class="glyphicon printIcon"></span></button>
+                        <button class="btn btn-default marginLeft20"
+                                v-on:click="_openNewReservationDialog()"
+                        ><span class="glyphicon addIcon"></span></button>
+                        <button class="btn btn-default marginLeft20"
+                                v-on:click="filter_panel = !filter_panel"
+                        ><span class="glyphicon filterIcon"></span></button>
+                        <div class="flex1"></div>
+                        <div style="text-align: right;">
+                            <div class="btn-group">
+                                <div class="btn" style="padding: 1px;">
+                                    <input type="text" class="form-control" placeholder="CONFIRM ID, name, phone or email"
+                                           style="width: 275px"
+                                           v-model="filter_confirm_id"
+                                           v-on:keyup.enter="_addFilterByConfirmId"
+                                    >
                                 </div>
+                                <button class="btn bg-info"
+                                        v-on:click="_addFilterByConfirmId"
+                                ><i class="fa fa-search"></i></button>
                             </div>
                         </div>
-                    </div>
-                    <!-- This div used to filterd reservations -->
-                    <div class="flexRow padding15LeftRight" style="width: 100%; height: 38px;">
-                        <div style="display: flex; flex: 1"></div>
-                        <span class="text-muted noSelect fontH1 cursorHand"
-                              v-on:click="filter_panel = !filter_panel"
-                        >Filter reservations</span>
-                    </div>
-                    <transition name="slide">
-                        <div v-if="filter_panel">
-                            <div style="width: 100%; text-align: right; margin-bottom: 20px; ">
-                                <div  class="btn-group">
-                                    <button :class="(TODAY == filter_day? 'active' : '') + ' ' + 'btn btn-default'"
-                                            v-on:click="_fetchReservationsByDay(TODAY)"       >Today</button>
-
-                                    <button :class="(NEXT_3_HOURS == filter_day? 'active' : '') + ' ' +  'btn btn-default'"
-                                            v-on:click="_fetchReservationsByDay(NEXT_3_HOURS)" >Next 3 hours</button>
-
-                                    <button :class="(TOMORROW == filter_day? 'active' : '') + ' ' +  'btn btn-default'"
-                                            v-on:click="_fetchReservationsByDay(TOMORROW)"    >Tomorrow</button>
-
-                                    <button :class="(NEXT_3_DAYS == filter_day? 'active' : '') + ' ' +  'btn btn-default'"
-                                            v-on:click="_fetchReservationsByDay(NEXT_3_DAYS)" >Next 3 days</button>
-
-                                    <button :class="(NEXT_7_DAYS == filter_day? 'active' : '') + ' ' +  'btn btn-default'"
-                                            v-on:click="_fetchReservationsByDay(NEXT_7_DAYS)" >Next 7 days</button>
-
-                                    <button :class="(NEXT_30_DAYS == filter_day? 'active' : '') + ' ' +  'btn btn-default'"
-                                            v-on:click="_fetchReservationsByDay(NEXT_30_DAYS)">Next 30 days</button>
-
-                                    <button :class="(CUSTOM == filter_day ? 'active' : '') + ' ' + 'btn btn-default'"
-                                            v-on:click="filter_date_picker = !filter_date_picker"
-                                    >Pick a day</button>
-                                </div>
-                            </div>
-
-                            <div v-if="filter_date_picker">
-                                <input id="flatpickr" class="flatpickr flatpickr-input" type="text" placeholder="Select Date.." data-id="inline" readonly="readonly"
-                                       style="width: 135px; height: 30px; border-radius: 3px"
-                                       v-model="custom_pick_day" v-on:change="_fetchReservationsByDay(CUSTOM, $event.target.value)">
-                            </div>
-
-                            <div style="width: 100%; text-align: right; margin-bottom: 20px;">
-                                <div  v-if="filter_panel" class="btn-group">
-                                    <button :class="(filter_statuses.includes(RESERVATION_ARRIVED) ? 'active' : '') + ' ' +'btn btn-default'"
-                                            v-on:click="_toggleFilterStatus(RESERVATION_ARRIVED, $event)"
-                                    >Arrived</button>
-
-                                    <button :class="(filter_statuses.includes(RESERVATION_CONFIRMATION) ? 'active' : '') + ' ' + 'btn btn-default'"
-                                            v-on:click="_toggleFilterStatus(RESERVATION_CONFIRMATION, $event)"
-                                    >Confirmed</button>
-
-                                    <button :class="(filter_statuses.includes(RESERVATION_REMINDER_SENT) ? 'active' : '') + ' ' + 'btn btn-default'"
-                                            v-on:click="_toggleFilterStatus(RESERVATION_REMINDER_SENT, $event)"
-                                    >Reminder Sent</button>
-
-                                    <button :class="(filter_statuses.includes(RESERVATION_RESERVED) ? 'active' : '') +  ' ' +'btn btn-default'"
-                                            v-on:click="_toggleFilterStatus(RESERVATION_RESERVED, $event)"
-                                    >Reserved</button>
-
-                                    <button :class="(filter_statuses.includes(RESERVATION_USER_CANCELLED) ? 'active' : '') +  ' ' +'btn btn-default'"
-                                            v-on:click="_toggleFilterStatus(RESERVATION_USER_CANCELLED, $event)"
-                                    >User cancelled</button>
-
-                                    <button :class="(filter_statuses.includes(RESERVATION_STAFF_CANCELLED) ? 'active' : '') + ' ' + 'btn btn-default'"
-                                            v-on:click="_toggleFilterStatus(RESERVATION_STAFF_CANCELLED, $event)"
-                                    >Staff cancelled</button>
-
-                                    <button :class="(filter_statuses.includes(RESERVATION_NO_SHOW) ? 'active' : '') + ' ' + 'btn btn-default'"
-                                            v-on:click="_toggleFilterStatus(RESERVATION_NO_SHOW, $event)"
-                                    >No show</button>
-
-                                    <button class="btn bg-info" v-on:click="_clearFilterByStatus"><i class="fa fa-times"></i>Clear</button>
-                                </div>
-                            </div>
-                        </div>
-                    </transition>
-
-                    <!-- This div used to SHOW filterd reservations -->
-                    <div class="modal-body padding15LeftRight">
-                        <table class="table table-hover table-condensed table-bordered">
-                            <thead>
-                            <tr class="bg-info">
-                                <th></th>
-                                <th></th>
-                                <th>No.</th>
-                                <th>Customer Info</th>
-                                <th>Customer Remarks</th>
-                                <th>Staff Remarks</th>
-                                <th>Status</th>
-                                <th>Payment Authorization</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <template v-for="(reservation, reservation_index) in filtered_reservations">
-                                @endverbatim
-                                @include('admin.reservations.single-row-info')
-                                @verbatim
-                            </template>
-                            </tbody>
-                        </table>
                     </div>
                 </div>
+                <!-- This div used to filterd reservations -->
+                <transition name="slide">
+                    <div v-if="filter_panel">
+                        <div style="width: 100%; text-align: right; margin-bottom: 20px; ">
+                            <div  class="btn-group">
+                                <button :class="(TODAY == filter_day? 'active' : '') + ' ' + 'btn btn-default'"
+                                        v-on:click="_fetchReservationsByDay(TODAY)"       >Today</button>
+
+                                <button :class="(NEXT_3_HOURS == filter_day? 'active' : '') + ' ' +  'btn btn-default'"
+                                        v-on:click="_fetchReservationsByDay(NEXT_3_HOURS)" >Next 3 hours</button>
+
+                                <button :class="(TOMORROW == filter_day? 'active' : '') + ' ' +  'btn btn-default'"
+                                        v-on:click="_fetchReservationsByDay(TOMORROW)"    >Tomorrow</button>
+
+                                <button :class="(NEXT_3_DAYS == filter_day? 'active' : '') + ' ' +  'btn btn-default'"
+                                        v-on:click="_fetchReservationsByDay(NEXT_3_DAYS)" >Next 3 days</button>
+
+                                <button :class="(NEXT_7_DAYS == filter_day? 'active' : '') + ' ' +  'btn btn-default'"
+                                        v-on:click="_fetchReservationsByDay(NEXT_7_DAYS)" >Next 7 days</button>
+
+                                <button :class="(NEXT_30_DAYS == filter_day? 'active' : '') + ' ' +  'btn btn-default'"
+                                        v-on:click="_fetchReservationsByDay(NEXT_30_DAYS)">Next 30 days</button>
+
+                                <button :class="(CUSTOM == filter_day ? 'active' : '') + ' ' + 'btn btn-default'"
+                                        v-on:click="filter_date_picker = !filter_date_picker"
+                                >Pick a day</button>
+                            </div>
+                        </div>
+
+                        <div v-if="filter_date_picker">
+                            <input id="flatpickr" class="flatpickr flatpickr-input" type="text" placeholder="Select Date.." data-id="inline" readonly="readonly"
+                                   style="width: 135px; height: 30px; border-radius: 3px"
+                                   v-model="custom_pick_day" v-on:change="_fetchReservationsByDay(CUSTOM, $event.target.value)">
+                        </div>
+
+                        <div style="width: 100%; text-align: right; margin-bottom: 20px;">
+                            <div  v-if="filter_panel" class="btn-group">
+                                <button :class="(filter_statuses.includes(RESERVATION_ARRIVED) ? 'active' : '') + ' ' +'btn btn-default'"
+                                        v-on:click="_toggleFilterStatus(RESERVATION_ARRIVED, $event)"
+                                >Arrived</button>
+
+                                <button :class="(filter_statuses.includes(RESERVATION_CONFIRMATION) ? 'active' : '') + ' ' + 'btn btn-default'"
+                                        v-on:click="_toggleFilterStatus(RESERVATION_CONFIRMATION, $event)"
+                                >Confirmed</button>
+
+                                <button :class="(filter_statuses.includes(RESERVATION_REMINDER_SENT) ? 'active' : '') + ' ' + 'btn btn-default'"
+                                        v-on:click="_toggleFilterStatus(RESERVATION_REMINDER_SENT, $event)"
+                                >Reminder Sent</button>
+
+                                <button :class="(filter_statuses.includes(RESERVATION_RESERVED) ? 'active' : '') +  ' ' +'btn btn-default'"
+                                        v-on:click="_toggleFilterStatus(RESERVATION_RESERVED, $event)"
+                                >Reserved</button>
+
+                                <button :class="(filter_statuses.includes(RESERVATION_USER_CANCELLED) ? 'active' : '') +  ' ' +'btn btn-default'"
+                                        v-on:click="_toggleFilterStatus(RESERVATION_USER_CANCELLED, $event)"
+                                >User cancelled</button>
+
+                                <button :class="(filter_statuses.includes(RESERVATION_STAFF_CANCELLED) ? 'active' : '') + ' ' + 'btn btn-default'"
+                                        v-on:click="_toggleFilterStatus(RESERVATION_STAFF_CANCELLED, $event)"
+                                >Staff cancelled</button>
+
+                                <button :class="(filter_statuses.includes(RESERVATION_NO_SHOW) ? 'active' : '') + ' ' + 'btn btn-default'"
+                                        v-on:click="_toggleFilterStatus(RESERVATION_NO_SHOW, $event)"
+                                >No show</button>
+
+                                <button class="btn bg-info" v-on:click="_clearFilterByStatus"><i class="fa fa-times"></i>Clear</button>
+                            </div>
+                        </div>
+                    </div>
+                </transition>
+
+                <!-- This div used to SHOW filterd reservations -->
+                <table class="table table-hover table-condensed table-bordered">
+                    <thead>
+                    <tr class="bg-info">
+                        <th></th>
+                        <th></th>
+                        <th>No.</th>
+                        <th>Customer Info</th>
+                        <th>Customer Remarks</th>
+                        <th>Staff Remarks</th>
+                        <th>Status</th>
+                        <th>Payment Authorization</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <template v-for="(reservation, reservation_index) in filtered_reservations">
+                        @endverbatim
+                        @include('admin.reservations.single-row-info')
+                        @verbatim
+                    </template>
+                    </tbody>
+                </table>
             </div>
         </div>
         <div class="modal fade" id="reservation-dialog">

@@ -313,7 +313,7 @@ textarea:focus {
     outline: none; 
 }
 
-textAlignCenter {
+.textAlignCenter {
     text-align: center;
 }
 
@@ -352,4 +352,18 @@ textAlignCenter {
 
 .padding15LeftRight {
     padding: 0 15px;
+}
+
+.marginLeft20 {
+    margin-left: 20px;
+}
+
+.table-hover>tbody>tr:hover>td {
+    background-color: inherit;
+}
+
+table tr.active{
+    color: #333;
+    background-color: #e6e6e6;
+    border-color: #adadad;
 }

@@ -19,10 +19,11 @@
         </div>
     </td>
     <td>
-        <p class="noMargin"><span class="glyphicon contactIcon"></span>: @{{ reservation.full_name}}</p>
-        <p class="noMargin"><span class="glyphicon phoneIcon"></span>: (@{{ reservation.phone_country_code }}) @{{ reservation.phone }}</p>
-        <p class="noMargin"><span class="glyphicon emailIcon"></span>: @{{ reservation.email }}</p>
-        <p class="noMargin" style="margin-top: 3px"><span class="glyphicon timeIcon"></span>: @{{ moment(reservation.reservation_timestamp).format('Do-MM-YYYY HH:mm:ss') }}</p>
+        <p class="noMargin"><span class="glyphicon contactIcon"></span> @{{ reservation.full_name}}</p>
+        <p class="noMargin"><span class="glyphicon phoneIcon"></span> (@{{ reservation.phone_country_code }}) @{{ reservation.phone }}</p>
+        <p class="noMargin"><span class="glyphicon emailIcon"></span> @{{ reservation.email }}</p>
+        <p class="noMargin" style="margin-top: 3px">
+            <span class="glyphicon timeIcon"></span> <b>@{{ moment(reservation.reservation_timestamp).format('Do-MM-YYYY HH:mm:ss') }}</b></p>
     </td>
     <td class="textAlignCenter">
         <textarea
@@ -42,7 +43,7 @@
     </td>
     <td style="width: 150px;">
         @include('admin.reservations.status')
-        <button class="hoiBtn bg-info marginTop20" v-on:click="_sendReminderSMS(reservation)" style="width: 100%;"
+        <button class="btn btn-default marginTop20" v-on:click="_sendReminderSMS(reservation)" style="width: 100%;"
                 style="">Send Reminder SMS</button>
       </select>
     </td>
@@ -58,12 +59,12 @@
         Be cross-checked on server -->
         <div v-show="reservation.payment_status == 100 && (user.permission_level == 10 || user.permission_level == 5)">
             <div>
-                <button action="refund" :reservation-index='reservation_index'  class="hoiBtn bg-info" style="width: 100%;"
+                <button action="refund" :reservation-index='reservation_index'  class="btn btn-primary" style="width: 100%;"
                         v-on:click="_updateReservationPayment($event, PAYMENT_REFUNDED)"
                 >Void</button>
             </div>
             <div>
-                <button action="charge" :reservation-index='reservation_index' class="hoiBtn bg-danger marginTop20" style="width: 100%;"
+                <button action="charge" :reservation-index='reservation_index' class="btn btn-danger marginTop20" style="width: 100%;"
                         v-on:click="_updateReservationPayment($event, PAYMENT_CHARGED)"
                 >Charge</button>
             </div>
