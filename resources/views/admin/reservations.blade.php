@@ -24,7 +24,7 @@
                                 v-on:click="_openNewReservationDialog()"
                         ><span class="glyphicon addIcon"></span></button>
                         <button class="btn btn-default marginLeft20"
-                                v-on:click="filter_panel = !filter_panel"
+                                v-on:click="filter_panel = !filter_panel; filter_date_picker = false"
                         ><span class="glyphicon filterIcon"></span></button>
                         <div class="flex1"></div>
                         <div style="text-align: right;">
