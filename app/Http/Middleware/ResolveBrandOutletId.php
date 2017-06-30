@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Auth;
 use App\OutletReservationSetting as Setting;
+use Illuminate\Support\Facades\Log;
 
 
 class ResolveBrandOutletId {
@@ -49,7 +50,7 @@ class ResolveBrandOutletId {
         /**
          * Resolve for staff login to manage admin
          */
-        if($req->is('admin*')){
+        if($req->is('*admin*')){
             /** @var ReservationUser $user */
             $user = Auth::user();
 

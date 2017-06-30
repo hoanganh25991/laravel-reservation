@@ -71,7 +71,12 @@ Route::group(['prefix' => 'api','middleware' => 'api'], function (){
 });
 
 
-
+Route::group(['prefix' => 'api/admin', 'middleware' => 'react'], function (){
+    // api call auth
+    Route::any('auth', 'Auth\LoginController@apiLogin');
+    // api call to reservations
+    Route::middleware('reservations')->any('reservations', 'AdminController@getReservationDashboard');
+});
 
 Route::get('test', function (App\Http\Controllers\BookingController $c, App\Http\Controllers\AdminController $a,
     App\Http\Controllers\SessionController $s, \App\Http\Requests\ApiRequest $req){
@@ -174,14 +179,4 @@ Route::get('test', function (App\Http\Controllers\BookingController $c, App\Http
     $user = (object)['email' => '', 'name' => ''];
     $reservation = \App\Reservation::find(331);
     Mail::to($user)->send(new App\Mail\EmailOnBooking($reservation));
-});
-
-
-
-
-Route::group(['prefix' => 'api/admin', 'middleware' => 'react'], function (){
-    // api call auth
-    Route::any('auth', 'Auth\LoginController@apiLogin');
-    // api call to reservations
-    Route::middleware('reservations')->any('reservations', 'AdminController@getReservationDashboard');
 });
