@@ -395,3 +395,17 @@ table tr.active{
 .marginBottom20 {
     margin-bottom: 20px;
 }
+
+/*Input placeholder lighter*/
+::-webkit-input-placeholder { /* WebKit browsers */
+    color:    #E0E0E0;
+}
+:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    color:    #E0E0E0;
+}
+::-moz-placeholder { /* Mozilla Firefox 19+ */
+    color:    #E0E0E0;
+}
+:-ms-input-placeholder { /* Internet Explorer 10+ */
+    color:    #E0E0E0;
+}
