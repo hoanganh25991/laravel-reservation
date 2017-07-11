@@ -67,14 +67,15 @@
 
                                 <button :class="(CUSTOM == filter_day ? 'active' : '') + ' ' + 'btn btn-default'"
                                         v-on:click="filter_date_picker = !filter_date_picker"
-                                >Pick a day</button>
+                                >Pick a date range</button>
                             </div>
                         </div>
 
                         <div v-if="filter_date_picker" class="flexRow marginTop20">
                             <div class="flex1"></div>
-                            <input id="flatpickr" class="flatpickr flatpickr-input" type="text" placeholder="Select Date.." data-id="inline" readonly="readonly"
-                                   style="width: 135px; height: 30px; border-radius: 3px" />
+                            <input id="flatpickr" class="flatpickr flatpickr-input" type="text" placeholder="Select Date.." data-id="rangeDisable" readonly="readonly"
+                                   style="height: 30px; border-radius: 3px"
+                                   v-model="custom_pick_day" v-on:change="_fetchReservationsByRangeDay(CUSTOM, $event.target.value)"/>
                         </div>
 
                         <div class="flexRow marginTop20 marginBottom20">

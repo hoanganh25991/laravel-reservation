@@ -98,12 +98,23 @@ class AdminController extends HoiController {
                 break;
 
             case Call::AJAX_FETCH_RESERVATIONS_BY_DAY:
-                $day_str  = $req->json('day');
-                $reservations = $reservation_controller->fetchReservationsByDay($day_str);
+                $range_day  = $req->json('day');
+                $reservations = $reservation_controller->fetchReservationsByDay($range_day);
                 
                 $data = compact('reservations');
                 $code = 200;
                 $msg  = Call::AJAX_FETCH_RESERVATIONS_BY_DAY_SUCCESS;
+
+                $response = $this->apiResponse($data, $code, $msg);
+                break;
+
+            case Call::AJAX_FETCH_RESERVATIONS_BY_RANGE_DAY:
+                $range_day  = $req->json('day');
+                $reservations = $reservation_controller->fetchReservationsByRangeDay($range_day);
+
+                $data = compact('reservations');
+                $code = 200;
+                $msg  = Call::AJAX_FETCH_RESERVATIONS_BY_RANGE_DAY_SUCCESS;
 
                 $response = $this->apiResponse($data, $code, $msg);
                 break;

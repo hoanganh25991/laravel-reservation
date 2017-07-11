@@ -295,10 +295,29 @@ class ReservationController extends HoiController{
         return Reservation::whereIn('id', $reservations_id)->get();
     }
 
+    public function fetchReservationsByRangeDay($range_day_str){
+        try{
+            $range_day = json_decode($range_day_str);
+
+            $start_day = Carbon::createFromFormat('Y-m-d', $range_day[0], Setting::timezone())->setTime(0, 0, 0);
+            $end_day   = Carbon::createFromFormat('Y-m-d', $range_day[1], Setting::timezone())->setTime(0, 0, 0)->addDays(1);
+            $reservations = Reservation::notRequiredDeposit()->byDayBetween($start_day, $end_day)->get();
+
+            return $reservations;
+            
+        }catch(\Exception $e){
+            $msg  = "Please submit day_str as json on array, ex: [\"2017-07-11\",\"2017-07-12\"]. If you want custom range day.";
+            $msg .= $e->getMessage();
+            
+            return new \Exception($msg);
+        }
+    }
+
     public function fetchReservationsByDay($day_str = null){
 
-        $start_day = Carbon::today(Setting::timezone());
+        $start_day = Carbon::today(Setting::timezone())->setTime(0, 0, 0);
         $method    = 'addDays';
+        $exception = null;
 
         switch($day_str){
             // Consider nothing submit as fetch by today
@@ -347,9 +366,30 @@ class ReservationController extends HoiController{
                     $start_day->setTime(0, 0, 0);
                     $add_up_val  = 1;
                 }catch(\Exception $e){
-                    throw new \Exception('Fail to parse submited day_str');
+                    $msg  = "Please submit day_str as format YYYY-MM-DD, ex: 2017-07-11. Fail to parse submited day_str: $day_str. If you want single custom day.";
+                    $msg .= $e->getMessage();
+                    $exception = new \Exception($msg);
                 }
                 break;
+        }
+
+
+        // Try to parse in case of exception
+        // Bcs now we can handle day_str as range-day [2017-07-11, 2017-07-12]
+        if($exception){
+            // Try with another parse case
+            $reservations = $this->fetchReservationsByRangeDay($day_str);
+
+            if($reservations instanceof \Exception){
+                $nl   = PHP_EOL;
+                $msg  = "$exception->getMessage()$nl";
+                $msg .= "$reservations->getMessage()$nl";
+                // Can not try catch any more
+                // Throw it out ^^
+                throw new \Exception($msg);
+            }
+
+            return $reservations;
         }
 
         // Query reservation in between of start & end

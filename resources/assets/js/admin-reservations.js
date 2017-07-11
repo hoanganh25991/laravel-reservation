@@ -75,6 +75,7 @@ const FETCH_RESERVATIONS_BY_CONFIRM_ID = 'FETCH_RESERVATIONS_BY_CONFIRM_ID';
 const AJAX_FETCH_RESERVATIONS_BY_DAY = 'AJAX_FETCH_RESERVATIONS_BY_DAY';
 const AJAX_FETCH_RESERVATIONS_BY_RANGE_DAY = 'AJAX_FETCH_RESERVATIONS_BY_RANGE_DAY';
 const AJAX_FETCH_RESERVATIONS_BY_DAY_SUCCESS = 'AJAX_FETCH_RESERVATIONS_BY_DAY_SUCCESS';
+const AJAX_FETCH_RESERVATIONS_BY_RANGE_DAY_SUCCESS = 'AJAX_FETCH_RESERVATIONS_BY_RANGE_DAY_SUCCESS';
 const AJAX_FIND_RESERVATION = 'AJAX_FIND_RESERVATION'
 const AJAX_FIND_RESERVATION_SUCCESS = 'AJAX_FIND_RESERVATION_SUCCESS'
 
@@ -1098,10 +1099,18 @@ class AdminReservations {
 					});
 				},
 
-				_fetchReservationsByRangeDay(day, day_str = null){
-					console.log('Fetch by range date', day_str)
+				_fetchReservationsByRangeDay(day, raw_day_str = null){
+					console.log('Fetch by range date', raw_day_str)
+					if(raw_day_str.length <= 10){
+						// in this case, just first day selected
+						// not handle here
+						return;
+					}
+					
+					let day_str = JSON.stringify( raw_day_str.split(/ to /));
+					
 					store.dispatch({
-						type: FETCH_RESERVATIONS_BY_RANGE_DAY,
+						type: FETCH_RESERVATIONS_BY_DAY,
 						day,
 						day_str
 					});
@@ -1543,6 +1552,13 @@ class AdminReservations {
 				$.jsonAjax({url, data});
 				break;
 			}
+			case AJAX_FETCH_RESERVATIONS_BY_RANGE_DAY:{
+				let url         = self.url('');
+				let data        = Object.assign({}, action);
+
+				$.jsonAjax({url, data});
+				break;
+			}
 			case AJAX_FIND_RESERVATION:{
 				let url         = self.url('');
 				let data        = Object.assign({}, action);
@@ -1629,6 +1645,22 @@ class AdminReservations {
 					data: res.data
 				});
 				
+				break;
+			}
+			case AJAX_FETCH_RESERVATIONS_BY_RANGE_DAY_SUCCESS: {
+				store.dispatch({
+					type: TOAST_SHOW,
+					toast: {
+						title: 'Fetch data from outlet',
+						content: 'Received'
+					}
+				});
+
+				store.dispatch({
+					type: SYNC_DATA,
+					data: res.data
+				});
+
 				break;
 			}
 			case AJAX_FIND_RESERVATION_SUCCESS: {
