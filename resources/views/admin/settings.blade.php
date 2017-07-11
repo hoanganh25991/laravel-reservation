@@ -407,12 +407,9 @@
 @endsection
 
 @push('script')
-{{--<script src="{{ url('js/hashids.min.js') }}"></script>--}}
-<script src="{{ url('js/vue.min.js') }}"></script>
 <script>@php
         $state_json = json_encode($state);
         echo "window.state = $state_json;";
     @endphp</script>
 <script src="{{ url_mix('js/admin-settings.js') }}"></script>
-<script></script>
 @endpush

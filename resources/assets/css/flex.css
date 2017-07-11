@@ -21,3 +21,7 @@
     align-content: space-around;
     justify-content: space-between;
 }
+
+.flexStart {
+    align-items: flex-start;
+}

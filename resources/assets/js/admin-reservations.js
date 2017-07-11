@@ -284,6 +284,9 @@ class AdminReservations {
 				content: 'Content'
 			},
 			reservations: [],
+			// allow create special session
+			// as meaning for close slot
+			close_slot: false,
 			// Decide show|hide
 			filter_panel: false,
 			// Manage filterd on reservations
@@ -391,6 +394,9 @@ class AdminReservations {
 
 		let self  = this;
 
+		// Long time before
+		let onBuildVue = moment();
+
 		this.vue  = new Vue({
 			/** @namespace moment */
 			el: '#app',
@@ -423,6 +429,26 @@ class AdminReservations {
 					dp.open();
 				}
 				this.is_flatpickr_mounted = is_flatpickr_mounted;
+
+
+				let sp = flatpickr('#special_session_date');
+				let stp = flatpickr('#special_session_time', {
+					enableTime: true,
+					noCalendar: true,
+					enableSeconds: false, // disabled by default
+					time_24hr: true, // AM/PM time picker is used by default
+					// default format
+					dateFormat: "H:i",
+					// initial values for time. don't use these to preload a date
+					defaultHour: +onBuildVue.format('H'),
+					defaultMinute: 0,
+					minuteIncrement: 15,
+				});
+				$('.jonthornton-time').timepicker({
+					//selectOnBlur: true,
+					step: 30,
+					disableTextInput: true
+				});
 			},
 			computed:{
 				updateFilteredReservations() {

@@ -83,7 +83,6 @@ input:checked + .slider:before {
     top: 0;
     transition: all 0.5s ease-in-out;
     transform: scale(0,0);
-    width: 950px;
 }
 
 #go-container .btn {
@@ -408,4 +407,27 @@ table tr.active{
 }
 :-ms-input-placeholder { /* Internet Explorer 10+ */
     color:    #E0E0E0;
+}
+
+.hoiH3 {
+    font-size: 24px;
+}
+
+.hoiH4 {
+    font-size: 20px;
+}
+
+.hoiH5 {
+    font-size: 16px;
+}
+
+.hoiBorder {
+    border: 0px;
+    border-bottom: 1px ridge;
+}
+
+.timingTime {
+    width: 65px;
+    margin-left: 10px;
+    /*font-size: 18px;*/
 }

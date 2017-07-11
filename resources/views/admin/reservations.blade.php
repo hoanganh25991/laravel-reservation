@@ -3,6 +3,7 @@
     <link href="{{ url_mix('css/animate.css') }}" rel="stylesheet"/>
     <link href="{{ url('css/flatpickr_material_blue.css') }}" rel="stylesheet"/>
     <link href="{{ url_mix('css/flex.css') }}" rel="stylesheet"/>
+    <link href="{{ url('css/jquery.timepicker.min.css') }}" rel="stylesheet"/>
     @include('icon')
 @endpush
 @section('content')
@@ -13,10 +14,10 @@
                 @verbatim
                 <div class="modal-header">
                     <div class="flexRow">
-                        <div class="btn btn-default " v-on:click="_refreshOutletData">
+                        <button class="btn btn-default " v-on:click="_refreshOutletData">
                             @endverbatim <img src="{{ url('images/ring.svg') }}" height="25" v-show="auto_refresh_status == REFRESHING"> @verbatim
                             <span class="glyphicon refreshIcon" v-show="auto_refresh_status != REFRESHING"></span>
-                        </div>
+                        </button>
                         <button class="btn btn-default marginLeft20"
                                 v-on:click="_goToPrintPage"
                         ><span class="glyphicon printIcon"></span></button>
@@ -40,7 +41,14 @@
                             </div>
                         </div>
                     </div>
+                    <div>
+                        <button class="btn btn-danger"
+                            v-on:click="close_slot = !close_slot"
+                        >Close slot</button>
+                    </div>
                 </div>
+
+
                 <!-- This div used to filterd reservations -->
                 <transition name="slide">
                     <div v-if="filter_panel">
@@ -70,6 +78,8 @@
                                 >Pick a date range</button>
                             </div>
                         </div>
+
+
 
                         <div v-if="filter_date_picker" class="flexRow marginTop20">
                             <div class="flex1"></div>
@@ -110,6 +120,33 @@
                                 >No show</button>
 
                                 <button class="btn bg-info" v-on:click="_clearFilterByStatus"><i class="fa fa-times"></i>Clear</button>
+                            </div>
+                        </div>
+                    </div>
+                </transition>
+
+                <transition name="slide">
+                    <div v-if="close_slot">
+                        <div class="flexRow">
+                            <div class="flex1"></div>
+                            <div style="width: 350px;">
+                                <div class="hoiH3">Disallow any new reservation on</div>
+                                <div class="flexRow">
+                                    <label class="flexRow flexStart" style="font-weight: normal">
+                                        <input id="special_session_date" type="text" placeholder="Pick date" style="height: 36px;" class="hoiBorder"/>
+                                        <div class="calendarIcon" style="margin-left: -36px"></div>
+                                    </label>
+
+                                </div>
+                                <div class="flexRow">
+                                    <div class="hoiH5">From </div>
+                                    <input class="jonthornton-time hoiBorder timingTime" id="timing_start" type="text"/>
+                                    <div class="hoiH5" style="margin-left: 10px;">to</div>
+                                    <input class="jonthornton-time hoiBorder timingTime" id="timing_end" type="text"/>
+                                </div>
+                                <br/>
+                                <button class="btn btn-default btn-block">Confirm</button>
+                                <p class="small">To undo this, please access from Settings > Special Sessions</p>
                             </div>
                         </div>
                     </div>
@@ -212,6 +249,7 @@
 @push('script')
 <script src="{{ url('js/flatpickr.min.js') }}"></script>
 <script src="{{ url('js/hashids.min.js') }}"></script>
+<script src="{{ url('js/jquery.timepicker.min.js') }}"></script>
 <script>@php
         $state_json = json_encode($state);
         echo "window.state = $state_json;";

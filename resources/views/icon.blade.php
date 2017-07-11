@@ -45,5 +45,10 @@
     background: url("{{ url('images/ic_location_city_black_24px.svg') }}") 0 0;
     display:inline-block;width:16px;height:16px;
   }
+
+  .calendarIcon {
+    background: url("{{ url('images/ic_date_range_black_36px.svg') }}") 0 0;
+    display:inline-block;width:36px;height:36px;
+  }
 </style>
 @endpush
