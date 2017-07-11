@@ -70,8 +70,10 @@ const REFRESHING = 'REFRESHING';
 const CALLING_AJAX = 'CALLING_AJAX';
 
 const FETCH_RESERVATIONS_BY_DAY = 'FETCH_RESERVATIONS_BY_DAY';
+const FETCH_RESERVATIONS_BY_RANGE_DAY = 'FETCH_RESERVATIONS_BY_RANGE_DAY';
 const FETCH_RESERVATIONS_BY_CONFIRM_ID = 'FETCH_RESERVATIONS_BY_CONFIRM_ID';
 const AJAX_FETCH_RESERVATIONS_BY_DAY = 'AJAX_FETCH_RESERVATIONS_BY_DAY';
+const AJAX_FETCH_RESERVATIONS_BY_RANGE_DAY = 'AJAX_FETCH_RESERVATIONS_BY_RANGE_DAY';
 const AJAX_FETCH_RESERVATIONS_BY_DAY_SUCCESS = 'AJAX_FETCH_RESERVATIONS_BY_DAY_SUCCESS';
 const AJAX_FIND_RESERVATION = 'AJAX_FIND_RESERVATION'
 const AJAX_FIND_RESERVATION_SUCCESS = 'AJAX_FIND_RESERVATION_SUCCESS'
@@ -144,7 +146,8 @@ class AdminReservations {
 					let {is_calling_ajax} = action;
 					return Object.assign({}, state, {is_calling_ajax});
 				}
-				case FETCH_RESERVATIONS_BY_DAY:{
+				case FETCH_RESERVATIONS_BY_DAY:
+				case FETCH_RESERVATIONS_BY_RANGE_DAY:{
 					let {day: filter_day, day_str: custom_pick_day} = action;
 
 					return Object.assign({}, state, {filter_day, custom_pick_day});
@@ -415,7 +418,7 @@ class AdminReservations {
 				let {is_flatpickr_mounted: lastState} = this;
 				let is_flatpickr_mounted = document.getElementById('flatpickr');
 				if(!lastState && is_flatpickr_mounted){
-					let dp = flatpickr('#flatpickr');
+					let dp = flatpickr('#flatpickr', {mode: "range"});
 					dp.open();
 				}
 				this.is_flatpickr_mounted = is_flatpickr_mounted;
@@ -1088,9 +1091,17 @@ class AdminReservations {
 				},
 
 				_fetchReservationsByDay(day, day_str = null){
-					console.log('fetch for me, please');
 					store.dispatch({
 						type: FETCH_RESERVATIONS_BY_DAY,
+						day,
+						day_str
+					});
+				},
+
+				_fetchReservationsByRangeDay(day, day_str = null){
+					console.log('Fetch by range date', day_str)
+					store.dispatch({
+						type: FETCH_RESERVATIONS_BY_RANGE_DAY,
 						day,
 						day_str
 					});
@@ -1410,6 +1421,23 @@ class AdminReservations {
 
 				self.ajax_call({
 					type: AJAX_FETCH_RESERVATIONS_BY_DAY,
+					day,
+					outlet_id,
+				});
+			}
+
+			if(action == FETCH_RESERVATIONS_BY_RANGE_DAY){
+
+				let {filter_day: day} = state;
+				let {outlet_id}       = state;
+
+				// When CUSTOM, read day from what input set
+				if(day == CUSTOM){
+					day = state.custom_pick_day;
+				}
+
+				self.ajax_call({
+					type: AJAX_FETCH_RESERVATIONS_BY_RANGE_DAY,
 					day,
 					outlet_id,
 				});

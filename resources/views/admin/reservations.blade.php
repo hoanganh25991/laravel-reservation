@@ -74,8 +74,7 @@
                         <div v-if="filter_date_picker" class="flexRow marginTop20">
                             <div class="flex1"></div>
                             <input id="flatpickr" class="flatpickr flatpickr-input" type="text" placeholder="Select Date.." data-id="inline" readonly="readonly"
-                                   style="width: 135px; height: 30px; border-radius: 3px"
-                                   v-model="custom_pick_day" v-on:change="_fetchReservationsByDay(CUSTOM, $event.target.value)">
+                                   style="width: 135px; height: 30px; border-radius: 3px" />
                         </div>
 
                         <div class="flexRow marginTop20 marginBottom20">
