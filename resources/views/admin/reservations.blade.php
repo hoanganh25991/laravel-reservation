@@ -14,19 +14,22 @@
                 @verbatim
                 <div class="modal-header">
                     <div class="flexRow">
-                        <button class="btn btn-default " v-on:click="_refreshOutletData">
+                        <button class="btn btn-default " v-on:click="_refreshOutletData" title="Refresh">
                             @endverbatim <img src="{{ url('images/ring.svg') }}" height="25" v-show="auto_refresh_status == REFRESHING"> @verbatim
                             <span class="glyphicon refreshIcon" v-show="auto_refresh_status != REFRESHING"></span>
                         </button>
-                        <button class="btn btn-default marginLeft20"
+                        <button class="btn btn-default marginLeft20" title="Print Page"
                                 v-on:click="_goToPrintPage"
                         ><span class="glyphicon printIcon"></span></button>
-                        <button class="btn btn-default marginLeft20"
+                        <button class="btn btn-default marginLeft20" title="New reservation"
                                 v-on:click="_openNewReservationDialog()"
                         ><span class="glyphicon addIcon"></span></button>
-                        <button class="btn btn-default marginLeft20"
+                        <button class="btn btn-default marginLeft20" title="Open Filter"
                                 v-on:click="filter_panel = !filter_panel; filter_date_picker = false"
                         ><span class="glyphicon filterIcon"></span></button>
+                        <button class="btn btn-danger marginLeft40" title="Close slot"
+                                v-on:click="close_slot = !close_slot"
+                        ><span class="glyphicon closeSlotIcon"></span></button>
                         <div class="flex1"></div>
                         <div style="text-align: right;">
                             <div class="flexRow height35">
@@ -40,11 +43,6 @@
                                 ><i class="fa fa-search"></i></button>
                             </div>
                         </div>
-                    </div>
-                    <div>
-                        <button class="btn btn-danger"
-                            v-on:click="close_slot = !close_slot"
-                        >Close slot</button>
                     </div>
                 </div>
 

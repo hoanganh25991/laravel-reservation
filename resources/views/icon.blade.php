@@ -50,5 +50,10 @@
     background: url("{{ url('images/ic_date_range_black_36px.svg') }}") 0 0;
     display:inline-block;width:36px;height:36px;
   }
+
+  .closeSlotIcon {
+    background: url("{{ url('images/ic_speaker_notes_off_black_24px.svg') }}") 0 0;
+    display:inline-block;width:24px;height:24px;
+  }
 </style>
 @endpush

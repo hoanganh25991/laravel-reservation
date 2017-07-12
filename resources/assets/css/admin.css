@@ -358,6 +358,10 @@ textarea:focus {
     margin-left: 20px;
 }
 
+.marginLeft40 {
+    margin-left: 40px;
+}
+
 .table-hover>tbody>tr:hover>td {
     background-color: inherit;
 }
