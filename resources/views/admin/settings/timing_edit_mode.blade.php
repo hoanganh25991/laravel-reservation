@@ -118,20 +118,4 @@
 @endpush
 @push('script')
     <script src="{{ url('js/jquery.timepicker.min.js') }}"></script>
-    <script>
-        document.addEventListener('vue-mounted', function(){
-            $('.jonthornton-time').timepicker({
-                //selectOnBlur: true,
-                step: 30,
-                disableTextInput: true
-            })
-            .on('change', function(){
-                let $i = $(this);
-                let i  = $i[0];
-                let value = $i.val();
-
-                i.dispatchEvent(new CustomEvent('$change', {detail: {value}}));
-            });
-        });
-    </script>
 @endpush

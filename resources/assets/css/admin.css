@@ -422,7 +422,7 @@ table tr.active{
     font-size: 16px;
 }
 
-.hoiBorder {
+.hoiInputBorder {
     border: 0px;
     border-bottom: 1px ridge;
 }
@@ -435,4 +435,12 @@ table tr.active{
 
 #app {
     overflow-x: hidden;
+}
+
+.divBorder {
+    border: 1px solid #E5E5E5;
+}
+
+.divPadding {
+    padding: 15px;
 }

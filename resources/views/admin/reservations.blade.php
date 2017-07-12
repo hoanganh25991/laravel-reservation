@@ -129,24 +129,33 @@
                     <div v-if="close_slot">
                         <div class="flexRow">
                             <div class="flex1"></div>
-                            <div style="width: 350px;">
-                                <div class="hoiH3">Disallow any new reservation on</div>
-                                <div class="flexRow">
-                                    <label class="flexRow flexStart" style="font-weight: normal">
-                                        <input id="special_session_date" type="text" placeholder="Pick date" style="height: 36px;" class="hoiBorder"/>
-                                        <div class="calendarIcon" style="margin-left: -36px"></div>
-                                    </label>
+                            <div style="width: 400px;">
+                                <div class="divBorder divPadding">
+                                    <div class="hoiH3">Disallow any new reservation on</div>
+                                    <div class="flexRow">
+                                        <label class="flexRow flexStart" style="font-weight: normal">
+                                            <input id="special_session_date" type="text" placeholder="Pick date" style="height: 36px;" class="hoiInputBorder"
+                                                   v-on:change="_updateSpecialSessionDate($event.target.value)"
+                                            />
+                                            <div class="calendarIcon" style="margin-left: -36px"></div>
+                                        </label>
 
+                                    </div>
+                                    <div class="flexRow">
+                                        <div class="hoiH5">From </div>
+                                        <input class="jonthornton-time hoiInputBorder timingTime" id="timing_start" type="text"
+                                               v-on:$change="_updateTimingTime('first_arrival_time', $event)"/>
+                                        <div class="hoiH5" style="margin-left: 10px;">to</div>
+                                        <input class="jonthornton-time hoiInputBorder timingTime" id="timing_end" type="text"
+                                               v-on:$change="_updateTimingTime('last_arrival_time', $event)"
+                                        />
+                                    </div>
+                                    <br/>
+                                    <button class="btn btn-default btn-block"
+                                        v-on:click="_createSpecialSession"
+                                    >Confirm</button>
+                                    <p class="small">To undo this, please access from Settings > Special Sessions</p>
                                 </div>
-                                <div class="flexRow">
-                                    <div class="hoiH5">From </div>
-                                    <input class="jonthornton-time hoiBorder timingTime" id="timing_start" type="text"/>
-                                    <div class="hoiH5" style="margin-left: 10px;">to</div>
-                                    <input class="jonthornton-time hoiBorder timingTime" id="timing_end" type="text"/>
-                                </div>
-                                <br/>
-                                <button class="btn btn-default btn-block">Confirm</button>
-                                <p class="small">To undo this, please access from Settings > Special Sessions</p>
                             </div>
                         </div>
                     </div>

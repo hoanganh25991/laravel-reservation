@@ -4,6 +4,7 @@ namespace App;
 
 use Carbon\Carbon;
 use App\Traits\ApiUtils;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\Eloquent\Builder;
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
  * @property Collection timings
  * @property mixed type
  * @property mixed session_name
+ * @property mixed id
  * 
  * @property mixed $first_arrival_time
  * @see App\Session::getFirstArrivalTimeAttribute
@@ -376,5 +378,22 @@ class Session extends HoiModel{
         }
         
         return $attributes;
+    }
+
+    /**
+     * Allow admin/reservations quick create a special session
+     * as capacity 0 to close that time for reservation
+     * @param $data
+     * @return mixed
+     */
+    public static function validateCloseSlot($data){
+        $allowed_outltes_id = Outlet::all()->pluck('id')->toArray();
+
+        $validator = Validator::make($data, [
+          'outlet_id'    => ['required', 'numeric', Rule::in($allowed_outltes_id)],
+          'session_date' => 'required|date_format:Y-m-d',
+        ]);
+
+        return $validator;
     }
 }

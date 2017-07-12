@@ -95,6 +95,13 @@ const CLOSE_NEW_RESERVATION_DIALOG = 'CLOSE_NEW_RESERVATION_DIALOG';
 const AJAX_RESERVATION_REQUIRED_DEPOSIT = 'AJAX_RESERVATION_REQUIRED_DEPOSIT';
 const UPDATE_NEW_RESERVATION = 'UPDATE_NEW_RESERVATION';
 
+const CREATE_CLOSE_SLOT = 'CREATE_CLOSE_SLOT';
+const EMPTY_SPECIAL_SESSION = 'EMPTY_SPECIAL_SESSION';
+
+const AJAX_CREATE_CLOSE_SLOT = 'AJAX_CREATE_CLOSE_SLOT';
+const AJAX_CREATE_CLOSE_SLOT_SUCCESS = 'AJAX_CREATE_CLOSE_SLOT_SUCCESS';
+const HIDE_CLOSE_SLOT_EMPTY_SPECIAL_SESSIOn = 'HIDE_CLOSE_SLOT_EMPTY_SPECIAL_SESSIOn';
+
 
 
 class AdminReservations {
@@ -224,6 +231,12 @@ class AdminReservations {
 
           return Object.assign({}, state, {send_sms_on_reservation});
         }
+				case HIDE_CLOSE_SLOT_EMPTY_SPECIAL_SESSIOn:{
+					let close_slot = false;
+					let special_session = {};
+
+					return Object.assign({}, state, {close_slot, special_session});
+				}
 				default:
 					return state;
 			}
@@ -312,6 +325,8 @@ class AdminReservations {
       // When ask for send, send it to server
       // Ask for manual send reminder SMS
       send_sms_on_reservation: {},
+			// Handle quick create special session
+			special_session: {},
 		};
 	}
 
@@ -444,11 +459,18 @@ class AdminReservations {
 					defaultMinute: 0,
 					minuteIncrement: 15,
 				});
+				// Timepicker with jQuery
 				$('.jonthornton-time').timepicker({
 					//selectOnBlur: true,
 					step: 30,
 					disableTextInput: true
-				});
+				})
+        .on('change', function(){
+          let $i = $(this);
+          let i  = $i[0];
+          let value = $i.val();
+          i.dispatchEvent(new CustomEvent('$change', {detail: {value}}));
+        });
 			},
 			computed:{
 				updateFilteredReservations() {
@@ -1299,6 +1321,75 @@ class AdminReservations {
 					if(!inRange){
 						window.alert(`Please reselect pax, total pax should between: [${outlet.overall_min_pax}, ${outlet.overall_max_pax}]`);
 					}
+				},
+
+				_updateSpecialSessionDate(session_date){
+					let {special_session: current_special_session} = this;
+					let special_session = Object.assign(current_special_session, {session_date});
+					// Update to vue_state
+					// console.log(special_session);
+					this.special_session = special_session;
+				},
+
+				/**
+				 * @param timing_property 'first_arrival_time', or 'last_arrival_time'
+         */
+				_updateTimingTime(timing_property, event){
+					let {detail: {value: timing_time}} = event;
+					let momentTime = moment(timing_time, 'hh:mma');
+					let {special_session: current_special_session} = this;
+					let special_session = Object.assign(current_special_session, {[timing_property]: momentTime});
+					// Update to vue_state
+					// console.log(special_session);
+					this.special_session = special_session;
+				},
+
+				/**
+				 * Check then create both timing map to special session
+				 * As capacity 0
+         */
+				_createSpecialSession(){
+					let isValidObj = this._checkSpecialSessionValid();
+					let {isValid, msg} = isValidObj;
+					if(!isValid){
+						window.alert(msg);
+						return;
+					}
+
+					let store = window.store;
+					// Ok fine, send to server
+					store.dispatch({
+						type: CREATE_CLOSE_SLOT
+					});
+
+					// Clear current_special
+				},
+
+				_checkSpecialSessionValid(){
+					let {special_session} = this;
+					let need_check_properties = ['session_date', 'first_arrival_time', 'last_arrival_time'];
+					let hasData = need_check_properties.reduce((carry, item) => (carry && special_session[item]), true);
+
+					if(!hasData){
+						return {isValid: false, msg: 'Please fill in all fields.'};
+					}
+
+					try{
+						let firstTime   = special_session.first_arrival_time;
+						let lastTime    = special_session.last_arrival_time;
+						let isTimeRange = lastTime.isAfter(firstTime);
+
+						let isValid = isTimeRange;
+
+						if(isValid){
+							return {isValid, msg: ''};
+						}else{
+							return {isValid, msg: 'Please choose last arrival time larger than first one.'}
+						}
+
+					}catch(e){
+						return {isValid: false, msg: 'Something went wrong when calling moment query.'};;
+					}
 				}
 			}
 		});
@@ -1520,6 +1611,27 @@ class AdminReservations {
         self.ajax_call(action);
       }
 
+			if(action == CREATE_CLOSE_SLOT){
+				let {special_session} = state;
+				let {first_arrival_time, last_arrival_time} = special_session;
+
+				let {outlet_id} = state;
+				// Need transform moment time to normal str
+				let data = Object.assign({}, special_session, {
+					outlet_id,
+					first_arrival_time: first_arrival_time.format('HH:mm:ss'),
+					last_arrival_time:  last_arrival_time.format('HH:mm:ss'),
+				})
+
+				let action = {
+					type: AJAX_CREATE_CLOSE_SLOT,
+					outlet_id,
+					special_session: data
+				}
+
+				self.ajax_call(action);
+			}
+
 			// if(action == SYNC_DATA){
 			Object.assign(window.vue_state, store.getState());
 			// }
@@ -1611,7 +1723,15 @@ class AdminReservations {
         let data        = Object.assign({}, action);
 
         $.jsonAjax({url, data});
+	      break;
       }
+			case AJAX_CREATE_CLOSE_SLOT:{
+				let url         = self.url('');
+				let data        = Object.assign({}, action);
+
+				$.jsonAjax({url, data});
+				break;
+			}
 			default:
 				console.log('client side. ajax call not recognize the current acttion', action);
 				break;
@@ -1784,6 +1904,14 @@ class AdminReservations {
         store.dispatch({type: REFETCHING_DATA})
         break;
       }
+			case AJAX_CREATE_CLOSE_SLOT_SUCCESS: {
+				// let {data} = res;
+				// console.log(data);
+				store.dispatch({
+					type: HIDE_CLOSE_SLOT_EMPTY_SPECIAL_SESSIOn
+				});
+				break;
+			}
 			default:{
 				// This default cant resolve
 				// Ok toast out what happen

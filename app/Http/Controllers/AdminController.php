@@ -280,7 +280,9 @@ class AdminController extends HoiController {
 
                 $response = $this->apiResponse($data, $code, $msg);
                 break;
-
+            case Call::AJAX_CREATE_CLOSE_SLOT:
+                $response = (new SessionController)->createCloseSlot($req);
+                break;
             default:
                 $data = [];
                 $code = 200;

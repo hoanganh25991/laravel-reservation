@@ -306,4 +306,20 @@ class Timing extends HoiModel {
 
         $this->attributes['max_pax'] = $max_pax;
     }
+
+    /**
+     * Allow admin/reservations quick create a special session
+     * as capacity 0 to close that time for reservation
+     * this timing attached to session
+     * @param $data
+     * @return mixed
+     */
+    public static function validateCloseSlot($data){
+        $validator = Validator::make($data, [
+          'first_arrival_time' => 'required|date_format:H:i:s',
+          'last_arrival_time'  => 'required|date_format:H:i:s',
+        ]);
+
+        return $validator;
+    }
 }

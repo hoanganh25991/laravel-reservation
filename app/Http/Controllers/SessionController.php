@@ -137,4 +137,64 @@ class SessionController extends HoiController{
         
         return $special_sesssions;
     }
+
+
+    public function createCloseSlot($req){
+        $special_session_data = $req->json('special_session');
+
+        $validator = Session::validateCloseSlot($special_session_data);
+
+        if($validator->fails()){
+            $first_fail_msg = $validator->getMessageBag()->first();
+
+            $msg  = "Create close slot fail. ";
+            $msg .= "$first_fail_msg";
+            throw new \Exception($msg);
+        }
+
+        $special_session = new Session([
+            'outlet_id' => $special_session_data['outlet_id'],
+            'session_name' => 'Close slot',
+            'one_off' => Session::SPECIAL_SESSION,
+            'one_off_date' => $special_session_data['session_date']
+        ]);
+        
+        $special_session->save();
+
+        $validator = Timing::validateCloseSlot($special_session_data);
+
+        if($validator->fails()){
+            $first_fail_msg = $validator->getMessageBag()->first();
+
+            $msg  = "Create close slot fail. ";
+            $msg .= "$first_fail_msg";
+            throw new \Exception($msg);
+        }
+        
+        $timing = new Timing([
+          'timing_name'        => 'Close slot',
+          'session_id'         => $special_session->id,
+          'first_arrival_time' => $special_session_data['first_arrival_time'],
+          'last_arrival_time'  => $special_session_data['last_arrival_time'],
+          'disabled'           => 0,
+          'interval_minutes'   => 30,
+          'capacity_1'         => 0,
+          'capacity_2'         => 0,
+          'capacity_3_4'       => 0,
+          'capacity_5_6'       => 0,
+          'capacity_7_x'       => 0,
+          'max_table_size'     => 0,
+          'max_pax'            => 0,
+          'children_allowed'   => 0,
+          'is_outdoor'         => 0,
+        ]);
+
+        $timing->save();
+        
+        $data = compact('special_session');
+        $msg  = Call::AJAX_CREATE_CLOSE_SLOT_SUCCESS;
+        $code = 200;
+        
+        return $this->apiResponse($data, $code, $msg);
+    }
 }
