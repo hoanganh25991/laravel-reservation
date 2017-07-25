@@ -326,7 +326,8 @@ class AdminSettings {
 					// console.log(e.target);
 					console.log('see delete timing');
 					try{
-						let i = this._findTrElement(e);
+						// let i = this._findTrElement(e);
+						let i = this._findIElement(e);
 						let session_index = i.getAttribute('session-index');
 						let timing_index  = i.getAttribute('timing-index');
 						let session = this.special_sessions[session_index];
@@ -798,7 +799,7 @@ class AdminSettings {
 		 */
 		if(this._hasFindView)
 			return;
-		
+
 		this._hasFindView = true;
 
 		this.admin_step_container = document.querySelector('#admin-step-container');
@@ -1048,8 +1049,8 @@ class AdminSettings {
 				$.ajax({url, data});
 				break;
 			}
-			case AJAX_UPDATE_BUFFER: 
-			case AJAX_UPDATE_NOTIFICATION: 
+			case AJAX_UPDATE_BUFFER:
+			case AJAX_UPDATE_NOTIFICATION:
 			case AJAX_UPDATE_SETTINGS:
 			case AJAX_UPDATE_DEPOSIT: {
 				let url       = self.url('');
@@ -1062,7 +1063,7 @@ class AdminSettings {
 			case AJAX_REFETCHING_DATA: {
 				let url  = self.url('');
 				let data = action;
-				
+
 				$.ajax({url, data});
 				break;
 			}
@@ -1085,7 +1086,7 @@ class AdminSettings {
 					type: TOAST_SHOW,
 					toast
 				});
-				
+
 				store.dispatch({
 					type: SYNC_DATA,
 					data: res.data
@@ -1111,12 +1112,12 @@ class AdminSettings {
 					title:'Switch Outlet',
 					content: 'Fetched Data'
 				}
-			
+
 				store.dispatch({
 					type: TOAST_SHOW,
 					toast
 				});
-			
+
 				store.dispatch({
 					type: SYNC_DATA,
 					data: res.data
@@ -1140,7 +1141,7 @@ class AdminSettings {
 			window.alert(JSON.stringify(res_literal));
 		}
 	}
-	
+
 	ajax_call_complete(){}
 
 
@@ -1192,7 +1193,7 @@ class AdminSettings {
 		if(url.endsWith('/')){
 			url = path.substr(1);
 		}
-		
+
 		return url;
 	}
 }
