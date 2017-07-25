@@ -107,6 +107,10 @@ use App\OutletReservationSetting as Setting;
  * @see App\Reservation::getSMSMessageOnUserCancelAttribute
  * @property mixed email_subject_on_user_cancel
  * @see App\Reservation::getEmailSubjectOnUserCancelAttribute
+ * @property mixed void_msg
+ * @see App\Reservation::getVoidMsgAttribute
+ * @property mixed charge_msg
+ * @see App\Reservation::getChargeMsgAttribute
  */
 class Reservation extends HoiModel {
 
@@ -1085,6 +1089,18 @@ class Reservation extends HoiModel {
     public function scopeFromLast3Days($query){
         $last_3_days = Carbon::now(Setting::timezone())->setTime(0, 0, 0)->subDays(3);
         return $query->where('reservation_timestamp', '>=', $last_3_days->format('Y-m-d H:i:s'));
+    }
+
+    public function getVoidMsgAttribute(){
+        $amount = "$this->deposit ($this->payment_currency)";
+        $msg = "Dear customer, thank you for dining at Spize. This is to inform you that we have voided your earlier payment authorisation of $amount";
+        return $msg;
+    }
+
+    public function getChargeMsgAttribute(){
+        $amount = "$this->deposit ($this->payment_currency)";
+        $msg = "Dear customer, due to our no-show policy, we have exercised your payment authorisation of $amount";
+        return $msg;
     }
 
 }

@@ -2,14 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\EmailOnCharge;
+use App\Mail\EmailOnVoid;
 use App\Outlet;
 use Carbon\Carbon;
 use App\Reservation;
+use App\Traits\SendSMS;
 use App\Traits\ApiResponse;
 use App\Http\Requests\ApiRequest;
+use Illuminate\Support\Facades\Mail;
 use App\Libraries\HoiAjaxCall as Call;
 use App\OutletReservationSetting as Setting;
 use App\Http\Controllers\ReservationController as By;
+
 class ReservationController extends HoiController{
 
     // Fetch reservations by day
@@ -21,6 +26,7 @@ class ReservationController extends HoiController{
     const NEXT_30_DAYS = 'NEXT_30_DAYS';
 
     use ApiResponse;
+    use SendSMS;
 
     public function resolveBrandIdOutletId(Reservation $reservation){
         //Should try better way to do this
@@ -235,7 +241,9 @@ class ReservationController extends HoiController{
                     }
 
 //                    $reservation = Reservation::findOrNew($reservation_data['id']);
+                    /* @var Reservation $reservation */
                     $reservation = Reservation::find($reservation_data['id']);
+                    $lastPaymentStatus = $reservation->payment_status;
                     if(is_null($reservation)){
                         $reservation_id = $reservation_data['id'];
                         $error_msg = "Reservation id. $reservation_id: Cant find";
@@ -246,6 +254,42 @@ class ReservationController extends HoiController{
 
                     $reservation->fill($reservation_data);
                     $reservation->save();
+                    $justVoided = $lastPaymentStatus == Reservation::PAYMENT_PAID
+                                  && $reservation->payment_status == Reservation::PAYMENT_REFUNDED;
+
+                    if($justVoided){
+                        // Notify user what happen both SMS & email
+                        $telephone   = $reservation->full_phone_number;
+                        $message     = $reservation->void_msg;
+                        $sender_name = Setting::smsSenderName();
+
+                        $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);;
+
+                        // Send email
+                        $customer_name = "$reservation->salutation $reservation->first_name $reservation->last_name";
+                        $customer      = (object)['email' => $reservation->email, 'name' => $customer_name];
+                        try{
+                            Mail::to($customer)->send(new EmailOnVoid($reservation));
+                        }catch(\Exception $e){}
+                    }
+
+                    $justCharged = $lastPaymentStatus == Reservation::PAYMENT_PAID
+                                  && $reservation->payment_status == Reservation::PAYMENT_CHARGED;
+                    if($justCharged){
+                        // Notify user what happen both SMS & email
+                        $telephone   = $reservation->full_phone_number;
+                        $message     = $reservation->charge_msg;
+                        $sender_name = Setting::smsSenderName();
+
+                        $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);;
+
+                        // Send email
+                        $customer_name = "$reservation->salutation $reservation->first_name $reservation->last_name";
+                        $customer      = (object)['email' => $reservation->email, 'name' => $customer_name];
+                        try{
+                            Mail::to($customer)->send(new EmailOnCharge($reservation));
+                        }catch(\Exception $e){}
+                    }
                 }
 
                 //which means no reservations submit
