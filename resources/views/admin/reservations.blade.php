@@ -174,10 +174,21 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <template v-for="(reservation, reservation_index) in filtered_reservations">
+                    <template v-for="(reservations, key) in filtered_reservations_by_date">
+                      <tr>
+                        <td colspan="8">
+                          <div  style="display: flex; background-color: #BDBDBD; font-weight: bold">
+                            <div style="flex: 1">{{moment(key).format('DD MMM YYYY')}}</div>
+                            <div style="flex: 1">Total Reservations: {{reservations.length}}</div>
+                            <div style="flex: 1">Total Pax: {{_totalPaxInReservations(reservations)}}</div>
+                          </div>
+                        </td>
+                      </tr>
+                      <template v-for="(reservation, reservation_index) in reservations">
                         @endverbatim
                         @include('admin.reservations.single-row-info')
                         @verbatim
+                      </template>
                     </template>
                     </tbody>
                 </table>

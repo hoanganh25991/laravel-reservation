@@ -304,6 +304,7 @@ class AdminReservations {
 			filter_panel: false,
 			// Manage filterd on reservations
 			filtered_reservations: [],
+			filtered_reservations_by_date: [],
 			// contains all filters
 			filter_options: [],
 			// manage filter date picker
@@ -479,7 +480,14 @@ class AdminReservations {
 					this.filter_options;
 					// and then return a different value every time
 					return new Date(); // or performance.now()
-				}
+				},
+        updateFilteredReservationsByDate() {
+          // it's only required to reference those properties
+          this.reservations;
+          this.filter_options;
+          // and then return a different value every time
+          return new Date(); // or performance.now()
+        }
 			},
 			watch: {
 				// Need modify reservations with moment date obj
@@ -501,6 +509,7 @@ class AdminReservations {
 					 * Like, hey 'watch on these properties, if you change it, i recompute
 					 */
 					let reservations   = this.reservations;
+          console.log(reservations);
 					let filter_options = this.filter_options;
 					/**
 					 * Special case
@@ -527,6 +536,18 @@ class AdminReservations {
 					// Update filtered reservations
 					this.filtered_reservations = filtered_reservations;
 				},
+        updateFilteredReservationsByDate(){
+          let reservations   = this.reservations;
+          let filtered_reservations_by_date = reservations.reduce((carry, reservation) => {
+            let key = reservation.date.format('YYYY-MM-DD');
+            carry[key] = carry[key] ? [...carry[key], reservation] : [reservation];
+
+            return carry;
+          }, {});
+
+          console.warn(filtered_reservations_by_date);
+          this.filtered_reservations_by_date = filtered_reservations_by_date;
+        },
 				outlet_id(outlet_id){
 					let data = {outlet_id};
 					document.dispatchEvent(new CustomEvent('outlet_id', {detail: data}));
@@ -1390,7 +1411,11 @@ class AdminReservations {
 					}catch(e){
 						return {isValid: false, msg: 'Something went wrong when calling moment query.'};;
 					}
-				}
+				},
+        
+        _totalPaxInReservations(reservations){
+          return reservations.map(r => (Number(r.adult_pax) + Number(r.children_pax))).reduce((c, i) => c+i, 0);
+        }
 			}
 		});
 	}
