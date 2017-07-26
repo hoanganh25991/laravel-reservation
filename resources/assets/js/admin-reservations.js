@@ -101,6 +101,7 @@ const EMPTY_SPECIAL_SESSION = 'EMPTY_SPECIAL_SESSION';
 const AJAX_CREATE_CLOSE_SLOT = 'AJAX_CREATE_CLOSE_SLOT';
 const AJAX_CREATE_CLOSE_SLOT_SUCCESS = 'AJAX_CREATE_CLOSE_SLOT_SUCCESS';
 const HIDE_CLOSE_SLOT_EMPTY_SPECIAL_SESSIOn = 'HIDE_CLOSE_SLOT_EMPTY_SPECIAL_SESSIOn';
+const UPDATE_LAST_REFRESH_BCS_EXCEPTION = "UPDATE_LAST_REFRESH_BCS_EXCEPTION";
 
 
 
@@ -237,6 +238,11 @@ class AdminReservations {
 
 					return Object.assign({}, state, {close_slot, special_session});
 				}
+        case UPDATE_LAST_REFRESH_BCS_EXCEPTION: {
+          let {time} = action;
+          let lastRefreshBcsException = time;
+          return Object.assign({}, state, {lastRefreshBcsException});
+        }
 				default:
 					return state;
 			}
@@ -321,6 +327,7 @@ class AdminReservations {
 			filter_search: null,
 			// auto refresh
 			auto_refresh_status: null,
+      lastRefreshBcsException: 0,
 			is_calling_ajax: null,
       // Store the outlet_id, confirm_id
       // When ask for send, send it to server
@@ -1960,8 +1967,16 @@ class AdminReservations {
 		// When fall case happen
 		// Should refetch page
 		let store = window.store;
-		window.alert('We are refetching data');
-		store.dispatch({type: REFETCHING_DATA});
+    let state = store.getState();
+    let lastRefreshBcsException = state.lastRefreshBcsException;
+    // Only refresh if time diff is 10s
+    let now = Number(moment().format('X'));
+		let shouldRefresh = (now - lastRefreshBcsException) > 10;
+    if(shouldRefresh){
+      window.alert('We are refetching data');
+      store.dispatch({type: REFETCHING_DATA});
+      store.dispatch({type: UPDATE_LAST_REFRESH_BCS_EXCEPTION, time: now})
+    }
 	}
 	
 	ajax_call_complete(res){
