@@ -15,11 +15,12 @@
       color: #363E3F;
       background-color: #f8f8f8;
       margin: 0 auto;
-      height: calc(100vh - 170px);
+      height: inherit;
       -vendor-animation-duration: 3s;
       -vendor-animation-delay: 2s;
       -vendor-animation-iteration-count: infinite;
       padding-top: 20px;
+      padding-bottom: 20px;
     }
 
     @media screen and (max-height: 480px) {
@@ -54,6 +55,7 @@
       text-align: center;
       padding: 0 15%;
       line-height: 1.5;
+      font-size: 15px;
     }
 
     .page-reservation .confirm hr {
