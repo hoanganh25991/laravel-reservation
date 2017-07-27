@@ -113,6 +113,8 @@ use App\OutletReservationSetting as Setting;
  * @see App\Reservation::getChargeMsgAttribute
  * @property string email_content_on_user_cancel
  * @see App\Reservation::getEmailContentOnUserCancelAttribute
+ * @method findSamePhoneSamePax
+ * @see App\Reservation::scopeFindSamePhoneSamePax
  */
 class Reservation extends HoiModel {
 
@@ -1126,6 +1128,23 @@ class Reservation extends HoiModel {
         $amount = "$this->deposit ($this->payment_currency)";
         $msg = "Dear customer, due to our no-show policy, we have exercised your payment authorisation of $amount";
         return $msg;
+    }
+
+    /**
+     * @param $query
+     * @param $tmpReservation Reservation
+     * @return mixed
+     */
+    public function scopeFindSamePhoneSamePax($query, $tmpReservation){
+        $now = Carbon::now(Setting::timezone());
+        $yesterday = $now->copy()->addDays(-1)->setTime(0, 0, 0);
+        $yesterday_str = $yesterday->format('Y-m-d H:i:s');
+
+        return $query->where('phone_country_code', $tmpReservation->phone_country_code)
+                     ->where('phone', $tmpReservation->phone)
+                     ->where('adult_pax', $tmpReservation->adult_pax)
+                     ->where('children_pax', $tmpReservation->children_pax)
+                     ->where('created_timestamp', '>=', $yesterday_str);
     }
 
 }

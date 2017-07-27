@@ -105,6 +105,16 @@ class BookingController extends HoiController {
         return $available_chunk->isNotEmpty();
     }
 
+    public function customerBookTwice(ApiRequest $req){
+        $tmpReservation = new Reservation($req->all());
+        $lastBookByCustomer = Reservation::findSamePhoneSamePax($tmpReservation)->first();
+        if(is_null($lastBookByCustomer)){
+            return false;
+        }
+
+        return true;
+    }
+
     public function bookingInOverallRange(ApiRequest $req){
         $overall = $req->get('adult_pax') + $req->get('children_pax');
 
@@ -526,6 +536,16 @@ class BookingController extends HoiController {
                     $data = [];
                     $code = 422;
                     $msg  = Call::AJAX_RESERVATION_NO_LONGER_AVAILABLE;
+                    break;
+                }
+
+                /**
+                 * Recheck if customer booking the same 2 times
+                 */
+                if($this->customerBookTwice($req)){
+                    $data = [];
+                    $code = 422;
+                    $msg  = Call::AJAX_RESERVATION_CUSTOMER_BOOK_TWICE;
                     break;
                 }
 
