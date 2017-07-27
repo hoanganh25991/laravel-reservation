@@ -185,7 +185,7 @@
           <div class="icon"><span>
             <img  src="{{ url('images/ic_check_circle_green_48px.png') }}"></span>
           </div>
-          <h2>Your Reservation Has Been Cancelled</h2>
+          <h2>{{ $reservation->email_content_on_user_cancel }}</h2>
           <hr>
         </div>
       </div>

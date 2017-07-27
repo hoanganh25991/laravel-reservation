@@ -244,6 +244,7 @@ class ReservationController extends HoiController{
                     /* @var Reservation $reservation */
                     $reservation = Reservation::find($reservation_data['id']);
                     $lastPaymentStatus = $reservation->payment_status;
+                    $lastReservationStatus = $reservation->status;
                     if(is_null($reservation)){
                         $reservation_id = $reservation_data['id'];
                         $error_msg = "Reservation id. $reservation_id: Cant find";
@@ -289,6 +290,13 @@ class ReservationController extends HoiController{
                         try{
                             Mail::to($customer)->send(new EmailOnCharge($reservation));
                         }catch(\Exception $e){}
+                    }
+
+                    $justStaffCancelled = $lastPaymentStatus != Reservation::STAFF_CANCELLED
+                                         && $reservation->status == Reservation::STAFF_CANCELLED;
+
+                    if($justStaffCancelled){
+                        $reservation->autoSendSMSEmailConfirmWhenUserCancel();
                     }
                 }
 

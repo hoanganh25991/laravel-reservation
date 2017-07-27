@@ -111,6 +111,8 @@ use App\OutletReservationSetting as Setting;
  * @see App\Reservation::getVoidMsgAttribute
  * @property mixed charge_msg
  * @see App\Reservation::getChargeMsgAttribute
+ * @property string email_content_on_user_cancel
+ * @see App\Reservation::getEmailContentOnUserCancelAttribute
  */
 class Reservation extends HoiModel {
 
@@ -1030,16 +1032,24 @@ class Reservation extends HoiModel {
     }
 
     public function getEmailSubjectAttribute(){
-        $date_time = $this->date->format('dS M');
+        $date_time = $this->date->format('dS F');
         $subject   = "Your $this->outlet_name Reservation On $date_time";
         return $subject;
     }
 
     public function getEmailSubjectOnUserCancelAttribute(){
-        $date_str = $this->date->format('dS M');
+        $date_str = $this->date->format('dS F');
         $subject  = "You Have Cancelled Your $this->outlet_name Reservation on $date_str";
 
         return $subject;
+    }
+    
+    public function getEmailContentOnUserCancelAttribute(){
+        $date_str = $this->date->format('dS F');
+        $time_str = $this->date->format('H:i a');
+        $msg = "Your reservation for X pax on $date_str July at $time_str has been cancelled.";
+        
+        return $msg;
     }
 
     public function autoSendSMSEmailConfirmWhenUserCancel(){
@@ -1049,10 +1059,15 @@ class Reservation extends HoiModel {
 
     public function getSMSMessageOnUserCancelAttribute(){
         //send out an SMS
-        $date_str = $this->date->format('dS M Y');
+        $date_str = $this->date->format('dS F Y');
         $time_str = $this->date->format('H:i a');
 
         $msg = "Your reservation at $this->outlet_name on $date_str at $time_str has been cancelled.";
+
+        if($this->requiredDeposit()){
+            $amount = "$this->deposit ($this->payment_currency)";
+            $msg .= " Additionally, we have voided your earlier payment authorisation of $amount.";
+        }
 
         return $msg;
     }
