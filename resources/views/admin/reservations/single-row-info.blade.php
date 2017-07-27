@@ -44,6 +44,7 @@
     <td style="width: 150px;">
         @include('admin.reservations.status')
         <button class="btn btn-default marginTop20" v-on:click="_sendReminderSMS(reservation)" style="width: 100%;"
+                :disabled="_isDisableSendReminderSMS(reservation)"
                 style="">Send Reminder SMS</button>
       </select>
     </td>

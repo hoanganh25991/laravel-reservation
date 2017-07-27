@@ -1439,6 +1439,11 @@ class AdminReservations {
         
         _totalPaxInReservations(reservations){
           return reservations.map(r => (Number(r.adult_pax) + Number(r.children_pax))).reduce((c, i) => c+i, 0);
+        },
+
+        _isDisableSendReminderSMS(reservation){
+          let isDiabled = reservation.status == RESERVATION_USER_CANCELLED || reservation.status == RESERVATION_STAFF_CANCELLED || reservation.status == RESERVATION_ARRIVED;
+          return isDiabled;
         }
 			}
 		});
