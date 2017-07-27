@@ -1144,6 +1144,7 @@ class Reservation extends HoiModel {
                      ->where('phone', $tmpReservation->phone)
                      ->where('adult_pax', $tmpReservation->adult_pax)
                      ->where('children_pax', $tmpReservation->children_pax)
+                     ->where('reservation_timestamp', $tmpReservation->reservation_timestamp)
                      ->where('created_timestamp', '>=', $yesterday_str);
     }
 

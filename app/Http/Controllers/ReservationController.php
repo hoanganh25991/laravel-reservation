@@ -292,7 +292,7 @@ class ReservationController extends HoiController{
                         }catch(\Exception $e){}
                     }
 
-                    $justStaffCancelled = $lastPaymentStatus != Reservation::STAFF_CANCELLED
+                    $justStaffCancelled = $lastReservationStatus != Reservation::STAFF_CANCELLED
                                          && $reservation->status == Reservation::STAFF_CANCELLED;
 
                     if($justStaffCancelled){
