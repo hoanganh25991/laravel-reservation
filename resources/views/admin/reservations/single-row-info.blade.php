@@ -1,7 +1,7 @@
 <tr :class="_getReservationRowClass(reservation)"
     :id="'reservation_' + reservation.id"
     :reservation-id="reservation.id"
-    v-on:click="_reservationDetailDialog"
+    v-on:click="_reservationDetailDialog($event, reservation)"
 >
     <td>@{{ reservation_index + 1 }}</td>
     <td>

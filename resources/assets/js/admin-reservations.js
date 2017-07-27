@@ -562,13 +562,14 @@ class AdminReservations {
 				}
 			},
 			methods: {
-				_reservationDetailDialog(e){
+				_reservationDetailDialog(e, reservation){
 					try{
 						let tr = this._findTrElement(e);
-						this._remarksAsStaffRead(tr);
+            if(tr == null){
+              return;
+            }
 						//Clone it into reservation dialog content
-						let reservation_id  = tr.getAttribute('reservation-id');
-						let picked_reservation = this.reservations.filter(reservation => reservation.id == reservation_id)[0];
+						let picked_reservation = reservation;
 						let dialog_reservation = Object.assign({}, picked_reservation);
 						//Diloag need data for other stuff
 						//Self update for itself
@@ -587,12 +588,13 @@ class AdminReservations {
 				},
 
 				_remarksAsStaffRead(tr){
-					try{
-						let reservation_index  = tr.getAttribute('reservation-index');
-						let picked_reservation = this.reservations[reservation_index];
-						//Update reservations staff_read
-						picked_reservation.staff_read_state = true;
-					}catch(e){}
+					// try{
+					// 	let reservation_index  = tr.getAttribute('reservation-index');
+					// 	let picked_reservation = this.reservations[reservation_index];
+					// 	//Update reservations staff_read
+					// 	picked_reservation.staff_read_state = true;
+					// }catch(e){}
+          return;
 				},
 
 				_findTrElement(e){
