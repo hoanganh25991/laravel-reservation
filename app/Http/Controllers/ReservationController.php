@@ -297,6 +297,7 @@ class ReservationController extends HoiController{
 
                     if($justStaffCancelled){
                         $reservation->autoSendSMSEmailConfirmWhenUserCancel();
+                        $reservation->autoRefundWhenPaymentAlreadyPaid();
                     }
                 }
 
