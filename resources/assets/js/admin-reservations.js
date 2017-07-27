@@ -335,6 +335,7 @@ class AdminReservations {
       send_sms_on_reservation: {},
 			// Handle quick create special session
 			special_session: {},
+      reservationLastStatus: 0,
 		};
 	}
 
@@ -516,7 +517,7 @@ class AdminReservations {
 					 * Like, hey 'watch on these properties, if you change it, i recompute
 					 */
 					let reservations   = this.reservations;
-          console.log(reservations);
+          // console.log(reservations);
 					let filter_options = this.filter_options;
 					/**
 					 * Special case
@@ -552,7 +553,7 @@ class AdminReservations {
             return carry;
           }, {});
 
-          console.warn(filtered_reservations_by_date);
+          // console.warn(filtered_reservations_by_date);
           this.filtered_reservations_by_date = filtered_reservations_by_date;
         },
 				outlet_id(outlet_id){
@@ -883,18 +884,34 @@ class AdminReservations {
 
 				},
 
-				_autoSave(reservation = null, key = null){
-					if(reservation && key != 'staff_read_state'){
-						reservation.staff_read_state = true;
-					}
-					// Get out reservations & save it
-					let reservations = this.reservations;
-					let action = {
-						type: AJAX_UPDATE_RESERVATIONS,
-						reservations
-					}
+        _getLastStatus(status){
+          this.reservationLastStatus = status;
+        },
 
-					self.ajax_call(action);
+				_autoSave(reservation = null, key = null){
+					let statusKey = key == 'status';
+          let isStaffCancelledStatus = reservation.status == RESERVATION_STAFF_CANCELLED;
+          let statusCase = statusKey && isStaffCancelledStatus;
+          
+          if(statusCase){
+            let confirm = window.confirm('Are you sure you want to cancel this reservation? This cannot be undone.');
+            if(!confirm){
+              reservation.status = this.reservationLastStatus;
+              return;
+            }
+          }
+
+          if(reservation && key != 'staff_read_state'){
+            reservation.staff_read_state = true;
+          }
+          // Get out reservations & save it
+          let reservations = this.reservations;
+          let action = {
+            type: AJAX_UPDATE_RESERVATIONS,
+            reservations
+          }
+
+          self.ajax_call(action);
 				},
 
 				/**
