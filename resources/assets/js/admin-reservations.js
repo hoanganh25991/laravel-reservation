@@ -695,15 +695,13 @@ class AdminReservations {
 					self.ajax_call(action);
 				},
 
-				_updateReservationPayment(e, which_payment){
+				_updateReservationPayment(e, which_payment, reservation){
 					//console.log(e);
-					let vue = this;
 					let button = e.target;
 					if(button.tagName == 'BUTTON'){
 						try{
 							//let action = button.getAttribute('action');
-							let reservation_index  = button.getAttribute('reservation-index');
-							let picked_reservation = vue.reservations[reservation_index];
+							let picked_reservation = reservation;
 
 							let payment_status;
 							let action;

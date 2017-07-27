@@ -61,12 +61,12 @@
         <div v-show="reservation.payment_status == 100 && (user.permission_level == 10 || user.permission_level == 5)">
             <div>
                 <button action="refund" :reservation-index='reservation_index'  class="btn btn-primary" style="width: 100%;"
-                        v-on:click="_updateReservationPayment($event, PAYMENT_REFUNDED)"
+                        v-on:click="_updateReservationPayment($event, PAYMENT_REFUNDED, reservation)"
                 >Void</button>
             </div>
             <div>
                 <button action="charge" :reservation-index='reservation_index' class="btn btn-danger marginTop20" style="width: 100%;"
-                        v-on:click="_updateReservationPayment($event, PAYMENT_CHARGED)"
+                        v-on:click="_updateReservationPayment($event, PAYMENT_CHARGED, reservation)"
                 >Charge</button>
             </div>
         </div>
