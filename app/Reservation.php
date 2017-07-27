@@ -1047,7 +1047,17 @@ class Reservation extends HoiModel {
     public function getEmailContentOnUserCancelAttribute(){
         $date_str = $this->date->format('dS F');
         $time_str = $this->date->format('H:i a');
-        $msg = "Your reservation for X pax on $date_str July at $time_str has been cancelled.";
+
+        $msg = "Your reservation";
+        //how many pax
+        if ($this->adult_pax > 0 && $this->children_pax > 0)
+            $msg .= " for $this->adult_pax adults, $this->children_pax children";
+        else if ($this->children_pax > 0)
+            $msg .= " for $this->children_pax children";
+        else
+            $msg .= " for $this->adult_pax adults";
+
+        $msg .= " on $date_str at $time_str has been cancelled.";
         
         return $msg;
     }
