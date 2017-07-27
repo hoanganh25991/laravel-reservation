@@ -568,6 +568,13 @@ class AdminReservations {
             if(tr == null){
               return;
             }
+
+            let status = reservation.status;
+            let statusAsUserStaffCancelledOrArrived = status == RESERVATION_ARRIVED || status == RESERVATION_USER_CANCELLED || status == RESERVATION_STAFF_CANCELLED;
+            if(statusAsUserStaffCancelledOrArrived){
+              return;
+            }
+
 						//Clone it into reservation dialog content
 						let picked_reservation = reservation;
 						let dialog_reservation = Object.assign({}, picked_reservation);
