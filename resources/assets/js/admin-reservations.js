@@ -102,6 +102,10 @@ const AJAX_CREATE_CLOSE_SLOT = 'AJAX_CREATE_CLOSE_SLOT';
 const AJAX_CREATE_CLOSE_SLOT_SUCCESS = 'AJAX_CREATE_CLOSE_SLOT_SUCCESS';
 const HIDE_CLOSE_SLOT_EMPTY_SPECIAL_SESSIOn = 'HIDE_CLOSE_SLOT_EMPTY_SPECIAL_SESSIOn';
 const UPDATE_LAST_REFRESH_BCS_EXCEPTION = "UPDATE_LAST_REFRESH_BCS_EXCEPTION";
+const RESEND_PAYMENT_AUTHORIZATION_REQUEST_SMS = "RESEND_PAYMENT_AUTHORIZATION_REQUEST_SMS";
+
+const AJAX_RESEND_PAYMENT_AUTHORIZATION_REQUEST_SMS = "AJAX_RESEND_PAYMENT_AUTHORIZATION_REQUEST_SMS";
+const AJAX_RESEND_PAYMENT_AUTHORIZATION_REQUEST_SMS_SUCCESS = "AJAX_RESEND_PAYMENT_AUTHORIZATION_REQUEST_SMS_SUCCESS";
 
 
 
@@ -243,6 +247,10 @@ class AdminReservations {
           let lastRefreshBcsException = time;
           return Object.assign({}, state, {lastRefreshBcsException});
         }
+        case RESEND_PAYMENT_AUTHORIZATION_REQUEST_SMS: {
+          let {confirm_id: resend_reservation_confirm_id} = action;
+          return Object.assign({}, state, {resend_reservation_confirm_id});
+        }
 				default:
 					return state;
 			}
@@ -336,6 +344,8 @@ class AdminReservations {
 			// Handle quick create special session
 			special_session: {},
       reservationLastStatus: 0,
+      // Store which one need resend
+      resend_reservation_confirm_id: null,
 		};
 	}
 
@@ -1302,7 +1312,8 @@ class AdminReservations {
         },
 
         _isAllowedToEdit(status){
-          let canEdit = status != RESERVATION_AMENDMENTED && status != RESERVATION_REQUIRED_PAYMENT;
+          // let canEdit = status != RESERVATION_AMENDMENTED && status != RESERVATION_REQUIRED_PAYMENT;
+          let canEdit = status != RESERVATION_AMENDMENTED;
           return canEdit;
         },
 
@@ -1428,6 +1439,11 @@ class AdminReservations {
         _isDisableSendReminderSMS(reservation){
           let isDiabled = reservation.status == RESERVATION_USER_CANCELLED || reservation.status == RESERVATION_STAFF_CANCELLED || reservation.status == RESERVATION_ARRIVED;
           return isDiabled;
+        },
+
+        _resendPaymentRequiredAuthorization(reservation){
+          let store = window.store;
+          store.dispatch({type: RESEND_PAYMENT_AUTHORIZATION_REQUEST_SMS, confirm_id: reservation.confirm_id});
         }
 			}
 		});
@@ -1670,6 +1686,17 @@ class AdminReservations {
 				self.ajax_call(action);
 			}
 
+      if(action == RESEND_PAYMENT_AUTHORIZATION_REQUEST_SMS){
+        let {resend_reservation_confirm_id, outlet_id} = state;
+        let action = {
+          type: AJAX_RESEND_PAYMENT_AUTHORIZATION_REQUEST_SMS,
+          outlet_id,
+          confirm_id: resend_reservation_confirm_id
+        }
+
+        self.ajax_call(action);
+      }
+
 			// if(action == SYNC_DATA){
 			Object.assign(window.vue_state, store.getState());
 			// }
@@ -1770,6 +1797,13 @@ class AdminReservations {
 				$.jsonAjax({url, data});
 				break;
 			}
+      case AJAX_RESEND_PAYMENT_AUTHORIZATION_REQUEST_SMS:{
+        let url         = self.url('');
+        let data        = Object.assign({}, action);
+
+        $.jsonAjax({url, data});
+        break;
+      }
 			default:
 				console.log('client side. ajax call not recognize the current acttion', action);
 				break;

@@ -70,5 +70,10 @@
                 >Charge</button>
             </div>
         </div>
+        <!--In case of payment required, show resend SMS Msg      -->
+        <div v-show="reservation.status == 50">
+          <button class="btn btn-default marginTop20" v-on:click="_resendPaymentRequiredAuthorization(reservation)" style="width: 100%;"
+                  style="">Re send payment <br/>authorization request SMS</button>
+        </div>
     </td>
 </tr>
