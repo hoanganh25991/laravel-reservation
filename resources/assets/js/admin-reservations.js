@@ -318,7 +318,7 @@ class AdminReservations {
 			// store which day pick by staff
 			custom_pick_day: null,
 			// support multilple status
-			filter_statuses: [],
+			filter_statuses: [50, 75, 100, 200, 300],
 			// store which type of filter by day
 			filter_day: null,
 			// allow search by confirm_id
@@ -436,6 +436,9 @@ class AdminReservations {
 
 				// Start auto refresh interval
 				this.startIntervalAutoRefresh();
+
+        // Set default filter as except [user cancelled, staff cancelled, arrived, no-show]
+        this._addFilterByStatus(...this.filter_statuses);
 			},
 			beforeUpdate(){
 				let store = window.store;
@@ -482,13 +485,6 @@ class AdminReservations {
         });
 			},
 			computed:{
-				updateFilteredReservations() {
-					// it's only required to reference those properties
-					this.reservations;
-					this.filter_options;
-					// and then return a different value every time
-					return new Date(); // or performance.now()
-				},
         updateFilteredReservationsByDate() {
           // it's only required to reference those properties
           this.reservations;
@@ -511,49 +507,29 @@ class AdminReservations {
 						reservation.date = date;
 					});
 				},
-				updateFilteredReservations(){
-					/**
-					 * List out dependecies, which trigger this function re-run
-					 * Like, hey 'watch on these properties, if you change it, i recompute
-					 */
-					let reservations   = this.reservations;
-          // console.log(reservations);
-					let filter_options = this.filter_options;
-					/**
-					 * Special case
-					 * When filter by confirm_id exist
-					 * Only run this one, no need to apply other
-					 * @warn which check is best practice
-					 */
-					let filters_by_confirm_id = filter_options.filter(filter => filter.type == FILTER_TYPE_CONFIRM_ID);
-					// If exist a filter by confirm id option
-					// Only run this one
-					if(filters_by_confirm_id.length > 0){
-						// Get this first one
-						filter_options = [filters_by_confirm_id[0]];
-					}
-					// Loop through each filter_options, run on current reservations
-					let filtered_reservations =
-						filter_options.reduce((carry, filter) => {
-							// aplly current filter
-							let _f_reservations = carry.filter(filter);
-							// return result for next row call filter on
-							return _f_reservations;
-						}, reservations);
-
-					// Update filtered reservations
-					this.filtered_reservations = filtered_reservations;
-				},
         updateFilteredReservationsByDate(){
           let reservations   = this.reservations;
-          let filtered_reservations_by_date = reservations.reduce((carry, reservation) => {
+
+          // console.log(reservations);
+          let filter_options = this.filter_options;
+          // Loop through each filter_options, run on current reservations
+          let filtered_reservations =
+            filter_options.reduce((carry, filter) => {
+              // aplly current filter
+              let _f_reservations = carry.filter(filter);
+              // return result for next row call filter on
+              return _f_reservations;
+            }, reservations);
+
+          let filtered_reservations_by_date = filtered_reservations.reduce((carry, reservation) => {
             let key = reservation.date.format('YYYY-MM-DD');
             carry[key] = carry[key] ? [...carry[key], reservation] : [reservation];
 
             return carry;
           }, {});
 
-          // console.warn(filtered_reservations_by_date);
+          // console.log(filtered_reservations_by_date);
+
           this.filtered_reservations_by_date = filtered_reservations_by_date;
         },
 				outlet_id(outlet_id){
@@ -1073,7 +1049,8 @@ class AdminReservations {
 				},
 
 				_clearFilterByStatus(){
-					let new_filter_statuses = [];
+					let new_filter_statuses = [50, 75, 100, 200, 300];
+          this._addFilterByStatus(...new_filter_statuses);
 					// Update vue state
 					this.filter_statuses    = new_filter_statuses;
 					// add to filter queue
