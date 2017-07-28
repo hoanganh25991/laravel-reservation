@@ -107,6 +107,12 @@ const RESEND_PAYMENT_AUTHORIZATION_REQUEST_SMS = "RESEND_PAYMENT_AUTHORIZATION_R
 const AJAX_RESEND_PAYMENT_AUTHORIZATION_REQUEST_SMS = "AJAX_RESEND_PAYMENT_AUTHORIZATION_REQUEST_SMS";
 const AJAX_RESEND_PAYMENT_AUTHORIZATION_REQUEST_SMS_SUCCESS = "AJAX_RESEND_PAYMENT_AUTHORIZATION_REQUEST_SMS_SUCCESS";
 
+const FIND_CUSTOMER_SAME_PHONE = "FIND_CUSTOMER_SAME_PHONE";
+const AJAX_FIND_CUSTOMER_SAME_PHONE = "AJAX_FIND_CUSTOMER_SAME_PHONE";
+const AJAX_FIND_CUSTOMER_SAME_PHONE_SUCCESS = "AJAX_FIND_CUSTOMER_SAME_PHONE_SUCCESS";
+const AJAX_FIND_CUSTOMER_SAME_PHONE_NOT_FOUND = "AJAX_FIND_CUSTOMER_SAME_PHONE_NOT_FOUND";
+const AJAX_FIND_CUSTOMER_SAME_PHONE_FAIL = "AJAX_FIND_CUSTOMER_SAME_PHONE_FAIL";
+
 
 
 class AdminReservations {
@@ -346,6 +352,7 @@ class AdminReservations {
       reservationLastStatus: 0,
       // Store which one need resend
       resend_reservation_confirm_id: null,
+      // Store find customer when create new
 		};
 	}
 
@@ -1444,6 +1451,14 @@ class AdminReservations {
         _resendPaymentRequiredAuthorization(reservation){
           let store = window.store;
           store.dispatch({type: RESEND_PAYMENT_AUTHORIZATION_REQUEST_SMS, confirm_id: reservation.confirm_id});
+        },
+
+        _findCustomerByPhone(){
+          let new_reservation = this.new_reservation;
+          let store = window.store;
+          store.dispatch({
+            type: FIND_CUSTOMER_SAME_PHONE
+          });
         }
 			}
 		});
@@ -1697,6 +1712,18 @@ class AdminReservations {
         self.ajax_call(action);
       }
 
+      if(action == FIND_CUSTOMER_SAME_PHONE){
+        let {new_reservation, outlet_id} = state;
+        let action = {
+          type: AJAX_FIND_CUSTOMER_SAME_PHONE,
+          outlet_id,
+          phone: new_reservation.phone,
+          phone_country_code: new_reservation.phone_country_code,
+        }
+
+        self.ajax_call(action);
+      }
+
 			// if(action == SYNC_DATA){
 			Object.assign(window.vue_state, store.getState());
 			// }
@@ -1798,6 +1825,13 @@ class AdminReservations {
 				break;
 			}
       case AJAX_RESEND_PAYMENT_AUTHORIZATION_REQUEST_SMS:{
+        let url         = self.url('');
+        let data        = Object.assign({}, action);
+
+        $.jsonAjax({url, data});
+        break;
+      }
+      case AJAX_FIND_CUSTOMER_SAME_PHONE:{
         let url         = self.url('');
         let data        = Object.assign({}, action);
 
@@ -1995,6 +2029,30 @@ class AdminReservations {
         })
 
         // store.dispatch({type: REFETCHING_DATA})
+        break;
+      }
+      case AJAX_FIND_CUSTOMER_SAME_PHONE_NOT_FOUND:{
+        // Just no data on this guy
+        // Silenly return
+        console.log('No info on this guy with phone number');
+        break;
+      }
+      case AJAX_FIND_CUSTOMER_SAME_PHONE_SUCCESS:{
+        // No toast here, just get this info, implement into new_reservation
+        let {reservation} = res.data;
+        // console.log(reservation);
+        let new_reservation_info = {
+          salutation: reservation.salutation,
+          first_name: reservation.first_name,
+          last_name: reservation.last_name,
+          email: reservation.email,
+        }
+
+        store.dispatch({
+          type: UPDATE_NEW_RESERVATION,
+          new_reservation: new_reservation_info,
+        });
+
         break;
       }
 			default:{

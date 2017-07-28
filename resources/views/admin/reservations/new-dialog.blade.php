@@ -30,6 +30,7 @@
             <input
                     type="text" style="display: inline-block; max-width: 200px"
                     v-model="new_reservation.phone"
+                    v-on:change="_findCustomerByPhone"
             />
         </div>
 
