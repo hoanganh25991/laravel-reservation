@@ -1984,6 +1984,19 @@ class AdminReservations {
 				});
 				break;
 			}
+      case AJAX_RESEND_PAYMENT_AUTHORIZATION_REQUEST_SMS_SUCCESS:{
+        let toast = {
+          title: 'Resend payment authorization sms',
+          content: 'Success'
+        };
+        store.dispatch({
+          type: TOAST_SHOW,
+          toast,
+        })
+
+        // store.dispatch({type: REFETCHING_DATA})
+        break;
+      }
 			default:{
 				// This default cant resolve
 				// Ok toast out what happen

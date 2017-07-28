@@ -20,6 +20,7 @@ use App\Exceptions\DontHavePermissionException;
 use App\Http\Controllers\ReservationController as By;
 use App\Http\Controllers\OutletReservationSettingController as SettingController;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\DependencyInjection\Tests\Compiler\C;
 
 
 class AdminController extends HoiController {
@@ -282,6 +283,20 @@ class AdminController extends HoiController {
                 break;
             case Call::AJAX_CREATE_CLOSE_SLOT:
                 $response = (new SessionController)->createCloseSlot($req);
+                break;
+            case Call::AJAX_RESEND_PAYMENT_AUTHORIZATION_REQUEST_SMS:
+                $confirm_id = $req->json('confirm_id');
+                $reservation = Reservation::findByConfirmId($confirm_id);
+
+                $telephone   = $reservation->full_phone_number;
+                $message     = $reservation->confirmation_sms_ask_payment_authorization_message;
+                $sender_name = Setting::smsSenderName();
+                $success_sent= $this->sendOverNexmo($telephone, $message, $sender_name);
+
+                $data = [];
+                $code = 200;
+                $msg  = Call::AJAX_RESEND_PAYMENT_AUTHORIZATION_REQUEST_SMS_SUCCESS;
+                $response = $this->apiResponse($data, $code, $msg);
                 break;
             default:
                 $data = [];
