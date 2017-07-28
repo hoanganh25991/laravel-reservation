@@ -235,6 +235,7 @@
                          class="modal-footer" style="border-top: 1px solid #e5e5e5;">
                         <button class="btn bg-info"
                                 v-on:click="_createNewReservation"
+                                v-if="!new_reservation.payment_required"
                         >Save</button>
                         <button class="btn bg-info"
                                 v-on:click="_createNewReservation({sms_message_on_reserved: true})"
