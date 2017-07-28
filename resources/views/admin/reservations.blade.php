@@ -83,7 +83,7 @@
                             <div class="flex1"></div>
                             <input id="flatpickr" class="flatpickr flatpickr-input" type="text" placeholder="Select Date.." data-id="rangeDisable" readonly="readonly"
                                    style="height: 30px; border-radius: 3px"
-                                   v-model="custom_pick_day" v-on:change="_fetchReservationsByRangeDay(CUSTOM, $event.target.value)"/>
+                                   v-on:change="_fetchReservationsByRangeDay(CUSTOM, $event.target.value)"/>
                         </div>
 
                         <div class="flexRow marginTop20 marginBottom20">

@@ -298,6 +298,30 @@ class AdminController extends HoiController {
                 $msg  = Call::AJAX_RESEND_PAYMENT_AUTHORIZATION_REQUEST_SMS_SUCCESS;
                 $response = $this->apiResponse($data, $code, $msg);
                 break;
+            case Call::AJAX_FIND_CUSTOMER_SAME_PHONE:
+                $phone = $req->json('phone');
+                $phone_country_code = $req->json('phone_country_code');
+                
+                $tmpReservation = new Reservation([
+                    'phone' => $phone,
+                    'phone_country_code' => $phone_country_code
+                ]);
+                
+                $match_reservation = Reservation::findCustomerByPhone($tmpReservation)->first();
+                
+                if(is_null($match_reservation)){
+                    $data = [];
+                    $code = 200;
+                    $msg  = Call::AJAX_FIND_CUSTOMER_SAME_PHONE_NOT_FOUND;
+                    $response = $this->apiResponse($data, $code, $msg);
+                    break;
+                }
+                
+                $data = ['reservation' => $match_reservation];
+                $code = 200;
+                $msg  = Call::AJAX_FIND_CUSTOMER_SAME_PHONE_SUCCESS;
+                $response = $this->apiResponse($data, $code, $msg);  
+                break;
             default:
                 $data = [];
                 $code = 200;

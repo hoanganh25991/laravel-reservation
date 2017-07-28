@@ -1149,4 +1149,14 @@ class Reservation extends HoiModel {
                      ->where('created_timestamp', '>=', $yesterday_str);
     }
 
+    /**
+     * @param $query
+     * @param $tmpReservation Reservation
+     * @return mixed
+     */
+    public function scopeFindCustomerByPhone($query, $tmpReservation){
+        return $query->where('phone', 'LIKE',  "%$tmpReservation->phone%")
+                     ->where('phone_country_code', 'LIKE', "%$tmpReservation->phone_country_code%");
+    }
+
 }
