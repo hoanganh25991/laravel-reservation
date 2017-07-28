@@ -2,6 +2,19 @@
 <div class="row">
     <div class="col-md-7" style="padding: 0">
         <div class="form-group">
+            <label class="col-md-3 text-right">Phone</label>
+            <input
+              type="text" style="width: 30px"
+              v-model="new_reservation.phone_country_code"
+            />
+            <input
+              type="text" style="display: inline-block; max-width: 200px"
+              v-model="new_reservation.phone"
+              v-on:change="_findCustomerByPhone"
+            />
+        </div>
+
+        <div class="form-group">
             <label class="col-md-3 text-right">Name</label>
             <select
                     v-model="new_reservation.salutation"
@@ -18,19 +31,6 @@
             <input
                     type="text" style="display: inline-block; max-width: 200px"
                     v-model="new_reservation.last_name"
-            />
-        </div>
-
-        <div class="form-group">
-            <label class="col-md-3 text-right">Phone</label>
-            <input
-                    type="text" style="width: 30px"
-                    v-model="new_reservation.phone_country_code"
-            />
-            <input
-                    type="text" style="display: inline-block; max-width: 200px"
-                    v-model="new_reservation.phone"
-                    v-on:change="_findCustomerByPhone"
             />
         </div>
 
