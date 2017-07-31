@@ -1123,7 +1123,7 @@ class Reservation extends HoiModel {
 
     public function getVoidMsgAttribute(){
         $amount = "$this->deposit ($this->payment_currency)";
-        $msg = "Dear customer, thank you for dining at Spize. This is to inform you that we have voided your earlier payment authorisation of $amount";
+        $msg = "Dear customer, this is to inform you that we have voided your earlier payment authorisation of $amount";
         return $msg;
     }
 
