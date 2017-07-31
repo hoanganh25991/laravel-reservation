@@ -1077,7 +1077,9 @@ class Reservation extends HoiModel {
 
         $msg = "Your reservation at $this->outlet_name on $date_str at $time_str has been cancelled.";
 
-        if($this->requiredDeposit()){
+        $payment_authorization_paid = $this->payment_status == Reservation::PAYMENT_PAID;
+        $is_voided = $this->requiredDeposit() && $payment_authorization_paid;
+        if($is_voided){
             $amount = "$this->deposit ($this->payment_currency)";
             $msg .= " Additionally, we have voided your earlier payment authorisation of $amount.";
         }
