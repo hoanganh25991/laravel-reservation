@@ -8,6 +8,8 @@ use App\OutletReservationSetting as Setting;
  * @property mixed outlet_name
  * @property mixed id
  * @property mixed paypal_currency
+ * @property mixed hour_before_reservation_time_to_send_confirm
+ * @see App\Outlet::getHourBeforeReservationTimeToSendConfirmAttribute
  */
 class Outlet extends HoiModel {
     
@@ -23,6 +25,7 @@ class Outlet extends HoiModel {
         'paypal_currency',
         'sms_sender_name',
         'deposit_threshold_pax',
+        'hour_before_reservation_time_to_send_confirm',
     ];
     
     public function getNameAttribute(){
@@ -184,6 +187,26 @@ class Outlet extends HoiModel {
         $deposit_config = Setting::depositConfig($outlet_id);
 
         return $deposit_config(Setting::DEPOSIT_THRESHOLD_PAX);
+    }
+
+    /**
+     * Get HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM in admin reservation
+     * Which make the send reminder sms more clearly meaning
+     * @return mixed|null
+     * @throws \Exception
+     */
+    public function getHourBeforeReservationTimeToSendConfirmAttribute(){
+        $outlet_id = $this->id;
+
+        if(is_null($outlet_id)){
+            // Outlet still not created
+            // Can get its config
+            throw new \Exception('Outlet doenst have id');
+        }
+
+        $notification_config = Setting::notificationConfig($outlet_id);
+
+        return $notification_config(Setting::HOURS_BEFORE_RESERVATION_TIME_TO_SEND_CONFIRM);
     }
 
 }

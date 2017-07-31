@@ -51,7 +51,7 @@
                     <div class="slider round"></div>
                 </label>
             </div>
-            <p>Send SMS to remind confirmation</p>
+            <p>Remind customer of this reservation {{ outlet.hour_before_reservation_time_to_send_confirm }} hours before</p>
         </div>
 
         <hr>
