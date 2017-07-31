@@ -7,7 +7,7 @@
     <option value="300" class="bg-success hoiH4">Confirmed</option>
     <option value="200" class="bg-info hoiH4">Reminder Sent</option>
     <option value="100" class="bg-info hoiH4">Reserved</option>
-    <option value="75" disabled class="hoiH4">Amendmented</option>
+    <option value="75" disabled class="hoiH4">Amended</option>
     <option value="50" disabled class="hoiH4">Payment Required</option>
     <option value="-100" disabled class="bg-info hoiH4">User cancelled</option>
     <option value="-200" class="bg-warning hoiH4">Staff cancelled</option>
