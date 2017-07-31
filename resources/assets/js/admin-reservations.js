@@ -417,13 +417,13 @@ class AdminReservations {
 
 		if(state.base_url && state.base_url.includes('reservation.dev') || state.base_url.includes('localhost')){
 			Object.assign(new_reservation, {
-				salutation: 'Mr.',
-				first_name: 'Anh',
-				last_name : 'Le Hoang',
-				email: 'lehoanganh25991@gmail.com',
-				phone_country_code: '+84',
-				phone: '903865657',
-				customer_remarks: 'hello world'
+				// salutation: 'Mr.',
+				// first_name: 'Anh',
+				// last_name : 'Le Hoang',
+				// email: 'lehoanganh25991@gmail.com',
+				// phone_country_code: '+84',
+				// phone: '903865657',
+				// customer_remarks: 'hello world'
 			});
 		}
 
@@ -2072,7 +2072,9 @@ class AdminReservations {
 
 		if(res && res.statusMsg && res.errorMsg){
 			window.alert(res.errorMsg);
-		}else{
+		}else if(res && res.statusMsg){
+      window.alert(res.statusMsg);
+    }else{
 			window.alert(JSON.stringify(res_literal));
 		}
 		// When fall case happen

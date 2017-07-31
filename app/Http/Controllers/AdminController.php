@@ -256,6 +256,19 @@ class AdminController extends HoiController {
                 $confirm_id = $req->json('confirm_id');
                 $reservation = Reservation::findByConfirmId($confirm_id);
 
+                /**
+                 * Have to check if reservation is SUCCESS booked
+                 * Case: booking not complete payment authorization
+                 */
+                $not_complete = $reservation->status < Reservation::RESERVED;
+                if($not_complete){
+                    $data = compact('reservation');
+                    $code = 422;
+                    $msg  = Call::AJAX_SEND_REMINDER_SMS_FAIL_BOOKING_NOT_COMPLETE;
+                    $response = $this->apiResponse($data, $code, $msg);
+                    break;
+                }
+
                 $telephone   = $reservation->full_phone_number;
                 $message     = $reservation->confirmation_sms_message;
                 $sender_name = Setting::smsSenderName();
