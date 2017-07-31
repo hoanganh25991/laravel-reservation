@@ -316,6 +316,16 @@ class AdminController extends HoiController {
                     $response = $this->apiResponse($data, $code, $msg);
                     break;
                 }
+
+                /**
+                 * Try more to find email if on the latest
+                 * Email not found
+                 */
+                $has_email_reservation = Reservation::findCustomerByPhoneNotEmptyEmail($tmpReservation)->first();
+                if(!is_null($has_email_reservation)){
+                    // Add this info to currnt $match_reservation
+                    $match_reservation->email = $has_email_reservation->email;
+                }
                 
                 $data = ['reservation' => $match_reservation];
                 $code = 200;

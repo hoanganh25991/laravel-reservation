@@ -1156,7 +1156,21 @@ class Reservation extends HoiModel {
      */
     public function scopeFindCustomerByPhone($query, $tmpReservation){
         return $query->where('phone', 'LIKE',  "%$tmpReservation->phone%")
-                     ->where('phone_country_code', 'LIKE', "%$tmpReservation->phone_country_code%");
+                     ->where('phone_country_code', 'LIKE', "%$tmpReservation->phone_country_code%")
+                     ->orderBy('reservation_timestamp', 'dsc');
+    }
+
+    /**
+     * @param $query
+     * @param $tmpReservation Reservation
+     * @return mixed
+     */
+    public function scopeFindCustomerByPhoneNotEmptyEmail($query, $tmpReservation){
+        return $query->where('phone', 'LIKE',  "%$tmpReservation->phone%")
+                     ->where('phone_country_code', 'LIKE', "%$tmpReservation->phone_country_code%")
+                     ->whereNotNull('email')
+                     ->where('email', '<>', '')
+                     ->orderBy('reservation_timestamp', 'dsc');
     }
 
 }
