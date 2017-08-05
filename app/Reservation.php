@@ -912,7 +912,7 @@ class Reservation extends HoiModel {
     public function scopeNotRequiredDeposit($query){
         return $query->where([
 //            ['status', '!=', Reservation::REQUIRED_DEPOSIT],
-            ['status', '!=', Reservation::AMENDMENTED],
+//            ['status', '!=', Reservation::AMENDMENTED],
         ]);
         return $query;
     }

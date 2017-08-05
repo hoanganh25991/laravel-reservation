@@ -1454,11 +1454,22 @@ class AdminReservations {
         },
 
         _findCustomerByPhone(){
-          let new_reservation = this.new_reservation;
           let store = window.store;
           store.dispatch({
             type: FIND_CUSTOMER_SAME_PHONE
           });
+        },
+
+        _totalSelectPax(){
+          let state = this;
+          let maxPax = Number(state.outlet.overall_max_pax);
+          // Select option need an array of available option, so
+          // We build up max pax into an array from 0 to max pax
+          let paxArray = []
+          for(let i = 0; i <= maxPax; i++){
+            paxArray.push(i)
+          }
+          return paxArray;
         }
 			}
 		});
