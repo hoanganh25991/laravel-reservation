@@ -329,6 +329,13 @@ class Reservation extends HoiModel {
 
         static::orderByRerservationTimestamp();
         static::byOutletId();
+        static::notAmended();
+    }
+
+    protected static function notAmended(){
+        static::addGlobalScope('not_amended', function (Builder $builder){
+            $builder->where('status', '!=', Reservation::AMENDMENTED);
+        });
     }
     
     /**
@@ -895,12 +902,18 @@ class Reservation extends HoiModel {
     public function scopeAlreadyReserved($query){
         return $query->where('status', '>=', Reservation::RESERVED);
     }
-    
+
+    /**
+     * This function helps to fitler out reservation as AMENDMENTED
+     * Only show to customer, reservation completely booked
+     * @param $query
+     * @return mixed
+     */
     public function scopeNotRequiredDeposit($query){
-//        return $query->where([
+        return $query->where([
 //            ['status', '!=', Reservation::REQUIRED_DEPOSIT],
-//            ['status', '!=', Reservation::AMENDMENTED],
-//        ]);
+            ['status', '!=', Reservation::AMENDMENTED],
+        ]);
         return $query;
     }
 
