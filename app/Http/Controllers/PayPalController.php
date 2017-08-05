@@ -91,6 +91,15 @@ class PayPalController extends HoiController{
                     break;
                 }
 
+                $already_paid = $reservation->payment_status == Reservation::PAYMENT_PAID;
+
+                if($already_paid){
+                    $data = [];
+                    $code = 422;
+                    $msg  = Call::AJAX_PAYMENT_REQUEST_RESERVATION_ALREADY_PAID;
+                    break;
+                }
+
                 $amount = $reservation->deposit;
 
                 $tokenizationPayload = json_decode($req->get('tokenizationPayload'), JSON_NUMERIC_CHECK);
