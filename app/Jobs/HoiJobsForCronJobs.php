@@ -54,12 +54,14 @@ class HoiJobsForCronJobs {
                  */
                 $reservation_timestamp     = $today->copy()->addHours($hours_before_reservation_timing_send_sms)->addMinutes(5);
                 $reservation_timestamp_str = $reservation_timestamp->format('Y-m-d H:i:s');
+                $today_str                 = $today->format('Y-m-d H:i:s');
 
                 $need_send_reminder_reservations =
                     Reservation::where([
                         ['status', Reservation::RESERVED],
                         ['send_sms_confirmation', Setting::SHOULD_SEND],
-                        ['reservation_timestamp', '<=', $reservation_timestamp_str]
+                        ['reservation_timestamp', '<=', $reservation_timestamp_str],
+                        ['reservation_timestamp', '>=', $today_str],
                     ])
                     ->get();
 
