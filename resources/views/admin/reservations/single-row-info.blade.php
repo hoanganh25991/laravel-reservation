@@ -61,18 +61,18 @@
         Be cross-checked on server -->
         <div v-show="reservation.payment_status == 100 && (user.permission_level == 10 || user.permission_level == 5)">
             <div>
-                <button action="refund" :reservation-index='reservation_index'  class="btn btn-primary" style="width: 100%;"
+                <button action="refund" class="btn btn-primary" style="width: 100%;"
                         v-on:click="_updateReservationPayment($event, PAYMENT_REFUNDED, reservation)"
                 >Void</button>
             </div>
             <div>
-                <button action="charge" :reservation-index='reservation_index' class="btn btn-danger marginTop20" style="width: 100%;"
+                <button action="charge" class="btn btn-danger marginTop20" style="width: 100%;"
                         v-on:click="_updateReservationPayment($event, PAYMENT_CHARGED, reservation)"
                 >Charge</button>
             </div>
         </div>
         <!--In case of payment required, show resend SMS Msg      -->
-        <div v-show="reservation.status == 50">
+        <div v-show="reservation.status == 50 && reservation.payment_status < 100">
           <button class="btn btn-default marginTop20" v-on:click="_resendPaymentRequiredAuthorization(reservation)" style="width: 100%;"
                   style="">Re send payment <br/>authorization request SMS</button>
         </div>
