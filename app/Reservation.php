@@ -147,7 +147,20 @@ class Reservation extends HoiModel {
     const PAYMENT_UNPAID         = 25;
     const PAYMENT_REFUNDED       = 50;
     const PAYMENT_PAID           = 100;
-    const PAYMENT_CHARGED        = 200;   
+    const PAYMENT_CHARGED        = 200;
+
+    /**
+     * Different Url hit to reservation page
+     * @see App\Reservation::getEditUrlAttribute
+     * @see App\Reservation::getViewDetailsUrlAttribute
+     * @see App\Reservation::getConfirmComingUrlAttribute
+     * when review:
+        http:/<host>?confirmId=HY78AJH&review=true
+       when eidt:
+        http:/<host>?confirmId=HY78AJH&edit=true
+       when payment:
+        http:/<host>?confirmId=HY78AJH&payment=true
+     */
 
     protected $table = 'res_reservation';
 
