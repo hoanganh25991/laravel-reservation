@@ -119,6 +119,8 @@ use App\OutletReservationSetting as Setting;
  * @see App\Reservation::getPaymentAuthorizationUrlAttribute
  * @method findSamePhoneSamePax
  * @see App\Reservation::scopeFindSamePhoneSamePax
+ * @property mixed edit_url
+ * @see App\Reservation::getEditUrlAttribute
  */
 class Reservation extends HoiModel {
 
@@ -635,6 +637,28 @@ class Reservation extends HoiModel {
         $endWithSlash = substr($base_url, -1) == '/';
         $base_url     = $endWithSlash ? substr($base_url, 0, strlen($base_url) - 1) : $base_url;
         $url          = "$base_url/?confirmId=$confirm_id&review=true";
+        $short_url    = ShortenUrl::make($url);
+
+        if(!is_null($short_url)){
+            $url    = $short_url;
+        }
+
+        return $url;
+    }
+
+    /**
+     * Edit url
+     */
+    public function getEditUrlAttribute(){
+        $confirm_id = $this->confirm_id;
+        //$url        = route('reservation_confirm', compact('confirm_id'));
+        $base_url     = env('APP_URL');
+
+        if(is_null(env('APP_URL'))){throw new \Exception('Please submit APP_URL in .env to build confirm coming url for reservation');};
+
+        $endWithSlash = substr($base_url, -1) == '/';
+        $base_url     = $endWithSlash ? substr($base_url, 0, strlen($base_url) - 1) : $base_url;
+        $url          = "$base_url/?confirmId=$confirm_id&edit=true";
         $short_url    = ShortenUrl::make($url);
 
         if(!is_null($short_url)){

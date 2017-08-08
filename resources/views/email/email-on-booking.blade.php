@@ -199,7 +199,7 @@
         <p><b>Email:</b> {{ $reservation->email }}</p>
       </div>
       <div class="confirm">
-        <a href="{{ $reservation->view_details_url }}">Edit/Cancel</a>
+        <a href="{{ $reservation->edit_url }}">Edit/Cancel</a>
       </div>
     </div>
   </div>
