@@ -90,9 +90,11 @@ use App\OutletReservationSetting as Setting;
  * @method notRequiredDeposit
  * @see App\Reservation::scopeNotRequiredDeposit
  * @property mixed confirmation_sms_ask_payment_authorization_message
+ * @see App\Reservation::getConfirmationSMSAskPaymentAuthorizationMessageAttribute
  * @property mixed payment_required
  * @see App\Reservation::getConfirmationSMSAskPaymentAuthorizationMessageAttribute
  * @property mixed view_details_url
+ * @see App\Reservation::getViewDetailsUrlAttribute
  * @property mixed last_confirm_id
  * @see App\Reservation::getViewDetailsUrlAttribute
  * @property mixed is_edited_by_customer
@@ -113,6 +115,8 @@ use App\OutletReservationSetting as Setting;
  * @see App\Reservation::getChargeMsgAttribute
  * @property string email_content_on_user_cancel
  * @see App\Reservation::getEmailContentOnUserCancelAttribute
+ * @property mixed payment_authorization_url
+ * @see App\Reservation::getPaymentAuthorizationUrlAttribute
  * @method findSamePhoneSamePax
  * @see App\Reservation::scopeFindSamePhoneSamePax
  */
@@ -595,6 +599,30 @@ class Reservation extends HoiModel {
     }
 
     /**
+     * Payment Authorization url for reservation
+     * @return string
+     * @throws \Exception
+     */
+    public function getPaymentAuthorizationUrlAttribute(){
+        $confirm_id = $this->confirm_id;
+        //$url        = route('reservation_confirm', compact('confirm_id'));
+        $base_url     = env('APP_URL');
+
+        if(is_null(env('APP_URL'))){throw new \Exception('Please submit APP_URL in .env to build confirm coming url for reservation');};
+
+        $endWithSlash = substr($base_url, -1) == '/';
+        $base_url     = $endWithSlash ? substr($base_url, 0, strlen($base_url) - 1) : $base_url;
+        $url          = "$base_url/?confirmId=$confirm_id&payment=true";
+        $short_url    = ShortenUrl::make($url);
+
+        if(!is_null($short_url)){
+            $url    = $short_url;
+        }
+
+        return $url;
+    }
+
+    /**
      * View detail url
      */
     public function getViewDetailsUrlAttribute(){
@@ -777,7 +805,7 @@ class Reservation extends HoiModel {
 
         // Add punctation
         $msg .= ". ";
-        $msg .= "Please make a credit card authorization via the following link: $this->confirm_coming_url";
+        $msg .= "Please make a credit card authorization via the following link: $this->payment_authorization_url";
 
         return $msg;
     }
