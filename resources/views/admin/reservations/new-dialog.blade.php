@@ -86,7 +86,7 @@
             <label class="col-md-3 text-right">Date</label>
             <div  class="col-md-9" style="padding: 0">
                 <div style="position: relative">
-                    <span style="position: absolute; left: 0; padding: 5px;">@{{ moment(new_reservation.date_str, 'YYYY-MM-DD').format('DD/MM/YYYY') }}</span>
+                    <span style="position: absolute; left: 0; padding: 5px;">@{{ new_reservation.showing_date_str }}</span>
                     <input type="date" style="width: 135px; height: 30px; text-indent: -9999px;"
                            v-on:change="_updateNewReservationDate($event.target.value)"
                     />

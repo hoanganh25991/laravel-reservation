@@ -399,6 +399,7 @@ class AdminReservations {
 			paypal_currency: null,
 			date: null,
 			date_str: null,
+			showing_date_str: null,
 			time_str: null,
 			// Show available_time for staff pick
 			available_time: [],
@@ -1350,12 +1351,14 @@ class AdminReservations {
 				_updateNewReservationDate(date_str){
 					let {new_reservation: currNewReservation, outlet} = this;
 					let earlyToday = moment().set({hours: 0, minutes: 0, seconds: 0});
-					let pickDate = moment(date_str, 'YYYY-MM-DD')
-					let maxDate = earlyToday.clone().add(outlet.max_days_in_advance, 'days');
+					let pickDate = moment(date_str, 'YYYY-MM-DD');
+          let maxAllowedDay = +outlet.max_days_in_advance + 1;
+					let maxDate = earlyToday.clone().add(maxAllowedDay, 'days');
 
 					let inRange = pickDate.isAfter(earlyToday) && pickDate.isBefore(maxDate);
 					if(inRange){
-						this.new_reservation = Object.assign(currNewReservation, {date_str});
+            let showing_date_str = moment(date_str, 'YYYY-MM-DD').format('DD/MM/YYYY');
+						this.new_reservation = Object.assign(currNewReservation, {date_str, showing_date_str});
 					}else{
 						window.alert(`Pick date should in available range. Max days in advance: ${outlet.max_days_in_advance}`);
 					}
