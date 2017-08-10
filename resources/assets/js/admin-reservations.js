@@ -491,15 +491,16 @@ class AdminReservations {
 				});
 				// Timepicker with jQuery
 				$('.jonthornton-time').timepicker({
-					//selectOnBlur: true,
 					step: 30,
-					disableTextInput: true
+					disableTextInput: true,
+          scrollDefault: 'now',
+          useSelect: true,
 				})
-        .on('change', function(){
+        .on('change', function(e){
           let $i = $(this);
           let i  = $i[0];
           let value = $i.val();
-          i.dispatchEvent(new CustomEvent('$change', {detail: {value}}));
+          i.dispatchEvent(new CustomEvent('$change', {bubbles: false, detail: {value}}));
         });
 			},
 			computed:{
@@ -1385,6 +1386,7 @@ class AdminReservations {
 				 * @param timing_property 'first_arrival_time', or 'last_arrival_time'
          */
 				_updateTimingTime(timing_property, event){
+          // return;
 					let {detail: {value: timing_time}} = event;
 					let momentTime = moment(timing_time, 'hh:mma');
 					let {special_session: current_special_session} = this;
