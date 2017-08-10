@@ -12,18 +12,18 @@
         >
     </td>
     <td>
-        <p class="noMargin">@{{ reservation.confirm_id }}</p>
-        <p class="noMargin"><span class="glyphicon contactIcon"></span> @{{ reservation.adult_pax }}+@{{ reservation.children_pax }}</p>
+        <p class="noMargin"><span class="glyphicon bookMarkIcon"></span> @{{ reservation.confirm_id }}</p>
+        <p class="noMargin font2Times"><span class="glyphicon contactIcon"></span> @{{ reservation.adult_pax }}+@{{ reservation.children_pax }}</p>
         <div v-if="reservation.table_name != '' && reservation.table_name != null && reservation.table_name != undefined">
             <span class="glyphicon tableIcon"></span> @{{ reservation.table_name }}
         </div>
     </td>
     <td>
+        <p class="noMargin" style="margin-top: 3px"><span class="glyphicon timeIcon"></span> <b>@{{ moment(reservation.reservation_timestamp).format('HH:mmA, ddd, Do MMM') }}</b></p>
         <p class="noMargin"><span class="glyphicon contactIcon"></span> @{{ reservation.full_name}}</p>
         <p class="noMargin"><span class="glyphicon phoneIcon"></span> (@{{ reservation.phone_country_code }}) @{{ reservation.phone }}</p>
         <p class="noMargin"><span class="glyphicon emailIcon"></span> @{{ reservation.email }}</p>
-        <p class="noMargin" style="margin-top: 3px">
-            <span class="glyphicon timeIcon"></span> <b>@{{ moment(reservation.reservation_timestamp).format('ddd, Do MMM YYYY HH:mmA') }}</b></p>
+
     </td>
     <td class="textAlignCenter">
         <textarea

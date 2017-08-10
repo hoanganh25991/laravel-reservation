@@ -447,3 +447,11 @@ table tr.active{
 .divPadding {
     padding: 15px;
 }
+
+.font3Times {
+    font-size: 300%;
+}
+
+.font2Times {
+    font-size: 200%;
+}

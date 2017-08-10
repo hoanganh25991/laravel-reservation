@@ -55,5 +55,10 @@
     background: url("{{ url('images/ic_speaker_notes_off_black_24px.svg') }}") 0 0;
     display:inline-block;width:24px;height:24px;
   }
+
+  .bookMarkIcon {
+    background: url("{{ url('images/ic_bookmark_black_24px.svg') }}") 0 0;
+    display:inline-block;width:18px;height:18px;
+  }
 </style>
 @endpush
