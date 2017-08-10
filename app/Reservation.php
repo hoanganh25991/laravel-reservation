@@ -231,7 +231,6 @@ class Reservation extends HoiModel {
         'table_name',
         'staff_remarks',
         'status',
-//        'send_confirmation_by_timestamp',
         'send_sms_confirmation',
         'send_email_confirmation',
         'session_name',
@@ -243,6 +242,8 @@ class Reservation extends HoiModel {
         'payment_currency',
         'payment_status',
         'is_outdoor',
+        'no_confirmation_sms',
+        'no_payment_authorization_sms',
     ];
 
 
