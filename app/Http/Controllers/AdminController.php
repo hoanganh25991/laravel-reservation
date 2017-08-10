@@ -229,18 +229,10 @@ class AdminController extends HoiController {
                 $should_send = !$default_sms_on_booking && $admin_wish_sms_on_booking;
 
                 if($should_send){
-                    $telephone   = $reservation->full_phone_number;
-                    $message     = $should_ask_for_payment_authorization ?
-                                        $reservation->confirmation_sms_ask_payment_authorization_message
-                                        :$reservation->sms_message_on_reserved;
-                    $sender_name = Setting::smsSenderName();
-                    $success_sent= $this->sendOverNexmo($telephone, $message, $sender_name);
-
-                    if($success_sent === true){
-                        Log::info('Success send sms on booking in admin page');
+                    if($should_ask_for_payment_authorization){
+                        $reservation->sendSMSPaymentAuthorizationRequest();
                     }else{
-                        $error_info = $success_sent;
-                        Log::info($error_info);
+                        $reservation->sendSMSReservationReserved();
                     }
                 }
 
@@ -269,20 +261,9 @@ class AdminController extends HoiController {
                     break;
                 }
 
-                $telephone   = $reservation->full_phone_number;
-                $message     = $reservation->confirmation_sms_message;
-                $sender_name = Setting::smsSenderName();
-
-                $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);;
+                $success_sent = $reservation->sendSMSConfirmMsg();
                 
                 if($success_sent){
-                    // Only update status, when current one is not reach reminder_sent
-                    $last_status = $reservation->status;
-                    if($last_status <= Reservation::REMINDER_SENT){
-                        $reservation->status = Reservation::REMINDER_SENT;
-                        $reservation->save();
-                    }
-
                     $data = [];
                     $code = 200;
                     $msg  = Call::AJAX_SEND_REMINDER_SMS_ON_RESERVATION_SUCCESS;
@@ -300,12 +281,7 @@ class AdminController extends HoiController {
             case Call::AJAX_RESEND_PAYMENT_AUTHORIZATION_REQUEST_SMS:
                 $confirm_id = $req->json('confirm_id');
                 $reservation = Reservation::findByConfirmId($confirm_id);
-
-                $telephone   = $reservation->full_phone_number;
-                $message     = $reservation->confirmation_sms_ask_payment_authorization_message;
-                $sender_name = Setting::smsSenderName();
-                $success_sent= $this->sendOverNexmo($telephone, $message, $sender_name);
-
+                $reservation->sendSMSPaymentAuthorizationRequest();
                 $data = [];
                 $code = 200;
                 $msg  = Call::AJAX_RESEND_PAYMENT_AUTHORIZATION_REQUEST_SMS_SUCCESS;

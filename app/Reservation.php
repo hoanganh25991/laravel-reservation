@@ -120,6 +120,8 @@ use App\OutletReservationSetting as Setting;
  * @method findSamePhoneSamePax
  * @see App\Reservation::scopeFindSamePhoneSamePax
  * @property mixed edit_url
+ * @property mixed no_payment_authorization_sms
+ * @property mixed no_confirmation_sms
  * @see App\Reservation::getEditUrlAttribute
  */
 class Reservation extends HoiModel {
@@ -1192,6 +1194,63 @@ class Reservation extends HoiModel {
 
             Log::info($msg);
         }
+    }
+
+    public function sendSMSPaymentAuthorizationRequest(){
+        $telephone    = $this->full_phone_number;
+        $message      = $this->confirmation_sms_ask_payment_authorization_message;
+        $sender_name  = Setting::smsSenderName();
+        $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);
+
+        if($success_sent){
+            // Increase count payment_authorization sms
+            $curr_no_sms = $this->no_payment_authorization_sms;
+            $no_sms = $curr_no_sms + 1;
+            // Save
+            $this->no_payment_authorization_sms = $no_sms;
+            $this->save();
+        }
+
+        return $success_sent;
+    }
+
+    public function sendSMSReservationReserved(){
+        $telephone    = $this->full_phone_number;
+        $message      = $this->sms_message_on_reserved;
+        $sender_name  = Setting::smsSenderName();
+        $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);
+
+        if($success_sent){}
+
+        return $success_sent;
+    }
+
+    public function sendSMSConfirmMsg(){
+        $telephone    = $this->full_phone_number;
+        $message      = $this->confirmation_sms_message;
+        $sender_name  = Setting::smsSenderName();
+
+        // Only sent confirmation sms, when customer already complete booking process
+        $reserved    = $this->status >= Reservation::RESERVED;
+        if(!$reserved) return;
+
+        $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);;
+        if($success_sent){
+            // Only update status, when current one is not reach reminder_sent
+            // And reservation completely reserved
+            $last_status = $this->status;
+            $reserved    = $this->status >= Reservation::RESERVED;
+            $less_then_reminder_sent = $last_status <= Reservation::REMINDER_SENT;
+            if($reserved && $less_then_reminder_sent){
+                $this->status = Reservation::REMINDER_SENT;
+                $curr_no = $this->no_confirmation_sms;
+                $no_sms  = $curr_no + 1;
+                $this->no_confirmation_sms = $no_sms;
+                $this->save();
+            }
+        }
+
+        return $success_sent;
     }
 
     public function scopeFromLast3Days($query){

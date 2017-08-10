@@ -37,17 +37,7 @@ class ReservationReservedListener{
          * Should Send Confirm SMS
          */
         if($reservation->shouldSendSMSOnReserved()){
-            $telephone    = $reservation->full_phone_number;
-            $message      = $reservation->sms_message_on_reserved;
-            $sender_name  = Setting::smsSenderName();
-            $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);
-
-            if(!$success_sent){
-                $msg = "Fail to send SMS on booking. ";
-                $msg .= $success_sent;
-
-                Log::info($msg);
-            }
+            $reservation->sendSMSReservationReserved();
         }
         
         /** Base on send email on booking config, decide send */
