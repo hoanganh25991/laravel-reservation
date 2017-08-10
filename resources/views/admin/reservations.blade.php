@@ -2,13 +2,13 @@
 @push('css')
     <link href="{{ url_mix('css/animate.css') }}" rel="stylesheet"/>
     <link href="{{ url('css/flatpickr_material_blue.css') }}" rel="stylesheet"/>
-    <link href="{{ url_mix('css/flex.css') }}" rel="stylesheet"/>
     <link href="{{ url('css/jquery.timepicker.min.css') }}" rel="stylesheet"/>
+    <link href="{{ url_mix('css/flex.css') }}" rel="stylesheet"/>
+    <link href="{{ url_mix('css/reservation.css') }}" rel="stylesheet"/>
     @include('icon')
 @endpush
 @section('content')
     <div id='app'>
-        {{--@include('admin.navigator')--}}
         <div class="row" style="margin: 0">
             <div>
                 @verbatim
@@ -141,10 +141,12 @@
                                     </div>
                                     <div class="flexRow">
                                         <div class="hoiH5">From </div>
-                                        <input class="jonthornton-time hoiInputBorder timingTime" id="timing_start" type="text"
+                                        <input class="jonthornton-time hoiInputBorder timingTime"
+                                               id="timing_start" type="text" onfocus="blur();"
                                                v-on:$change="_updateTimingTime('first_arrival_time', $event)"/>
                                         <div class="hoiH5" style="margin-left: 10px;">to</div>
-                                        <input class="jonthornton-time hoiInputBorder timingTime" id="timing_end" type="text"
+                                        <input class="jonthornton-time hoiInputBorder timingTime"
+                                               id="timing_end" type="text" onfocus="blur();"
                                                v-on:$change="_updateTimingTime('last_arrival_time', $event)"
                                         />
                                     </div>
