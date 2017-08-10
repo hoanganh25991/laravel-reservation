@@ -1167,35 +1167,39 @@ class Reservation extends HoiModel {
         return $msg;
     }
 
-    public function sendSMSWhenUserCancel(){
-        $telephone    = $this->full_phone_number;
-        $message      = $this->sms_message_on_user_cancel;
-        $sender_name  = Setting::smsSenderName();
-        $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);
+    /**
+     * Send Email
+     * At different state, we send to customer email base on reservation info
+     * All these functions should in Reservation Model
+     */
 
-        if(!$success_sent){
-            $msg = "Fail to send SMS on user cancel. ";
-            $msg .= $success_sent;
-
-            Log::info($msg);
-        }
-    }
-
+    /**
+     * Send Email when customer click cancel
+     * @return bool
+     */
     public function sendEmailWhenUserCancel(){
         $customer_name = "$this->salutation $this->first_name $this->last_name";
         $customer      = (object)['email' => $this->email, 'name' => $customer_name];
+
         // Send SMS
         try{
             Mail::to($customer)->send(new EmailOnUserCancel($this));
+            $success_sent = true;
         }catch(\Exception $e){
+            $success_sent = false;
             $msg = "Fail to send email on user cancel. ";
             $exception_msg = $e->getMessage();
             $msg .= "$exception_msg.";
-
             Log::info($msg);
         }
+
+        return $success_sent;
     }
-    
+
+    /**
+     * Send Email when staff void a payment in reservation
+     * @return bool
+     */
     public function sendEmailVoidEmail(){
         $customer_name = "$this->salutation $this->first_name $this->last_name";
         $customer      = (object)['email' => $this->email, 'name' => $customer_name];
@@ -1209,7 +1213,11 @@ class Reservation extends HoiModel {
         
         return $success_sent;
     }
-    
+
+    /**
+     * Send Email when staff charge a payment in reservation
+     * @return bool
+     */
     public function sendEmailChargeEmail(){
         $customer_name = "$this->salutation $this->first_name $this->last_name";
         $customer      = (object)['email' => $this->email, 'name' => $customer_name];
@@ -1224,6 +1232,30 @@ class Reservation extends HoiModel {
         return $success_sent;
     }
 
+    /**
+     * Send SMS when customer cancel
+     * @return bool
+     */
+    public function sendSMSWhenUserCancel(){
+        $telephone    = $this->full_phone_number;
+        $message      = $this->sms_message_on_user_cancel;
+        $sender_name  = Setting::smsSenderName();
+        $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);
+
+        if(!$success_sent){
+            $msg = "Fail to send SMS on user cancel. ";
+            $msg .= $success_sent;
+
+            Log::info($msg);
+        }
+
+        return $success_sent;
+    }
+
+    /**
+     * Send SMS when ask customer complete payment
+     * @return bool
+     */
     public function sendSMSPaymentAuthorizationRequest(){
         $telephone    = $this->full_phone_number;
         $message      = $this->confirmation_sms_ask_payment_authorization_message;
@@ -1242,6 +1274,10 @@ class Reservation extends HoiModel {
         return $success_sent;
     }
 
+    /**
+     * Send SMS when customer success booking
+     * @return bool
+     */
     public function sendSMSReservationReserved(){
         $telephone    = $this->full_phone_number;
         $message      = $this->sms_message_on_reserved;
@@ -1253,6 +1289,10 @@ class Reservation extends HoiModel {
         return $success_sent;
     }
 
+    /**
+     * Send SMS remind customer X hours before reservation time
+     * @return bool
+     */
     public function sendSMSConfirmationMsg(){
         $telephone    = $this->full_phone_number;
         $message      = $this->confirmation_sms_message;
@@ -1260,7 +1300,7 @@ class Reservation extends HoiModel {
 
         // Only sent confirmation sms, when customer already complete booking process
         $reserved    = $this->status >= Reservation::RESERVED;
-        if(!$reserved) return;
+        if(!$reserved) return false;
 
         $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);;
         if($success_sent){
@@ -1281,6 +1321,10 @@ class Reservation extends HoiModel {
         return $success_sent;
     }
 
+    /**
+     * Send SMS when staff void payment in reservation
+     * @return bool
+     */
     public function sendSMSVoidMsg(){
         $telephone   = $this->full_phone_number;
         $message     = $this->void_msg;
@@ -1293,6 +1337,10 @@ class Reservation extends HoiModel {
         return $success_sent;
     }
 
+    /**
+     * Send SMS when staff charge payment in reservation
+     * @return bool
+     */
     public function sendSMSChargeMsg(){
         $telephone   = $this->full_phone_number;
         $message     = $this->charge_msg;
