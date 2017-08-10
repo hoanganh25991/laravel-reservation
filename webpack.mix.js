@@ -27,6 +27,11 @@ mix.styles(['resources/assets/css/reservation.css'], css_output_dir + '/reservat
 mix.styles(['resources/assets/css/admin.css'], css_output_dir + '/admin.css');
 
 /**
+ * Css code for admin reservation page
+ */
+mix.styles(['resources/assets/css/admin-reservation.css'], css_output_dir + '/admin-reservation.css');
+
+/**
  * Css code handle animation
  */
 mix.styles(['resources/assets/css/animate.css'], css_output_dir + '/animate.css');

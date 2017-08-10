@@ -4,7 +4,7 @@
     <link href="{{ url('css/flatpickr_material_blue.css') }}" rel="stylesheet"/>
     <link href="{{ url('css/jquery.timepicker.min.css') }}" rel="stylesheet"/>
     <link href="{{ url_mix('css/flex.css') }}" rel="stylesheet"/>
-    <link href="{{ url_mix('css/reservation.css') }}" rel="stylesheet"/>
+    <link href="{{ url_mix('css/admin-reservation.css') }}" rel="stylesheet"/>
     @include('icon')
 @endpush
 @section('content')
