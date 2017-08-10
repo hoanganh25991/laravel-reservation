@@ -3,9 +3,9 @@
     <div id='app'>
         <div>
             <div id="settings_content" class="row">
-                <div id="reservations_content" class="col-md-2">
-                    <div class="navbar navbar-default" style="max-width: 200px;">
-                        <ul class="nav navbar-nav" id="go-container">
+                <div id="reservations_content" class="col-md-12">
+                    <div class="navbar navbar-default">
+                        <ul class="nav navbar-nav flexRow" id="go-container">
                             <li style="float: none"><a destination="weekly_sessions_view"  class="btn go">Weekly Sessions</a></li>
                             <li style="float: none"><a destination="special_sessions_view" class="btn go">Special Sessions</a></li>
                             <li style="float: none"><a destination="buffer"                class="btn go">Buffer</a></li>
@@ -15,10 +15,10 @@
                         </ul>
                     </div>
                 </div>
-                <div class="col-md-10" id="admin-step-container" style="position: relative; height: 100vh; overflow-y: scroll; overflow-x: hidden;">
+                <div class="col-md-12" id="admin-step-container" style="position: relative; height: 100vh; overflow-y: scroll; overflow-x: hidden;">
                     <div id="weekly_sessions_view" class="modal-content admin-step">
                         <div class="modal-header">
-                            <span class="h1">Weekly Sessions View</span>
+                            <span class="h2">Weekly Sessions View</span>
                             <button destination="weekly_sessions" class="btn bg-info pull-right go">Edit</button>
                         </div>
                         <div class="modal-body">
@@ -27,7 +27,7 @@
                     </div>
                     <div id="weekly_sessions" class="modal-content admin-step">
                         <div class="modal-header">
-                            <span class="h1">Weekly Sessions</span>
+                            <span class="h2">Weekly Sessions</span>
                             <button v-on:click="_addWeeklySession"
                                     class="btn bg-info pull-right"
                                     style="border-radius: 20px">Add Session</button>
@@ -42,7 +42,7 @@
                     </div>
                     <div id="special_sessions_view" class="modal-content admin-step">
                         <div class="modal-header">
-                            <span class="h1">Special Sessions View</span>
+                            <span class="h2">Special Sessions View</span>
                             <button destination="special_sessions" class="btn bg-info pull-right go">Edit</button>
                         </div>
                         <div class="modal-body">
@@ -51,7 +51,7 @@
                     </div>
                     <div id="special_sessions" class="modal-content admin-step">
                         <div class="modal-header">
-                            <span class="h1">Special Sessions</span>
+                            <span class="h2">Special Sessions</span>
                             <button v-on:click="_addSpecialSession"
                                     class="btn bg-info pull-right" style="border-radius: 20px">Add Session</button>
                         </div>
@@ -65,7 +65,7 @@
                     </div>
                     <div id="buffer" class="modal-content admin-step">
                         <div class="modal-header">
-                            <h1>Buffer</h1>
+                            <span class="h2">Buffer</span>
                         </div>
                         <div class="modal-body">
                             @verbatim
@@ -140,7 +140,7 @@
                     <div id="notification" class="modal-content admin-step">
                         @verbatim
                         <div class="modal-header">
-                            <h1>Notification</h1>
+                            <span class="h2">Notification</span>
                         </div>
                         <div class="modal-body">
                             <div class="row">
@@ -211,7 +211,7 @@
                     <div id="settings" class="modal-content admin-step">
                         @verbatim
                         <div class="modal-header">
-                            <h1>Settings</h1>
+                            <span class="h2">Settings</span>
                         </div>
                         <div class="modal-body">
                             <div class="row">
@@ -298,7 +298,7 @@
                     <div id="deposit" class="modal-content admin-step">
                         @verbatim
                         <div class="modal-header">
-                            <h1>Payment Authorization</h1>
+                            <span class="h2">Payment Authorization</span>
                         </div>
                         <div class="modal-body">
                             <div class="row">
