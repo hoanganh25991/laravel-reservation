@@ -260,44 +260,26 @@ class ReservationController extends HoiController{
 
                     if($justVoided){
                         // Notify user what happen both SMS & email
-                        $telephone   = $reservation->full_phone_number;
-                        $message     = $reservation->void_msg;
-                        $sender_name = Setting::smsSenderName();
-
-                        $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);;
-
-                        // Send email
-                        $customer_name = "$reservation->salutation $reservation->first_name $reservation->last_name";
-                        $customer      = (object)['email' => $reservation->email, 'name' => $customer_name];
-                        try{
-                            Mail::to($customer)->send(new EmailOnVoid($reservation));
-                        }catch(\Exception $e){}
+                        $reservation->sendSMSVoidMsg();
+                        $reservation->sendEmailVoidEmail();
                     }
 
                     $justCharged = $lastPaymentStatus == Reservation::PAYMENT_PAID
                                   && $reservation->payment_status == Reservation::PAYMENT_CHARGED;
+
                     if($justCharged){
                         // Notify user what happen both SMS & email
-                        $telephone   = $reservation->full_phone_number;
-                        $message     = $reservation->charge_msg;
-                        $sender_name = Setting::smsSenderName();
-
-                        $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);;
-
-                        // Send email
-                        $customer_name = "$reservation->salutation $reservation->first_name $reservation->last_name";
-                        $customer      = (object)['email' => $reservation->email, 'name' => $customer_name];
-                        try{
-                            Mail::to($customer)->send(new EmailOnCharge($reservation));
-                        }catch(\Exception $e){}
+                        $reservation->sendSMSChargeMsg();
+                        $reservation->sendEmailChargeEmail();
                     }
 
                     $justStaffCancelled = $lastReservationStatus != Reservation::STAFF_CANCELLED
                                          && $reservation->status == Reservation::STAFF_CANCELLED;
 
                     if($justStaffCancelled){
-                        $reservation->autoSendSMSEmailConfirmWhenUserCancel();
-                        $reservation->autoRefundWhenPaymentAlreadyPaid();
+                        $reservation->refundWhenPaymentAlreadyPaid();
+                        $reservation->sendSMSWhenUserCancel();
+                        $reservation->sendEmailWhenUserCancel();
                     }
                 }
 

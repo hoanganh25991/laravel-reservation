@@ -602,7 +602,7 @@ class BookingController extends HoiController {
 
                 try{
                     // Refund the payment if needed
-                    $reservation->autoRefundWhenPaymentAlreadyPaid();
+                    $reservation->refundWhenPaymentAlreadyPaid();
                     // Reuse what checked inside submit booking
                     $req->merge(['type' => Call::AJAX_SUBMIT_BOOKING,
                                  'last_confirm_id' => $reservation->confirm_id]);
@@ -640,9 +640,9 @@ class BookingController extends HoiController {
                 $reservation->status = Reservation::USER_CANCELLED;
                 $reservation->save();
                 // Refund the payment if needed
-                $reservation->autoRefundWhenPaymentAlreadyPaid();
+                $reservation->refundWhenPaymentAlreadyPaid();
                 
-                $reservation->autoSendSMSEmailConfirmWhenUserCancel();
+                $reservation->sendSMSEmailConfirmWhenUserCancel();
 
                 $data = compact('reservation');
                 $code = 200;

@@ -261,7 +261,7 @@ class AdminController extends HoiController {
                     break;
                 }
 
-                $success_sent = $reservation->sendSMSConfirmMsg();
+                $success_sent = $reservation->sendSMSConfirmationMsg();
                 
                 if($success_sent){
                     $data = [];

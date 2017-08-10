@@ -1053,7 +1053,7 @@ class Reservation extends HoiModel {
      * Refund in case customer edit this reservation
      * Create completely new one
      */
-    public function autoRefundWhenPaymentAlreadyPaid(){
+    public function refundWhenPaymentAlreadyPaid(){
         $payment_authorization_paid = $this->payment_status == Reservation::PAYMENT_PAID;
         if($payment_authorization_paid){
             // Auto void it
@@ -1145,9 +1145,9 @@ class Reservation extends HoiModel {
         return $msg;
     }
 
-    public function autoSendSMSEmailConfirmWhenUserCancel(){
-        $this->autoSendSMSWhenUserCancel();
-        $this->autoSendEmailWhenUserCancel();
+    public function sendSMSEmailConfirmWhenUserCancel(){
+        $this->sendSMSWhenUserCancel();
+        $this->sendEmailWhenUserCancel();
     }
 
     public function getSMSMessageOnUserCancelAttribute(){
@@ -1167,7 +1167,7 @@ class Reservation extends HoiModel {
         return $msg;
     }
 
-    public function autoSendSMSWhenUserCancel(){
+    public function sendSMSWhenUserCancel(){
         $telephone    = $this->full_phone_number;
         $message      = $this->sms_message_on_user_cancel;
         $sender_name  = Setting::smsSenderName();
@@ -1181,7 +1181,7 @@ class Reservation extends HoiModel {
         }
     }
 
-    public function autoSendEmailWhenUserCancel(){
+    public function sendEmailWhenUserCancel(){
         $customer_name = "$this->salutation $this->first_name $this->last_name";
         $customer      = (object)['email' => $this->email, 'name' => $customer_name];
         // Send SMS
@@ -1194,6 +1194,34 @@ class Reservation extends HoiModel {
 
             Log::info($msg);
         }
+    }
+    
+    public function sendEmailVoidEmail(){
+        $customer_name = "$this->salutation $this->first_name $this->last_name";
+        $customer      = (object)['email' => $this->email, 'name' => $customer_name];
+        
+        try{
+            Mail::to($customer)->send(new EmailOnVoid($this));
+            $success_sent = true;
+        }catch(\Exception $e){
+            $success_sent = false;
+        }
+        
+        return $success_sent;
+    }
+    
+    public function sendEmailChargeEmail(){
+        $customer_name = "$this->salutation $this->first_name $this->last_name";
+        $customer      = (object)['email' => $this->email, 'name' => $customer_name];
+        
+        try{
+            Mail::to($customer)->send(new EmailOnCharge($this));
+            $success_sent = true;
+        }catch(\Exception $e){
+            $success_sent = false;
+        }
+        
+        return $success_sent;
     }
 
     public function sendSMSPaymentAuthorizationRequest(){
@@ -1225,7 +1253,7 @@ class Reservation extends HoiModel {
         return $success_sent;
     }
 
-    public function sendSMSConfirmMsg(){
+    public function sendSMSConfirmationMsg(){
         $telephone    = $this->full_phone_number;
         $message      = $this->confirmation_sms_message;
         $sender_name  = Setting::smsSenderName();
@@ -1249,6 +1277,30 @@ class Reservation extends HoiModel {
                 $this->save();
             }
         }
+
+        return $success_sent;
+    }
+
+    public function sendSMSVoidMsg(){
+        $telephone   = $this->full_phone_number;
+        $message     = $this->void_msg;
+        $sender_name = Setting::smsSenderName();
+
+        $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);
+
+        if($success_sent){}
+
+        return $success_sent;
+    }
+
+    public function sendSMSChargeMsg(){
+        $telephone   = $this->full_phone_number;
+        $message     = $this->charge_msg;
+        $sender_name = Setting::smsSenderName();
+
+        $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);
+
+        if($success_sent){}
 
         return $success_sent;
     }

@@ -67,11 +67,7 @@ class HoiJobsForCronJobs {
 
                 $need_send_reminder_reservations
                     ->each(function(Reservation $reservation){
-                        $telephone   = $reservation->full_phone_number;
-                        $message     = $reservation->confirmation_sms_message;
-                        $sender_name = Setting::smsSenderName();
-
-                        $success_sent = $this->sendOverNexmo($telephone, $message, $sender_name);
+                        $success_sent = $reservation->sendSMSConfirmationMsg();
 
                         if($success_sent === true){
                             Log::info('Success send sms to reminder');
@@ -83,11 +79,6 @@ class HoiJobsForCronJobs {
                             Log::info($error_info);
                         }
                     });
-                
-                //This is HARD
-                //Reset config for next call
-                //Setting::$all_config = null;
-
             });
         });
     }
