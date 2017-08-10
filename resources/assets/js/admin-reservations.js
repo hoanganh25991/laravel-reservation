@@ -1353,15 +1353,15 @@ class AdminReservations {
 					let {new_reservation: currNewReservation, outlet} = this;
 					let earlyToday = moment().set({hours: 0, minutes: 0, seconds: 0});
 					let pickDate = moment(date_str, 'YYYY-MM-DD');
-          let maxAllowedDay = +outlet.max_days_in_advance + 1;
-					let maxDate = earlyToday.clone().add(maxAllowedDay, 'days');
+					let maxDate = earlyToday.clone().add(+outlet.max_days_in_advance, 'days');
 
-					let inRange = pickDate.isAfter(earlyToday) && pickDate.isBefore(maxDate);
-					if(inRange){
+					let inRange = pickDate.isSameOrAfter(earlyToday, 'day') && pickDate.isSameOrBefore(maxDate, 'day');
+
+          if(inRange){
             let showing_date_str = moment(date_str, 'YYYY-MM-DD').format('DD/MM/YYYY');
 						this.new_reservation = Object.assign(currNewReservation, {date_str, showing_date_str});
 					}else{
-						window.alert(`Pick date should in available range. Max days in advance: ${outlet.max_days_in_advance}`);
+						window.alert(`Please pick date in available range. Max days in advance: ${outlet.max_days_in_advance}`);
 					}
 				},
 
