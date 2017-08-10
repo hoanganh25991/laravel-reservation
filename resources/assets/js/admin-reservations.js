@@ -2044,7 +2044,7 @@ class AdminReservations {
           toast,
         })
 
-        // store.dispatch({type: REFETCHING_DATA})
+        store.dispatch({type: REFETCHING_DATA})
         break;
       }
       case AJAX_FIND_CUSTOMER_SAME_PHONE_NOT_FOUND:{

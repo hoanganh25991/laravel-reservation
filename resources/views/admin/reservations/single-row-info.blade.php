@@ -73,7 +73,11 @@
         </div>
         <!--In case of payment required, show resend SMS Msg      -->
         <div v-show="reservation.status == 50 && reservation.payment_status < 100">
+          <p v-if="reservation.no_payment_authorization_sms > 0">
+            Request sms sent: @{{ reservation.no_payment_authorization_sms }} times
+          </p>
           <button class="btn btn-default marginTop20" v-on:click="_resendPaymentRequiredAuthorization(reservation)" style="width: 100%;"
+                  :disabled="reservation.no_payment_authorization_sms >= 3"
                   style="">Re send payment <br/>authorization request SMS</button>
         </div>
     </td>
