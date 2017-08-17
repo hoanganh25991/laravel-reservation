@@ -206,9 +206,9 @@ class AdminSettings {
 				 */
 				console.time('$ bind time-picker');
 				$('.jonthornton-time').timepicker({
-					//selectOnBlur: true,
 					step: 30,
-					disableTextInput: true
+					disableTextInput: true,
+          useSelect: true,
 				})
 				.on('change', function(){
 					let $i = $(this);
