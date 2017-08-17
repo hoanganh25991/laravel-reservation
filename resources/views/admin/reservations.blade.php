@@ -130,15 +130,13 @@
                             <div style="width: 400px;">
                                 <div class="divBorder divPadding">
                                     <div class="hoiH3">Disallow any new reservation on</div>
-                                    <div class="flexRow">
-                                        <label class="flexRow flexStart" style="font-weight: normal">
-                                            <input id="special_session_date" type="text" placeholder="Pick date" style="height: 36px;" class="hoiInputBorder"
-                                                   v-on:change="_updateSpecialSessionDate($event.target.value)"
-                                            />
-                                            <div class="calendarIcon" style="margin-left: -36px"></div>
-                                        </label>
-
-                                    </div>
+                                    <label class="flexRow" style="font-weight: normal">
+                                        <input id="special_session_date" type="text" placeholder="Pick date" style="height: 36px;" class="hoiInputBorder"
+                                               v-on:change="_updateSpecialSessionDate($event.target.value)"
+                                        />
+                                        <div class="calendarIcon" style="margin-left: -36px"></div>
+                                    </label>
+                                    <br/>
                                     <div class="flexRow">
                                         <div class="hoiH5">From </div>
                                         <input class="jonthornton-time hoiInputBorder timingTime"
@@ -154,7 +152,7 @@
                                     <button class="btn btn-default btn-block"
                                         v-on:click="_createSpecialSession"
                                     >Confirm</button>
-                                    <p class="small">To undo this, please access from Settings > Special Sessions</p>
+                                    <p class="small text-center text-muted">To undo this, please access from Settings > Special Sessions</p>
                                 </div>
                             </div>
                         </div>
