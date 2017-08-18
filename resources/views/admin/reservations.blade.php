@@ -130,11 +130,11 @@
                             <div style="width: 400px;">
                                 <div class="divBorder divPadding">
                                     <div class="hoiH3">Disallow any new reservation on</div>
-                                    <label class="flexRow" style="font-weight: normal">
-                                        <input id="special_session_date" type="text" placeholder="Pick date" style="height: 36px;" class="hoiInputBorder"
+                                    <label class="flexRow" style="font-weight: normal; z-index: 2">
+                                        <input id="special_session_date" type="text" placeholder="Pick date" style="height: 36px; " class="hoiInputBorder"
                                                v-on:change="_updateSpecialSessionDate($event.target.value)"
                                         />
-                                        <div class="calendarIcon" style="margin-left: -36px"></div>
+                                        <span class="calendarIcon" style="margin-left: -44px; z-index: 1"></span>
                                     </label>
                                     <br/>
                                     <div class="flexRow">
