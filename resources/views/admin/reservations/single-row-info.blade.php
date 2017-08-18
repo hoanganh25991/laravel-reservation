@@ -44,11 +44,11 @@
     <td style="width: 150px;">
         @include('admin.reservations.status')
         <div class="marginTop20">
-            <div v-if="reservation.no_confirmation_sms > 0" class="text-muted">Reminder sms sent: @{{ reservation.no_confirmation_sms }} times</div>
             <button class="btn btn-default" v-on:click="_sendReminderSMS(reservation)" style="width: 100%;"
                     :disabled="_isDisableSendReminderSMS(reservation)"
                     v-if="reservation.status >= 100"
                     style="">Send Reminder SMS</button>
+            <p v-if="reservation.no_confirmation_sms > 0" class="text-muted text-center">Reminder sms sent: @{{ reservation.no_confirmation_sms }} times</p>
         </div>
     </td>
     <td>
@@ -75,10 +75,10 @@
         </div>
         <!--In case of payment required, show resend SMS Msg      -->
         <div v-show="reservation.status == 50 && reservation.payment_status < 100" >
-            <div v-if="reservation.no_payment_authorization_sms > 0" class="text-muted" >Request sms sent: @{{ reservation.no_payment_authorization_sms }} times</div>
             <button class="btn btn-default" v-on:click="_resendPaymentRequiredAuthorization(reservation)" style="width: 100%;"
                     :disabled="reservation.no_payment_authorization_sms >= 3"
                     style="">Re send payment <br/>authorization request SMS</button>
+            <p v-if="reservation.no_payment_authorization_sms > 0" class="text-muted text-center">Request sms sent: @{{ reservation.no_payment_authorization_sms }} times</p>
         </div>
     </td>
 </tr>
