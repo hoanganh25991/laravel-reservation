@@ -123,6 +123,8 @@ use App\OutletReservationSetting as Setting;
  * @property mixed no_payment_authorization_sms
  * @property mixed no_confirmation_sms
  * @see App\Reservation::getEditUrlAttribute
+ * @property min_hours_in_advance_to_allow_edit
+ * @see App\Reservation::getMinHoursInAdvanceToAllowEditAttribute
  */
 class Reservation extends HoiModel {
 
@@ -190,6 +192,7 @@ class Reservation extends HoiModel {
         'paypal_currency',
         'is_edited_by_customer',
         'full_name',
+        'min_hours_in_advance_to_allow_edit'
     ];
 
     /**
@@ -984,6 +987,12 @@ class Reservation extends HoiModel {
         ]);
         return $query;
     }
+
+	public function getMinHoursInAdvanceToAllowEditAttribute(){
+		$buffer_config = Setting::bufferConfig($this->outlet_id);
+		$min_hours_customer_allowed_edit = $buffer_config(Setting::MIN_HOURS_IN_ADVANCE_TO_ALLOW_CANCELLATION_AMENDMENT_PRIOR_TO_RESERVATION_TIME);
+		return $min_hours_customer_allowed_edit;
+	}
 
     /**
      * Check if with current condition of setting
