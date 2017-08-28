@@ -5,6 +5,7 @@ namespace App;
 use App\Traits\SendSMS;
 use Carbon\Carbon;
 use App\Traits\ApiUtils;
+use App\Mail\EmailOnVoid;
 use App\Traits\ShortenUrl;
 use App\Traits\CleanString;
 use Illuminate\Validation\Rule;
