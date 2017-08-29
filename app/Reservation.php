@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use App\Traits\ApiUtils;
 use App\Mail\EmailOnVoid;
 use App\Traits\ShortenUrl;
+use App\Mail\EmailOnCharge;
 use App\Traits\CleanString;
 use Illuminate\Validation\Rule;
 use App\Mail\EmailOnUserCancel;
