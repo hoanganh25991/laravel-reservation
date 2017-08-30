@@ -559,14 +559,17 @@ class AdminReservations {
 			methods: {
 				_reservationDetailDialog(e, reservation){
 					try{
+            // Prevent show dialog if click on row
 						let tr = this._findTrElement(e);
             if(tr == null){
               return;
             }
 
-            let status = reservation.status;
-            let statusAsUserStaffCancelledOrArrived = status == RESERVATION_ARRIVED || status == RESERVATION_USER_CANCELLED || status == RESERVATION_STAFF_CANCELLED;
-            if(statusAsUserStaffCancelledOrArrived){
+            // Prevent show dialog if this reservation
+            // No longer allowed to edit
+            let {status} = reservation;
+            let canEdit =  this._isAllowedToEdit(status);
+            if(!canEdit){
               return;
             }
 
@@ -892,8 +895,9 @@ class AdminReservations {
 
 				_autoSave(reservation = null, key = null){
 					let statusKey = key == 'status';
-          let isStaffCancelledStatus = reservation.status == RESERVATION_STAFF_CANCELLED;
-          let statusCase = statusKey && isStaffCancelledStatus;
+          let {status} = reservation;
+          let statusAsFinishedCase = this._statusAsFinishedCase(status);
+          let statusCase = statusKey && statusAsFinishedCase;
           
           if(statusCase){
             let confirm = window.confirm('Are you sure you want to cancel this reservation? This cannot be undone.');
@@ -1313,17 +1317,59 @@ class AdminReservations {
 
           // Disable click on reservation
           // Just by update class style as pointer-events -> none
-          if(!this._isAllowedToEdit(status)){
+          let disabled = this._statusAsAmendmented(status) && this._statusAsFinishedCase(status);
+          if(disabled){
             className = `${className} disabled text-muted`;
           }
 
           return className;
         },
 
+        /**
+         * This function used for serveral different check on status of reservation
+         * To allow edit or not, edit on status is DIFFERENT from edit on ROW
+         * @param status
+         * @returns {boolean}
+         * @private
+         */
+        _statusAsFinishedCase(status){
+          // Can simple write it as status < 0
+          // But check on single one still better
+          // let statusAsFinishedCase = status == RESERVATION_NO_SHOW || status == RESERVATION_USER_CANCELLED || status == RESERVATION_STAFF_CANCELLED
+          //   || status == RESERVATION_ARRIVED;
+          let statusAsFinishedCase = status == RESERVATION_NO_SHOW || status == RESERVATION_USER_CANCELLED || status == RESERVATION_STAFF_CANCELLED;
+          return statusAsFinishedCase;
+        },
+
+        _statusAsAmendmented(status){
+          let amendmented = status == RESERVATION_AMENDMENTED;
+          return amendmented;
+        },
+
+        _statusAsPaymentNotCompleted(status){
+          let paymentNotCompleted = status == RESERVATION_REQUIRED_PAYMENT;
+          return paymentNotCompleted;
+        },
+
+        _statusAsSuccessBooking(status){
+          return status >= RESERVATION_RESERVED;
+        },
+        /**
+         When should disable change on status
+             1. When reservation not complete payment
+             Any change on this reservation issss dangerous, make it from uncomplete > free complete
+             Dont have to pay anything
+             2. When status pump into "No Show", "User Cancelled", "Staff Cancelled" dont allow any change
+         * @param status
+         * @returns {boolean}
+         * @private
+         */
         _isAllowedToEdit(status){
-          // let canEdit = status != RESERVATION_AMENDMENTED && status != RESERVATION_REQUIRED_PAYMENT;
-          let canEdit = status != RESERVATION_AMENDMENTED;
-          return canEdit;
+          let amendmented = this._statusAsAmendmented();
+          let paymentNotCompleted = this._statusAsPaymentNotCompleted(status);
+          let statusAsFinishedCase = this._statusAsFinishedCase(status);
+          let disabled = amendmented || paymentNotCompleted || statusAsFinishedCase;
+          return !disabled;
         },
 
         _sendReminderSMS(reservation){
@@ -1449,6 +1495,9 @@ class AdminReservations {
         },
 
         _isDisableSendReminderSMS(reservation){
+          let {status} = reservation;
+          let successBooking = status >= RESERVATION_RESERVED;
+
           let isDiabled = reservation.status == RESERVATION_USER_CANCELLED || reservation.status == RESERVATION_STAFF_CANCELLED || reservation.status == RESERVATION_ARRIVED;
           return isDiabled;
         },
@@ -1475,6 +1524,55 @@ class AdminReservations {
             paxArray.push(i)
           }
           return paxArray;
+        },
+
+        /**
+         * Logic on status is DIFFERENT on logic on row
+         * Manually check, not REUSED which cause a lot of bug
+         * Go from status -300 -200 -100 50 75 100 200 300
+         * To check on each different status, which one is allowed to edit
+         * @param reservation
+         * @private
+         */
+        _allowChangeStatus(reservation, rowStatus){
+          rowStatus = +rowStatus;
+          let {status} = reservation;
+          // When status bump into finished case
+          // Nothing to compare with rowStatus
+          // Staff dont have permission to change
+          let statusAsFinishedCase = this._statusAsFinishedCase(status);
+          if(statusAsFinishedCase){
+            return false;
+          }
+
+          // Payment required
+          if(status == RESERVATION_REQUIRED_PAYMENT){
+            let isArrivedRowStatus = rowStatus == RESERVATION_ARRIVED;
+            if(isArrivedRowStatus){
+              return true;
+            }
+
+            return false;
+          }
+
+          // Amendmented
+          let statusAsAmendmented = this._statusAsAmendmented(status);
+          if(statusAsAmendmented){
+            return false;
+          }
+
+          // Reserved, reminder sent, confirmation, arrived
+          let statusAsSuccessBooking = this._statusAsSuccessBooking(status);
+          if(statusAsSuccessBooking){
+            let rowStatusAsFinshedCase = this._statusAsFinishedCase(rowStatus);
+            let largerThanStatus = rowStatus >= status;
+            return largerThanStatus || rowStatusAsFinshedCase;
+          }
+        },
+
+        _shouldDisabledEditStatus(status, rowStatus){
+          let canEdit = this._allowChangeStatus(status, rowStatus)
+          return !canEdit;
         }
 			}
 		});
