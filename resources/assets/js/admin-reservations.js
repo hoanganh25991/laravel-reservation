@@ -568,8 +568,8 @@ class AdminReservations {
             // Prevent show dialog if this reservation
             // No longer allowed to edit
             let {status} = reservation;
-            let canEdit =  this._isAllowedToEdit(status);
-            if(!canEdit){
+            let shouldShow =  this._shouldShowDetailDialog(status);
+            if(!shouldShow){
               return;
             }
 
@@ -1301,24 +1301,26 @@ class AdminReservations {
 
           let className = 'active';
 
+          // Can edit on row
+          let canEditOnRow = this._isAllowedToEditOnRow(status);
+
           // Only update class for 'allowed to edit' reservation
-          if(this._isAllowedToEdit(status)){
+          if(canEditOnRow) {
             // Update className in different case
             // ClassName as override
             // Bcs we only use background-color
-            if(!staff_read_state){
+            if(!staff_read_state) {
               className = '';
             }
 
-            if(is_edited_by_customer){
+            if(is_edited_by_customer) {
               className = 'hightlight';
             }
           }
 
           // Disable click on reservation
           // Just by update class style as pointer-events -> none
-          let disabled = this._statusAsAmendmented(status) && this._statusAsFinishedCase(status);
-          if(disabled){
+          if(!canEditOnRow){
             className = `${className} disabled text-muted`;
           }
 
@@ -1370,6 +1372,28 @@ class AdminReservations {
           let statusAsFinishedCase = this._statusAsFinishedCase(status);
           let disabled = amendmented || paymentNotCompleted || statusAsFinishedCase;
           return !disabled;
+        },
+
+        _isAllowedToEditOnRow(status){
+          // In case of payment not complete
+          // Still let him edit on this payment
+          let canEditOnRow = this._isAllowedToEdit(status) || this._statusAsPaymentNotCompleted(status);
+          return canEditOnRow;
+        },
+
+        _isAllowSendReminderSMS(status){
+          let successBooking = status >= RESERVATION_RESERVED;
+          let statusAsFinshedCase = this._statusAsFinishedCase(status);
+          let statusAsArrived = status == RESERVATION_ARRIVED;
+          let allowed = successBooking && !(statusAsFinshedCase || statusAsArrived);
+          return allowed;
+        },
+
+        _shouldShowDetailDialog(status){
+          // In case of payment not complete
+          // Still let him edit on this payment
+          let shouldShow = this._isAllowedToEdit(status) || this._statusAsPaymentNotCompleted(status);
+          return shouldShow;
         },
 
         _sendReminderSMS(reservation){
@@ -1496,10 +1520,8 @@ class AdminReservations {
 
         _isDisableSendReminderSMS(reservation){
           let {status} = reservation;
-          let successBooking = status >= RESERVATION_RESERVED;
-
-          let isDiabled = reservation.status == RESERVATION_USER_CANCELLED || reservation.status == RESERVATION_STAFF_CANCELLED || reservation.status == RESERVATION_ARRIVED;
-          return isDiabled;
+          let allowed = this._isAllowSendReminderSMS(status);
+          return !allowed;
         },
 
         _resendPaymentRequiredAuthorization(reservation){
@@ -1534,7 +1556,7 @@ class AdminReservations {
          * @param reservation
          * @private
          */
-        _allowChangeStatus(reservation, rowStatus){
+        _isAllowChangeStatus(reservation, rowStatus){
           rowStatus = +rowStatus;
           let {status} = reservation;
           // When status bump into finished case
@@ -1565,13 +1587,13 @@ class AdminReservations {
           let statusAsSuccessBooking = this._statusAsSuccessBooking(status);
           if(statusAsSuccessBooking){
             let rowStatusAsFinshedCase = this._statusAsFinishedCase(rowStatus);
-            let largerThanStatus = rowStatus >= status;
-            return largerThanStatus || rowStatusAsFinshedCase;
+            let rowStatusAsSuccessBooking = this._statusAsSuccessBooking(rowStatus);
+            return rowStatusAsSuccessBooking || rowStatusAsFinshedCase;
           }
         },
 
         _shouldDisabledEditStatus(status, rowStatus){
-          let canEdit = this._allowChangeStatus(status, rowStatus)
+          let canEdit = this._isAllowChangeStatus(status, rowStatus)
           return !canEdit;
         }
 			}
