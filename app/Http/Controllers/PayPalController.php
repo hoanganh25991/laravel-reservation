@@ -209,6 +209,9 @@ class PayPalController extends HoiController{
                 break;
 
             default:
+				// This case happens bcs transaction status now, may be authorization_expired
+				// So just self void this transaction in our database
+				$result = (object)["success" => true];
                 break;
         }
 
@@ -312,7 +315,10 @@ class PayPalController extends HoiController{
                 break;
 
             default:
-                break;
+		        // This case happens bcs transaction status now, may be authorization_expired
+		        // So just self void this transaction in our database
+		        $result = (object)["success" => true];
+		        break;
         }
 
         if(isset($result) && $result->success){
