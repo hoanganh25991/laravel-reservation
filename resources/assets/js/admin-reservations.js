@@ -1570,7 +1570,8 @@ class AdminReservations {
           // Payment required
           if(status == RESERVATION_REQUIRED_PAYMENT){
             let isArrivedRowStatus = rowStatus == RESERVATION_ARRIVED;
-            if(isArrivedRowStatus){
+            let isStaffCancelled   = rowStatus == RESERVATION_STAFF_CANCELLED;
+            if(isArrivedRowStatus || isStaffCancelled){
               return true;
             }
 
