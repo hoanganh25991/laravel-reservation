@@ -342,5 +342,49 @@ class PayPalController extends HoiController{
 
         return false;
     }
+	
+	public static function info($trasaction_id){
+		// Check status to call void or refund
+		$paypal_controller = new PayPalController;
+		$paypal_controller->initGateway();
+		
+		$transaction = $paypal_controller->gateway->transaction()->find($trasaction_id);
+		
+		if(is_null($transaction)){
+			throw new \Exception('Find transaction fail.');
+		}
+
+
+		$info = [
+			"id"       => $transaction->id,
+		    "status"   => $transaction->status,
+		    "amount"   => $transaction->amount,
+		    "currency" => $transaction->currencyIsoCode,
+		];
+
+		$paypal = $transaction->paypalDetails;
+		if(isset($paypal)){
+			$details = [
+				"payerEmail" => $paypal->payerEmail,
+				"paymentId" => $paypal->paymentId,
+				"authorizationId" => $paypal->authorizationId,
+				"imageUrl" => $paypal->imageUrl,
+				"debugId" => $paypal->debugId,
+				"payerId" => $paypal->payerId,
+				"payerFirstName" => $paypal->payerFirstName,
+				"payerLastName" => $paypal->payerLastName,
+				"payerStatus" => $paypal->payerStatus,
+				"sellerProtectionStatus" => $paypal->sellerProtectionStatus,
+				"captureId" => $paypal->captureId,
+				"refundId" => $paypal->refundId,
+				"transactionFeeAmount" => $paypal->transactionFeeAmount,
+				"transactionFeeCurrencyIsoCode" => $paypal->transactionFeeCurrencyIsoCode,
+			];
+
+			$info["details"] = $details;
+		}
+		
+		return $info;
+	}
 
 }

@@ -321,6 +321,19 @@ class AdminController extends HoiController {
                 $msg  = Call::AJAX_FIND_CUSTOMER_SAME_PHONE_SUCCESS;
                 $response = $this->apiResponse($data, $code, $msg);  
                 break;
+	        case Call::AJAX_FIND_PAYMENT_INFO:
+		        $confirm_id = $req->json('confirm_id');
+		        $reservation = Reservation::findByConfirmId($confirm_id);
+				$transaction_id = $reservation->payment_id;
+		        $transaction = null;
+				if(!is_null($transaction_id)){
+					$transaction = PayPalController::info($transaction_id);
+				}
+				$data = compact("reservation", "transaction");
+				$code = 200;
+				$msg  = Call::AJAX_FIND_PAYMENT_INFO_SUCCESS;
+		        $response = $this->apiResponse($data, $code, $msg);
+				break;
             default:
                 $data = [];
                 $code = 200;
