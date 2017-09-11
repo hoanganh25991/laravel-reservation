@@ -221,7 +221,7 @@ class PayPalController extends HoiController{
 
         }else{
 
-            $msg = "Void transaction fail. Transaction id $trasaction_id. ";
+            $msg = "Void transaction fail. Transaction id $trasaction_id. Status: $transaction->status";
 
             try{
 
